@@ -6,6 +6,7 @@
   "main": "index.js",
   "scripts": {
     "start": "bsb -w",
+    "build": "bsb",
     "clean": "bsb -clean-world",
     "test": "echo \"Error: no test specified\" && exit 1",
     "pack-for-es6-less-browsers": "rollup --input ./lib/es6_global/src/Main.js --format iife --output docs/all.js"
@@ -22,7 +23,7 @@
   },
   "homepage": "https://github.com/reasonml-community/Mareo#readme",
   "devDependencies": {
-    "bs-platform": "^3.0.0",
+    "bs-platform": "^7.3.2",
     "rollup": "^0.43.0"
   }
 }
