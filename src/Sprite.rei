@@ -16,10 +16,10 @@ type sprite_params = {
 /* Concrete sprite created to visually represent an object */
 type sprite = {
   mutable params: sprite_params,
-  context: Dom_html.canvasRenderingContext2D,
+  context: Html.canvasRenderingContext2D,
   frame: ref(int),
   ticks: ref(int),
-  mutable img: Dom_html.imageElement
+  mutable img: Html.imageElement
 };
 
 /* Sets up a sprite to create */
@@ -28,13 +28,13 @@ let setup_sprite:
   sprite_params;
 
 /* Creates a sprite given the actor type */
-let make: (Actors.spawn_typ, Actors.dir_1d, Dom_html.canvasRenderingContext2D) => sprite;
+let make: (Actors.spawn_typ, Actors.dir_1d, Html.canvasRenderingContext2D) => sprite;
 
 /* Make a background */
-let make_bgd: Dom_html.canvasRenderingContext2D => sprite;
+let make_bgd: Html.canvasRenderingContext2D => sprite;
 
 /* Make a particle corresponding to the given type */
-let make_particle: (Actors.part_typ, Dom_html.canvasRenderingContext2D) => sprite;
+let make_particle: (Actors.part_typ, Html.canvasRenderingContext2D) => sprite;
 
 /* Transform an enemy sprite based on direction */
 let transform_enemy: (Actors.enemy_typ, sprite, Actors.dir_1d) => unit;

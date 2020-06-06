@@ -15,10 +15,10 @@ type sprite_params = {
 
 type sprite = {
   mutable params: sprite_params,
-  context: Dom_html.canvasRenderingContext2D,
+  context: Html.canvasRenderingContext2D,
   frame: ref(int),
   ticks: ref(int),
-  mutable img: Dom_html.imageElement,
+  mutable img: Html.imageElement,
 };
 
 /*setup_sprite is used to initialize a sprite.*/
@@ -387,8 +387,8 @@ let make_type = (typ, dir: Actors.dir_1d) =>
 
 /* Makes a sprite from provided [params]. */
 let make_from_params = (params, context) => {
-  let img = Dom_html.createImg(Dom_html.document);
-  Dom_html.imageElementToJsObj(img)##src#=params.img_src;
+  let img = Html.createImg(Html.document);
+  Html.imageElementToJsObj(img)##src#=params.img_src;
   {params, context, img, frame: ref(0), ticks: ref(0)};
 };
 
@@ -413,8 +413,8 @@ let make_particle = (ptyp, context) => {
 /*Transform_enemy is used in order to switch the direction an enemy faces.*/
 let transform_enemy = (enemy_typ, spr, dir) => {
   let params = make_enemy((enemy_typ, dir));
-  let img = Dom_html.createImg(Dom_html.document);
-  Dom_html.imageElementToJsObj(img)##src#=params.img_src;
+  let img = Html.createImg(Html.document);
+  Html.imageElementToJsObj(img)##src#=params.img_src;
   spr.params = params;
   spr.img = img;
 };

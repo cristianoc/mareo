@@ -25,7 +25,7 @@ type keys = {
  * is only true when the game is over). */
 type st = {
   bgd: sprite,
-  ctx: Dom_html.canvasRenderingContext2D,
+  ctx: Html.canvasRenderingContext2D,
   vpt: Viewport.viewport,
   map: float,
   mutable score: int,
@@ -478,11 +478,11 @@ let run_update_particle = (state, part) => {
  *update each of the objects in the game.*/
 let update_loop = (canvas, (player, objs), map_dim) => {
   let scale = 1.;
-  let ctx = Dom_html.canvasElementToJsObj(canvas)##getContext("2d");
+  let ctx = Html.canvasElementToJsObj(canvas)##getContext("2d");
   let cwidth =
-    float_of_int(Dom_html.canvasElementToJsObj(canvas)##width) /. scale;
+    float_of_int(Html.canvasElementToJsObj(canvas)##width) /. scale;
   let cheight =
-    float_of_int(Dom_html.canvasElementToJsObj(canvas)##height) /. scale;
+    float_of_int(Html.canvasElementToJsObj(canvas)##height) /. scale;
   let viewport = Viewport.make((cwidth, cheight), map_dim);
   let state = {
     bgd: Sprite.make_bgd(ctx),
@@ -495,7 +495,7 @@ let update_loop = (canvas, (player, objs), map_dim) => {
     game_over: false,
   };
   ignore(
-    Dom_html.canvasRenderingContext2DToJsObj(state.ctx)##scale(scale, scale),
+    Html.canvasRenderingContext2DToJsObj(state.ctx)##scale(scale, scale),
   );
   let rec update_helper = (time, state, player, objs, parts) =>
     if (state.game_over == true) {
@@ -525,7 +525,7 @@ let update_loop = (canvas, (player, objs), map_dim) => {
         Draw.fps(canvas, fps);
         Draw.hud(canvas, state.score, state.coins);
         ignore @@
-        Dom_html.requestAnimationFrame((t: float) =>
+        Html.requestAnimationFrame((t: float) =>
           update_helper(t, state, player, collid_objs^, particles^)
         );
       };
@@ -535,7 +535,7 @@ let update_loop = (canvas, (player, objs), map_dim) => {
 
 /* Keydown event handler translates a key press */
 let keydown = evt => {
-  let evt = Dom_html.keyboardEventToJsObj(evt);
+  let evt = Html.keyboardEventToJsObj(evt);
   let () =
     switch (evt##keyCode) {
     | 38
@@ -555,7 +555,7 @@ let keydown = evt => {
 
 /* Keyup event handler translates a key release */
 let keyup = evt => {
-  let evt = Dom_html.keyboardEventToJsObj(evt);
+  let evt = Html.keyboardEventToJsObj(evt);
   let () =
     switch (evt##keyCode) {
     | 38

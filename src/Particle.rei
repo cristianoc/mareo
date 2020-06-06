@@ -22,12 +22,12 @@ let make:
     ~acc: (float, float)=?,
     Actors.part_typ,
     (float, float),
-    Dom_html.canvasRenderingContext2D
+    Html.canvasRenderingContext2D
   ) =>
   particle;
 
 /* Make a score particle. The first int indicates the score to spawn */
-let make_score: (int, (float, float), Dom_html.canvasRenderingContext2D) => particle;
+let make_score: (int, (float, float), Html.canvasRenderingContext2D) => particle;
 
 /* Process a particle, updating its velocity and position. Also marks it as
  * killable if it exceeds its lifespan */

@@ -318,7 +318,7 @@ let rec generate_block_locs =
 /*Generates the ending item panel at the end of the level. Games ends upon
  * collision with player.*/
 let generate_panel =
-    (context: Dom_html.canvasRenderingContext2D, blockw: float, blockh: float)
+    (context: Html.canvasRenderingContext2D, blockw: float, blockh: float)
     : collidable => {
   let ob =
     Object.spawn(
@@ -352,7 +352,7 @@ let rec generate_ground =
 /*Converts the obj_coord list called by generate_block_locs to a list of objects
  * with the coordinates given from the obj_coord list. */
 let rec convert_to_block_obj =
-        (lst: list(obj_coord), context: Dom_html.canvasRenderingContext2D)
+        (lst: list(obj_coord), context: Html.canvasRenderingContext2D)
         : list(collidable) =>
   switch (lst) {
   | [] => []
@@ -365,7 +365,7 @@ let rec convert_to_block_obj =
 /*Converts the obj_coord list called by generate_enemies to a list of objects
  * with the coordinates given from the obj_coord list. */
 let rec convert_to_enemy_obj =
-        (lst: list(obj_coord), context: Dom_html.canvasRenderingContext2D)
+        (lst: list(obj_coord), context: Html.canvasRenderingContext2D)
         : list(collidable) =>
   switch (lst) {
   | [] => []
@@ -377,7 +377,7 @@ let rec convert_to_enemy_obj =
 
 /*Converts the list of coordinates into a list of Coin objects*/
 let rec convert_to_coin_obj =
-        (lst: list(obj_coord), context: Dom_html.canvasRenderingContext2D)
+        (lst: list(obj_coord), context: Html.canvasRenderingContext2D)
         : list(collidable) =>
   switch (lst) {
   | [] => []
@@ -396,7 +396,7 @@ let generate_helper =
       blockh: float,
       _cx: float,
       _cy: float,
-      context: Dom_html.canvasRenderingContext2D,
+      context: Html.canvasRenderingContext2D,
     )
     : list(collidable) => {
   let block_locs = generate_block_locs(blockw, blockh, 0., 0., []);
@@ -437,7 +437,7 @@ let generate_helper =
  * are in pixel form. Converts to block form to call generate_helper. Spawns
  * the list of collidables received from generate_helper to display on canvas.*/
 let generate =
-    (w: float, h: float, context: Dom_html.canvasRenderingContext2D)
+    (w: float, h: float, context: Html.canvasRenderingContext2D)
     : (collidable, list(collidable)) => {
   let blockw = w /. 16.;
   let blockh = h /. 16. -. 1.;

@@ -1,7 +1,7 @@
 open Sprite;
 
 let render_bbox = (sprite, (posx, posy)) => {
-  let context = Dom_html.canvasRenderingContext2DToJsObj(sprite.context);
+  let context = Html.canvasRenderingContext2DToJsObj(sprite.context);
   let (bbox, bboy) = sprite.params.bbox_offset;
   let (bbsx, bbsy) = sprite.params.bbox_size;
   context##strokeStyle#="#FF0000";
@@ -10,7 +10,7 @@ let render_bbox = (sprite, (posx, posy)) => {
 
 /*Draws a sprite onto the canvas.*/
 let render = (sprite, (posx, posy)) => {
-  let context = Dom_html.canvasRenderingContext2DToJsObj(sprite.context);
+  let context = Html.canvasRenderingContext2DToJsObj(sprite.context);
   let (sx, sy) = sprite.params.src_offset;
   let (sw, sh) = sprite.params.frame_size;
   let (dx, dy) = (posx, posy);
@@ -31,9 +31,9 @@ let draw_bgd = (bgd, off_x) => {
 
 /*Used for animation updating. Canvas is cleared each frame and redrawn.*/
 let clear_canvas = canvas => {
-  let canvas = Dom_html.canvasElementToJsObj(canvas);
+  let canvas = Html.canvasElementToJsObj(canvas);
   let context =
-    Dom_html.canvasRenderingContext2DToJsObj(canvas##getContext("2d"));
+    Html.canvasRenderingContext2DToJsObj(canvas##getContext("2d"));
   let cwidth = float_of_int(canvas##width);
   let cheight = float_of_int(canvas##height);
   ignore @@ context##clearRect(0., 0., cwidth, cheight);
@@ -43,9 +43,9 @@ let clear_canvas = canvas => {
 let hud = (canvas, score, coins) => {
   let score_string = string_of_int(score);
   let coin_string = string_of_int(coins);
-  let canvas = Dom_html.canvasElementToJsObj(canvas);
+  let canvas = Html.canvasElementToJsObj(canvas);
   let context =
-    Dom_html.canvasRenderingContext2DToJsObj(canvas##getContext("2d"));
+    Html.canvasRenderingContext2DToJsObj(canvas##getContext("2d"));
   ignore @@ context##font#="10px 'Press Start 2P'";
   ignore @@
   context##fillText(
@@ -59,15 +59,15 @@ let hud = (canvas, score, coins) => {
 /*Displays the fps.*/
 let fps = (canvas, fps_val) => {
   let fps_str = int_of_float(fps_val) |> string_of_int;
-  let canvas = Dom_html.canvasElementToJsObj(canvas);
+  let canvas = Html.canvasElementToJsObj(canvas);
   let context =
-    Dom_html.canvasRenderingContext2DToJsObj(canvas##getContext("2d"));
+    Html.canvasRenderingContext2DToJsObj(canvas##getContext("2d"));
   ignore @@ context##fillText(fps_str, 10., 18.);
 };
 
 /* game_win displays a black screen when you finish a game. */
 let game_win = ctx => {
-  let ctx = Dom_html.canvasRenderingContext2DToJsObj(ctx);
+  let ctx = Html.canvasRenderingContext2DToJsObj(ctx);
   ctx##rect(0., 0., 512., 512.)->ignore;
   ctx##fillStyle#="black";
   ctx##fill()->ignore;
@@ -79,7 +79,7 @@ let game_win = ctx => {
 
 /* game_loss displays a black screen stating a loss to finish that level play. */
 let game_loss = ctx => {
-  let ctx = Dom_html.canvasRenderingContext2DToJsObj(ctx);
+  let ctx = Html.canvasRenderingContext2DToJsObj(ctx);
   ctx##rect(0., 0., 512., 512.)->ignore;
   ctx##fillStyle#="black";
   ctx##fill()->ignore;

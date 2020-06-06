@@ -2,7 +2,7 @@
 
 open Belt;
 
-module Html = Dom_html;
+module Html = Html;
 
 module Pg = Procedural_generator;
 
@@ -21,23 +21,23 @@ let load = _ => {
   Random.self_init();
   let canvas_id = "canvas";
   let canvas =
-    switch (Dom_html.getElementById(Dom_html.document, canvas_id)) {
+    switch (Html.getElementById(Html.document, canvas_id)) {
     | None =>
       print_endline("cant find canvas " ++ canvas_id ++ " \n");
       failwith("fail");
-    | Some(el) => Dom_html.elementToCanvasElement(el)
+    | Some(el) => Html.elementToCanvasElement(el)
     };
-  let context = Dom_html.canvasElementToJsObj(canvas)##getContext("2d");
+  let context = Html.canvasElementToJsObj(canvas)##getContext("2d");
   let _ =
-    Dom_html.addEventListener(
-      Dom_html.document,
+    Html.addEventListener(
+      Html.document,
       "keydown",
       Director.keydown,
       true,
     );
   let _ =
-    Dom_html.addEventListener(
-      Dom_html.document,
+    Html.addEventListener(
+      Html.document,
       "keyup",
       Director.keyup,
       true,
@@ -67,10 +67,10 @@ let preload = _ => {
     imgs,
     img_src => {
       let img_src = root_dir ++ img_src;
-      let img = Html.createImg(Dom_html.document);
-      Dom_html.imageElementToJsObj(img)##src#=img_src;
+      let img = Html.createImg(Html.document);
+      Html.imageElementToJsObj(img)##src#=img_src;
       ignore(
-        Dom_html.addEventListenerImg(
+        Html.addEventListenerImg(
           img,
           "load",
           _ev => {
@@ -84,7 +84,7 @@ let preload = _ => {
   );
 };
 
-Dom_html.windowToJsObj(Dom_html.window)##onload#=(
+Html.windowToJsObj(Html.window)##onload#=(
                                                     _ => {
                                                       ignore(preload());
                                                       true;

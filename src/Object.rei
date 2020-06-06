@@ -44,7 +44,7 @@ let get_obj: collidable => obj;
 
 /* Creates a new object with a given
  * actor type on the the canvas at a given position */
-let spawn: (Actors.spawn_typ, Dom_html.canvasRenderingContext2D, (float, float)) => collidable;
+let spawn: (Actors.spawn_typ, Html.canvasRenderingContext2D, (float, float)) => collidable;
 
 let equals: (collidable, collidable) => bool;
 
@@ -57,12 +57,12 @@ let normalize_origin: (xy, Sprite.sprite) => unit;
 let normalize_pos: (xy, Sprite.sprite_params, Sprite.sprite_params) => unit;
 
 /* Destroys the object, returning a list of destruction effect objects */
-let kill: (collidable, Dom_html.canvasRenderingContext2D) => list(particle);
+let kill: (collidable, Html.canvasRenderingContext2D) => list(particle);
 
 let process_obj: (obj, float) => unit;
 
 let update_player:
-  (obj, list(Actors.controls), Dom_html.canvasRenderingContext2D) =>
+  (obj, list(Actors.controls), Html.canvasRenderingContext2D) =>
   option((pl_typ, Sprite.sprite));
 
 /* Checks whether a collision occured between two objects, returning the
@@ -70,10 +70,10 @@ let update_player:
 let check_collision: (collidable, collidable) => option(Actors.dir_2d);
 
 let evolve_enemy:
-  (Actors.dir_1d, Actors.enemy_typ, Sprite.sprite, obj, Dom_html.canvasRenderingContext2D) =>
+  (Actors.dir_1d, Actors.enemy_typ, Sprite.sprite, obj, Html.canvasRenderingContext2D) =>
   option(collidable);
 
-let evolve_block: (obj, Dom_html.canvasRenderingContext2D) => collidable;
+let evolve_block: (obj, Html.canvasRenderingContext2D) => collidable;
 
 let dec_health: obj => unit;
 
@@ -84,4 +84,4 @@ let reverse_left_right: obj => unit;
 let collide_block: (~check_x: bool=?, Actors.dir_2d, obj) => unit;
 
 let spawn_above:
-  (Actors.dir_1d, obj, Actors.item_typ, Dom_html.canvasRenderingContext2D) => collidable;
+  (Actors.dir_1d, obj, Actors.item_typ, Html.canvasRenderingContext2D) => collidable;
