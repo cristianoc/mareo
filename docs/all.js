@@ -919,8 +919,7 @@ function render(sprite, param) {
   var sw = match$1[0];
   var match$2 = sprite.params.frame_size;
   var sx = match[0] + sprite.frame.contents * sw;
-  context.drawImage(sprite.img, sx, match[1], sw, match$1[1], param[0], param[1], match$2[0], match$2[1]);
-  
+  return context.drawImage(sprite.img, sx, match[1], sw, match$1[1], param[0], param[1], match$2[0], match$2[1]);
 }
 
 function draw_bgd(bgd, off_x) {

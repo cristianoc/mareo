@@ -313,7 +313,7 @@ let narrow_phase = (c, cs, state) => {
     | [h, ...t] =>
       let c_obj = get_obj(c);
       let new_objs =
-        if (! equals(c, h)) {
+        if (!equals(c, h)) {
           switch (Object.check_collision(c, h)) {
           | None => (None, None)
           | Some(dir) =>
@@ -389,7 +389,7 @@ let update_collidable = (state, collid: Object.collidable, all_collids) => {
     Viewport.in_viewport(state.vpt, obj.pos)
     || is_player(collid)
     || Viewport.out_of_viewport_below(state.vpt, obj.pos.y);
-  if (! obj.kill && viewport_filter) {
+  if (!obj.kill && viewport_filter) {
     obj.grounded = false;
     Object.process_obj(obj, state.map);
     /* Run collision detection if moving object*/
@@ -400,7 +400,7 @@ let update_collidable = (state, collid: Object.collidable, all_collids) => {
     if (check_bbox_enabled()) {
       Draw.render_bbox(spr, (vpt_adj_xy.x, vpt_adj_xy.y));
     };
-    if (obj.vel.x != 0. || ! is_enemy(collid)) {
+    if (obj.vel.x != 0. || !is_enemy(collid)) {
       Sprite.update_animation(spr);
     };
     evolved;
@@ -450,7 +450,7 @@ let run_update_collid = (state, collid, all_collids) =>
   | _ =>
     let obj = get_obj(collid);
     let evolved = update_collidable(state, collid, all_collids);
-    if (! obj.kill) {
+    if (!obj.kill) {
       collid_objs := [collid, ...collid_objs^ @ evolved];
     };
     let new_parts =
@@ -469,7 +469,7 @@ let run_update_particle = (state, part) => {
   let x = part.pos.x -. state.vpt.pos.x
   and y = part.pos.y -. state.vpt.pos.y;
   Draw.render(part.params.sprite, (x, y));
-  if (! part.kill) {
+  if (!part.kill) {
     particles := [part, ...particles^];
   };
 };
@@ -494,9 +494,8 @@ let update_loop = (canvas, (player, objs), map_dim) => {
     map: snd(map_dim),
     game_over: false,
   };
-  ignore(
-    Html.canvasRenderingContext2DToJsObj(state.ctx)##scale(scale, scale),
-  );
+  state.ctx.scale(. scale, scale);
+
   let rec update_helper = (time, state, player, objs, parts) =>
     if (state.game_over == true) {
       Draw.game_win(state.ctx);
