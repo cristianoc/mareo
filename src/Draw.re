@@ -28,36 +28,32 @@ let draw_bgd = (bgd, off_x) => {
 };
 
 // Used for animation updating. Canvas is cleared each frame and redrawn.
-let clear_canvas = canvas => {
-  let canvas = Html.canvasElementToJsObj(canvas);
-  let context = canvas##getContext("2d");
-  let cwidth = float_of_int(canvas##width);
-  let cheight = float_of_int(canvas##height);
-  ignore @@ context##clearRect(0., 0., cwidth, cheight);
+let clear_canvas = (canvas: Html.canvasElement) => {
+  let context = canvas.getContext(. "2d");
+  let cwidth = float_of_int(canvas.width);
+  let cheight = float_of_int(canvas.height);
+  context.clearRect(. 0., 0., cwidth, cheight);
 };
 
 // Displays the text for score and coins.
-let hud = (canvas, score, coins) => {
+let hud = (canvas: Html.canvasElement, score, coins) => {
   let score_string = string_of_int(score);
   let coin_string = string_of_int(coins);
-  let canvas = Html.canvasElementToJsObj(canvas);
-  let context = canvas##getContext("2d");
-  ignore @@  context##font #= "10px 'Press Start 2P'";
-  ignore @@
-  context##fillText(
+  let context = canvas.Html.getContext(. "2d");
+  context.font = "10px 'Press Start 2P'";
+  context.fillText(.
     "Score: " ++ score_string,
-    float_of_int(canvas##width) -. 140.,
+    float_of_int(canvas.width) -. 140.,
     18.,
   );
-  ignore @@ context##fillText("Coins: " ++ coin_string, 120., 18.);
+  context.fillText(. "Coins: " ++ coin_string, 120., 18.);
 };
 
 // Displays the fps.
-let fps = (canvas, fps_val) => {
+let fps = (canvas: Html.canvasElement, fps_val) => {
   let fps_str = int_of_float(fps_val) |> string_of_int;
-  let canvas = Html.canvasElementToJsObj(canvas);
-  let context = canvas##getContext("2d");
-  ignore @@ context##fillText(fps_str, 10., 18.);
+  let context = canvas.getContext(. "2d");
+  context.fillText(. fps_str, 10., 18.);
 };
 
 // gameWon displays a black screen when you finish a game.

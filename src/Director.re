@@ -453,13 +453,11 @@ let run_update_particle = (state, part) => {
 
 /*update_loop is constantly being called to check for collisions and to
  *update each of the objects in the game.*/
-let rec update_loop = (canvas, (player, objs)) => {
+let rec update_loop = (canvas: Html.canvasElement, (player, objs)) => {
   let scale = 1.;
-  let ctx = Html.canvasElementToJsObj(canvas)##getContext("2d");
-  let cwidth =
-    float_of_int(Html.canvasElementToJsObj(canvas)##width) /. scale;
-  let cheight =
-    float_of_int(Html.canvasElementToJsObj(canvas)##height) /. scale;
+  let ctx = canvas.getContext(. "2d");
+  let cwidth = float_of_int(canvas.width) /. scale;
+  let cheight = float_of_int(canvas.height) /. scale;
   let viewport = Viewport.make((cwidth, cheight), Config.map_dim);
   let state = {
     bgd: Sprite.make_bgd(ctx),

@@ -1,6 +1,7 @@
 type imageElement = {mutable src: string};
 
 type canvasRenderingContext2D = {
+  clearRect: (. float, float, float, float) => unit,
   drawImage:
     (. imageElement, float, float, float, float, float, float, float, float) =>
     unit,
@@ -17,7 +18,11 @@ type canvasRenderingContext2D = {
   mutable strokeStyle: string,
 };
 
-type canvasElement;
+type canvasElement = {
+  getContext: (. string) => canvasRenderingContext2D,
+  height: int,
+  width: int,
+};
 
 [@bs.val] external document: Dom.document = "document";
 
@@ -47,8 +52,6 @@ external addEventListenerImg:
   "addEventListener";
 
 type renderingContext;
-
-external canvasElementToJsObj: canvasElement => Js.t({..}) = "%identity";
 
 external keyboardEventToJsObj: Dom.keyboardEvent => Js.t({..}) = "%identity";
 

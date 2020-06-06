@@ -17,7 +17,7 @@ let load = _ => {
       failwith("fail");
     | Some(el) => Html.elementToCanvasElement(el)
     };
-  let context = Html.canvasElementToJsObj(canvas)##getContext("2d");
+  let context = canvas.getContext(. "2d");
   Html.addEventListener(Html.document, "keydown", Director.keydown, true);
   Html.addEventListener(Html.document, "keyup", Director.keyup, true);
   Generator.init();
