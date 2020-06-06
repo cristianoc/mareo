@@ -392,13 +392,7 @@ let evolve_block = (obj, context) => {
   Block(QBlockUsed, new_spr, new_obj);
 };
 
-/*Used for making a small Mario into a Big Mario*/
-/* let evolve_player (spr : Sprite.sprite) obj context =
-   let (new_spr,new_obj) =
-     make (SPlayer (BigM,Standing)) context (obj.pos.x, obj.pos.y) in
-   normalize_pos new_obj.pos spr.params new_spr.params ;
-   Player(BigM,new_spr,new_obj) */
-/*Used for spawning items above question mark blocks*/
+// Used for spawning items above question mark blocks
 let spawn_above = (player_dir, obj, typ, context) => {
   let item = spawn(SItem(typ), context, (obj.pos.x, obj.pos.y));
   let item_obj = get_obj(item);
