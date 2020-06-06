@@ -302,16 +302,6 @@ let process_obj = (obj, mapy) => {
   };
 };
 
-/* Converts an origin based on the bottom left of the bounding box to the top
- * right of the sprite, to make it easier to place objects flush with the ground.*/
-let normalize_origin = (pos, spr: Sprite.sprite) => {
-  let p = spr.params;
-  let (box, boy) = p.bbox_offset
-  and (_, bh) = p.bbox_size;
-  pos.x = pos.x -. box;
-  pos.y = pos.y -. (boy +. bh);
-};
-
 /*Checks upon collision of block and updates the values of the object.*/
 let collide_block = (dir, obj) =>
   switch (dir) {

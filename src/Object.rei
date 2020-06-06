@@ -8,12 +8,12 @@ let dampen_jump: float; /* Boost to jump when enemy jumped on */
 
 type aabb = {
   center: xy,
-  half: xy
+  half: xy,
 };
 
 type obj_params = {
   has_gravity: bool,
-  speed: float
+  speed: float,
 };
 
 type obj = {
@@ -28,7 +28,7 @@ type obj = {
   mutable kill: bool,
   mutable health: int,
   mutable crouch: bool,
-  mutable score: int
+  mutable score: int,
 };
 
 type collidable =
@@ -44,15 +44,15 @@ let get_obj: collidable => obj;
 
 /* Creates a new object with a given
  * actor type on the the canvas at a given position */
-let spawn: (Actors.spawn_typ, Html.canvasRenderingContext2D, (float, float)) => collidable;
+let spawn:
+  (Actors.spawn_typ, Html.canvasRenderingContext2D, (float, float)) =>
+  collidable;
 
 let equals: (collidable, collidable) => bool;
 
 let is_player: collidable => bool;
 
 let is_enemy: collidable => bool;
-
-let normalize_origin: (xy, Sprite.sprite) => unit;
 
 let normalize_pos: (xy, Sprite.sprite_params, Sprite.sprite_params) => unit;
 
@@ -70,7 +70,13 @@ let update_player:
 let check_collision: (collidable, collidable) => option(Actors.dir_2d);
 
 let evolve_enemy:
-  (Actors.dir_1d, Actors.enemy_typ, Sprite.sprite, obj, Html.canvasRenderingContext2D) =>
+  (
+    Actors.dir_1d,
+    Actors.enemy_typ,
+    Sprite.sprite,
+    obj,
+    Html.canvasRenderingContext2D
+  ) =>
   option(collidable);
 
 let evolve_block: (obj, Html.canvasRenderingContext2D) => collidable;
@@ -84,4 +90,5 @@ let reverse_left_right: obj => unit;
 let collide_block: (Actors.dir_2d, obj) => unit;
 
 let spawn_above:
-  (Actors.dir_1d, obj, Actors.item_typ, Html.canvasRenderingContext2D) => collidable;
+  (Actors.dir_1d, obj, Actors.item_typ, Html.canvasRenderingContext2D) =>
+  collidable;

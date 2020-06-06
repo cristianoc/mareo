@@ -5,13 +5,13 @@ type canvasRenderingContext2D = {
     (. imageElement, float, float, float, float, float, float, float, float) =>
     unit,
   fill: (. unit) => unit,
-  mutable fillStyle: string,
+  [@live] mutable fillStyle: string,
   fillText: (. string, float, float) => unit,
-  mutable font: string,
+  [@live] mutable font: string,
   rect: (. float, float, float, float) => unit,
   scale: (. float, float) => unit,
   strokeRect: (. float, float, float, float) => unit,
-  mutable strokeStyle: string,
+  [@live] mutable strokeStyle: string,
 };
 
 type canvasElement;
