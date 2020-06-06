@@ -67,26 +67,26 @@ let fps = (canvas, fps_val) => {
   ignore @@ context##fillText(fps_str, 10., 18.);
 };
 
-/*game_win displays a black screen when you finish a game.*/
+/* game_win displays a black screen when you finish a game. */
 let game_win = ctx => {
   let ctx = Dom_html.canvasRenderingContext2DToJsObj(ctx);
-  ignore @@ ctx##rect(0., 0., 512., 512.);
-  ignore @@ ctx##fillStyle#="black";
-  ignore @@ ctx##fill();
-  ignore @@ ctx##fillStyle#="white";
-  ignore @@ ctx##font#="20px 'Press Start 2P'";
-  ignore @@ ctx##fillText("You win!", 180., 128.);
+  ctx##rect(0., 0., 512., 512.)->ignore;
+  ctx##fillStyle#="black";
+  ctx##fill()->ignore;
+  ctx##fillStyle#="white";
+  ctx##font#="20px 'Press Start 2P'";
+  ctx##fillText("You win!", 180., 128.)->ignore;
   failwith("Game over.");
 };
 
-/*gave_loss displays a black screen stating a loss to finish that level play.*/
+/* game_loss displays a black screen stating a loss to finish that level play. */
 let game_loss = ctx => {
   let ctx = Dom_html.canvasRenderingContext2DToJsObj(ctx);
-  ignore @@ ctx##rect(0., 0., 512., 512.);
+  ctx##rect(0., 0., 512., 512.)->ignore;
   ctx##fillStyle#="black";
-  ignore @@ ctx##fill();
+  ctx##fill()->ignore;
   ctx##fillStyle#="white";
   ctx##font#="20px 'Press Start 2P'";
-  ignore @@ ctx##fillText("GAME OVER. You lose!", 60., 128.);
+  ctx##fillText("GAME OVER. You lose!", 60., 128.)->ignore;
   failwith("Game over.");
 };
