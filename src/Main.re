@@ -6,14 +6,6 @@ module Html = Html;
 
 module Pg = Procedural_generator;
 
-let loadCount = ref(0);
-
-let imgsToLoad = 4;
-
-let level_width = 2400.;
-
-let level_height = 256.;
-
 // Canvas is chosen from the index.html file. The context is obtained from
 // the canvas. Listeners are added. A level is generated and the general
 // update_loop method is called to make the level playable.
@@ -33,28 +25,28 @@ let load = _ => {
   Pg.init();
   Director.update_loop(
     canvas,
-    Pg.generate(level_width, level_height, context),
-    (level_width, level_height),
+    Pg.generate(Config.level_width, Config.level_height, context),
   );
 };
 
-let inc_counter = _ => {
-  loadCount := loadCount^ + 1;
-  if (loadCount^ == imgsToLoad) {
-    load();
-  } else {
-    ();
+let inc_counter = {
+  let loadCount = ref(0);
+  _ => {
+    loadCount := loadCount^ + 1;
+    if (loadCount^ == Config.images->Array.length) {
+      load();
+    } else {
+      ();
+    };
   };
 };
 
 // Used for concurrency issues.
 let preload = _ => {
-  let root_dir = "sprites/";
-  let imgs = ["blocks.png", "items.png", "enemies.png", "mario-small.png"];
-  List.map(
-    imgs,
-    img_src => {
-      let img_src = root_dir ++ img_src;
+  Array.forEachU(
+    Config.images,
+    (. img_src) => {
+      let img_src = Config.root_dir ++ img_src;
       let img = Html.createImg(Html.document);
       Html.imageElementToJsObj(img)##src #= img_src;
       ignore(

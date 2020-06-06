@@ -72,12 +72,12 @@ let gameWon = (ctx: Html.canvasRenderingContext2D) => {
 };
 
 // gameLost displays a black screen stating a loss to finish that level play.
-let gameLost = (ctx: Html.canvasRenderingContext2D) => {
+let gameLost = (ctx: Html.canvasRenderingContext2D, elapsed) => {
   ctx.rect(. 0., 0., 512., 512.);
   ctx.fillStyle = "black";
   ctx.fill(.);
   ctx.fillStyle = "white";
   ctx.font = "20px 'Press Start 2P'";
-  ctx.fillText(. "GAME OVER. You lose!", 60., 128.);
-  failwith("Game over.");
+  ctx.fillText(. "GAME OVER. You lose! ", 60., 128.);
+  ctx.fillText(. string_of_int(elapsed), 230., 200.);
 };

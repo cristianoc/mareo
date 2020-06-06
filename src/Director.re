@@ -18,7 +18,7 @@ type keys = {
 
 type status =
   | Playing
-  | Lost
+  | Lost(float)
   | Won;
 
 /*st represents the state of the game. It includes a background sprite (e.g.,
@@ -453,14 +453,14 @@ let run_update_particle = (state, part) => {
 
 /*update_loop is constantly being called to check for collisions and to
  *update each of the objects in the game.*/
-let update_loop = (canvas, (player, objs), map_dim) => {
+let rec update_loop = (canvas, (player, objs)) => {
   let scale = 1.;
   let ctx = Html.canvasElementToJsObj(canvas)##getContext("2d");
   let cwidth =
     float_of_int(Html.canvasElementToJsObj(canvas)##width) /. scale;
   let cheight =
     float_of_int(Html.canvasElementToJsObj(canvas)##height) /. scale;
-  let viewport = Viewport.make((cwidth, cheight), map_dim);
+  let viewport = Viewport.make((cwidth, cheight), Config.map_dim);
   let state = {
     bgd: Sprite.make_bgd(ctx),
     vpt: Viewport.update(viewport, get_obj(player).pos),
@@ -468,7 +468,7 @@ let update_loop = (canvas, (player, objs), map_dim) => {
     score: 0,
     coins: 0,
     multiplier: 1,
-    map: snd(map_dim),
+    map: snd(Config.map_dim),
     status: Playing,
   };
   state.ctx.scale(. scale, scale);
@@ -476,7 +476,24 @@ let update_loop = (canvas, (player, objs), map_dim) => {
   let rec update_helper = (time, state, player, objs, parts) => {
     switch (state.status) {
     | Won => Draw.gameWon(state.ctx)
-    | Lost => Draw.gameLost(state.ctx)
+    | Lost(t) =>
+      let restartAfter = 5;
+      let timeToStart = restartAfter - int_of_float(time -. t) / 1000;
+      if (timeToStart > 0) {
+        Draw.gameLost(state.ctx, timeToStart);
+        Html.requestAnimationFrame((t: float) =>
+          update_helper(t, state, player, collid_objs^, particles^)
+        );
+      } else {
+        let (player, objs) =
+          Procedural_generator.generate(
+            Config.level_width,
+            Config.level_height,
+            state.ctx,
+          );
+        update_loop(canvas, (player, objs));
+      };
+
     | Playing =>
       collid_objs := [];
       particles := [];
@@ -489,7 +506,7 @@ let update_loop = (canvas, (player, objs), map_dim) => {
       Draw.draw_bgd(state.bgd, float_of_int(vpos_x_int mod bgd_width));
       let player = run_update_collid(state, player, objs);
       if (get_obj(player).kill == true) {
-        state.status = Lost;
+        state.status = Lost(time);
         update_helper(time, state, player, collid_objs^, particles^);
       } else {
         let state = {

@@ -1,6 +1,6 @@
 /* Initiates the main game loop */
 let update_loop:
-  (Html.canvasElement, (Object.collidable, list(Object.collidable)), (float, float)) => unit;
+  (Html.canvasElement, (Object.collidable, list(Object.collidable))) => unit;
 
 /* Keydown event handler function */
 let keydown: Dom.keyboardEvent => bool;
