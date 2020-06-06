@@ -110,16 +110,13 @@ let new_id = () => {
 };
 
 /*Used to return a new sprite and object of a created spawnable object*/
-let make = (~dir=Left, spawnable, context, (posx, posy)) => {
+let make = (~dir=Left, spawnable, context, pos) => {
   let spr = Sprite.make(spawnable, dir, context);
   let params = make_type(spawnable);
   let id = new_id();
   let obj = {
     params,
-    pos: {
-      x: posx,
-      y: posy,
-    },
+    pos,
     vel: {
       x: 0.0,
       y: 0.0,
@@ -138,8 +135,8 @@ let make = (~dir=Left, spawnable, context, (posx, posy)) => {
 };
 
 /*spawn returns a new collidable*/
-let spawn = (spawnable, context, (posx, posy)) => {
-  let (spr, obj) = make(spawnable, context, (posx, posy));
+let spawn = (spawnable, context, pos) => {
+  let (spr, obj) = make(spawnable, context, pos);
   switch (spawnable) {
   | SPlayer(typ, _) => Player(typ, spr, obj)
   | SEnemy(t) =>
@@ -334,22 +331,12 @@ let evolve_enemy = (player_dir, typ, spr: Sprite.sprite, obj, context) =>
   switch (typ) {
   | GKoopa =>
     let (new_spr, new_obj) =
-      make(
-        ~dir=obj.dir,
-        SEnemy(GKoopaShell),
-        context,
-        (obj.pos.x, obj.pos.y),
-      );
+      make(~dir=obj.dir, SEnemy(GKoopaShell), context, obj.pos);
     normalize_pos(new_obj.pos, spr.params, new_spr.params);
     Some(Enemy(GKoopaShell, new_spr, new_obj));
   | RKoopa =>
     let (new_spr, new_obj) =
-      make(
-        ~dir=obj.dir,
-        SEnemy(RKoopaShell),
-        context,
-        (obj.pos.x, obj.pos.y),
-      );
+      make(~dir=obj.dir, SEnemy(RKoopaShell), context, obj.pos);
     normalize_pos(new_obj.pos, spr.params, new_spr.params);
     Some(Enemy(RKoopaShell, new_spr, new_obj));
   | GKoopaShell
@@ -387,14 +374,13 @@ let dec_health = obj => {
 /*Used for deleting a block and replacing it with a used block*/
 let evolve_block = (obj, context) => {
   dec_health(obj);
-  let (new_spr, new_obj) =
-    make(SBlock(QBlockUsed), context, (obj.pos.x, obj.pos.y));
+  let (new_spr, new_obj) = make(SBlock(QBlockUsed), context, obj.pos);
   Block(QBlockUsed, new_spr, new_obj);
 };
 
 // Used for spawning items above question mark blocks
 let spawn_above = (player_dir, obj, typ, context) => {
-  let item = spawn(SItem(typ), context, (obj.pos.x, obj.pos.y));
+  let item = spawn(SItem(typ), context, obj.pos);
   let item_obj = get_obj(item);
   item_obj.pos.y = item_obj.pos.y -. snd(get_sprite(item).params.frame_size);
   item_obj.dir = opposite_dir(player_dir);

@@ -4,11 +4,11 @@ open Object;
 
 // Note: Canvas is 512 by 256 (w*h) -> 32 by 16 blocks
 // Holds obj typ and its coordinates. (int, (x-coord, y-coord))
-type obj_coord = (int, (float, float));
+type obj_coord = (int, Actors.xy);
 
 // Check if the given location checkloc is already part of the list of locations
 // in loclist
-let rec mem_loc = (checkloc: (float, float), loclist: list(obj_coord)): bool =>
+let rec mem_loc = (checkloc: Actors.xy, loclist: list(obj_coord)): bool =>
   switch (loclist) {
   | [] => false
   | [h, ...t] =>
@@ -24,7 +24,7 @@ let rec convert_list = (lst: list(obj_coord)): list(obj_coord) =>
   switch (lst) {
   | [] => []
   | [h, ...t] =>
-    [(fst(h), (fst(snd(h)) *. 16., snd(snd(h)) *. 16.))]
+    [(fst(h), {x: snd(h).x *. 16., y: snd(h).y *. 16.})]
     @ convert_list(t)
   };
 
@@ -71,8 +71,8 @@ let rec trim_edges =
   switch (lst) {
   | [] => []
   | [h, ...t] =>
-    let cx = fst(snd(h));
-    let cy = snd(snd(h));
+    let cx = snd(h).x;
+    let cy = snd(h).y;
     let pixx = blockw *. 16.;
     let pixy = blockh *. 16.;
     if (cx < 128. || pixx -. cx < 528. || cy == 0. || pixy -. cy < 48.) {
@@ -86,35 +86,35 @@ let rec trim_edges =
 // of stair formation requires that the first step be on the ground.
 let generate_ground_stairs = (cbx, cby, typ) => {
   let four = [
-    (typ, (cbx, cby)),
-    (typ, (cbx +. 1., cby)),
-    (typ, (cbx +. 2., cby)),
-    (typ, (cbx +. 3., cby)),
+    (typ, {x: cbx, y: cby}),
+    (typ, {x: cbx +. 1., y: cby}),
+    (typ, {x: cbx +. 2., y: cby}),
+    (typ, {x: cbx +. 3., y: cby}),
   ];
   let three = [
-    (typ, (cbx +. 1., cby -. 1.)),
-    (typ, (cbx +. 2., cby -. 1.)),
-    (typ, (cbx +. 3., cby -. 1.)),
+    (typ, {x: cbx +. 1., y: cby -. 1.}),
+    (typ, {x: cbx +. 2., y: cby -. 1.}),
+    (typ, {x: cbx +. 3., y: cby -. 1.}),
   ];
   let two = [
-    (typ, (cbx +. 2., cby -. 2.)),
-    (typ, (cbx +. 3., cby -. 2.)),
+    (typ, {x: cbx +. 2., y: cby -. 2.}),
+    (typ, {x: cbx +. 3., y: cby -. 2.}),
   ];
-  let one = [(typ, (cbx +. 3., cby -. 3.))];
+  let one = [(typ, {x: cbx +. 3., y: cby -. 3.})];
   four @ three @ two @ one;
 };
 
 // Generate a stair formation going upwards.
 let generate_airup_stairs = (cbx, cby, typ) => {
-  let one = [(typ, (cbx, cby)), (typ, (cbx +. 1., cby))];
+  let one = [(typ, {x: cbx, y: cby}), (typ, {x: cbx +. 1., y: cby})];
   let two = [
-    (typ, (cbx +. 3., cby -. 1.)),
-    (typ, (cbx +. 4., cby -. 1.)),
+    (typ, {x: cbx +. 3., y: cby -. 1.}),
+    (typ, {x: cbx +. 4., y: cby -. 1.}),
   ];
   let three = [
-    (typ, (cbx +. 4., cby -. 2.)),
-    (typ, (cbx +. 5., cby -. 2.)),
-    (typ, (cbx +. 6., cby -. 2.)),
+    (typ, {x: cbx +. 4., y: cby -. 2.}),
+    (typ, {x: cbx +. 5., y: cby -. 2.}),
+    (typ, {x: cbx +. 6., y: cby -. 2.}),
   ];
   one @ two @ three;
 };
@@ -122,17 +122,17 @@ let generate_airup_stairs = (cbx, cby, typ) => {
 // Generate a stair formation going downwards
 let generate_airdown_stairs = (cbx, cby, typ) => {
   let three = [
-    (typ, (cbx, cby)),
-    (typ, (cbx +. 1., cby)),
-    (typ, (cbx +. 2., cby)),
+    (typ, {x: cbx, y: cby}),
+    (typ, {x: cbx +. 1., y: cby}),
+    (typ, {x: cbx +. 2., y: cby}),
   ];
   let two = [
-    (typ, (cbx +. 2., cby +. 1.)),
-    (typ, (cbx +. 3., cby +. 1.)),
+    (typ, {x: cbx +. 2., y: cby +. 1.}),
+    (typ, {x: cbx +. 3., y: cby +. 1.}),
   ];
   let one = [
-    (typ, (cbx +. 5., cby +. 2.)),
-    (typ, (cbx +. 6., cby +. 2.)),
+    (typ, {x: cbx +. 5., y: cby +. 2.}),
+    (typ, {x: cbx +. 6., y: cby +. 2.}),
   ];
   three @ two @ one;
 };
@@ -142,7 +142,8 @@ let rec generate_clouds = (cbx, cby, typ, num) =>
   if (num == 0) {
     [];
   } else {
-    [(typ, (cbx, cby))] @ generate_clouds(cbx +. 1., cby, typ, num - 1);
+    [(typ, {x: cbx, y: cby})]
+    @ generate_clouds(cbx +. 1., cby, typ, num - 1);
   };
 
 // Generate an obj_coord list (typ, coordinates) of coins to be placed.
@@ -152,9 +153,9 @@ let rec generate_coins = (block_coord: list(obj_coord)): list(obj_coord) => {
   | [] => []
   | [h, ...t] =>
     if (place_coin == 0) {
-      let xc = fst(snd(h));
-      let yc = snd(snd(h));
-      [(0, (xc, yc -. 16.))] @ generate_coins(t);
+      let xc = snd(h).x;
+      let yc = snd(h).y;
+      [(0, {x: xc, y: yc -. 16.})] @ generate_coins(t);
     } else {
       generate_coins(t);
     }
@@ -189,14 +190,17 @@ let choose_block_pattern =
       | 0 =>
         if (blockw -. cbx > 2.) {
           [
-            (stair_typ, (cbx, cby)),
-            (middle_block, (cbx +. 1., cby)),
-            (stair_typ, (cbx +. 2., cby)),
+            (stair_typ, {x: cbx, y: cby}),
+            (middle_block, {x: cbx +. 1., y: cby}),
+            (stair_typ, {x: cbx +. 2., y: cby}),
           ];
         } else if (blockw -. cbx > 1.) {
-          [(block_typ, (cbx, cby)), (block_typ, (cbx +. 1., cby))];
+          [
+            (block_typ, {x: cbx, y: cby}),
+            (block_typ, {x: cbx +. 1., y: cby}),
+          ];
         } else {
-          [(block_typ, (cbx, cby))];
+          [(block_typ, {x: cbx, y: cby})];
         }
       | 1 =>
         let num_clouds = Random.int(5) + 5;
@@ -217,21 +221,24 @@ let choose_block_pattern =
         } else if (blockh -. cby > 2.) {
           generate_airup_stairs(cbx, cby, stair_typ);
         } else {
-          [(stair_typ, (cbx, cby))];
+          [(stair_typ, {x: cbx, y: cby})];
         }
       | 4 =>
         if (cby +. 3. -. blockh == 2.) {
-          [(stair_typ, (cbx, cby))];
+          [(stair_typ, {x: cbx, y: cby})];
         } else if (cby +. 3. -. blockh == 1.) {
-          [(stair_typ, (cbx, cby)), (stair_typ, (cbx, cby +. 1.))];
+          [
+            (stair_typ, {x: cbx, y: cby}),
+            (stair_typ, {x: cbx, y: cby +. 1.}),
+          ];
         } else {
           [
-            (stair_typ, (cbx, cby)),
-            (stair_typ, (cbx, cby +. 1.)),
-            (stair_typ, (cbx, cby +. 2.)),
+            (stair_typ, {x: cbx, y: cby}),
+            (stair_typ, {x: cbx, y: cby +. 1.}),
+            (stair_typ, {x: cbx, y: cby +. 2.}),
           ];
         }
-      | 5 => [(3, (cbx, cby))]
+      | 5 => [(3, {x: cbx, y: cby})]
       | _ => failwith("Shouldn't reach here")
       };
     obj_coord;
@@ -250,13 +257,13 @@ let rec generate_enemies =
     [];
   } else if (cby > blockh -. 1. || cbx < 15.) {
     generate_enemies(blockw, blockh, cbx +. 1., 0., acc);
-  } else if (mem_loc((cbx, cby), acc) || cby == 0.) {
+  } else if (mem_loc({x: cbx, y: cby}, acc) || cby == 0.) {
     generate_enemies(blockw, blockh, cbx, cby +. 1., acc);
   } else {
     let prob = Random.int(30);
     let enem_prob = 3;
     if (prob < enem_prob && blockh -. 1. == cby) {
-      let enemy = [(prob, (cbx *. 16., cby *. 16.))];
+      let enemy = [(prob, {x: cbx *. 16., y: cby *. 16.})];
       enemy @ generate_enemies(blockw, blockh, cbx, cby +. 1., acc);
     } else {
       generate_enemies(blockw, blockh, cbx, cby +. 1., acc);
@@ -272,9 +279,9 @@ let rec generate_block_enemies =
   | [] => []
   | [h, ...t] =>
     if (place_enemy == 0) {
-      let xc = fst(snd(h));
-      let yc = snd(snd(h));
-      [(enemy_typ, (xc, yc -. 16.))] @ generate_block_enemies(t);
+      let xc = snd(h).x;
+      let yc = snd(h).y;
+      [(enemy_typ, {x: xc, y: yc -. 16.})] @ generate_block_enemies(t);
     } else {
       generate_block_enemies(t);
     }
@@ -295,7 +302,7 @@ let rec generate_block_locs =
     acc;
   } else if (cby > blockh -. 1.) {
     generate_block_locs(blockw, blockh, cbx +. 1., 0., acc);
-  } else if (mem_loc((cbx, cby), acc) || cby == 0.) {
+  } else if (mem_loc({x: cbx, y: cby}, acc) || cby == 0.) {
     generate_block_locs(blockw, blockh, cbx, cby +. 1., acc);
   } else {
     let prob = Random.int(100);
@@ -319,7 +326,7 @@ let generate_panel =
     Object.spawn(
       SBlock(Panel),
       context,
-      (blockw *. 16. -. 256., blockh *. 16. *. 2. /. 3.),
+      {Actors.x: blockw *. 16. -. 256., y: blockh *. 16. *. 2. /. 3.},
     );
   ob;
 };
@@ -333,14 +340,14 @@ let rec generate_ground =
     acc;
   } else if (inc > 10.) {
     let skip = Random.int(10);
-    let newacc = acc @ [(4, (inc *. 16., blockh *. 16.))];
+    let newacc = acc @ [(4, {x: inc *. 16., y: blockh *. 16.})];
     if (skip == 7 && blockw -. inc > 32.) {
       generate_ground(blockw, blockh, inc +. 1., acc);
     } else {
       generate_ground(blockw, blockh, inc +. 1., newacc);
     };
   } else {
-    let newacc = acc @ [(4, (inc *. 16., blockh *. 16.))];
+    let newacc = acc @ [(4, {x: inc *. 16., y: blockh *. 16.})];
     generate_ground(blockw, blockh, inc +. 1., newacc);
   };
 
@@ -438,7 +445,7 @@ let generate =
   let blockh = h /. 16. -. 1.;
   let collide_list = generate_helper(blockw, blockh, 0., 0., context);
   let player =
-    Object.spawn(SPlayer(SmallM, Standing), context, (100., 224.));
+    Object.spawn(SPlayer(SmallM, Standing), context, {x: 100., y: 224.});
   (player, collide_list);
 };
 

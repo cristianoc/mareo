@@ -1908,17 +1908,14 @@ function new_id(param) {
   return id_counter.contents;
 }
 
-function make$3($staropt$star, spawnable, context, param) {
-  var dir = $staropt$star !== undefined ? $staropt$star : /* Left */0;
+function make$3(dirOpt, spawnable, context, pos) {
+  var dir = dirOpt !== undefined ? dirOpt : /* Left */0;
   var spr = make$4(spawnable, dir, context);
   var params = make_type(spawnable);
   var id = new_id(undefined);
   var obj = {
     params: params,
-    pos: {
-      x: param[0],
-      y: param[1]
-    },
+    pos: pos,
     vel: {
       x: 0.0,
       y: 0.0
@@ -1939,11 +1936,8 @@ function make$3($staropt$star, spawnable, context, param) {
         ];
 }
 
-function spawn(spawnable, context, param) {
-  var match = make$3(undefined, spawnable, context, /* tuple */[
-        param[0],
-        param[1]
-      ]);
+function spawn(spawnable, context, pos) {
+  var match = make$3(undefined, spawnable, context, pos);
   var obj = match[1];
   var spr = match[0];
   switch (spawnable.tag | 0) {
@@ -2169,10 +2163,7 @@ function evolve_enemy(player_dir, typ, spr, obj, context) {
         obj.kill = true;
         return ;
     case /* GKoopa */1 :
-        var match = make$3(obj.dir, /* SEnemy */__(1, [/* GKoopaShell */3]), context, /* tuple */[
-              obj.pos.x,
-              obj.pos.y
-            ]);
+        var match = make$3(obj.dir, /* SEnemy */__(1, [/* GKoopaShell */3]), context, obj.pos);
         var new_obj = match[1];
         var new_spr = match[0];
         normalize_pos(new_obj.pos, spr.params, new_spr.params);
@@ -2182,10 +2173,7 @@ function evolve_enemy(player_dir, typ, spr, obj, context) {
                   new_obj
                 ]);
     case /* RKoopa */2 :
-        var match$1 = make$3(obj.dir, /* SEnemy */__(1, [/* RKoopaShell */4]), context, /* tuple */[
-              obj.pos.x,
-              obj.pos.y
-            ]);
+        var match$1 = make$3(obj.dir, /* SEnemy */__(1, [/* RKoopaShell */4]), context, obj.pos);
         var new_obj$1 = match$1[1];
         var new_spr$1 = match$1[0];
         normalize_pos(new_obj$1.pos, spr.params, new_spr$1.params);
@@ -2230,10 +2218,7 @@ function dec_health(obj) {
 
 function evolve_block(obj, context) {
   dec_health(obj);
-  var match = make$3(undefined, /* SBlock */__(3, [/* QBlockUsed */0]), context, /* tuple */[
-        obj.pos.x,
-        obj.pos.y
-      ]);
+  var match = make$3(undefined, /* SBlock */__(3, [/* QBlockUsed */0]), context, obj.pos);
   return /* Block */__(3, [
             /* QBlockUsed */0,
             match[0],
@@ -2242,10 +2227,7 @@ function evolve_block(obj, context) {
 }
 
 function spawn_above(player_dir, obj, typ, context) {
-  var item = spawn(/* SItem */__(2, [typ]), context, /* tuple */[
-        obj.pos.x,
-        obj.pos.y
-      ]);
+  var item = spawn(/* SItem */__(2, [typ]), context, obj.pos);
   var item_obj = item[2];
   item_obj.pos.y = item_obj.pos.y - item[1].params.frame_size[1];
   item_obj.dir = player_dir ? /* Left */0 : /* Right */1;
@@ -2535,10 +2517,10 @@ function convert_list(lst) {
   return $at(/* :: */[
               /* tuple */[
                 h[0],
-                /* tuple */[
-                  h[1][0] * 16,
-                  h[1][1] * 16
-                ]
+                {
+                  x: h[1].x * 16,
+                  y: h[1].y * 16
+                }
               ],
               /* [] */0
             ], convert_list(lst[1]));
@@ -2601,8 +2583,8 @@ function trim_edges(_lst, blockw, blockh) {
     }
     var t = lst[1];
     var h = lst[0];
-    var cx = h[1][0];
-    var cy = h[1][1];
+    var cx = h[1].x;
+    var cy = h[1].y;
     var pixx = blockw * 16;
     var pixy = blockh * 16;
     if (!(cx < 128 || pixx - cx < 528 || cy === 0 || pixy - cy < 48)) {
@@ -2619,34 +2601,34 @@ function trim_edges(_lst, blockw, blockh) {
 function generate_ground_stairs(cbx, cby, typ) {
   var four_000 = /* tuple */[
     typ,
-    /* tuple */[
-      cbx,
-      cby
-    ]
+    {
+      x: cbx,
+      y: cby
+    }
   ];
   var four_001 = /* :: */[
     /* tuple */[
       typ,
-      /* tuple */[
-        cbx + 1,
-        cby
-      ]
+      {
+        x: cbx + 1,
+        y: cby
+      }
     ],
     /* :: */[
       /* tuple */[
         typ,
-        /* tuple */[
-          cbx + 2,
-          cby
-        ]
+        {
+          x: cbx + 2,
+          y: cby
+        }
       ],
       /* :: */[
         /* tuple */[
           typ,
-          /* tuple */[
-            cbx + 3,
-            cby
-          ]
+          {
+            x: cbx + 3,
+            y: cby
+          }
         ],
         /* [] */0
       ]
@@ -2658,26 +2640,26 @@ function generate_ground_stairs(cbx, cby, typ) {
   ];
   var three_000 = /* tuple */[
     typ,
-    /* tuple */[
-      cbx + 1,
-      cby - 1
-    ]
+    {
+      x: cbx + 1,
+      y: cby - 1
+    }
   ];
   var three_001 = /* :: */[
     /* tuple */[
       typ,
-      /* tuple */[
-        cbx + 2,
-        cby - 1
-      ]
+      {
+        x: cbx + 2,
+        y: cby - 1
+      }
     ],
     /* :: */[
       /* tuple */[
         typ,
-        /* tuple */[
-          cbx + 3,
-          cby - 1
-        ]
+        {
+          x: cbx + 3,
+          y: cby - 1
+        }
       ],
       /* [] */0
     ]
@@ -2688,18 +2670,18 @@ function generate_ground_stairs(cbx, cby, typ) {
   ];
   var two_000 = /* tuple */[
     typ,
-    /* tuple */[
-      cbx + 2,
-      cby - 2
-    ]
+    {
+      x: cbx + 2,
+      y: cby - 2
+    }
   ];
   var two_001 = /* :: */[
     /* tuple */[
       typ,
-      /* tuple */[
-        cbx + 3,
-        cby - 2
-      ]
+      {
+        x: cbx + 3,
+        y: cby - 2
+      }
     ],
     /* [] */0
   ];
@@ -2709,10 +2691,10 @@ function generate_ground_stairs(cbx, cby, typ) {
   ];
   var one_000 = /* tuple */[
     typ,
-    /* tuple */[
-      cbx + 3,
-      cby - 3
-    ]
+    {
+      x: cbx + 3,
+      y: cby - 3
+    }
   ];
   var one = /* :: */[
     one_000,
@@ -2724,18 +2706,18 @@ function generate_ground_stairs(cbx, cby, typ) {
 function generate_airup_stairs(cbx, cby, typ) {
   var one_000 = /* tuple */[
     typ,
-    /* tuple */[
-      cbx,
-      cby
-    ]
+    {
+      x: cbx,
+      y: cby
+    }
   ];
   var one_001 = /* :: */[
     /* tuple */[
       typ,
-      /* tuple */[
-        cbx + 1,
-        cby
-      ]
+      {
+        x: cbx + 1,
+        y: cby
+      }
     ],
     /* [] */0
   ];
@@ -2745,18 +2727,18 @@ function generate_airup_stairs(cbx, cby, typ) {
   ];
   var two_000 = /* tuple */[
     typ,
-    /* tuple */[
-      cbx + 3,
-      cby - 1
-    ]
+    {
+      x: cbx + 3,
+      y: cby - 1
+    }
   ];
   var two_001 = /* :: */[
     /* tuple */[
       typ,
-      /* tuple */[
-        cbx + 4,
-        cby - 1
-      ]
+      {
+        x: cbx + 4,
+        y: cby - 1
+      }
     ],
     /* [] */0
   ];
@@ -2766,26 +2748,26 @@ function generate_airup_stairs(cbx, cby, typ) {
   ];
   var three_000 = /* tuple */[
     typ,
-    /* tuple */[
-      cbx + 4,
-      cby - 2
-    ]
+    {
+      x: cbx + 4,
+      y: cby - 2
+    }
   ];
   var three_001 = /* :: */[
     /* tuple */[
       typ,
-      /* tuple */[
-        cbx + 5,
-        cby - 2
-      ]
+      {
+        x: cbx + 5,
+        y: cby - 2
+      }
     ],
     /* :: */[
       /* tuple */[
         typ,
-        /* tuple */[
-          cbx + 6,
-          cby - 2
-        ]
+        {
+          x: cbx + 6,
+          y: cby - 2
+        }
       ],
       /* [] */0
     ]
@@ -2800,26 +2782,26 @@ function generate_airup_stairs(cbx, cby, typ) {
 function generate_airdown_stairs(cbx, cby, typ) {
   var three_000 = /* tuple */[
     typ,
-    /* tuple */[
-      cbx,
-      cby
-    ]
+    {
+      x: cbx,
+      y: cby
+    }
   ];
   var three_001 = /* :: */[
     /* tuple */[
       typ,
-      /* tuple */[
-        cbx + 1,
-        cby
-      ]
+      {
+        x: cbx + 1,
+        y: cby
+      }
     ],
     /* :: */[
       /* tuple */[
         typ,
-        /* tuple */[
-          cbx + 2,
-          cby
-        ]
+        {
+          x: cbx + 2,
+          y: cby
+        }
       ],
       /* [] */0
     ]
@@ -2830,18 +2812,18 @@ function generate_airdown_stairs(cbx, cby, typ) {
   ];
   var two_000 = /* tuple */[
     typ,
-    /* tuple */[
-      cbx + 2,
-      cby + 1
-    ]
+    {
+      x: cbx + 2,
+      y: cby + 1
+    }
   ];
   var two_001 = /* :: */[
     /* tuple */[
       typ,
-      /* tuple */[
-        cbx + 3,
-        cby + 1
-      ]
+      {
+        x: cbx + 3,
+        y: cby + 1
+      }
     ],
     /* [] */0
   ];
@@ -2851,18 +2833,18 @@ function generate_airdown_stairs(cbx, cby, typ) {
   ];
   var one_000 = /* tuple */[
     typ,
-    /* tuple */[
-      cbx + 5,
-      cby + 2
-    ]
+    {
+      x: cbx + 5,
+      y: cby + 2
+    }
   ];
   var one_001 = /* :: */[
     /* tuple */[
       typ,
-      /* tuple */[
-        cbx + 6,
-        cby + 2
-      ]
+      {
+        x: cbx + 6,
+        y: cby + 2
+      }
     ],
     /* [] */0
   ];
@@ -2880,10 +2862,10 @@ function generate_clouds(cbx, cby, typ, num) {
     return $at(/* :: */[
                 /* tuple */[
                   typ,
-                  /* tuple */[
-                    cbx,
-                    cby
-                  ]
+                  {
+                    x: cbx,
+                    y: cby
+                  }
                 ],
                 /* [] */0
               ], generate_clouds(cbx + 1, cby, typ, num - 1 | 0));
@@ -2900,15 +2882,15 @@ function generate_coins(_block_coord) {
     var t = block_coord[1];
     var h = block_coord[0];
     if (place_coin === 0) {
-      var xc = h[1][0];
-      var yc = h[1][1];
+      var xc = h[1].x;
+      var yc = h[1].y;
       return $at(/* :: */[
                   /* tuple */[
                     0,
-                    /* tuple */[
-                      xc,
-                      yc - 16
-                    ]
+                    {
+                      x: xc,
+                      y: yc - 16
+                    }
                   ],
                   /* [] */0
                 ], generate_coins(t));
@@ -2932,26 +2914,26 @@ function choose_block_pattern(blockw, blockh, cbx, cby, prob) {
           return /* :: */[
                   /* tuple */[
                     stair_typ,
-                    /* tuple */[
-                      cbx,
-                      cby
-                    ]
+                    {
+                      x: cbx,
+                      y: cby
+                    }
                   ],
                   /* :: */[
                     /* tuple */[
                       middle_block,
-                      /* tuple */[
-                        cbx + 1,
-                        cby
-                      ]
+                      {
+                        x: cbx + 1,
+                        y: cby
+                      }
                     ],
                     /* :: */[
                       /* tuple */[
                         stair_typ,
-                        /* tuple */[
-                          cbx + 2,
-                          cby
-                        ]
+                        {
+                          x: cbx + 2,
+                          y: cby
+                        }
                       ],
                       /* [] */0
                     ]
@@ -2961,18 +2943,18 @@ function choose_block_pattern(blockw, blockh, cbx, cby, prob) {
           return /* :: */[
                   /* tuple */[
                     block_typ,
-                    /* tuple */[
-                      cbx,
-                      cby
-                    ]
+                    {
+                      x: cbx,
+                      y: cby
+                    }
                   ],
                   /* :: */[
                     /* tuple */[
                       block_typ,
-                      /* tuple */[
-                        cbx + 1,
-                        cby
-                      ]
+                      {
+                        x: cbx + 1,
+                        y: cby
+                      }
                     ],
                     /* [] */0
                   ]
@@ -2981,10 +2963,10 @@ function choose_block_pattern(blockw, blockh, cbx, cby, prob) {
           return /* :: */[
                   /* tuple */[
                     block_typ,
-                    /* tuple */[
-                      cbx,
-                      cby
-                    ]
+                    {
+                      x: cbx,
+                      y: cby
+                    }
                   ],
                   /* [] */0
                 ];
@@ -3011,10 +2993,10 @@ function choose_block_pattern(blockw, blockh, cbx, cby, prob) {
           return /* :: */[
                   /* tuple */[
                     stair_typ,
-                    /* tuple */[
-                      cbx,
-                      cby
-                    ]
+                    {
+                      x: cbx,
+                      y: cby
+                    }
                   ],
                   /* [] */0
                 ];
@@ -3024,10 +3006,10 @@ function choose_block_pattern(blockw, blockh, cbx, cby, prob) {
           return /* :: */[
                   /* tuple */[
                     stair_typ,
-                    /* tuple */[
-                      cbx,
-                      cby
-                    ]
+                    {
+                      x: cbx,
+                      y: cby
+                    }
                   ],
                   /* [] */0
                 ];
@@ -3035,18 +3017,18 @@ function choose_block_pattern(blockw, blockh, cbx, cby, prob) {
           return /* :: */[
                   /* tuple */[
                     stair_typ,
-                    /* tuple */[
-                      cbx,
-                      cby
-                    ]
+                    {
+                      x: cbx,
+                      y: cby
+                    }
                   ],
                   /* :: */[
                     /* tuple */[
                       stair_typ,
-                      /* tuple */[
-                        cbx,
-                        cby + 1
-                      ]
+                      {
+                        x: cbx,
+                        y: cby + 1
+                      }
                     ],
                     /* [] */0
                   ]
@@ -3055,26 +3037,26 @@ function choose_block_pattern(blockw, blockh, cbx, cby, prob) {
           return /* :: */[
                   /* tuple */[
                     stair_typ,
-                    /* tuple */[
-                      cbx,
-                      cby
-                    ]
+                    {
+                      x: cbx,
+                      y: cby
+                    }
                   ],
                   /* :: */[
                     /* tuple */[
                       stair_typ,
-                      /* tuple */[
-                        cbx,
-                        cby + 1
-                      ]
+                      {
+                        x: cbx,
+                        y: cby + 1
+                      }
                     ],
                     /* :: */[
                       /* tuple */[
                         stair_typ,
-                        /* tuple */[
-                          cbx,
-                          cby + 2
-                        ]
+                        {
+                          x: cbx,
+                          y: cby + 2
+                        }
                       ],
                       /* [] */0
                     ]
@@ -3085,10 +3067,10 @@ function choose_block_pattern(blockw, blockh, cbx, cby, prob) {
         return /* :: */[
                 /* tuple */[
                   3,
-                  /* tuple */[
-                    cbx,
-                    cby
-                  ]
+                  {
+                    x: cbx,
+                    y: cby
+                  }
                 ],
                 /* [] */0
               ];
@@ -3109,10 +3091,10 @@ function generate_enemies(blockw, blockh, _cbx, _cby, acc) {
       _cbx = cbx + 1;
       continue ;
     }
-    if (mem_loc(/* tuple */[
-            cbx,
-            cby
-          ], acc) || cby === 0) {
+    if (mem_loc({
+            x: cbx,
+            y: cby
+          }, acc) || cby === 0) {
       _cby = cby + 1;
       continue ;
     }
@@ -3120,10 +3102,10 @@ function generate_enemies(blockw, blockh, _cbx, _cby, acc) {
     if (prob < 3 && blockh - 1 === cby) {
       var enemy_000 = /* tuple */[
         prob,
-        /* tuple */[
-          cbx * 16,
-          cby * 16
-        ]
+        {
+          x: cbx * 16,
+          y: cby * 16
+        }
       ];
       var enemy = /* :: */[
         enemy_000,
@@ -3147,15 +3129,15 @@ function generate_block_enemies(_block_coord) {
     var t = block_coord[1];
     var h = block_coord[0];
     if (place_enemy === 0) {
-      var xc = h[1][0];
-      var yc = h[1][1];
+      var xc = h[1].x;
+      var yc = h[1].y;
       return $at(/* :: */[
                   /* tuple */[
                     enemy_typ,
-                    /* tuple */[
-                      xc,
-                      yc - 16
-                    ]
+                    {
+                      x: xc,
+                      y: yc - 16
+                    }
                   ],
                   /* [] */0
                 ], generate_block_enemies(t));
@@ -3178,10 +3160,10 @@ function generate_block_locs(blockw, blockh, _cbx, _cby, _acc) {
       _cbx = cbx + 1;
       continue ;
     }
-    if (mem_loc(/* tuple */[
-            cbx,
-            cby
-          ], acc) || cby === 0) {
+    if (mem_loc({
+            x: cbx,
+            y: cby
+          }, acc) || cby === 0) {
       _cby = cby + 1;
       continue ;
     }
@@ -3200,10 +3182,10 @@ function generate_block_locs(blockw, blockh, _cbx, _cby, _acc) {
 }
 
 function generate_panel(context, blockw, blockh) {
-  return spawn(/* SBlock */__(3, [/* Panel */4]), context, /* tuple */[
-              blockw * 16 - 256,
-              blockh * 16 * 2 / 3
-            ]);
+  return spawn(/* SBlock */__(3, [/* Panel */4]), context, {
+              x: blockw * 16 - 256,
+              y: blockh * 16 * 2 / 3
+            });
 }
 
 function generate_ground(blockw, blockh, _inc, _acc) {
@@ -3218,10 +3200,10 @@ function generate_ground(blockw, blockh, _inc, _acc) {
       var newacc = $at(acc, /* :: */[
             /* tuple */[
               4,
-              /* tuple */[
-                inc * 16,
-                blockh * 16
-              ]
+              {
+                x: inc * 16,
+                y: blockh * 16
+              }
             ],
             /* [] */0
           ]);
@@ -3236,10 +3218,10 @@ function generate_ground(blockw, blockh, _inc, _acc) {
     var newacc$1 = $at(acc, /* :: */[
           /* tuple */[
             4,
-            /* tuple */[
-              inc * 16,
-              blockh * 16
-            ]
+            {
+              x: inc * 16,
+              y: blockh * 16
+            }
           ],
           /* [] */0
         ]);
@@ -3317,10 +3299,10 @@ function generate(w, h, context) {
   var player = spawn(/* SPlayer */__(0, [
           /* SmallM */1,
           /* Standing */0
-        ]), context, /* tuple */[
-        100,
-        224
-      ]);
+        ]), context, {
+        x: 100,
+        y: 224
+      });
   return /* tuple */[
           player,
           collide_list
