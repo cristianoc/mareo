@@ -1,17 +1,20 @@
-type imageElement;
+type imageElement = {mutable src: string};
 
 type canvasRenderingContext2D = {
   drawImage:
     (. imageElement, float, float, float, float, float, float, float, float) =>
     unit,
   fill: (. unit) => unit,
-  [@live] mutable fillStyle: string,
+  [@live]
+  mutable fillStyle: string,
   fillText: (. string, float, float) => unit,
-  [@live] mutable font: string,
+  [@live]
+  mutable font: string,
   rect: (. float, float, float, float) => unit,
   scale: (. float, float) => unit,
   strokeRect: (. float, float, float, float) => unit,
-  [@live] mutable strokeStyle: string,
+  [@live]
+  mutable strokeStyle: string,
 };
 
 type canvasElement;
@@ -42,9 +45,6 @@ external addEventListener:
 external addEventListenerImg:
   (imageElement, string, Dom.event_like('a) => bool, bool) => unit =
   "addEventListener";
-
-/* unsafe casts */
-external imageElementToJsObj: imageElement => Js.t({..}) = "%identity";
 
 type renderingContext;
 

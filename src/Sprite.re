@@ -383,7 +383,7 @@ let make_type = (typ, dir: Actors.dir_1d) =>
 /* Makes a sprite from provided [params]. */
 let make_from_params = (params, context) => {
   let img = Html.createImg(Html.document);
-  Html.imageElementToJsObj(img)##src #= params.img_src;
+  img.src = params.img_src;
   {params, context, img, frame: ref(0), ticks: ref(0)};
 };
 
@@ -409,7 +409,7 @@ let make_particle = (ptyp, context) => {
 let transform_enemy = (enemy_typ, spr, dir) => {
   let params = make_enemy((enemy_typ, dir));
   let img = Html.createImg(Html.document);
-  Html.imageElementToJsObj(img)##src #= params.img_src;
+  img.src = params.img_src;
   spr.params = params;
   spr.img = img;
 };

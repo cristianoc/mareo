@@ -23,11 +23,7 @@ let load = _ => {
   Generator.init();
   Director.update_loop(
     canvas,
-    Generator.generate(
-      Config.level_width,
-      Config.level_height,
-      context,
-    ),
+    Generator.generate(Config.level_width, Config.level_height, context),
   );
 };
 
@@ -50,7 +46,7 @@ let preload = _ => {
     (. img_src) => {
       let img_src = Config.root_dir ++ img_src;
       let img = Html.createImg(Html.document);
-      Html.imageElementToJsObj(img)##src #= img_src;
+      img.src = img_src;
       ignore(
         Html.addEventListenerImg(
           img,
