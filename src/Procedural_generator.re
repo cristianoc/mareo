@@ -2,15 +2,13 @@ open Actors;
 
 open Object;
 
-/*Note: Canvas is 512 by 256 (w*h) -> 32 by 16 blocks*/
-/*Holds obj typ and its coordinates. (int, (x-coord, y-coord))*/
+// Note: Canvas is 512 by 256 (w*h) -> 32 by 16 blocks
+// Holds obj typ and its coordinates. (int, (x-coord, y-coord))
 type obj_coord = (int, (float, float));
 
-/*Checks if the given location checkloc is already part of the list of locations
- * in loclist.*/
-let rec mem_loc =
-        (checkloc: (float, float), loclist: list(obj_coord))
-        : bool =>
+// Check if the given location checkloc is already part of the list of locations
+// in loclist
+let rec mem_loc = (checkloc: (float, float), loclist: list(obj_coord)): bool =>
   switch (loclist) {
   | [] => false
   | [h, ...t] =>
@@ -21,9 +19,8 @@ let rec mem_loc =
     }
   };
 
-/*Converts list of locations from blocksize to pixelsize by multiplying (x,y) by
- * 16.*/
-let rec convert_list = (lst: list(obj_coord)) : list(obj_coord) =>
+// Convert list of locations from blocksize to pixelsize by multiplying (x,y) by 16.
+let rec convert_list = (lst: list(obj_coord)): list(obj_coord) =>
   switch (lst) {
   | [] => []
   | [h, ...t] =>
@@ -31,8 +28,8 @@ let rec convert_list = (lst: list(obj_coord)) : list(obj_coord) =>
     @ convert_list(t)
   };
 
-/*Chooses what type of enemy should be instantiated given typ number*/
-let choose_enemy_typ = (typ: int) : enemy_typ =>
+// Choose what type of enemy should be instantiated given typ number
+let choose_enemy_typ = (typ: int): enemy_typ =>
   switch (typ) {
   | 0 => RKoopa
   | 1 => GKoopa
@@ -40,8 +37,8 @@ let choose_enemy_typ = (typ: int) : enemy_typ =>
   | _ => failwith("Shouldn't reach here")
   };
 
-/*Chooses what type of block should be instantiated given typ number*/
-let choose_sblock_typ = (typ: int) : block_typ =>
+// Choose what type of block should be instantiated given typ number
+let choose_sblock_typ = (typ: int): block_typ =>
   switch (typ) {
   | 0 => Brick
   | 1 => UnBBlock
@@ -51,8 +48,8 @@ let choose_sblock_typ = (typ: int) : block_typ =>
   | _ => failwith("Shouldn't reach here")
   };
 
-/*Optimizes lst such that there are no two items in the list that have the same
- * coordinates. If there is one, it is removed.*/
+// Optimize lst such that there are no two items in the list that have the same
+// coordinates. If there is one, it is removed.
 let rec avoid_overlap =
         (lst: list(obj_coord), currentLst: list(obj_coord))
         : list(obj_coord) =>
@@ -66,8 +63,8 @@ let rec avoid_overlap =
     }
   };
 
-/*Gets rid of objects with coordinates in the ending frame, within 128 pixels of
- * the start, at the very top, and two blocks from the ground.*/
+// Get rid of objects with coordinates in the ending frame, within 128 pixels of
+// the start, at the very top, and two blocks from the ground.
 let rec trim_edges =
         (lst: list(obj_coord), blockw: float, blockh: float)
         : list(obj_coord) =>
@@ -85,8 +82,8 @@ let rec trim_edges =
     };
   };
 
-/*Generates a stair formation with block typ being dependent on typ. This type
- * of stair formation requires that the first step be on the ground.*/
+// Generate a stair formation with block typ being dependent on typ. This type
+// of stair formation requires that the first step be on the ground.
 let generate_ground_stairs = (cbx, cby, typ) => {
   let four = [
     (typ, (cbx, cby)),
@@ -107,7 +104,7 @@ let generate_ground_stairs = (cbx, cby, typ) => {
   four @ three @ two @ one;
 };
 
-/*Generates a stair formation going upwards.*/
+// Generate a stair formation going upwards.
 let generate_airup_stairs = (cbx, cby, typ) => {
   let one = [(typ, (cbx, cby)), (typ, (cbx +. 1., cby))];
   let two = [
@@ -122,7 +119,7 @@ let generate_airup_stairs = (cbx, cby, typ) => {
   one @ two @ three;
 };
 
-/*Generates a stair formation going downwards*/
+// Generate a stair formation going downwards
 let generate_airdown_stairs = (cbx, cby, typ) => {
   let three = [
     (typ, (cbx, cby)),
@@ -140,7 +137,7 @@ let generate_airdown_stairs = (cbx, cby, typ) => {
   three @ two @ one;
 };
 
-/*Generates a cloud block platform with some length num.*/
+// Generate a cloud block platform with some length num.
 let rec generate_clouds = (cbx, cby, typ, num) =>
   if (num == 0) {
     [];
@@ -148,8 +145,8 @@ let rec generate_clouds = (cbx, cby, typ, num) =>
     [(typ, (cbx, cby))] @ generate_clouds(cbx +. 1., cby, typ, num - 1);
   };
 
-/*Generates an obj_coord list (typ, coordinates) of coins to be placed.*/
-let rec generate_coins = (block_coord: list(obj_coord)) : list(obj_coord) => {
+// Generate an obj_coord list (typ, coordinates) of coins to be placed.
+let rec generate_coins = (block_coord: list(obj_coord)): list(obj_coord) => {
   let place_coin = Random.int(2);
   switch (block_coord) {
   | [] => []
@@ -164,15 +161,14 @@ let rec generate_coins = (block_coord: list(obj_coord)) : list(obj_coord) => {
   };
 };
 
-/*Chooses the form of the blocks to be placed.
- * When called, leaves a 1 block gap from canvas size.
- * 1. If current xblock or yblock is greater than canvas width or height
- *    respectively, return an empty list.
- * 2. If current xblock or yblock is within 10 blocks of the left and right sides
- *    of the level map, prevent any objects from being initialized.
- * 3. Else call helper methods to created block formations and return obj_coord
- *    list.
- **/
+// Choose the form of the blocks to be placed.
+// When called, leaves a 1 block gap from canvas size.
+// 1. If current xblock or yblock is greater than canvas width or height
+//    respectively, return an empty list.
+// 2. If current xblock or yblock is within 10 blocks of the left and right sides
+//    of the level map, prevent any objects from being initialized.
+// 3. Else call helper methods to created block formations and return obj_coord
+//    slist.
 let choose_block_pattern =
     (blockw: float, blockh: float, cbx: float, cby: float, prob: int)
     : list(obj_coord) =>
@@ -241,7 +237,7 @@ let choose_block_pattern =
     obj_coord;
   };
 
-/*Generates a list of enemies to be placed on the ground.*/
+// Generates a list of enemies to be placed on the ground.
 let rec generate_enemies =
         (
           blockw: float,
@@ -267,10 +263,9 @@ let rec generate_enemies =
     };
   };
 
-/*Generates a list of enemies to be placed upon the block objects.*/
+// Generates a list of enemies to be placed upon the block objects.
 let rec generate_block_enemies =
-        (block_coord: list(obj_coord))
-        : list(obj_coord) => {
+        (block_coord: list(obj_coord)): list(obj_coord) => {
   let place_enemy = Random.int(20);
   let enemy_typ = Random.int(3);
   switch (block_coord) {
@@ -286,7 +281,7 @@ let rec generate_block_enemies =
   };
 };
 
-/*Generates an obj_coord list (typ, coordinates) of blocks to be placed.*/
+// Generate an obj_coord list (typ, coordinates) of blocks to be placed.
 let rec generate_block_locs =
         (
           blockw: float,
@@ -315,8 +310,8 @@ let rec generate_block_locs =
     };
   };
 
-/*Generates the ending item panel at the end of the level. Games ends upon
- * collision with player.*/
+// Generate the ending item panel at the end of the level. Games ends upon
+// collision with player.
 let generate_panel =
     (context: Html.canvasRenderingContext2D, blockw: float, blockh: float)
     : collidable => {
@@ -329,8 +324,8 @@ let generate_panel =
   ob;
 };
 
-/*Generates the list of brick locations needed to display the ground.
- * 1/10 chance that a ground block is skipped each call to create holes.*/
+// Generate the list of brick locations needed to display the ground.
+// 1/10 chance that a ground block is skipped each call to create holes.
 let rec generate_ground =
         (blockw: float, blockh: float, inc: float, acc: list(obj_coord))
         : list(obj_coord) =>
@@ -349,8 +344,8 @@ let rec generate_ground =
     generate_ground(blockw, blockh, inc +. 1., newacc);
   };
 
-/*Converts the obj_coord list called by generate_block_locs to a list of objects
- * with the coordinates given from the obj_coord list. */
+// Convert the obj_coord list called by generate_block_locs to a list of objects
+// with the coordinates given from the obj_coord list.
 let rec convert_to_block_obj =
         (lst: list(obj_coord), context: Html.canvasRenderingContext2D)
         : list(collidable) =>
@@ -362,8 +357,8 @@ let rec convert_to_block_obj =
     [ob] @ convert_to_block_obj(t, context);
   };
 
-/*Converts the obj_coord list called by generate_enemies to a list of objects
- * with the coordinates given from the obj_coord list. */
+// Convert the obj_coord list called by generate_enemies to a list of objects
+// with the coordinates given from the obj_coord list.
 let rec convert_to_enemy_obj =
         (lst: list(obj_coord), context: Html.canvasRenderingContext2D)
         : list(collidable) =>
@@ -375,7 +370,7 @@ let rec convert_to_enemy_obj =
     [ob] @ convert_to_enemy_obj(t, context);
   };
 
-/*Converts the list of coordinates into a list of Coin objects*/
+// Convert the list of coordinates into a list of Coin objects
 let rec convert_to_coin_obj =
         (lst: list(obj_coord), context: Html.canvasRenderingContext2D)
         : list(collidable) =>
@@ -387,9 +382,9 @@ let rec convert_to_coin_obj =
     [ob] @ convert_to_coin_obj(t, context);
   };
 
-/*Procedurally generates a list of collidables given canvas width, height and
- * context. Arguments block width (blockw) and block height (blockh) are in
- * block form, not pixels.*/
+// Procedurally generate a list of collidables given canvas width, height and
+// context. Arguments block width (blockw) and block height (blockh) are in
+// block form, not pixels.
 let generate_helper =
     (
       blockw: float,
@@ -433,9 +428,9 @@ let generate_helper =
   @ [obj_panel];
 };
 
-/*Main function called to procedurally generate the level map. w and h args
- * are in pixel form. Converts to block form to call generate_helper. Spawns
- * the list of collidables received from generate_helper to display on canvas.*/
+// Main function called to procedurally generate the level map. w and h args
+// are in pixel form. Converts to block form to call generate_helper. Spawns
+// the list of collidables received from generate_helper to display on canvas.
 let generate =
     (w: float, h: float, context: Html.canvasRenderingContext2D)
     : (collidable, list(collidable)) => {
@@ -447,5 +442,5 @@ let generate =
   (player, collide_list);
 };
 
-/*Makes sure level map is uniquely generated at each call.*/
+// Makes sure level map is uniquely generated at each call.
 let init = () => Random.self_init();
