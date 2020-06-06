@@ -58,12 +58,11 @@ let calc_fps = (t0, t1) => {
 /* Adds [i] to the score in [state] */
 let update_score = (state, i) => state.score = state.score + i;
 
-/*player_attack_enemy is called for a player hitting an enemy from the north.
- *This causes the player to either kill the enemy or move the enemy, in the
- *case that the enemy is a shell. Invulnerability, jumping, and grounded
- *are used for fine tuning the movements.*/
-let player_attack_enemy = (s1, o1, typ, s2, o2, state, context) => {
-  ignore(s1);
+// playerAttackEnemy is called for a player hitting an enemy from the north.
+// This causes the player to either kill the enemy or move the enemy, in the
+// case that the enemy is a shell. Invulnerability, jumping, and grounded
+// are used for fine tuning the movements.
+let playerAttackEnemy = (o1, typ, s2, o2, state, context) => {
   o1.invuln = 10;
   o1.jumping = false;
   o1.grounded = true;
@@ -91,10 +90,8 @@ let player_attack_enemy = (s1, o1, typ, s2, o2, state, context) => {
   };
 };
 
-/*enemy_attack_player is used when an enemy kills a player.*/
-let enemy_attack_player =
-    (s1, o1: Object.obj, t2, s2, o2: Object.obj, context) => {
-  ignore(s1);
+// enemyAttackPlayer is used when an enemy kills a player.
+let enemyAttackPlayer = (o1: Object.obj, t2, s2, o2: Object.obj, context) => {
   switch (t2) {
   | GKoopaShell
   | RKoopaShell =>
@@ -193,10 +190,10 @@ let process_collision =
   switch (c1, c2, dir) {
   | (Player(_, s1, o1), Enemy(typ, s2, o2), South)
   | (Enemy(typ, s2, o2), Player(_, s1, o1), North) =>
-    player_attack_enemy(s1, o1, typ, s2, o2, state, context)
+    playerAttackEnemy(o1, typ, s2, o2, state, context)
   | (Player(_, s1, o1), Enemy(t2, s2, o2), _)
   | (Enemy(t2, s2, o2), Player(_, s1, o1), _) =>
-    enemy_attack_player(s1, o1, t2, s2, o2, context)
+    enemyAttackPlayer(o1, t2, s2, o2, context)
   | (Player(_, _, o1), Item(t2, _, o2), _)
   | (Item(t2, _, o2), Player(_, _, o1), _) =>
     switch (t2) {
@@ -517,13 +514,10 @@ let update_loop = (canvas, (player, objs), map_dim) => {
           ...state,
           vpt: Viewport.update(state.vpt, get_obj(player).pos),
         };
-        List.forEach(objs, obj =>
-          ignore(run_update_collid(state, obj, objs))
-        );
+        List.forEach(objs, obj => run_update_collid(state, obj, objs));
         List.forEach(parts, part => run_update_particle(state, part));
         Draw.fps(canvas, fps);
         Draw.hud(canvas, state.score, state.coins);
-        ignore @@
         Html.requestAnimationFrame((t: float) =>
           update_helper(t, state, player, collid_objs^, particles^)
         );
