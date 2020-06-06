@@ -4,24 +4,24 @@ type canvasRenderingContext2D;
 
 type canvasElement;
 
-[@bs.val] external document : Dom.document = "";
+[@bs.val] external document : Dom.document = "document";
 
-[@bs.val] external window : Dom.window = "";
+[@bs.val] external window : Dom.window = "window";
 
 /* external createImg: (_ [@bs.as "img"]) -> document -> imageElement = "createElement" [@@bs.send] */
 [@bs.send]
 external createImg : (Dom.document, [@bs.as "img"] _) => imageElement =
   "createElement";
 
-[@bs.val] external requestAnimationFrame : (float => unit) => unit = "";
+[@bs.val] external requestAnimationFrame : (float => unit) => unit = "requestAnimationFrame";
 
 [@bs.return null_to_opt] [@bs.send]
-external getElementById : (Dom.document, string) => option(Dom.element) = "";
+external getElementById : (Dom.document, string) => option(Dom.element) = "getElementById";
 
 [@bs.send]
 external addEventListener :
   (Dom.document, string, Dom.event_like('a) => bool, bool) => unit =
-  "";
+  "addEventListener";
 
 [@bs.send]
 external addEventListenerImg :

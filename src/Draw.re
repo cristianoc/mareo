@@ -1,7 +1,5 @@
 open Sprite;
 
-module Html = Dom_html;
-
 let render_bbox = (sprite, (posx, posy)) => {
   let context = Dom_html.canvasRenderingContext2DToJsObj(sprite.context);
   let (bbox, bboy) = sprite.params.bbox_offset;
