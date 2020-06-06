@@ -267,7 +267,7 @@ let process_collision =
         (None, None);
       }
     | Panel =>
-      Draw.game_win(state.ctx);
+      Draw.gameWin(state.ctx);
       (None, None);
     | _ =>
       collide_block(dir, o1);
@@ -276,7 +276,7 @@ let process_collision =
   | (Player(_, _, o1), Block(t, _, _), _) =>
     switch (t) {
     | Panel =>
-      Draw.game_win(state.ctx);
+      Draw.gameWin(state.ctx);
       (None, None);
     | _ =>
       switch (dir) {
@@ -498,7 +498,7 @@ let update_loop = (canvas, (player, objs), map_dim) => {
 
   let rec update_helper = (time, state, player, objs, parts) =>
     if (state.game_over == true) {
-      Draw.game_win(state.ctx);
+      Draw.gameWin(state.ctx);
     } else {
       collid_objs := [];
       particles := [];
@@ -511,7 +511,7 @@ let update_loop = (canvas, (player, objs), map_dim) => {
       Draw.draw_bgd(state.bgd, float_of_int(vpos_x_int mod bgd_width));
       let player = run_update_collid(state, player, objs);
       if (get_obj(player).kill == true) {
-        Draw.game_loss(state.ctx);
+        Draw.gameLose(state.ctx);
       } else {
         let state = {
           ...state,

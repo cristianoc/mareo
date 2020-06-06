@@ -8,7 +8,7 @@ let render_bbox = (sprite, (posx, posy)) => {
   context.strokeRect(. posx +. bbox, posy +. bboy, bbsx, bbsy);
 };
 
-/*Draws a sprite onto the canvas.*/
+// Draws a sprite onto the canvas
 let render = (sprite, (posx, posy)) => {
   let context = sprite.context;
   let (sx, sy) = sprite.params.src_offset;
@@ -16,20 +16,18 @@ let render = (sprite, (posx, posy)) => {
   let (dx, dy) = (posx, posy);
   let (dw, dh) = sprite.params.frame_size;
   let sx = sx +. float_of_int(sprite.frame^) *. sw;
-  /*print_endline (string_of_int !(sprite.frame));*/
-  /*context##clearRect(0.,0.,sw, sh);*/
   context.drawImage(. sprite.img, sx, sy, sw, sh, dx, dy, dw, dh);
 };
 
-/*Draws two background images, which needs to be done because of the
- *constantly changing viewport, which is always at most going to be
- *between two background images.*/
+// Draws two background images, which needs to be done because of the
+// constantly changing viewport, which is always at most going to be
+// between two background images.
 let draw_bgd = (bgd, off_x) => {
   render(bgd, (-. off_x, 0.));
   render(bgd, (fst(bgd.params.frame_size) -. off_x, 0.));
 };
 
-/*Used for animation updating. Canvas is cleared each frame and redrawn.*/
+// Used for animation updating. Canvas is cleared each frame and redrawn.
 let clear_canvas = canvas => {
   let canvas = Html.canvasElementToJsObj(canvas);
   let context = canvas##getContext("2d");
@@ -38,7 +36,7 @@ let clear_canvas = canvas => {
   ignore @@ context##clearRect(0., 0., cwidth, cheight);
 };
 
-/*Displays the text for score and coins.*/
+// Displays the text for score and coins.
 let hud = (canvas, score, coins) => {
   let score_string = string_of_int(score);
   let coin_string = string_of_int(coins);
@@ -54,7 +52,7 @@ let hud = (canvas, score, coins) => {
   ignore @@ context##fillText("Coins: " ++ coin_string, 120., 18.);
 };
 
-/*Displays the fps.*/
+// Displays the fps.
 let fps = (canvas, fps_val) => {
   let fps_str = int_of_float(fps_val) |> string_of_int;
   let canvas = Html.canvasElementToJsObj(canvas);
@@ -62,8 +60,8 @@ let fps = (canvas, fps_val) => {
   ignore @@ context##fillText(fps_str, 10., 18.);
 };
 
-/* game_win displays a black screen when you finish a game. */
-let game_win = (ctx: Html.canvasRenderingContext2D) => {
+// game_win displays a black screen when you finish a game.
+let gameWin = (ctx: Html.canvasRenderingContext2D) => {
   ctx.rect(. 0., 0., 512., 512.);
   ctx.fillStyle = "black";
   ctx.fill(.);
@@ -73,8 +71,8 @@ let game_win = (ctx: Html.canvasRenderingContext2D) => {
   failwith("Game over.");
 };
 
-/* game_loss displays a black screen stating a loss to finish that level play. */
-let game_loss = (ctx: Html.canvasRenderingContext2D) => {
+// game_loss displays a black screen stating a loss to finish that level play.
+let gameLose = (ctx: Html.canvasRenderingContext2D) => {
   ctx.rect(. 0., 0., 512., 512.);
   ctx.fillStyle = "black";
   ctx.fill(.);

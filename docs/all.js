@@ -958,7 +958,7 @@ function fps(canvas, fps_val) {
   
 }
 
-function game_win(ctx) {
+function gameWin(ctx) {
   ctx.rect(0, 0, 512, 512);
   ctx.fillStyle = "black";
   ctx.fill();
@@ -968,7 +968,7 @@ function game_win(ctx) {
   return failwith("Game over.");
 }
 
-function game_loss(ctx) {
+function gameLose(ctx) {
   ctx.rect(0, 0, 512, 512);
   ctx.fillStyle = "black";
   ctx.fill();
@@ -2653,7 +2653,7 @@ function process_collision(dir, c1, c2, state) {
               if (dir !== 0) {
                 var exit$1 = 0;
                 if (typeof t === "number" && t === 4) {
-                  game_win(state.ctx);
+                  gameWin(state.ctx);
                   return /* tuple */[
                           undefined,
                           undefined
@@ -2687,7 +2687,7 @@ function process_collision(dir, c1, c2, state) {
                               undefined
                             ];
                     } else {
-                      game_win(state.ctx);
+                      gameWin(state.ctx);
                       return /* tuple */[
                               undefined,
                               undefined
@@ -3170,7 +3170,7 @@ function update_loop(canvas, param, map_dim) {
   state.ctx.scale(1, 1);
   var update_helper = function (time, state, player, objs, parts) {
     if (state.game_over === true) {
-      return game_win(state.ctx);
+      return gameWin(state.ctx);
     }
     collid_objs.contents = /* [] */0;
     particles.contents = /* [] */0;
@@ -3182,7 +3182,7 @@ function update_loop(canvas, param, map_dim) {
     draw_bgd(state.bgd, mod_(vpos_x_int, bgd_width));
     var player$1 = run_update_collid(state, player, objs);
     if (get_obj(player$1).kill === true) {
-      return game_loss(state.ctx);
+      return gameLose(state.ctx);
     }
     var state$1 = {
       bgd: state.bgd,
