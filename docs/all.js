@@ -2607,14 +2607,14 @@ function process_collision(dir, c1, c2, state) {
               var t = c2[0];
               if (dir !== 0) {
                 var exit$1 = 0;
-                if (typeof t === "number" && t === 4) {
-                  gameWin(state.ctx);
-                  return /* tuple */[
-                          undefined,
-                          undefined
-                        ];
+                if (typeof t === "number") {
+                  if (t === 4) {
+                    return gameWin(state.ctx);
+                  }
+                  exit$1 = 3;
+                } else {
+                  exit$1 = 3;
                 }
-                exit$1 = 3;
                 if (exit$1 === 3) {
                   if (dir !== 1) {
                     collide_block(dir, o1$2);
@@ -2642,11 +2642,7 @@ function process_collision(dir, c1, c2, state) {
                               undefined
                             ];
                     } else {
-                      gameWin(state.ctx);
-                      return /* tuple */[
-                              undefined,
-                              undefined
-                            ];
+                      return gameWin(state.ctx);
                     }
                   } else if (c1[0] === /* BigM */0) {
                     collide_block(dir, o1$2);

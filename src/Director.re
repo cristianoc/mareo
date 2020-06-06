@@ -152,27 +152,6 @@ let col_enemy_enemy = (t1, s1, o1, t2, s2, o2, dir) =>
     }
   };
 
-/* Gets the object at a given position */
-/* let obj_at_pos dir (pos: xy) (collids: Object.collidable list)
-                                             : Object.collidable list =
-   match dir with
-   | Left -> List.filter (fun (col: Object.collidable) ->
-       (get_obj col).pos.y = pos.y && (get_obj col).pos.x = pos.x -. 16.)
-             collids
-   | _ -> List.filter (fun (col: Object.collidable) ->
-       (get_obj col).pos.y = pos.y && (get_obj col).pos.x = pos.x +. 16.)
-             collids */
-/* Returns whether the object at a given position is a block */
-/* let is_block dir pos collids =
-   match obj_at_pos dir pos collids with
-   | [] -> false
-   | [Block (_,_,_)] -> true
-   | _ -> false */
-/* Returns whether the given object is a red koopa */
-/* let is_rkoopa collid =
-   match collid with
-   | Enemy(RKoopa,_,_) -> true
-   | _ -> false */
 /* Process collision is called to match each of the possible collisions that
  * may occur. Returns a pair of collidable options, representing objects that
  * were created from the existing ones. That is, the first element represents
@@ -261,7 +240,6 @@ let process_collision =
       }
     | Panel =>
       Draw.gameWin(state.ctx);
-      (None, None);
     | _ =>
       collide_block(dir, o1);
       (None, None);
@@ -270,7 +248,6 @@ let process_collision =
     switch (t) {
     | Panel =>
       Draw.gameWin(state.ctx);
-      (None, None);
     | _ =>
       switch (dir) {
       | South =>
