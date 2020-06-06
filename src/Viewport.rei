@@ -1,8 +1,6 @@
-type viewport = {
-  pos: Actors.xy, /* Absolute position of viewport relative to map */
-  v_dim: Actors.xy, /* Dimensions of viewport */
-  m_dim: Actors.xy /* Dimensions of map */
-};
+type viewport;
+
+let getPos: viewport => Actors.xy;
 
 /* Makes a new viewport of viewport dimensions and map dimensions*/
 let make: ((float, float), (float, float)) => viewport;

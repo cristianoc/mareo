@@ -459,8 +459,8 @@ let run_update_collid = (state, collid, all_collids) =>
 /* Primary update function to update and persist a particle */
 let run_update_particle = (state, part) => {
   Particle.process(part);
-  let x = part.pos.x -. state.vpt.pos.x
-  and y = part.pos.y -. state.vpt.pos.y;
+  let x = part.pos.x -. state.vpt->Viewport.getPos.x
+  and y = part.pos.y -. state.vpt->Viewport.getPos.y;
   Draw.render(part.params.sprite, (x, y));
   if (!part.kill) {
     particles := [part, ...particles^];
@@ -499,7 +499,7 @@ let update_loop = (canvas, (player, objs), map_dim) => {
       last_time := time;
       Draw.clear_canvas(canvas);
       /* Parallax background */
-      let vpos_x_int = int_of_float(state.vpt.pos.x /. 5.);
+      let vpos_x_int = int_of_float(state.vpt->Viewport.getPos.x /. 5.);
       let bgd_width = int_of_float(fst(state.bgd.params.frame_size));
       Draw.draw_bgd(state.bgd, float_of_int(vpos_x_int mod bgd_width));
       let player = run_update_collid(state, player, objs);

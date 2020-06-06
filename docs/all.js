@@ -2449,6 +2449,10 @@ var dampen_jump = 4;
 
 /* No side effect */
 
+function getPos(param) {
+  return param.pos;
+}
+
 function make$8(param, param$1) {
   return {
           pos: {
@@ -3097,7 +3101,7 @@ function update_loop(canvas, param, map_dim) {
     var fps$$1 = calc_fps(last_time.contents, time);
     last_time.contents = time;
     clear_canvas(canvas);
-    var vpos_x_int = state.vpt.pos.x / 5 | 0;
+    var vpos_x_int = getPos(state.vpt).x / 5 | 0;
     var bgd_width = state.bgd.params.frame_size[0] | 0;
     draw_bgd(state.bgd, mod_(vpos_x_int, bgd_width));
     var player$1 = run_update_collid(state, player, objs);
@@ -3119,8 +3123,8 @@ function update_loop(canvas, param, map_dim) {
           }));
     forEach(parts, (function (part) {
             $$process(part);
-            var x = part.pos.x - state$1.vpt.pos.x;
-            var y = part.pos.y - state$1.vpt.pos.y;
+            var x = part.pos.x - getPos(state$1.vpt).x;
+            var y = part.pos.y - getPos(state$1.vpt).y;
             render(part.params.sprite, /* tuple */[
                   x,
                   y

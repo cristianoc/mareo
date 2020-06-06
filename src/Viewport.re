@@ -6,6 +6,8 @@ type viewport = {
   m_dim: Actors.xy,
 };
 
+let getPos = ({pos}) => pos;
+
 let make = ((vx, vy), (mx, my)) => {
   pos: {
     x: 0.,
