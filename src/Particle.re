@@ -7,7 +7,6 @@ type part_params = {
 
 type particle = {
   params: part_params,
-  part_type: Actors.part_typ,
   pos: Actors.xy,
   vel: Actors.xy,
   acc: Actors.xy,
@@ -43,7 +42,7 @@ let make = (~vel=(0., 0.), ~acc=(0., 0.), part_type, pos, ctx) => {
   let pos = pair_to_xy(pos)
   and vel = pair_to_xy(vel)
   and acc = pair_to_xy(acc);
-  {params, part_type, pos, vel, acc, kill: false, life: params.lifetime};
+  {params, pos, vel, acc, kill: false, life: params.lifetime};
 };
 
 let make_score = (score, pos, ctx) => {

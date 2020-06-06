@@ -214,10 +214,6 @@ let process_collision =
       dec_health(o2);
       update_score(state, 100);
       (None, None);
-    | _ =>
-      dec_health(o2);
-      update_score(state, 1000);
-      (None, None);
     }
   | (Enemy(t1, s1, o1), Enemy(t2, s2, o2), dir) =>
     col_enemy_enemy(t1, s1, o1, t2, s2, o2, dir)

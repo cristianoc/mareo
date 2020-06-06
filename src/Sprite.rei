@@ -21,19 +21,6 @@ type sprite = {
   mutable img: Html.imageElement,
 };
 
-/* Sets up a sprite to create */
-let setup_sprite:
-  (
-    ~bb_off: (float, float)=?,
-    ~bb_sz: (float, float)=?,
-    string,
-    int,
-    int,
-    xy,
-    xy
-  ) =>
-  sprite_params;
-
 /* Creates a sprite given the actor type */
 let make:
   (Actors.spawn_typ, Actors.dir_1d, Html.canvasRenderingContext2D) => sprite;

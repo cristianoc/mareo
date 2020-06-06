@@ -6,7 +6,6 @@ type part_params = {
 
 type particle = {
   params: part_params,
-  part_type: Actors.part_typ,
   pos: Actors.xy,
   vel: Actors.xy,
   acc: Actors.xy,

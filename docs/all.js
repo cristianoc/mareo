@@ -1648,7 +1648,6 @@ function make$5(velOpt, accOpt, part_type, pos, ctx) {
   var acc$1 = pair_to_xy(acc);
   return {
           params: params,
-          part_type: part_type,
           pos: pos$1,
           vel: vel$1,
           acc: acc$1,
