@@ -1,7 +1,6 @@
 /* Template params associated with a particle */
 type part_params = {
   sprite: Sprite.sprite, /* Backing sprite */
-  rot: float, /* Rotation */
   lifetime: int /* Life span */
 };
 

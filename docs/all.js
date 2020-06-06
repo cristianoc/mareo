@@ -1623,13 +1623,11 @@ function make_type$2(typ, ctx) {
   if (typ === 2 || typ === 1) {
     return {
             sprite: make_particle$1(typ, ctx),
-            rot: 0,
             lifetime: 300
           };
   } else {
     return {
             sprite: make_particle$1(typ, ctx),
-            rot: 0,
             lifetime: 30
           };
   }
