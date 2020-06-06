@@ -243,14 +243,18 @@ let process_collision =
         collide_block(dir, o1);
         (None, None);
       }
-    | Panel => Draw.gameWon(state.ctx)
+    | Panel =>
+      state.status = Won;
+      (None, None);
     | _ =>
       collide_block(dir, o1);
       (None, None);
     }
   | (Player(_, _, o1), Block(t, _, _), _) =>
     switch (t) {
-    | Panel => Draw.gameWon(state.ctx)
+    | Panel =>
+      state.status = Won;
+      (None, None);
     | _ =>
       switch (dir) {
       | South =>
