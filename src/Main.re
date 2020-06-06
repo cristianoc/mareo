@@ -4,8 +4,6 @@ open Belt;
 
 module Html = Html;
 
-module Pg = Procedural_generator;
-
 // Canvas is chosen from the index.html file. The context is obtained from
 // the canvas. Listeners are added. A level is generated and the general
 // update_loop method is called to make the level playable.
@@ -22,10 +20,14 @@ let load = _ => {
   let context = Html.canvasElementToJsObj(canvas)##getContext("2d");
   Html.addEventListener(Html.document, "keydown", Director.keydown, true);
   Html.addEventListener(Html.document, "keyup", Director.keyup, true);
-  Pg.init();
+  Generator.init();
   Director.update_loop(
     canvas,
-    Pg.generate(Config.level_width, Config.level_height, context),
+    Generator.generate(
+      Config.level_width,
+      Config.level_height,
+      context,
+    ),
   );
 };
 

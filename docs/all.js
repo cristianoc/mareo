@@ -2616,6 +2616,263 @@ function trim_edges(_lst, blockw, blockh) {
   }
 }
 
+function generate_ground_stairs(cbx, cby, typ) {
+  var four_000 = /* tuple */[
+    typ,
+    /* tuple */[
+      cbx,
+      cby
+    ]
+  ];
+  var four_001 = /* :: */[
+    /* tuple */[
+      typ,
+      /* tuple */[
+        cbx + 1,
+        cby
+      ]
+    ],
+    /* :: */[
+      /* tuple */[
+        typ,
+        /* tuple */[
+          cbx + 2,
+          cby
+        ]
+      ],
+      /* :: */[
+        /* tuple */[
+          typ,
+          /* tuple */[
+            cbx + 3,
+            cby
+          ]
+        ],
+        /* [] */0
+      ]
+    ]
+  ];
+  var four = /* :: */[
+    four_000,
+    four_001
+  ];
+  var three_000 = /* tuple */[
+    typ,
+    /* tuple */[
+      cbx + 1,
+      cby - 1
+    ]
+  ];
+  var three_001 = /* :: */[
+    /* tuple */[
+      typ,
+      /* tuple */[
+        cbx + 2,
+        cby - 1
+      ]
+    ],
+    /* :: */[
+      /* tuple */[
+        typ,
+        /* tuple */[
+          cbx + 3,
+          cby - 1
+        ]
+      ],
+      /* [] */0
+    ]
+  ];
+  var three = /* :: */[
+    three_000,
+    three_001
+  ];
+  var two_000 = /* tuple */[
+    typ,
+    /* tuple */[
+      cbx + 2,
+      cby - 2
+    ]
+  ];
+  var two_001 = /* :: */[
+    /* tuple */[
+      typ,
+      /* tuple */[
+        cbx + 3,
+        cby - 2
+      ]
+    ],
+    /* [] */0
+  ];
+  var two = /* :: */[
+    two_000,
+    two_001
+  ];
+  var one_000 = /* tuple */[
+    typ,
+    /* tuple */[
+      cbx + 3,
+      cby - 3
+    ]
+  ];
+  var one = /* :: */[
+    one_000,
+    /* [] */0
+  ];
+  return $at(four, $at(three, $at(two, one)));
+}
+
+function generate_airup_stairs(cbx, cby, typ) {
+  var one_000 = /* tuple */[
+    typ,
+    /* tuple */[
+      cbx,
+      cby
+    ]
+  ];
+  var one_001 = /* :: */[
+    /* tuple */[
+      typ,
+      /* tuple */[
+        cbx + 1,
+        cby
+      ]
+    ],
+    /* [] */0
+  ];
+  var one = /* :: */[
+    one_000,
+    one_001
+  ];
+  var two_000 = /* tuple */[
+    typ,
+    /* tuple */[
+      cbx + 3,
+      cby - 1
+    ]
+  ];
+  var two_001 = /* :: */[
+    /* tuple */[
+      typ,
+      /* tuple */[
+        cbx + 4,
+        cby - 1
+      ]
+    ],
+    /* [] */0
+  ];
+  var two = /* :: */[
+    two_000,
+    two_001
+  ];
+  var three_000 = /* tuple */[
+    typ,
+    /* tuple */[
+      cbx + 4,
+      cby - 2
+    ]
+  ];
+  var three_001 = /* :: */[
+    /* tuple */[
+      typ,
+      /* tuple */[
+        cbx + 5,
+        cby - 2
+      ]
+    ],
+    /* :: */[
+      /* tuple */[
+        typ,
+        /* tuple */[
+          cbx + 6,
+          cby - 2
+        ]
+      ],
+      /* [] */0
+    ]
+  ];
+  var three = /* :: */[
+    three_000,
+    three_001
+  ];
+  return $at(one, $at(two, three));
+}
+
+function generate_airdown_stairs(cbx, cby, typ) {
+  var three_000 = /* tuple */[
+    typ,
+    /* tuple */[
+      cbx,
+      cby
+    ]
+  ];
+  var three_001 = /* :: */[
+    /* tuple */[
+      typ,
+      /* tuple */[
+        cbx + 1,
+        cby
+      ]
+    ],
+    /* :: */[
+      /* tuple */[
+        typ,
+        /* tuple */[
+          cbx + 2,
+          cby
+        ]
+      ],
+      /* [] */0
+    ]
+  ];
+  var three = /* :: */[
+    three_000,
+    three_001
+  ];
+  var two_000 = /* tuple */[
+    typ,
+    /* tuple */[
+      cbx + 2,
+      cby + 1
+    ]
+  ];
+  var two_001 = /* :: */[
+    /* tuple */[
+      typ,
+      /* tuple */[
+        cbx + 3,
+        cby + 1
+      ]
+    ],
+    /* [] */0
+  ];
+  var two = /* :: */[
+    two_000,
+    two_001
+  ];
+  var one_000 = /* tuple */[
+    typ,
+    /* tuple */[
+      cbx + 5,
+      cby + 2
+    ]
+  ];
+  var one_001 = /* :: */[
+    /* tuple */[
+      typ,
+      /* tuple */[
+        cbx + 6,
+        cby + 2
+      ]
+    ],
+    /* [] */0
+  ];
+  var one = /* :: */[
+    one_000,
+    one_001
+  ];
+  return $at(three, $at(two, one));
+}
+
 function generate_clouds(cbx, cby, typ, num) {
   if (num === 0) {
     return /* [] */0;
@@ -2741,260 +2998,15 @@ function choose_block_pattern(blockw, blockh, cbx, cby, prob) {
         }
     case 2 :
         if (blockh - cby === 1) {
-          var four_000 = /* tuple */[
-            stair_typ,
-            /* tuple */[
-              cbx,
-              cby
-            ]
-          ];
-          var four_001 = /* :: */[
-            /* tuple */[
-              stair_typ,
-              /* tuple */[
-                cbx + 1,
-                cby
-              ]
-            ],
-            /* :: */[
-              /* tuple */[
-                stair_typ,
-                /* tuple */[
-                  cbx + 2,
-                  cby
-                ]
-              ],
-              /* :: */[
-                /* tuple */[
-                  stair_typ,
-                  /* tuple */[
-                    cbx + 3,
-                    cby
-                  ]
-                ],
-                /* [] */0
-              ]
-            ]
-          ];
-          var four = /* :: */[
-            four_000,
-            four_001
-          ];
-          var three_000 = /* tuple */[
-            stair_typ,
-            /* tuple */[
-              cbx + 1,
-              cby - 1
-            ]
-          ];
-          var three_001 = /* :: */[
-            /* tuple */[
-              stair_typ,
-              /* tuple */[
-                cbx + 2,
-                cby - 1
-              ]
-            ],
-            /* :: */[
-              /* tuple */[
-                stair_typ,
-                /* tuple */[
-                  cbx + 3,
-                  cby - 1
-                ]
-              ],
-              /* [] */0
-            ]
-          ];
-          var three = /* :: */[
-            three_000,
-            three_001
-          ];
-          var two_000 = /* tuple */[
-            stair_typ,
-            /* tuple */[
-              cbx + 2,
-              cby - 2
-            ]
-          ];
-          var two_001 = /* :: */[
-            /* tuple */[
-              stair_typ,
-              /* tuple */[
-                cbx + 3,
-                cby - 2
-              ]
-            ],
-            /* [] */0
-          ];
-          var two = /* :: */[
-            two_000,
-            two_001
-          ];
-          var one_000 = /* tuple */[
-            stair_typ,
-            /* tuple */[
-              cbx + 3,
-              cby - 3
-            ]
-          ];
-          var one = /* :: */[
-            one_000,
-            /* [] */0
-          ];
-          return $at(four, $at(three, $at(two, one)));
+          return generate_ground_stairs(cbx, cby, stair_typ);
         } else {
           return /* [] */0;
         }
     case 3 :
         if (stair_typ === 0 && blockh - cby > 3) {
-          var three_000$1 = /* tuple */[
-            stair_typ,
-            /* tuple */[
-              cbx,
-              cby
-            ]
-          ];
-          var three_001$1 = /* :: */[
-            /* tuple */[
-              stair_typ,
-              /* tuple */[
-                cbx + 1,
-                cby
-              ]
-            ],
-            /* :: */[
-              /* tuple */[
-                stair_typ,
-                /* tuple */[
-                  cbx + 2,
-                  cby
-                ]
-              ],
-              /* [] */0
-            ]
-          ];
-          var three$1 = /* :: */[
-            three_000$1,
-            three_001$1
-          ];
-          var two_000$1 = /* tuple */[
-            stair_typ,
-            /* tuple */[
-              cbx + 2,
-              cby + 1
-            ]
-          ];
-          var two_001$1 = /* :: */[
-            /* tuple */[
-              stair_typ,
-              /* tuple */[
-                cbx + 3,
-                cby + 1
-              ]
-            ],
-            /* [] */0
-          ];
-          var two$1 = /* :: */[
-            two_000$1,
-            two_001$1
-          ];
-          var one_000$1 = /* tuple */[
-            stair_typ,
-            /* tuple */[
-              cbx + 5,
-              cby + 2
-            ]
-          ];
-          var one_001 = /* :: */[
-            /* tuple */[
-              stair_typ,
-              /* tuple */[
-                cbx + 6,
-                cby + 2
-              ]
-            ],
-            /* [] */0
-          ];
-          var one$1 = /* :: */[
-            one_000$1,
-            one_001
-          ];
-          return $at(three$1, $at(two$1, one$1));
+          return generate_airdown_stairs(cbx, cby, stair_typ);
         } else if (blockh - cby > 2) {
-          var one_000$2 = /* tuple */[
-            stair_typ,
-            /* tuple */[
-              cbx,
-              cby
-            ]
-          ];
-          var one_001$1 = /* :: */[
-            /* tuple */[
-              stair_typ,
-              /* tuple */[
-                cbx + 1,
-                cby
-              ]
-            ],
-            /* [] */0
-          ];
-          var one$2 = /* :: */[
-            one_000$2,
-            one_001$1
-          ];
-          var two_000$2 = /* tuple */[
-            stair_typ,
-            /* tuple */[
-              cbx + 3,
-              cby - 1
-            ]
-          ];
-          var two_001$2 = /* :: */[
-            /* tuple */[
-              stair_typ,
-              /* tuple */[
-                cbx + 4,
-                cby - 1
-              ]
-            ],
-            /* [] */0
-          ];
-          var two$2 = /* :: */[
-            two_000$2,
-            two_001$2
-          ];
-          var three_000$2 = /* tuple */[
-            stair_typ,
-            /* tuple */[
-              cbx + 4,
-              cby - 2
-            ]
-          ];
-          var three_001$2 = /* :: */[
-            /* tuple */[
-              stair_typ,
-              /* tuple */[
-                cbx + 5,
-                cby - 2
-              ]
-            ],
-            /* :: */[
-              /* tuple */[
-                stair_typ,
-                /* tuple */[
-                  cbx + 6,
-                  cby - 2
-                ]
-              ],
-              /* [] */0
-            ]
-          ];
-          var three$2 = /* :: */[
-            three_000$2,
-            three_001$2
-          ];
-          return $at(one$2, $at(two$2, three$2));
+          return generate_airup_stairs(cbx, cby, stair_typ);
         } else {
           return /* :: */[
                   /* tuple */[

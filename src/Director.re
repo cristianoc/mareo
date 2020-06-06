@@ -486,7 +486,7 @@ let rec update_loop = (canvas, (player, objs)) => {
         );
       } else {
         let (player, objs) =
-          Procedural_generator.generate(
+          Generator.generate(
             Config.level_width,
             Config.level_height,
             state.ctx,
