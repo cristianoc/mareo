@@ -60,8 +60,8 @@ let fps = (canvas, fps_val) => {
   ignore @@ context##fillText(fps_str, 10., 18.);
 };
 
-// game_win displays a black screen when you finish a game.
-let gameWin = (ctx: Html.canvasRenderingContext2D) => {
+// gameWon displays a black screen when you finish a game.
+let gameWon = (ctx: Html.canvasRenderingContext2D) => {
   ctx.rect(. 0., 0., 512., 512.);
   ctx.fillStyle = "black";
   ctx.fill(.);
@@ -71,8 +71,8 @@ let gameWin = (ctx: Html.canvasRenderingContext2D) => {
   failwith("Game over.");
 };
 
-// game_loss displays a black screen stating a loss to finish that level play.
-let gameLose = (ctx: Html.canvasRenderingContext2D) => {
+// gameLost displays a black screen stating a loss to finish that level play.
+let gameLost = (ctx: Html.canvasRenderingContext2D) => {
   ctx.rect(. 0., 0., 512., 512.);
   ctx.fillStyle = "black";
   ctx.fill(.);

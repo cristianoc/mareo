@@ -16,6 +16,11 @@ type keys = {
   mutable bbox: int,
 };
 
+type status =
+  | Playing
+  | Lost
+  | Won;
+
 /*st represents the state of the game. It includes a background sprite (e.g.,
  * (e.g., hills), a context (used for rendering onto the page), a viewport
  * (used for moving the player's "camera"), a score (which is kept track
@@ -31,7 +36,7 @@ type st = {
   mutable score: int,
   mutable coins: int,
   mutable multiplier: int,
-  mutable game_over: bool,
+  mutable status,
 };
 
 /*pressed_keys instantiates the keys.*/
@@ -238,16 +243,14 @@ let process_collision =
         collide_block(dir, o1);
         (None, None);
       }
-    | Panel =>
-      Draw.gameWin(state.ctx);
+    | Panel => Draw.gameWon(state.ctx)
     | _ =>
       collide_block(dir, o1);
       (None, None);
     }
   | (Player(_, _, o1), Block(t, _, _), _) =>
     switch (t) {
-    | Panel =>
-      Draw.gameWin(state.ctx);
+    | Panel => Draw.gameWon(state.ctx)
     | _ =>
       switch (dir) {
       | South =>
@@ -462,14 +465,15 @@ let update_loop = (canvas, (player, objs), map_dim) => {
     coins: 0,
     multiplier: 1,
     map: snd(map_dim),
-    game_over: false,
+    status: Playing,
   };
   state.ctx.scale(. scale, scale);
 
-  let rec update_helper = (time, state, player, objs, parts) =>
-    if (state.game_over == true) {
-      Draw.gameWin(state.ctx);
-    } else {
+  let rec update_helper = (time, state, player, objs, parts) => {
+    switch (state.status) {
+    | Won => Draw.gameWon(state.ctx)
+    | Lost => Draw.gameLost(state.ctx)
+    | Playing =>
       collid_objs := [];
       particles := [];
       let fps = calc_fps(last_time^, time);
@@ -481,7 +485,8 @@ let update_loop = (canvas, (player, objs), map_dim) => {
       Draw.draw_bgd(state.bgd, float_of_int(vpos_x_int mod bgd_width));
       let player = run_update_collid(state, player, objs);
       if (get_obj(player).kill == true) {
-        Draw.gameLose(state.ctx);
+        state.status = Lost;
+        update_helper(time, state, player, collid_objs^, particles^);
       } else {
         let state = {
           ...state,
@@ -496,6 +501,7 @@ let update_loop = (canvas, (player, objs), map_dim) => {
         );
       };
     };
+  };
   update_helper(0., state, player, objs, []);
 };
 

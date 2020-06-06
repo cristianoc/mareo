@@ -940,7 +940,7 @@ function fps(canvas, fps_val) {
   
 }
 
-function gameWin(ctx) {
+function gameWon(ctx) {
   ctx.rect(0, 0, 512, 512);
   ctx.fillStyle = "black";
   ctx.fill();
@@ -950,7 +950,7 @@ function gameWin(ctx) {
   return failwith("Game over.");
 }
 
-function gameLose(ctx) {
+function gameLost(ctx) {
   ctx.rect(0, 0, 512, 512);
   ctx.fillStyle = "black";
   ctx.fill();
@@ -2609,7 +2609,7 @@ function process_collision(dir, c1, c2, state) {
                 var exit$1 = 0;
                 if (typeof t === "number") {
                   if (t === 4) {
-                    return gameWin(state.ctx);
+                    return gameWon(state.ctx);
                   }
                   exit$1 = 3;
                 } else {
@@ -2642,7 +2642,7 @@ function process_collision(dir, c1, c2, state) {
                               undefined
                             ];
                     } else {
-                      return gameWin(state.ctx);
+                      return gameWon(state.ctx);
                     }
                   } else if (c1[0] === /* BigM */0) {
                     collide_block(dir, o1$2);
@@ -3085,61 +3085,82 @@ function update_loop(canvas, param, map_dim) {
     score: 0,
     coins: 0,
     multiplier: 1,
-    game_over: false
+    status: /* Playing */0
   };
   state.ctx.scale(1, 1);
-  var update_helper = function (time, state, player, objs, parts) {
-    if (state.game_over === true) {
-      return gameWin(state.ctx);
-    }
-    collid_objs.contents = /* [] */0;
-    particles.contents = /* [] */0;
-    var fps$$1 = calc_fps(last_time.contents, time);
-    last_time.contents = time;
-    clear_canvas(canvas);
-    var vpos_x_int = getPos(state.vpt).x / 5 | 0;
-    var bgd_width = state.bgd.params.frame_size[0] | 0;
-    draw_bgd(state.bgd, mod_(vpos_x_int, bgd_width));
-    var player$1 = run_update_collid(state, player, objs);
-    if (get_obj(player$1).kill === true) {
-      return gameLose(state.ctx);
-    }
-    var state$1 = {
-      bgd: state.bgd,
-      ctx: state.ctx,
-      vpt: update(state.vpt, get_obj(player$1).pos),
-      map: state.map,
-      score: state.score,
-      coins: state.coins,
-      multiplier: state.multiplier,
-      game_over: state.game_over
-    };
-    forEach(objs, (function (obj) {
-            return run_update_collid(state$1, obj, objs);
-          }));
-    forEach(parts, (function (part) {
-            $$process(part);
-            var x = part.pos.x - getPos(state$1.vpt).x;
-            var y = part.pos.y - getPos(state$1.vpt).y;
-            render(part.params.sprite, /* tuple */[
-                  x,
-                  y
-                ]);
-            if (!part.kill) {
-              particles.contents = /* :: */[
-                part,
-                particles.contents
-              ];
-              return ;
+  var update_helper = function (time, state, _player, _objs, _parts) {
+    while(true) {
+      var parts = _parts;
+      var objs = _objs;
+      var player = _player;
+      var match = state.status;
+      switch (match) {
+        case /* Playing */0 :
+            collid_objs.contents = /* [] */0;
+            particles.contents = /* [] */0;
+            var fps$$1 = calc_fps(last_time.contents, time);
+            last_time.contents = time;
+            clear_canvas(canvas);
+            var vpos_x_int = getPos(state.vpt).x / 5 | 0;
+            var bgd_width = state.bgd.params.frame_size[0] | 0;
+            draw_bgd(state.bgd, mod_(vpos_x_int, bgd_width));
+            var player$1 = run_update_collid(state, player, objs);
+            if (get_obj(player$1).kill === true) {
+              state.status = /* Lost */1;
+              _parts = particles.contents;
+              _objs = collid_objs.contents;
+              _player = player$1;
+              continue ;
             }
-            
-          }));
-    fps(canvas, fps$$1);
-    hud(canvas, state$1.score, state$1.coins);
-    requestAnimationFrame((function (t) {
-            return update_helper(t, state$1, player$1, collid_objs.contents, particles.contents);
-          }));
-    
+            var state$1 = {
+              bgd: state.bgd,
+              ctx: state.ctx,
+              vpt: update(state.vpt, get_obj(player$1).pos),
+              map: state.map,
+              score: state.score,
+              coins: state.coins,
+              multiplier: state.multiplier,
+              status: state.status
+            };
+            forEach(objs, (function(objs,state$1){
+                return function (obj) {
+                  return run_update_collid(state$1, obj, objs);
+                }
+                }(objs,state$1)));
+            forEach(parts, (function(state$1){
+                return function (part) {
+                  $$process(part);
+                  var x = part.pos.x - getPos(state$1.vpt).x;
+                  var y = part.pos.y - getPos(state$1.vpt).y;
+                  render(part.params.sprite, /* tuple */[
+                        x,
+                        y
+                      ]);
+                  if (!part.kill) {
+                    particles.contents = /* :: */[
+                      part,
+                      particles.contents
+                    ];
+                    return ;
+                  }
+                  
+                }
+                }(state$1)));
+            fps(canvas, fps$$1);
+            hud(canvas, state$1.score, state$1.coins);
+            requestAnimationFrame((function(player$1,state$1){
+                return function (t) {
+                  return update_helper(t, state$1, player$1, collid_objs.contents, particles.contents);
+                }
+                }(player$1,state$1)));
+            return ;
+        case /* Lost */1 :
+            return gameLost(state.ctx);
+        case /* Won */2 :
+            return gameWon(state.ctx);
+        
+      }
+    }
   };
   return update_helper(0, state, player, param[1], /* [] */0);
 }

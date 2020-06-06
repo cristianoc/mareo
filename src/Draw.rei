@@ -16,8 +16,8 @@ let fps: (Html.canvasElement, float) => unit;
 // Draw the heads up display
 let hud: (Html.canvasElement, int, int) => unit;
 
-// Draw the game win screen
-let gameWin: Html.canvasRenderingContext2D => 'a;
+// Draw the game won screen
+let gameWon: Html.canvasRenderingContext2D => 'a;
 
-// Draw the game loss screen
-let gameLose: Html.canvasRenderingContext2D => 'a;
+// Draw the game lost screen
+let gameLost: Html.canvasRenderingContext2D => 'a;
