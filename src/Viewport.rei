@@ -7,9 +7,6 @@ type viewport = {
 /* Makes a new viewport of viewport dimensions and map dimensions*/
 let make: ((float, float), (float, float)) => viewport;
 
-/* Calculates the viewport origin point */
-let calc_viewport_point: (float, float, float) => float;
-
 /* Whether the supplied position is outside of the viewport */
 let in_viewport: (viewport, Actors.xy) => bool;
 
