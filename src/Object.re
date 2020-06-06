@@ -76,8 +76,6 @@ let make_player = () => setup_obj(~spd=player_speed, ());
 let make_item =
   fun
   | Mushroom => setup_obj()
-  | FireFlower => setup_obj()
-  | Star => setup_obj()
   | Coin => setup_obj(~g=false, ());
 
 let make_enemy =

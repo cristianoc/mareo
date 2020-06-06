@@ -323,7 +323,6 @@ let make_item =
       (16., 16.),
       (0., 80.),
     )
-  | FireFlower => setup_sprite("items.png", 1, 0, (16., 16.), (0., 188.))
   | Mushroom =>
     setup_sprite(
       "items.png",
@@ -333,8 +332,7 @@ let make_item =
       0,
       (16., 16.),
       (0., 0.),
-    )
-  | Star => setup_sprite("items.png", 1, 0, (16., 16.), (16., 48.));
+    );
 
 /*Sets sprites for blocks: brick, question block, unbreakable block, cloud block
  * panel block, ground block.*/

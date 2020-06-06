@@ -25,8 +25,6 @@ type pl_typ =
 
 type item_typ =
   | Mushroom
-  | FireFlower
-  | Star
   | Coin;
 
 type enemy_typ =

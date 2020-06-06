@@ -1453,52 +1453,34 @@ function make_type$1(typ, dir) {
                   ]);
     case /* SItem */2 :
         var param = typ[0];
-        switch (param) {
-          case /* Mushroom */0 :
-              return setup_sprite(/* tuple */[
-                          2,
-                          0
-                        ], /* tuple */[
-                          12,
-                          16
-                        ], "items.png", 1, 0, /* tuple */[
-                          16,
-                          16
-                        ], /* tuple */[
-                          0,
-                          0
-                        ]);
-          case /* FireFlower */1 :
-              return setup_sprite(undefined, undefined, "items.png", 1, 0, /* tuple */[
-                          16,
-                          16
-                        ], /* tuple */[
-                          0,
-                          188
-                        ]);
-          case /* Star */2 :
-              return setup_sprite(undefined, undefined, "items.png", 1, 0, /* tuple */[
-                          16,
-                          16
-                        ], /* tuple */[
-                          16,
-                          48
-                        ]);
-          case /* Coin */3 :
-              return setup_sprite(/* tuple */[
-                          3,
-                          0
-                        ], /* tuple */[
-                          12,
-                          16
-                        ], "items.png", 3, 15, /* tuple */[
-                          16,
-                          16
-                        ], /* tuple */[
-                          0,
-                          80
-                        ]);
-          
+        if (param) {
+          return setup_sprite(/* tuple */[
+                      3,
+                      0
+                    ], /* tuple */[
+                      12,
+                      16
+                    ], "items.png", 3, 15, /* tuple */[
+                      16,
+                      16
+                    ], /* tuple */[
+                      0,
+                      80
+                    ]);
+        } else {
+          return setup_sprite(/* tuple */[
+                      2,
+                      0
+                    ], /* tuple */[
+                      12,
+                      16
+                    ], "items.png", 1, 0, /* tuple */[
+                      16,
+                      16
+                    ], /* tuple */[
+                      0,
+                      0
+                    ]);
         }
     case /* SBlock */3 :
         var param$1 = typ[0];
@@ -1918,7 +1900,7 @@ function make_type(t) {
         }
     case /* SItem */2 :
         var param$1 = t[0];
-        if (param$1 >= 3) {
+        if (param$1) {
           return setup_obj(false, undefined, undefined);
         } else {
           return setup_obj(undefined, undefined, undefined);
@@ -2392,7 +2374,7 @@ function kill(collid, ctx) {
         return $at(score, remains);
     case /* Item */2 :
         var o$1 = collid[2];
-        if (collid[0] !== 0) {
+        if (collid[0]) {
           return /* [] */0;
         } else {
           return /* :: */[
@@ -2892,23 +2874,14 @@ function process_collision(dir, c1, c2, state) {
                 evolve_enemy(o1.dir, typ, s2, o2, context)
               ];
     case 2 :
-        if (t2 !== 0) {
-          if (t2 >= 3) {
-            state.coins = state.coins + 1 | 0;
-            dec_health(o2$1);
-            update_score(state, 100);
-            return /* tuple */[
-                    undefined,
-                    undefined
-                  ];
-          } else {
-            dec_health(o2$1);
-            update_score(state, 1000);
-            return /* tuple */[
-                    undefined,
-                    undefined
-                  ];
-          }
+        if (t2) {
+          state.coins = state.coins + 1 | 0;
+          dec_health(o2$1);
+          update_score(state, 100);
+          return /* tuple */[
+                  undefined,
+                  undefined
+                ];
         } else {
           dec_health(o2$1);
           if (o1$1.health === 2) {
@@ -4046,7 +4019,7 @@ function convert_to_coin_obj(lst, context) {
   if (!lst) {
     return /* [] */0;
   }
-  var ob = spawn(/* SItem */__(2, [/* Coin */3]), context, lst[0][1]);
+  var ob = spawn(/* SItem */__(2, [/* Coin */1]), context, lst[0][1]);
   return $at(/* :: */[
               ob,
               /* [] */0

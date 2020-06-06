@@ -11,7 +11,7 @@ type dir_2d =
 /* Generic xy record for easy position access */
 type xy = {
   mutable x: float,
-  mutable y: float
+  mutable y: float,
 };
 
 /* Controls correspond to keyboard input */
@@ -28,8 +28,6 @@ type pl_typ =
 
 type item_typ =
   | Mushroom
-  | FireFlower
-  | Star
   | Coin;
 
 type enemy_typ =
