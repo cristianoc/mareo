@@ -81,7 +81,7 @@ let rev_dir: (obj, Actors.enemy_typ, Sprite.sprite) => unit;
 
 let reverse_left_right: obj => unit;
 
-let collide_block: (~check_x: bool=?, Actors.dir_2d, obj) => unit;
+let collide_block: (Actors.dir_2d, obj) => unit;
 
 let spawn_above:
   (Actors.dir_1d, obj, Actors.item_typ, Html.canvasRenderingContext2D) => collidable;

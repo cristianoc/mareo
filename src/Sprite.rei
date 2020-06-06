@@ -10,7 +10,6 @@ type sprite_params = {
   src_offset: xy,
   bbox_offset: xy,
   bbox_size: xy,
-  loop: bool
 };
 
 /* Concrete sprite created to visually represent an object */
@@ -19,16 +18,25 @@ type sprite = {
   context: Html.canvasRenderingContext2D,
   frame: ref(int),
   ticks: ref(int),
-  mutable img: Html.imageElement
+  mutable img: Html.imageElement,
 };
 
 /* Sets up a sprite to create */
 let setup_sprite:
-  (~loop: bool=?, ~bb_off: (float, float)=?, ~bb_sz: (float, float)=?, string, int, int, xy, xy) =>
+  (
+    ~bb_off: (float, float)=?,
+    ~bb_sz: (float, float)=?,
+    string,
+    int,
+    int,
+    xy,
+    xy
+  ) =>
   sprite_params;
 
 /* Creates a sprite given the actor type */
-let make: (Actors.spawn_typ, Actors.dir_1d, Html.canvasRenderingContext2D) => sprite;
+let make:
+  (Actors.spawn_typ, Actors.dir_1d, Html.canvasRenderingContext2D) => sprite;
 
 /* Make a background */
 let make_bgd: Html.canvasRenderingContext2D => sprite;

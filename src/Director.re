@@ -188,11 +188,11 @@ let process_collision =
     ) => {
   let context = state.ctx;
   switch (c1, c2, dir) {
-  | (Player(_, s1, o1), Enemy(typ, s2, o2), South)
-  | (Enemy(typ, s2, o2), Player(_, s1, o1), North) =>
+  | (Player(_, _s1, o1), Enemy(typ, s2, o2), South)
+  | (Enemy(typ, s2, o2), Player(_, _s1, o1), North) =>
     playerAttackEnemy(o1, typ, s2, o2, state, context)
-  | (Player(_, s1, o1), Enemy(t2, s2, o2), _)
-  | (Enemy(t2, s2, o2), Player(_, s1, o1), _) =>
+  | (Player(_, _s1, o1), Enemy(t2, s2, o2), _)
+  | (Enemy(t2, s2, o2), Player(_, _s1, o1), _) =>
     enemyAttackPlayer(o1, t2, s2, o2, context)
   | (Player(_, _, o1), Item(t2, _, o2), _)
   | (Item(t2, _, o2), Player(_, _, o1), _) =>

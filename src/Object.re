@@ -112,14 +112,10 @@ let new_id = () => {
 };
 
 /*Used to return a new sprite and object of a created spawnable object*/
-let make = (~id=None, ~dir=Left, spawnable, context, (posx, posy)) => {
+let make = (~dir=Left, spawnable, context, (posx, posy)) => {
   let spr = Sprite.make(spawnable, dir, context);
   let params = make_type(spawnable);
-  let id =
-    switch (id) {
-    | None => new_id()
-    | Some(n) => n
-    };
+  let id = new_id();
   let obj = {
     params,
     pos: {
@@ -184,25 +180,25 @@ let is_enemy =
 let equals = (col1, col2) => get_obj(col1).id == get_obj(col2).id;
 
 /*Matches the controls being used and updates each of the player's params.*/
-let update_player_keys = (player: obj, controls: controls) : unit => {
+let update_player_keys = (player: obj, controls: controls): unit => {
   let lr_acc = player.vel.x *. 0.2;
   switch (controls) {
   | CLeft =>
-    if (! player.crouch) {
+    if (!player.crouch) {
       if (player.vel.x > -. player.params.speed) {
         player.vel.x = player.vel.x -. (0.4 -. lr_acc);
       };
       player.dir = Left;
     }
   | CRight =>
-    if (! player.crouch) {
+    if (!player.crouch) {
       if (player.vel.x < player.params.speed) {
         player.vel.x = player.vel.x +. (0.4 +. lr_acc);
       };
       player.dir = Right;
     }
   | CUp =>
-    if (! player.jumping && player.grounded) {
+    if (!player.jumping && player.grounded) {
       player.jumping = true;
       player.grounded = false;
       player.vel.y =
@@ -212,7 +208,7 @@ let update_player_keys = (player: obj, controls: controls) : unit => {
         );
     }
   | CDown =>
-    if (! player.jumping && player.grounded) {
+    if (!player.jumping && player.grounded) {
       player.crouch = true;
     }
   };
@@ -251,14 +247,14 @@ let update_player = (player, keys, context) => {
     } else {
       BigM;
     };
-  if (! prev_jumping && player.jumping) {
+  if (!prev_jumping && player.jumping) {
     Some((
       pl_typ,
       Sprite.make(SPlayer(pl_typ, Jumping), player.dir, context),
     ));
   } else if (prev_dir != player.dir
              || (prev_vx == 0. && abs_float(player.vel.x) > 0.)
-             && ! player.jumping) {
+             && !player.jumping) {
     Some((
       pl_typ,
       Sprite.make(SPlayer(pl_typ, Running), player.dir, context),
@@ -319,7 +315,7 @@ let normalize_origin = (pos, spr: Sprite.sprite) => {
 };
 
 /*Checks upon collision of block and updates the values of the object.*/
-let collide_block = (~check_x=true, dir, obj) =>
+let collide_block = (dir, obj) =>
   switch (dir) {
   | North => obj.vel.y = (-0.001)
   | South =>
@@ -327,10 +323,7 @@ let collide_block = (~check_x=true, dir, obj) =>
     obj.grounded = true;
     obj.jumping = false;
   | East
-  | West =>
-    if (check_x) {
-      obj.vel.x = 0.;
-    }
+  | West => obj.vel.x = 0.
   };
 
 /*Simple helper method that reverses the direction in question*/

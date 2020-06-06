@@ -10,7 +10,6 @@ type sprite_params = {
   src_offset: xy,
   bbox_offset: xy,
   bbox_size: xy,
-  loop: bool,
 };
 
 type sprite = {
@@ -24,7 +23,6 @@ type sprite = {
 /*setup_sprite is used to initialize a sprite.*/
 let setup_sprite =
     (
-      ~loop=true,
       ~bb_off as bbox_offset=(0., 0.),
       ~bb_sz as bbox_size=(0., 0.),
       img_src,
@@ -48,7 +46,6 @@ let setup_sprite =
     src_offset,
     bbox_offset,
     bbox_size,
-    loop,
   };
 };
 
@@ -388,7 +385,7 @@ let make_type = (typ, dir: Actors.dir_1d) =>
 /* Makes a sprite from provided [params]. */
 let make_from_params = (params, context) => {
   let img = Html.createImg(Html.document);
-  Html.imageElementToJsObj(img)##src#=params.img_src;
+  Html.imageElementToJsObj(img)##src #= params.img_src;
   {params, context, img, frame: ref(0), ticks: ref(0)};
 };
 
@@ -414,7 +411,7 @@ let make_particle = (ptyp, context) => {
 let transform_enemy = (enemy_typ, spr, dir) => {
   let params = make_enemy((enemy_typ, dir));
   let img = Html.createImg(Html.document);
-  Html.imageElementToJsObj(img)##src#=params.img_src;
+  Html.imageElementToJsObj(img)##src #= params.img_src;
   spr.params = params;
   spr.img = img;
 };
@@ -425,9 +422,7 @@ let update_animation = (spr: sprite) => {
   let curr_ticks = spr.ticks^;
   if (curr_ticks >= spr.params.max_ticks) {
     spr.ticks := 0;
-    if (spr.params.loop) {
-      spr.frame := (spr.frame^ + 1) mod spr.params.max_frames;
-    };
+    spr.frame := (spr.frame^ + 1) mod spr.params.max_frames;
   } else {
     spr.ticks := curr_ticks + 1;
   };
