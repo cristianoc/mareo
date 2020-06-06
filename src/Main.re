@@ -14,9 +14,9 @@ let level_width = 2400.;
 
 let level_height = 256.;
 
-/*Canvas is chosen from the index.html file. The context is obtained from
- *the canvas. Listeners are added. A level is generated and the general
- *update_loop method is called to make the level playable.*/
+// Canvas is chosen from the index.html file. The context is obtained from
+// the canvas. Listeners are added. A level is generated and the general
+// update_loop method is called to make the level playable.
 let load = _ => {
   Random.self_init();
   let canvas_id = "canvas";
@@ -28,21 +28,9 @@ let load = _ => {
     | Some(el) => Html.elementToCanvasElement(el)
     };
   let context = Html.canvasElementToJsObj(canvas)##getContext("2d");
-  let _ =
-    Html.addEventListener(
-      Html.document,
-      "keydown",
-      Director.keydown,
-      true,
-    );
-  let _ =
-    Html.addEventListener(
-      Html.document,
-      "keyup",
-      Director.keyup,
-      true,
-    );
-  let () = Pg.init();
+  Html.addEventListener(Html.document, "keydown", Director.keydown, true);
+  Html.addEventListener(Html.document, "keyup", Director.keyup, true);
+  Pg.init();
   Director.update_loop(
     canvas,
     Pg.generate(level_width, level_height, context),
@@ -59,7 +47,7 @@ let inc_counter = _ => {
   };
 };
 
-/*Used for concurrency issues.*/
+// Used for concurrency issues.
 let preload = _ => {
   let root_dir = "sprites/";
   let imgs = ["blocks.png", "items.png", "enemies.png", "mario-small.png"];
@@ -68,7 +56,7 @@ let preload = _ => {
     img_src => {
       let img_src = root_dir ++ img_src;
       let img = Html.createImg(Html.document);
-      Html.imageElementToJsObj(img)##src#=img_src;
+      Html.imageElementToJsObj(img)##src #= img_src;
       ignore(
         Html.addEventListenerImg(
           img,
@@ -84,9 +72,10 @@ let preload = _ => {
   );
 };
 
-Html.windowToJsObj(Html.window)##onload#=(
-                                                    _ => {
-                                                      ignore(preload());
-                                                      true;
-                                                    }
-                                                  );
+Html.windowToJsObj(Html.window)##onload
+#= (
+     _ => {
+       ignore(preload());
+       true;
+     }
+   );
