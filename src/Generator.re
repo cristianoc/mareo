@@ -159,8 +159,7 @@ let randomStairTyp = () => Random.bool() ? UnBBlock : Brick;
 // 3. Else call helper methods to created block formations and return objCoord
 //    slist.
 let chooseBlockPattern =
-    (blockw: float, blockh: float, cbx: float, cby: float, prob: int)
-    : list(blockCoord) =>
+    (blockw: float, blockh: float, cbx: float, cby: float): list(blockCoord) =>
   if (cbx > blockw || cby > blockh) {
     [];
   } else {
@@ -172,7 +171,7 @@ let chooseBlockPattern =
       } else {
         stairTyp;
       };
-    switch (prob) {
+    switch (Random.int(5)) {
     | 0 => [
         (stairTyp, {x: cbx, y: cby}),
         (middleBlock, {x: cbx +. 1., y: cby}),
@@ -199,7 +198,7 @@ let chooseBlockPattern =
       } else {
         [(stairTyp, {x: cbx, y: cby})];
       }
-    | 4 =>
+    | _ =>
       if (cby +. 3. -. blockh == 2.) {
         [(stairTyp, {x: cbx, y: cby})];
       } else if (cby +. 3. -. blockh == 1.) {
@@ -214,7 +213,6 @@ let chooseBlockPattern =
           (stairTyp, {x: cbx, y: cby +. 2.}),
         ];
       }
-    | _ => failwith("Shouldn't reach here")
     };
   };
 
@@ -277,10 +275,8 @@ let rec generateBlockLocs =
   } else if (memPos({x: cbx, y: cby}, acc) || cby == 0.) {
     generateBlockLocs(blockw, blockh, cbx, cby +. 1., acc);
   } else {
-    let prob = Random.int(100);
-    let blockProb = 5;
-    if (prob < blockProb) {
-      let newacc = chooseBlockPattern(blockw, blockh, cbx, cby, prob);
+    if (Random.int(20) == 0) {
+      let newacc = chooseBlockPattern(blockw, blockh, cbx, cby);
       let undupLst = removeOverlap(newacc, acc);
       let calledAcc = acc @ undupLst;
       generateBlockLocs(blockw, blockh, cbx, cby +. 1., calledAcc);

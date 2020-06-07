@@ -405,7 +405,7 @@ function randomStairTyp(param) {
   }
 }
 
-function chooseBlockPattern(blockw, blockh, cbx, cby, prob) {
+function chooseBlockPattern(blockw, blockh, cbx, cby) {
   if (cbx > blockw || cby > blockh) {
     return /* [] */0;
   }
@@ -414,7 +414,8 @@ function chooseBlockPattern(blockw, blockh, cbx, cby, prob) {
   var middleBlock = lifeBlock ? /* QBlock */({
         _0: /* Mushroom */0
       }) : stairTyp;
-  switch (prob) {
+  var match = Random.$$int(5);
+  switch (match) {
     case 0 :
         return /* :: */{
                 _0: [
@@ -474,25 +475,53 @@ function chooseBlockPattern(blockw, blockh, cbx, cby, prob) {
                   _1: /* [] */0
                 };
         }
-    case 4 :
-        if (cby + 3 - blockh === 2) {
-          return /* :: */{
+    default:
+      if (cby + 3 - blockh === 2) {
+        return /* :: */{
+                _0: [
+                  stairTyp,
+                  {
+                    x: cbx,
+                    y: cby
+                  }
+                ],
+                _1: /* [] */0
+              };
+      } else if (cby + 3 - blockh === 1) {
+        return /* :: */{
+                _0: [
+                  stairTyp,
+                  {
+                    x: cbx,
+                    y: cby
+                  }
+                ],
+                _1: /* :: */{
                   _0: [
                     stairTyp,
                     {
                       x: cbx,
-                      y: cby
+                      y: cby + 1
                     }
                   ],
                   _1: /* [] */0
-                };
-        } else if (cby + 3 - blockh === 1) {
-          return /* :: */{
+                }
+              };
+      } else {
+        return /* :: */{
+                _0: [
+                  stairTyp,
+                  {
+                    x: cbx,
+                    y: cby
+                  }
+                ],
+                _1: /* :: */{
                   _0: [
                     stairTyp,
                     {
                       x: cbx,
-                      y: cby
+                      y: cby + 1
                     }
                   ],
                   _1: /* :: */{
@@ -500,44 +529,14 @@ function chooseBlockPattern(blockw, blockh, cbx, cby, prob) {
                       stairTyp,
                       {
                         x: cbx,
-                        y: cby + 1
+                        y: cby + 2
                       }
                     ],
                     _1: /* [] */0
                   }
-                };
-        } else {
-          return /* :: */{
-                  _0: [
-                    stairTyp,
-                    {
-                      x: cbx,
-                      y: cby
-                    }
-                  ],
-                  _1: /* :: */{
-                    _0: [
-                      stairTyp,
-                      {
-                        x: cbx,
-                        y: cby + 1
-                      }
-                    ],
-                    _1: /* :: */{
-                      _0: [
-                        stairTyp,
-                        {
-                          x: cbx,
-                          y: cby + 2
-                        }
-                      ],
-                      _1: /* [] */0
-                    }
-                  }
-                };
-        }
-    default:
-      return Pervasives.failwith("Shouldn't reach here");
+                }
+              };
+      }
   }
 }
 
@@ -628,9 +627,8 @@ function generateBlockLocs(blockw, blockh, _cbx, _cby, _acc) {
       _cby = cby + 1;
       continue ;
     }
-    var prob = Random.$$int(100);
-    if (prob < 5) {
-      var newacc = chooseBlockPattern(blockw, blockh, cbx, cby, prob);
+    if (Random.$$int(20) === 0) {
+      var newacc = chooseBlockPattern(blockw, blockh, cbx, cby);
       var undupLst = removeOverlap(newacc, acc);
       var calledAcc = Pervasives.$at(acc, undupLst);
       _acc = calledAcc;
