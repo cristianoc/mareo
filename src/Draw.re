@@ -73,6 +73,6 @@ let gameLost = (ctx: Html.canvasRenderingContext2D, elapsed) => {
   ctx.fill(.);
   ctx.fillStyle = "white";
   ctx.font = "20px 'Press Start 2P'";
-  ctx.fillText(. "GAME OVER. You lose! ", 60., 128.);
-  ctx.fillText(. string_of_int(elapsed), 230., 200.);
+  ctx.fillText(. "GAME OVER. You lose! ", 60., 100.);
+  ctx.fillText(. string_of_int(elapsed), 230., 150.);
 };
