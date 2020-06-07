@@ -4,7 +4,7 @@ import replace from "rollup-plugin-replace";
 import { uglify } from "rollup-plugin-uglify";
 
 export default {
-  input: "src/Main.js",
+  input: "src/Mareo.js",
   output: {
     file: "docs/all.js",
     format: "iife",
