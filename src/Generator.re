@@ -141,15 +141,6 @@ let rec generateCoins = (blocks: list(blockCoord)): list(blockCoord) => {
   };
 };
 
-let randomBlockTyp = () =>
-  switch (Random.int(5)) {
-  | 0 => Brick
-  | 1 => UnBBlock
-  | 2 => Cloud
-  | 3 => QBlock(Mushroom)
-  | _ => Ground
-  };
-
 let randomEnemyTyp = () =>
   switch (Random.int(3)) {
   | 0 => RKoopa
@@ -173,7 +164,6 @@ let choose_block_pattern =
   if (cbx > blockw || cby > blockh) {
     [];
   } else {
-    let blockTyp = randomBlockTyp();
     let stair_typ = randomStairTyp();
     let life_block_chance = Random.int(5);
     let middle_block =
@@ -184,24 +174,11 @@ let choose_block_pattern =
       };
     let obj_coord =
       switch (prob) {
-      | 0 =>
-        if (blockw -. cbx > 2.) {
-          [
-            (stair_typ, {x: cbx, y: cby}),
-            (middle_block, {x: cbx +. 1., y: cby}),
-            (stair_typ, {x: cbx +. 2., y: cby}),
-          ];
-        } else if (blockw -. cbx > 1.) {
-          assert(false);
-          [
-            (blockTyp, {x: cbx, y: cby}),
-            (blockTyp, {x: cbx +. 1., y: cby}),
-          ];
-        } else {
-          assert(false);
-
-          [(blockTyp, {x: cbx, y: cby})];
-        }
+      | 0 => [
+          (stair_typ, {x: cbx, y: cby}),
+          (middle_block, {x: cbx +. 1., y: cby}),
+          (stair_typ, {x: cbx +. 2., y: cby}),
+        ]
       | 1 =>
         let num_clouds = Random.int(5) + 5;
         if (cby < 5.) {

@@ -384,24 +384,6 @@ function generateCoins(_blocks) {
   };
 }
 
-function randomBlockTyp(param) {
-  var match = Random.$$int(5);
-  switch (match) {
-    case 0 :
-        return /* Brick */1;
-    case 1 :
-        return /* UnBBlock */2;
-    case 2 :
-        return /* Cloud */3;
-    case 3 :
-        return /* QBlock */{
-                _0: /* Mushroom */0
-              };
-    default:
-      return /* Ground */5;
-  }
-}
-
 function randomEnemyTyp(param) {
   var match = Random.$$int(3);
   if (match !== 0) {
@@ -427,7 +409,6 @@ function choose_block_pattern(blockw, blockh, cbx, cby, prob) {
   if (cbx > blockw || cby > blockh) {
     return /* [] */0;
   }
-  randomBlockTyp(undefined);
   var stair_typ = randomStairTyp(undefined);
   var life_block_chance = Random.$$int(5);
   var middle_block = life_block_chance === 0 ? /* QBlock */({
@@ -435,56 +416,34 @@ function choose_block_pattern(blockw, blockh, cbx, cby, prob) {
       }) : stair_typ;
   switch (prob) {
     case 0 :
-        if (blockw - cbx > 2) {
-          return /* :: */{
+        return /* :: */{
+                _0: [
+                  stair_typ,
+                  {
+                    x: cbx,
+                    y: cby
+                  }
+                ],
+                _1: /* :: */{
                   _0: [
-                    stair_typ,
+                    middle_block,
                     {
-                      x: cbx,
+                      x: cbx + 1,
                       y: cby
                     }
                   ],
                   _1: /* :: */{
                     _0: [
-                      middle_block,
+                      stair_typ,
                       {
-                        x: cbx + 1,
+                        x: cbx + 2,
                         y: cby
                       }
                     ],
-                    _1: /* :: */{
-                      _0: [
-                        stair_typ,
-                        {
-                          x: cbx + 2,
-                          y: cby
-                        }
-                      ],
-                      _1: /* [] */0
-                    }
+                    _1: /* [] */0
                   }
-                };
-        }
-        if (blockw - cbx > 1) {
-          throw {
-                RE_EXN_ID: "Assert_failure",
-                _1: [
-                  "Generator.re",
-                  195,
-                  10
-                ],
-                Error: new Error()
+                }
               };
-        }
-        throw {
-              RE_EXN_ID: "Assert_failure",
-              _1: [
-                "Generator.re",
-                201,
-                10
-              ],
-              Error: new Error()
-            };
     case 1 :
         var num_clouds = Random.$$int(5) + 5 | 0;
         if (cby < 5) {
@@ -836,7 +795,6 @@ export {
   generateAirdownStairs ,
   generateClouds ,
   generateCoins ,
-  randomBlockTyp ,
   randomEnemyTyp ,
   randomStairTyp ,
   choose_block_pattern ,
