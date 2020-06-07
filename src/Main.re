@@ -7,18 +7,16 @@ module Html = Html;
 // update_loop method is called to make the level playable.
 let load = () => {
   Random.self_init();
-  let canvas =
-    switch (Html.getElementById(Html.document, Config.canvasId)) {
-    | None =>
-      print_endline("cant find canvas " ++ Config.canvasId ++ " \n");
-      failwith("fail");
-    | Some(el) => Html.elementToCanvasElement(el)
-    };
-  let context = canvas.getContext(. "2d");
-  Html.addEventListener(Html.document, "keydown", Director.keydown, true);
-  Html.addEventListener(Html.document, "keyup", Director.keyup, true);
-  Generator.init();
-  Director.updateLoop(canvas, Generator.generate(context));
+  switch (Html.getElementById(Html.document, Config.canvasId)) {
+  | None => print_endline("cant find canvas " ++ Config.canvasId ++ " \n")
+  | Some(el) =>
+    let canvas = Html.elementToCanvasElement(el);
+    let context = canvas.getContext(. "2d");
+    Html.addEventListener(Html.document, "keydown", Director.keydown, true);
+    Html.addEventListener(Html.document, "keyup", Director.keyup, true);
+    Generator.init();
+    Director.updateLoop(canvas, Generator.generate(context));
+  };
 };
 
 // Used for concurrency issues.

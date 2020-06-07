@@ -5,17 +5,19 @@ import * as Random from "bs-platform/lib/es6/random.js";
 import * as Director from "./Director.js";
 import * as Generator from "./Generator.js";
 import * as Belt_Array from "bs-platform/lib/es6/belt_Array.js";
-import * as Pervasives from "bs-platform/lib/es6/pervasives.js";
 
 function load(param) {
   Random.self_init(undefined);
   var el = document.getElementById(Config.canvasId);
-  var canvas = el !== null ? el : (console.log("cant find canvas " + (Config.canvasId + " \n")), Pervasives.failwith("fail"));
-  var context = canvas.getContext("2d");
-  document.addEventListener("keydown", Director.keydown, true);
-  document.addEventListener("keyup", Director.keyup, true);
-  Generator.init(undefined);
-  return Director.updateLoop(canvas, Generator.generate(context));
+  if (el !== null) {
+    var context = el.getContext("2d");
+    document.addEventListener("keydown", Director.keydown, true);
+    document.addEventListener("keyup", Director.keyup, true);
+    Generator.init(undefined);
+    return Director.updateLoop(el, Generator.generate(context));
+  }
+  console.log("cant find canvas " + (Config.canvasId + " \n"));
+  
 }
 
 function preload(param) {
