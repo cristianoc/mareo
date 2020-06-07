@@ -4,3 +4,4 @@
 /node_modules/
 /lib/*
 !/lib/es6_global/
+docs/all.js
