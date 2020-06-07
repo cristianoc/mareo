@@ -73,9 +73,9 @@ function new_id(param) {
   return id_counter.contents;
 }
 
-function make(dirOpt, spawnable, context, pos) {
+function make(dirOpt, spawnable, pos) {
   var dir = dirOpt !== undefined ? dirOpt : /* Left */0;
-  var spr = Sprite.make(spawnable, dir, context);
+  var spr = Sprite.make(spawnable, dir);
   var params = make_type(spawnable);
   var id = new_id(undefined);
   var pos$1 = {
@@ -105,8 +105,8 @@ function make(dirOpt, spawnable, context, pos) {
         ];
 }
 
-function spawn(spawnable, context, pos) {
-  var match = make(undefined, spawnable, context, pos);
+function spawn(spawnable, pos) {
+  var match = make(undefined, spawnable, pos);
   var obj = match[1];
   var spr = match[0];
   switch (spawnable.TAG | 0) {
@@ -224,7 +224,7 @@ function normalize_pos(pos, p1, p2) {
   
 }
 
-function update_player(player, keys, context) {
+function update_player(player, keys) {
   var prev_jumping = player.jumping;
   var prev_dir = player.dir;
   var prev_vx = Math.abs(player.vel.x);
@@ -242,7 +242,7 @@ function update_player(player, keys, context) {
                   TAG: /* SPlayer */0,
                   _0: pl_typ,
                   _1: /* Jumping */1
-                }, player.dir, context)
+                }, player.dir)
           ];
   } else if (prev_dir !== player.dir || prev_vx === 0 && Math.abs(player.vel.x) > 0 && !player.jumping) {
     return [
@@ -251,7 +251,7 @@ function update_player(player, keys, context) {
                   TAG: /* SPlayer */0,
                   _0: pl_typ,
                   _1: /* Running */2
-                }, player.dir, context)
+                }, player.dir)
           ];
   } else if (prev_dir !== player.dir && player.jumping && prev_jumping) {
     return [
@@ -260,7 +260,7 @@ function update_player(player, keys, context) {
                   TAG: /* SPlayer */0,
                   _0: pl_typ,
                   _1: /* Jumping */1
-                }, player.dir, context)
+                }, player.dir)
           ];
   } else if (player.vel.y === 0 && player.crouch) {
     return [
@@ -269,7 +269,7 @@ function update_player(player, keys, context) {
                   TAG: /* SPlayer */0,
                   _0: pl_typ,
                   _1: /* Crouching */3
-                }, player.dir, context)
+                }, player.dir)
           ];
   } else if (player.vel.y === 0 && player.vel.x === 0) {
     return [
@@ -278,7 +278,7 @@ function update_player(player, keys, context) {
                   TAG: /* SPlayer */0,
                   _0: pl_typ,
                   _1: /* Standing */0
-                }, player.dir, context)
+                }, player.dir)
           ];
   } else {
     return ;
@@ -345,7 +345,7 @@ function reverse_left_right(obj) {
   
 }
 
-function evolve_enemy(player_dir, typ, spr, obj, context) {
+function evolve_enemy(player_dir, typ, spr, obj) {
   switch (typ) {
     case /* Goomba */0 :
         obj.kill = true;
@@ -354,7 +354,7 @@ function evolve_enemy(player_dir, typ, spr, obj, context) {
         var match = make(obj.dir, {
               TAG: /* SEnemy */1,
               _0: /* GKoopaShell */3
-            }, context, obj.pos);
+            }, obj.pos);
         var new_obj = match[1];
         var new_spr = match[0];
         normalize_pos(new_obj.pos, spr.params, new_spr.params);
@@ -368,7 +368,7 @@ function evolve_enemy(player_dir, typ, spr, obj, context) {
         var match$1 = make(obj.dir, {
               TAG: /* SEnemy */1,
               _0: /* RKoopaShell */4
-            }, context, obj.pos);
+            }, obj.pos);
         var new_obj$1 = match$1[1];
         var new_spr$1 = match$1[0];
         normalize_pos(new_obj$1.pos, spr.params, new_spr$1.params);
@@ -412,12 +412,12 @@ function dec_health(obj) {
   }
 }
 
-function evolve_block(obj, context) {
+function evolve_block(obj) {
   dec_health(obj);
   var match = make(undefined, {
         TAG: /* SBlock */3,
         _0: /* QBlockUsed */0
-      }, context, obj.pos);
+      }, obj.pos);
   return {
           TAG: /* Block */3,
           _0: /* QBlockUsed */0,
@@ -426,11 +426,11 @@ function evolve_block(obj, context) {
         };
 }
 
-function spawn_above(player_dir, obj, typ, context) {
+function spawn_above(player_dir, obj, typ) {
   var item = spawn({
         TAG: /* SItem */2,
         _0: typ
-      }, context, obj.pos);
+      }, obj.pos);
   var item_obj = item._2;
   item_obj.pos.y = item_obj.pos.y - item._1.params.frame_size[1];
   item_obj.dir = player_dir ? /* Left */0 : /* Right */1;
@@ -528,7 +528,7 @@ function check_collision(c1, c2) {
   }
 }
 
-function kill(collid, ctx) {
+function kill(collid) {
   switch (collid.TAG | 0) {
     case /* Player */0 :
         return /* [] */0;
@@ -541,11 +541,11 @@ function kill(collid, ctx) {
           pos_1
         ];
         var score = o.score > 0 ? /* :: */({
-              _0: Particle.make_score(o.score, pos, ctx),
+              _0: Particle.make_score(o.score, pos),
               _1: /* [] */0
             }) : /* [] */0;
         var remains = collid._0 !== 0 ? /* [] */0 : /* :: */({
-              _0: Particle.make(undefined, undefined, /* GoombaSquish */0, pos, ctx),
+              _0: Particle.make(undefined, undefined, /* GoombaSquish */0, pos),
               _1: /* [] */0
             });
         return Pervasives.$at(score, remains);
@@ -558,7 +558,7 @@ function kill(collid, ctx) {
                   _0: Particle.make_score(o$1.score, [
                         o$1.pos.x,
                         o$1.pos.y
-                      ], ctx),
+                      ]),
                   _1: /* [] */0
                 };
         }
@@ -583,28 +583,28 @@ function kill(collid, ctx) {
             ], [
               0,
               0.2
-            ], /* BrickChunkL */1, pos$1, ctx);
+            ], /* BrickChunkL */1, pos$1);
         var p2 = Particle.make([
               -3,
               -4
             ], [
               0,
               0.2
-            ], /* BrickChunkL */1, pos$1, ctx);
+            ], /* BrickChunkL */1, pos$1);
         var p3 = Particle.make([
               3,
               -4
             ], [
               0,
               0.2
-            ], /* BrickChunkR */2, pos$1, ctx);
+            ], /* BrickChunkR */2, pos$1);
         var p4 = Particle.make([
               5,
               -5
             ], [
               0,
               0.2
-            ], /* BrickChunkR */2, pos$1, ctx);
+            ], /* BrickChunkR */2, pos$1);
         return /* :: */{
                 _0: p1,
                 _1: /* :: */{

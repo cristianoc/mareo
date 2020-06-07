@@ -604,12 +604,11 @@ function make_type(typ, dir) {
   }
 }
 
-function make_from_params(params, context) {
+function make_from_params(params) {
   var img = document.createElement("img");
   img.src = params.img_src;
   return {
           params: params,
-          context: context,
           frame: {
             contents: 0
           },
@@ -620,25 +619,22 @@ function make_from_params(params, context) {
         };
 }
 
-function make(spawn, dir, context) {
-  var params = make_type(spawn, dir);
-  return make_from_params(params, context);
+function make(spawn, dir) {
+  return make_from_params(make_type(spawn, dir));
 }
 
-function make_bgd(context) {
-  var params = setup_sprite(undefined, undefined, "bgd-1.png", 1, 0, [
-        512,
-        256
-      ], [
-        0,
-        0
-      ]);
-  return make_from_params(params, context);
+function make_bgd(param) {
+  return make_from_params(setup_sprite(undefined, undefined, "bgd-1.png", 1, 0, [
+                  512,
+                  256
+                ], [
+                  0,
+                  0
+                ]));
 }
 
-function make_particle$1(ptyp, context) {
-  var params = make_particle(ptyp);
-  return make_from_params(params, context);
+function make_particle$1(ptyp) {
+  return make_from_params(make_particle(ptyp));
 }
 
 function transform_enemy(enemy_typ, spr, dir) {

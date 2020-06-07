@@ -643,11 +643,11 @@ function generateBlockLocs(blockw, blockh, _cbx, _cby, _acc) {
   };
 }
 
-function generatePanel(context, blockw, blockh) {
+function generatePanel(blockw, blockh) {
   return $$Object.spawn({
               TAG: /* SBlock */3,
               _0: /* Panel */4
-            }, context, {
+            }, {
               x: blockw * 16 - 256,
               y: blockh * 16 * 2 / 3
             });
@@ -704,7 +704,7 @@ function convertToBlockObj(lst, context) {
   var ob = $$Object.spawn({
         TAG: /* SBlock */3,
         _0: match[0]
-      }, context, match[1]);
+      }, match[1]);
   return Pervasives.$at(/* :: */{
               _0: ob,
               _1: /* [] */0
@@ -719,7 +719,7 @@ function convertToEnemyObj(lst, context) {
   var ob = $$Object.spawn({
         TAG: /* SEnemy */1,
         _0: match[0]
-      }, context, match[1]);
+      }, match[1]);
   return Pervasives.$at(/* :: */{
               _0: ob,
               _1: /* [] */0
@@ -733,7 +733,7 @@ function convertToCoinObj(lst, context) {
   var ob = $$Object.spawn({
         TAG: /* SItem */2,
         _0: /* Coin */1
-      }, context, lst._0[1]);
+      }, lst._0[1]);
   return Pervasives.$at(/* :: */{
               _0: ob,
               _1: /* [] */0
@@ -756,7 +756,7 @@ function generateHelper(blockw, blockh, _cx, _cy, context) {
   var undupEnemyBlockLocs = removeOverlap(removeOverlap(enemyBlockLocs, convertedBlockLocs), coinsLocs);
   var objEnemyBlocks = convertToEnemyObj(undupEnemyBlockLocs, context);
   var coinObjects = convertToCoinObj(undupCoinLocs, context);
-  var objPanel = generatePanel(context, blockw, blockh);
+  var objPanel = generatePanel(blockw, blockh);
   return Pervasives.$at(allBlocks, Pervasives.$at(objConvertedEnemies, Pervasives.$at(coinObjects, Pervasives.$at(objEnemyBlocks, /* :: */{
                           _0: objPanel,
                           _1: /* [] */0
@@ -771,7 +771,7 @@ function generate(context) {
         TAG: /* SPlayer */0,
         _0: /* SmallM */1,
         _1: /* Standing */0
-      }, context, {
+      }, {
         x: 100,
         y: 224
       });

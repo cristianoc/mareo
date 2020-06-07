@@ -9,21 +9,28 @@ function pair_to_xy(pair) {
         };
 }
 
-function make_type(typ, ctx) {
+function make_params(sprite, lifetime) {
+  return {
+          sprite: sprite,
+          lifetime: lifetime
+        };
+}
+
+function make_type(typ) {
   if (typ === 2 || typ === 1) {
     return {
-            sprite: Sprite.make_particle(typ, ctx),
+            sprite: Sprite.make_particle(typ),
             lifetime: 300
           };
   } else {
     return {
-            sprite: Sprite.make_particle(typ, ctx),
+            sprite: Sprite.make_particle(typ),
             lifetime: 30
           };
   }
 }
 
-function make(velOpt, accOpt, part_type, pos, ctx) {
+function make(velOpt, accOpt, part_type, pos) {
   var vel = velOpt !== undefined ? velOpt : [
       0,
       0
@@ -32,7 +39,7 @@ function make(velOpt, accOpt, part_type, pos, ctx) {
       0,
       0
     ];
-  var params = make_type(part_type, ctx);
+  var params = make_type(part_type);
   var pos$1 = pair_to_xy(pos);
   var vel$1 = pair_to_xy(vel);
   var acc$1 = pair_to_xy(acc);
@@ -46,7 +53,7 @@ function make(velOpt, accOpt, part_type, pos, ctx) {
         };
 }
 
-function make_score(score, pos, ctx) {
+function make_score(score, pos) {
   var t = score >= 801 ? (
       score >= 2001 ? (
           score !== 4000 ? (
@@ -69,12 +76,18 @@ function make_score(score, pos, ctx) {
   return make([
               0.5,
               -0.7
-            ], undefined, t, pos, ctx);
+            ], undefined, t, pos);
 }
 
 function update_vel(part) {
   part.vel.x = part.vel.x + part.acc.x;
   part.vel.y = part.vel.y + part.acc.y;
+  
+}
+
+function update_pos(part) {
+  part.pos.x = part.vel.x + part.pos.x;
+  part.pos.y = part.vel.y + part.pos.y;
   
 }
 
@@ -84,14 +97,17 @@ function $$process(part) {
     part.kill = true;
   }
   update_vel(part);
-  part.pos.x = part.vel.x + part.pos.x;
-  part.pos.y = part.vel.y + part.pos.y;
-  
+  return update_pos(part);
 }
 
 export {
+  pair_to_xy ,
+  make_params ,
+  make_type ,
   make ,
   make_score ,
+  update_vel ,
+  update_pos ,
   $$process ,
   
 }

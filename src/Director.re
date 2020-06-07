@@ -67,14 +67,14 @@ let update_score = (state, i) => state.score = state.score + i;
 // This causes the player to either kill the enemy or move the enemy, in the
 // case that the enemy is a shell. Invulnerability, jumping, and grounded
 // are used for fine tuning the movements.
-let playerAttackEnemy = (o1, typ, s2, o2, state, context) => {
+let playerAttackEnemy = (o1, typ, s2, o2, state) => {
   o1.invuln = 10;
   o1.jumping = false;
   o1.grounded = true;
   switch (typ) {
   | GKoopaShell
   | RKoopaShell =>
-    let r2 = evolve_enemy(o1.dir, typ, s2, o2, context);
+    let r2 = evolve_enemy(o1.dir, typ, s2, o2);
     o1.vel.y = -. dampen_jump;
     o1.pos.y = o1.pos.y -. 5.;
     (None, r2);
@@ -84,25 +84,25 @@ let playerAttackEnemy = (o1, typ, s2, o2, state, context) => {
     if (state.multiplier == 8) {
       update_score(state, 800);
       o2.score = 800;
-      (None, evolve_enemy(o1.dir, typ, s2, o2, context));
+      (None, evolve_enemy(o1.dir, typ, s2, o2));
     } else {
       let score = 100 * state.multiplier;
       update_score(state, score);
       o2.score = score;
       state.multiplier = state.multiplier * 2;
-      (None, evolve_enemy(o1.dir, typ, s2, o2, context));
+      (None, evolve_enemy(o1.dir, typ, s2, o2));
     };
   };
 };
 
 // enemyAttackPlayer is used when an enemy kills a player.
-let enemyAttackPlayer = (o1: Object.obj, t2, s2, o2: Object.obj, context) => {
+let enemyAttackPlayer = (o1: Object.obj, t2, s2, o2: Object.obj) => {
   switch (t2) {
   | GKoopaShell
   | RKoopaShell =>
     let r2 =
       if (o2.vel.x == 0.) {
-        evolve_enemy(o1.dir, t2, s2, o2, context);
+        evolve_enemy(o1.dir, t2, s2, o2);
       } else {
         dec_health(o1);
         o1.invuln = invuln;
@@ -170,14 +170,13 @@ let process_collision =
       c2: Object.collidable,
       state: st,
     ) => {
-  let context = state.ctx;
   switch (c1, c2, dir) {
   | (Player(_, _s1, o1), Enemy(typ, s2, o2), South)
   | (Enemy(typ, s2, o2), Player(_, _s1, o1), North) =>
-    playerAttackEnemy(o1, typ, s2, o2, state, context)
+    playerAttackEnemy(o1, typ, s2, o2, state)
   | (Player(_, _s1, o1), Enemy(t2, s2, o2), _)
   | (Enemy(t2, s2, o2), Player(_, _s1, o1), _) =>
-    enemyAttackPlayer(o1, t2, s2, o2, context)
+    enemyAttackPlayer(o1, t2, s2, o2)
   | (Player(_, _, o1), Item(t2, _, o2), _)
   | (Item(t2, _, o2), Player(_, _, o1), _) =>
     switch (t2) {
@@ -211,8 +210,8 @@ let process_collision =
       (None, None);
     | (RKoopaShell, QBlock(typ))
     | (GKoopaShell, QBlock(typ)) =>
-      let updated_block = evolve_block(o2, context);
-      let spawned_item = spawn_above(o1.dir, o2, typ, context);
+      let updated_block = evolve_block(o2);
+      let spawned_item = spawn_above(o1.dir, o2, typ);
       rev_dir(o1, t1, s1);
       (Some(updated_block), Some(spawned_item));
     | (_, _) =>
@@ -230,8 +229,8 @@ let process_collision =
   | (Player(t1, _, o1), Block(t, _, o2), North) =>
     switch (t) {
     | QBlock(typ) =>
-      let updated_block = evolve_block(o2, context);
-      let spawned_item = spawn_above(o1.dir, o2, typ, context);
+      let updated_block = evolve_block(o2);
+      let spawned_item = spawn_above(o1.dir, o2, typ);
       collide_block(dir, o1);
       (Some(spawned_item), Some(updated_block));
     | Brick =>
@@ -373,9 +372,9 @@ let update_collidable = (state, collid: Object.collidable, all_collids) => {
     let evolved = check_collisions(collid, all_collids, state);
     /* Render and update animation */
     let vpt_adj_xy = Viewport.coord_to_viewport(state.vpt, obj.pos);
-    Draw.render(spr, (vpt_adj_xy.x, vpt_adj_xy.y));
+    Draw.render(state.ctx, spr, (vpt_adj_xy.x, vpt_adj_xy.y));
     if (check_bbox_enabled()) {
-      Draw.renderBbox(spr, (vpt_adj_xy.x, vpt_adj_xy.y));
+      Draw.renderBbox(state.ctx, spr, (vpt_adj_xy.x, vpt_adj_xy.y));
     };
     if (obj.vel.x != 0. || !is_enemy(collid)) {
       Sprite.update_animation(spr);
@@ -415,7 +414,7 @@ let run_update_collid = (state, collid, all_collids) =>
     let keys = translate_keys();
     o.crouch = false;
     let player =
-      switch (Object.update_player(o, keys, state.ctx)) {
+      switch (Object.update_player(o, keys)) {
       | None => p
       | Some((new_typ, new_spr)) =>
         Object.normalize_pos(o.pos, s.params, new_spr.params);
@@ -432,7 +431,7 @@ let run_update_collid = (state, collid, all_collids) =>
     };
     let new_parts =
       if (obj.kill) {
-        Object.kill(collid, state.ctx);
+        Object.kill(collid);
       } else {
         [];
       };
@@ -445,7 +444,7 @@ let run_update_particle = (state, part) => {
   Particle.process(part);
   let x = part.pos.x -. state.vpt->Viewport.getPos.x
   and y = part.pos.y -. state.vpt->Viewport.getPos.y;
-  Draw.render(part.params.sprite, (x, y));
+  Draw.render(state.ctx, part.params.sprite, (x, y));
   if (!part.kill) {
     particles := [part, ...particles^];
   };
@@ -460,7 +459,7 @@ let rec updateLoop = (canvas: Html.canvasElement, (player, objs)) => {
   let cheight = float_of_int(canvas.height) /. scale;
   let viewport = Viewport.make((cwidth, cheight), Config.mapDim);
   let state = {
-    bgd: Sprite.make_bgd(ctx),
+    bgd: Sprite.make_bgd(),
     vpt: Viewport.update(viewport, get_obj(player).pos),
     ctx,
     score: 0,
@@ -496,7 +495,11 @@ let rec updateLoop = (canvas: Html.canvasElement, (player, objs)) => {
       /* Parallax background */
       let vpos_x_int = int_of_float(state.vpt->Viewport.getPos.x /. 5.);
       let bgd_width = int_of_float(fst(state.bgd.params.frame_size));
-      Draw.drawBgd(state.bgd, float_of_int(vpos_x_int mod bgd_width));
+      Draw.drawBgd(
+        state.ctx,
+        state.bgd,
+        float_of_int(vpos_x_int mod bgd_width),
+      );
       let player = run_update_collid(state, player, objs);
       if (get_obj(player).kill == true) {
         switch (state.status) {

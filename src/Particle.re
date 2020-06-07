@@ -22,30 +22,30 @@ let pair_to_xy = pair => {x: fst(pair), y: snd(pair)};
 let make_params = (sprite, lifetime) => {sprite, lifetime};
 
 /* Generate the template for a specific particle type */
-let make_type = (typ, ctx) =>
+let make_type = typ =>
   switch (typ) {
-  | GoombaSquish as t => make_params(Sprite.make_particle(t, ctx), 30)
-  | BrickChunkL as t => make_params(Sprite.make_particle(t, ctx), 300)
-  | BrickChunkR as t => make_params(Sprite.make_particle(t, ctx), 300)
-  | Score100 as t => make_params(Sprite.make_particle(t, ctx), 30)
-  | Score200 as t => make_params(Sprite.make_particle(t, ctx), 30)
-  | Score400 as t => make_params(Sprite.make_particle(t, ctx), 30)
-  | Score800 as t => make_params(Sprite.make_particle(t, ctx), 30)
-  | Score1000 as t => make_params(Sprite.make_particle(t, ctx), 30)
-  | Score2000 as t => make_params(Sprite.make_particle(t, ctx), 30)
-  | Score4000 as t => make_params(Sprite.make_particle(t, ctx), 30)
-  | Score8000 as t => make_params(Sprite.make_particle(t, ctx), 30)
+  | GoombaSquish as t => make_params(Sprite.make_particle(t), 30)
+  | BrickChunkL as t => make_params(Sprite.make_particle(t), 300)
+  | BrickChunkR as t => make_params(Sprite.make_particle(t), 300)
+  | Score100 as t => make_params(Sprite.make_particle(t), 30)
+  | Score200 as t => make_params(Sprite.make_particle(t), 30)
+  | Score400 as t => make_params(Sprite.make_particle(t), 30)
+  | Score800 as t => make_params(Sprite.make_particle(t), 30)
+  | Score1000 as t => make_params(Sprite.make_particle(t), 30)
+  | Score2000 as t => make_params(Sprite.make_particle(t), 30)
+  | Score4000 as t => make_params(Sprite.make_particle(t), 30)
+  | Score8000 as t => make_params(Sprite.make_particle(t), 30)
   };
 
-let make = (~vel=(0., 0.), ~acc=(0., 0.), part_type, pos, ctx) => {
-  let params = make_type(part_type, ctx);
+let make = (~vel=(0., 0.), ~acc=(0., 0.), part_type, pos) => {
+  let params = make_type(part_type);
   let pos = pair_to_xy(pos)
   and vel = pair_to_xy(vel)
   and acc = pair_to_xy(acc);
   {params, pos, vel, acc, kill: false, life: params.lifetime};
 };
 
-let make_score = (score, pos, ctx) => {
+let make_score = (score, pos) => {
   let t =
     switch (score) {
     | 100 => Score100
@@ -58,7 +58,7 @@ let make_score = (score, pos, ctx) => {
     | 8000 => Score8000
     | _ => Score100
     };
-  make(~vel=(0.5, (-0.7)), t, pos, ctx);
+  make(~vel=(0.5, (-0.7)), t, pos);
 };
 
 /* Mutably update the velocity of a particle */

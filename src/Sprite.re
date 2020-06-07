@@ -14,7 +14,6 @@ type sprite_params = {
 
 type sprite = {
   mutable params: sprite_params,
-  context: Html.canvasRenderingContext2D,
   frame: ref(int),
   ticks: ref(int),
   mutable img: Html.imageElement,
@@ -381,28 +380,28 @@ let make_type = (typ, dir: Actors.dir_1d) =>
   };
 
 /* Makes a sprite from provided [params]. */
-let make_from_params = (params, context) => {
+let make_from_params = params => {
   let img = Html.createImg(Html.document);
   img.src = params.img_src;
-  {params, context, img, frame: ref(0), ticks: ref(0)};
+  {params, img, frame: ref(0), ticks: ref(0)};
 };
 
 /*Make is the wrapper function to cycle through sprite animations*/
-let make = (spawn, dir, context) => {
+let make = (spawn, dir) => {
   let params = make_type(spawn, dir);
-  make_from_params(params, context);
+  make_from_params(params);
 };
 
 /* Make a background */
-let make_bgd = context => {
+let make_bgd = () => {
   let params = setup_sprite("bgd-1.png", 1, 0, (512., 256.), (0., 0.));
-  make_from_params(params, context);
+  make_from_params(params);
 };
 
 /* Make a particle from the given particle type */
-let make_particle = (ptyp, context) => {
+let make_particle = (ptyp) => {
   let params = make_particle(ptyp);
-  make_from_params(params, context);
+  make_from_params(params);
 };
 
 /*Transform_enemy is used in order to switch the direction an enemy faces.*/

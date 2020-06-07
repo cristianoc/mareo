@@ -294,13 +294,10 @@ let rec generateBlockLocs =
 
 // Generate the ending item panel at the end of the level. Games ends upon
 // collision with player.
-let generatePanel =
-    (context: Html.canvasRenderingContext2D, blockw: float, blockh: float)
-    : collidable => {
+let generatePanel = (blockw: float, blockh: float): collidable => {
   let ob =
     Object.spawn(
       SBlock(Panel),
-      context,
       {Actors.x: blockw *. 16. -. 256., y: blockh *. 16. *. 2. /. 3.},
     );
   ob;
@@ -334,7 +331,7 @@ let rec convertToBlockObj =
   switch (lst) {
   | [] => []
   | [(blockTyp, pos), ...t] =>
-    let ob = Object.spawn(SBlock(blockTyp), context, pos);
+    let ob = Object.spawn(SBlock(blockTyp), pos);
     [ob] @ convertToBlockObj(t, context);
   };
 
@@ -346,7 +343,7 @@ let rec convertToEnemyObj =
   switch (lst) {
   | [] => []
   | [(enemyTyp, pos), ...t] =>
-    let ob = Object.spawn(SEnemy(enemyTyp), context, pos);
+    let ob = Object.spawn(SEnemy(enemyTyp), pos);
     [ob] @ convertToEnemyObj(t, context);
   };
 
@@ -358,7 +355,7 @@ let rec convertToCoinObj =
   | [] => []
   | [h, ...t] =>
     let sitem_typ = Coin;
-    let ob = Object.spawn(SItem(sitem_typ), context, snd(h));
+    let ob = Object.spawn(SItem(sitem_typ), snd(h));
     [ob] @ convertToCoinObj(t, context);
   };
 
@@ -393,7 +390,7 @@ let generateHelper =
     ->removeOverlap(coinsLocs);
   let objEnemyBlocks = convertToEnemyObj(undupEnemyBlockLocs, context);
   let coinObjects = convertToCoinObj(undupCoinLocs, context);
-  let objPanel = generatePanel(context, blockw, blockh);
+  let objPanel = generatePanel(blockw, blockh);
   allBlocks @ objConvertedEnemies @ coinObjects @ objEnemyBlocks @ [objPanel];
 };
 
@@ -405,8 +402,7 @@ let generate =
   let blockw = Config.levelWidth /. 16.;
   let blockh = Config.levelHeight /. 16. -. 1.;
   let collideList = generateHelper(blockw, blockh, 0., 0., context);
-  let player =
-    Object.spawn(SPlayer(SmallM, Standing), context, {x: 100., y: 224.});
+  let player = Object.spawn(SPlayer(SmallM, Standing), {x: 100., y: 224.});
   (player, collideList);
 };
 

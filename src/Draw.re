@@ -1,7 +1,7 @@
 open Sprite;
 
-let renderBbox = (sprite, (posx, posy)) => {
-  let context = sprite.context;
+let renderBbox =
+    (context: Html.canvasRenderingContext2D, sprite, (posx, posy)) => {
   let (bbox, bboy) = sprite.params.bbox_offset;
   let (bbsx, bbsy) = sprite.params.bbox_size;
   context.strokeStyle = "#FF0000";
@@ -9,8 +9,7 @@ let renderBbox = (sprite, (posx, posy)) => {
 };
 
 // Draws a sprite onto the canvas
-let render = (sprite, (posx, posy)) => {
-  let context = sprite.context;
+let render = (context: Html.canvasRenderingContext2D, sprite, (posx, posy)) => {
   let (sx, sy) = sprite.params.src_offset;
   let (sw, sh) = sprite.params.frame_size;
   let (dx, dy) = (posx, posy);
@@ -22,9 +21,9 @@ let render = (sprite, (posx, posy)) => {
 // Draws two background images, which needs to be done because of the
 // constantly changing viewport, which is always at most going to be
 // between two background images.
-let drawBgd = (bgd, off_x) => {
-  render(bgd, (-. off_x, 0.));
-  render(bgd, (fst(bgd.params.frame_size) -. off_x, 0.));
+let drawBgd = (context, bgd, off_x) => {
+  render(context, bgd, (-. off_x, 0.));
+  render(context, bgd, (fst(bgd.params.frame_size) -. off_x, 0.));
 };
 
 // Used for animation updating. Canvas is cleared each frame and redrawn.

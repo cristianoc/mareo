@@ -110,8 +110,8 @@ let new_id = () => {
 };
 
 // create a new sprite and object from a spawnable object
-let make = (~dir=Left, spawnable, context, pos) => {
-  let spr = Sprite.make(spawnable, dir, context);
+let make = (~dir=Left, spawnable, pos) => {
+  let spr = Sprite.make(spawnable, dir);
   let params = make_type(spawnable);
   let id = new_id();
   let pos = {x: pos.x, y: pos.y}; // Make a copy to avoid aliasing
@@ -136,8 +136,8 @@ let make = (~dir=Left, spawnable, context, pos) => {
 };
 
 /*spawn returns a new collidable*/
-let spawn = (spawnable, context, pos) => {
-  let (spr, obj) = make(spawnable, context, pos);
+let spawn = (spawnable, pos) => {
+  let (spr, obj) = make(spawnable, pos);
   switch (spawnable) {
   | SPlayer(typ, _) => Player(typ, spr, obj)
   | SEnemy(t) =>
@@ -224,7 +224,7 @@ let normalize_pos = (pos, p1: Sprite.sprite_params, p2: Sprite.sprite_params) =>
 
 /*Update player is constantly being called to check for if big or small
  *Mario sprites/collidables should be used.*/
-let update_player = (player, keys, context) => {
+let update_player = (player, keys) => {
   let prev_jumping = player.jumping;
   let prev_dir = player.dir
   and prev_vx = abs_float(player.vel.x);
@@ -244,32 +244,17 @@ let update_player = (player, keys, context) => {
       BigM;
     };
   if (!prev_jumping && player.jumping) {
-    Some((
-      pl_typ,
-      Sprite.make(SPlayer(pl_typ, Jumping), player.dir, context),
-    ));
+    Some((pl_typ, Sprite.make(SPlayer(pl_typ, Jumping), player.dir)));
   } else if (prev_dir != player.dir
              || (prev_vx == 0. && abs_float(player.vel.x) > 0.)
              && !player.jumping) {
-    Some((
-      pl_typ,
-      Sprite.make(SPlayer(pl_typ, Running), player.dir, context),
-    ));
+    Some((pl_typ, Sprite.make(SPlayer(pl_typ, Running), player.dir)));
   } else if (prev_dir != player.dir && player.jumping && prev_jumping) {
-    Some((
-      pl_typ,
-      Sprite.make(SPlayer(pl_typ, Jumping), player.dir, context),
-    ));
+    Some((pl_typ, Sprite.make(SPlayer(pl_typ, Jumping), player.dir)));
   } else if (player.vel.y == 0. && player.crouch) {
-    Some((
-      pl_typ,
-      Sprite.make(SPlayer(pl_typ, Crouching), player.dir, context),
-    ));
+    Some((pl_typ, Sprite.make(SPlayer(pl_typ, Crouching), player.dir)));
   } else if (player.vel.y == 0. && player.vel.x == 0.) {
-    Some((
-      pl_typ,
-      Sprite.make(SPlayer(pl_typ, Standing), player.dir, context),
-    ));
+    Some((pl_typ, Sprite.make(SPlayer(pl_typ, Standing), player.dir)));
   } else {
     None;
   };
@@ -328,16 +313,16 @@ let reverse_left_right = obj => {
 /*Actually creates a new enemy and deletes the previous. The positions must be
  *normalized. This method is typically called when enemies are killed and a
  *new sprite must be used (i.e., koopa to koopa shell). */
-let evolve_enemy = (player_dir, typ, spr: Sprite.sprite, obj, context) =>
+let evolve_enemy = (player_dir, typ, spr: Sprite.sprite, obj) =>
   switch (typ) {
   | GKoopa =>
     let (new_spr, new_obj) =
-      make(~dir=obj.dir, SEnemy(GKoopaShell), context, obj.pos);
+      make(~dir=obj.dir, SEnemy(GKoopaShell), obj.pos);
     normalize_pos(new_obj.pos, spr.params, new_spr.params);
     Some(Enemy(GKoopaShell, new_spr, new_obj));
   | RKoopa =>
     let (new_spr, new_obj) =
-      make(~dir=obj.dir, SEnemy(RKoopaShell), context, obj.pos);
+      make(~dir=obj.dir, SEnemy(RKoopaShell), obj.pos);
     normalize_pos(new_obj.pos, spr.params, new_spr.params);
     Some(Enemy(RKoopaShell, new_spr, new_obj));
   | GKoopaShell
@@ -373,15 +358,15 @@ let dec_health = obj => {
 };
 
 /*Used for deleting a block and replacing it with a used block*/
-let evolve_block = (obj, context) => {
+let evolve_block = obj => {
   dec_health(obj);
-  let (new_spr, new_obj) = make(SBlock(QBlockUsed), context, obj.pos);
+  let (new_spr, new_obj) = make(SBlock(QBlockUsed), obj.pos);
   Block(QBlockUsed, new_spr, new_obj);
 };
 
 // Used for spawning items above question mark blocks
-let spawn_above = (player_dir, obj, typ, context) => {
-  let item = spawn(SItem(typ), context, obj.pos);
+let spawn_above = (player_dir, obj, typ) => {
+  let item = spawn(SItem(typ), obj.pos);
   let item_obj = get_obj(item);
   item_obj.pos.y = item_obj.pos.y -. snd(get_sprite(item).params.frame_size);
   item_obj.dir = opposite_dir(player_dir);
@@ -466,19 +451,19 @@ let check_collision = (c1, c2) => {
 };
 
 /*"Kills" the matched object by setting certain parameters for each.*/
-let kill = (collid, ctx) =>
+let kill = collid =>
   switch (collid) {
   | Enemy(t, _, o) =>
     let pos = (o.pos.x, o.pos.y);
     let score =
       if (o.score > 0) {
-        [Particle.make_score(o.score, pos, ctx)];
+        [Particle.make_score(o.score, pos)];
       } else {
         [];
       };
     let remains =
       switch (t) {
-      | Goomba => [Particle.make(GoombaSquish, pos, ctx)]
+      | Goomba => [Particle.make(GoombaSquish, pos)]
       | _ => []
       };
     score @ remains;
@@ -492,7 +477,6 @@ let kill = (collid, ctx) =>
           ~acc=(0., 0.2),
           BrickChunkL,
           pos,
-          ctx,
         );
       let p2 =
         Particle.make(
@@ -500,30 +484,17 @@ let kill = (collid, ctx) =>
           ~acc=(0., 0.2),
           BrickChunkL,
           pos,
-          ctx,
         );
       let p3 =
-        Particle.make(
-          ~vel=(3., (-4.)),
-          ~acc=(0., 0.2),
-          BrickChunkR,
-          pos,
-          ctx,
-        );
+        Particle.make(~vel=(3., (-4.)), ~acc=(0., 0.2), BrickChunkR, pos);
       let p4 =
-        Particle.make(
-          ~vel=(5., (-5.)),
-          ~acc=(0., 0.2),
-          BrickChunkR,
-          pos,
-          ctx,
-        );
+        Particle.make(~vel=(5., (-5.)), ~acc=(0., 0.2), BrickChunkR, pos);
       [p1, p2, p3, p4];
     | _ => []
     }
   | Item(t, _, o) =>
     switch (t) {
-    | Mushroom => [Particle.make_score(o.score, (o.pos.x, o.pos.y), ctx)]
+    | Mushroom => [Particle.make_score(o.score, (o.pos.x, o.pos.y))]
     | _ => []
     }
   | _ => []
