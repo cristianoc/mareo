@@ -109,11 +109,12 @@ let new_id = () => {
   id_counter^;
 };
 
-/*Used to return a new sprite and object of a created spawnable object*/
+// create a new sprite and object from a spawnable object
 let make = (~dir=Left, spawnable, context, pos) => {
   let spr = Sprite.make(spawnable, dir, context);
   let params = make_type(spawnable);
   let id = new_id();
+  let pos = {x: pos.x, y: pos.y}; // Make a copy to avoid aliasing
   let obj = {
     params,
     pos,

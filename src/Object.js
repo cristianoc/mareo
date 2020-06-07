@@ -65,9 +65,13 @@ function make(dirOpt, spawnable, context, pos) {
   var spr = Sprite.make(spawnable, dir, context);
   var params = make_type(spawnable);
   var id = new_id(undefined);
+  var pos$1 = {
+    x: pos.x,
+    y: pos.y
+  };
   var obj = {
     params: params,
-    pos: pos,
+    pos: pos$1,
     vel: {
       x: 0.0,
       y: 0.0
