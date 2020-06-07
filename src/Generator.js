@@ -1,5 +1,6 @@
 
 
+import * as Load from "./Load.js";
 import * as Config from "./Config.js";
 import * as $$Object from "./Object.js";
 import * as Random from "bs-platform/lib/es6/random.js";
@@ -760,10 +761,10 @@ function generateHelper(blockw, blockh, context) {
                         }))));
 }
 
-function generate(context) {
+function generate(param) {
   var blockw = Config.levelWidth / 16;
   var blockh = Config.levelHeight / 16 - 1;
-  var collideList = generateHelper(blockw, blockh, context);
+  var collideList = generateHelper(blockw, blockh, Load.getContext(undefined));
   var player = $$Object.spawn({
         TAG: /* SPlayer */0,
         _0: /* SmallM */1,

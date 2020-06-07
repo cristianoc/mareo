@@ -6,16 +6,6 @@ open Object;
 
 open Actors;
 
-/* open Viewport */
-/* Represents the values of relevant key bindings. */
-type keys = {
-  mutable left: bool,
-  mutable right: bool,
-  mutable up: bool,
-  mutable down: bool,
-  mutable bbox: int,
-};
-
 type status =
   | Playing
   | Lost(float)
@@ -37,15 +27,6 @@ type st = {
   mutable coins: int,
   mutable multiplier: int,
   mutable status,
-};
-
-/*pressed_keys instantiates the keys.*/
-let pressed_keys = {
-  left: false,
-  right: false,
-  up: false,
-  down: false,
-  bbox: 0,
 };
 
 let collid_objs = ref([]); /* List of next iteration collidable objects */
@@ -353,9 +334,6 @@ let check_collisions = (collid, all_collids, state) =>
     narrow_phase(collid, broad, state);
   };
 
-/* Returns whether the bounding box should be drawn */
-let check_bbox_enabled = () => pressed_keys.bbox == 1;
-
 /* update_collidable is the primary update method for collidable objects,
  * checking the collision, updating the object, and drawing to the canvas.*/
 let update_collidable = (state, collid: Object.collidable, all_collids) => {
@@ -382,7 +360,7 @@ let update_collidable = (state, collid: Object.collidable, all_collids) => {
     /* Render and update animation */
     let vpt_adj_xy = Viewport.coord_to_viewport(state.vpt, obj.pos);
     Draw.render(state.ctx, spr, (vpt_adj_xy.x, vpt_adj_xy.y));
-    if (check_bbox_enabled()) {
+    if (Keys.check_bbox_enabled()) {
       Draw.renderBbox(state.ctx, spr, (vpt_adj_xy.x, vpt_adj_xy.y));
     };
     if (obj.vel.x != 0. || !is_enemy(collid)) {
@@ -394,25 +372,6 @@ let update_collidable = (state, collid: Object.collidable, all_collids) => {
   };
 };
 
-/* Converts a keypress to a list of control keys, allowing more than one key
- * to be processed each frame. */
-let translate_keys = () => {
-  let k = pressed_keys;
-  let ctrls = [
-    (k.left, CLeft),
-    (k.right, CRight),
-    (k.up, CUp),
-    (k.down, CDown),
-  ];
-  List.reduce(ctrls, [], (a, x) =>
-    if (fst(x)) {
-      [snd(x), ...a];
-    } else {
-      a;
-    }
-  );
-};
-
 /* run_update is used to update all of the collidables at once. Primarily used
  * as a wrapper method. This method is necessary to differentiate between
  * the player collidable and the remaining collidables, as special operations
@@ -420,7 +379,7 @@ let translate_keys = () => {
 let run_update_collid = (state, collid, all_collids) =>
   switch (collid) {
   | Player(_, s, o) as p =>
-    let keys = translate_keys();
+    let keys = Keys.translate_keys();
     o.crouch = false;
     let player =
       switch (Object.update_player(o, keys)) {
@@ -492,7 +451,7 @@ let rec updateLoop = (canvas: Html.canvasElement, (player, objs)) => {
           updateHelper(t, state, player, collid_objs^, particles^)
         );
       } else {
-        let (player, objs) = Generator.generate(state.ctx);
+        let (player, objs) = Generator.generate();
         updateLoop(canvas, (player, objs));
       };
 
@@ -531,43 +490,4 @@ let rec updateLoop = (canvas: Html.canvasElement, (player, objs)) => {
     };
   };
   updateHelper(0., state, player, objs, []);
-};
-
-/* Keydown event handler translates a key press */
-let keydown = evt => {
-  let evt = Html.keyboardEventToJsObj(evt);
-  let () =
-    switch (evt##keyCode) {
-    | 38
-    | 32
-    | 87 => pressed_keys.up = true
-    | 39
-    | 68 => pressed_keys.right = true
-    | 37
-    | 65 => pressed_keys.left = true
-    | 40
-    | 83 => pressed_keys.down = true
-    | 66 => pressed_keys.bbox = [@doesNotRaise] ((pressed_keys.bbox + 1) mod 2)
-    | _ => ()
-    };
-  true;
-};
-
-/* Keyup event handler translates a key release */
-let keyup = evt => {
-  let evt = Html.keyboardEventToJsObj(evt);
-  let () =
-    switch (evt##keyCode) {
-    | 38
-    | 32
-    | 87 => pressed_keys.up = false
-    | 39
-    | 68 => pressed_keys.right = false
-    | 37
-    | 65 => pressed_keys.left = false
-    | 40
-    | 83 => pressed_keys.down = false
-    | _ => ()
-    };
-  true;
 };

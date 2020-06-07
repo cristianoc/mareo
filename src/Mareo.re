@@ -2,23 +2,6 @@ open Belt;
 
 module Html = Html;
 
-// Canvas is chosen from the index.html file. The context is obtained from
-// the canvas. Listeners are added. A level is generated and the general
-// update_loop method is called to make the level playable.
-let load = () => {
-  Random.self_init();
-  switch (Html.getElementById(Html.document, Config.canvasId)) {
-  | None => print_endline("cant find canvas " ++ Config.canvasId ++ " \n")
-  | Some(el) =>
-    let canvas = Html.elementToCanvasElement(el);
-    let context = canvas.getContext(. "2d");
-    Html.addEventListener(Html.document, "keydown", Director.keydown, true);
-    Html.addEventListener(Html.document, "keyup", Director.keyup, true);
-    Generator.init();
-    Director.updateLoop(canvas, Generator.generate(context));
-  };
-};
-
 // Used for concurrency issues.
 let preload = () => {
   let loadCount = ref(0);
@@ -31,7 +14,8 @@ let preload = () => {
       _ => {
         loadCount := loadCount^ + 1;
         if (loadCount^ == numImages) {
-          load();
+          Generator.init();
+          Director.updateLoop(Load.getCanvas(), Generator.generate());
         };
         true;
       },

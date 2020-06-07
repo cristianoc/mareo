@@ -274,15 +274,13 @@ let rec generateBlockLocs =
     generateBlockLocs(blockw, blockh, cbx +. 1., 0., acc);
   } else if (memPos({x: cbx, y: cby}, acc) || cby == 0.) {
     generateBlockLocs(blockw, blockh, cbx, cby +. 1., acc);
+  } else if (Random.int(20) == 0) {
+    let newacc = chooseBlockPattern(blockw, blockh, cbx, cby);
+    let undupLst = removeOverlap(newacc, acc);
+    let calledAcc = acc @ undupLst;
+    generateBlockLocs(blockw, blockh, cbx, cby +. 1., calledAcc);
   } else {
-    if (Random.int(20) == 0) {
-      let newacc = chooseBlockPattern(blockw, blockh, cbx, cby);
-      let undupLst = removeOverlap(newacc, acc);
-      let calledAcc = acc @ undupLst;
-      generateBlockLocs(blockw, blockh, cbx, cby +. 1., calledAcc);
-    } else {
-      generateBlockLocs(blockw, blockh, cbx, cby +. 1., acc);
-    };
+    generateBlockLocs(blockw, blockh, cbx, cby +. 1., acc);
   };
 
 // Generate the ending item panel at the end of the level. Games ends upon
@@ -384,11 +382,10 @@ let generateHelper =
 // Main function called to procedurally generate the level map. w and h args
 // are in pixel form. Converts to block form to call generateHelper. Spawns
 // the list of collidables received from generateHelper to display on canvas.
-let generate =
-    (context: Html.canvasRenderingContext2D): (collidable, list(collidable)) => {
+let generate = (): (collidable, list(collidable)) => {
   let blockw = Config.levelWidth /. 16.;
   let blockh = Config.levelHeight /. 16. -. 1.;
-  let collideList = generateHelper(blockw, blockh, context);
+  let collideList = generateHelper(blockw, blockh, Load.getContext());
   let player = Object.spawn(SPlayer(SmallM, Standing), {x: 100., y: 224.});
   (player, collideList);
 };
