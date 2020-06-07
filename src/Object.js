@@ -2,9 +2,9 @@
 
 import * as Sprite from "./Sprite.js";
 import * as Particle from "./Particle.js";
-import * as Belt_List from "../../../node_modules/bs-platform/lib/es6/belt_List.js";
-import * as Pervasives from "../../../node_modules/bs-platform/lib/es6/pervasives.js";
-import * as Caml_primitive from "../../../node_modules/bs-platform/lib/es6/caml_primitive.js";
+import * as Belt_List from "bs-platform/lib/es6/belt_List.js";
+import * as Pervasives from "bs-platform/lib/es6/pervasives.js";
+import * as Caml_primitive from "bs-platform/lib/es6/caml_primitive.js";
 
 var id_counter = {
   contents: Pervasives.min_int

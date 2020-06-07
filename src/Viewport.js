@@ -1,6 +1,6 @@
 
 
-import * as Caml_primitive from "../../../node_modules/bs-platform/lib/es6/caml_primitive.js";
+import * as Caml_primitive from "bs-platform/lib/es6/caml_primitive.js";
 
 function getPos(param) {
   return param.pos;

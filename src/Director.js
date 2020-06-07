@@ -6,10 +6,10 @@ import * as $$Object from "./Object.js";
 import * as Sprite from "./Sprite.js";
 import * as Particle from "./Particle.js";
 import * as Viewport from "./Viewport.js";
-import * as Belt_List from "../../../node_modules/bs-platform/lib/es6/belt_List.js";
+import * as Belt_List from "bs-platform/lib/es6/belt_List.js";
 import * as Generator from "./Generator.js";
-import * as Caml_int32 from "../../../node_modules/bs-platform/lib/es6/caml_int32.js";
-import * as Pervasives from "../../../node_modules/bs-platform/lib/es6/pervasives.js";
+import * as Caml_int32 from "bs-platform/lib/es6/caml_int32.js";
+import * as Pervasives from "bs-platform/lib/es6/pervasives.js";
 
 var pressed_keys = {
   left: false,

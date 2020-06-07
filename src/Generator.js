@@ -2,9 +2,9 @@
 
 import * as Config from "./Config.js";
 import * as $$Object from "./Object.js";
-import * as Random from "../../../node_modules/bs-platform/lib/es6/random.js";
-import * as Caml_obj from "../../../node_modules/bs-platform/lib/es6/caml_obj.js";
-import * as Pervasives from "../../../node_modules/bs-platform/lib/es6/pervasives.js";
+import * as Random from "bs-platform/lib/es6/random.js";
+import * as Caml_obj from "bs-platform/lib/es6/caml_obj.js";
+import * as Pervasives from "bs-platform/lib/es6/pervasives.js";
 
 function mem_loc(checkloc, _loclist) {
   while(true) {
