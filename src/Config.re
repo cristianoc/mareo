@@ -1,3 +1,5 @@
+let canvasId = "canvas";
+
 let root_dir = "sprites/";
 
 let images = [|"blocks.png", "items.png", "enemies.png", "mario-small.png"|];

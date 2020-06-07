@@ -64,7 +64,6 @@ let gameWon = (ctx: Html.canvasRenderingContext2D) => {
   ctx.fillStyle = "white";
   ctx.font = "20px 'Press Start 2P'";
   ctx.fillText(. "You win!", 180., 128.);
-  failwith("Game over.");
 };
 
 // gameLost displays a black screen stating a loss to finish that level play.

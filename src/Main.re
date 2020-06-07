@@ -7,13 +7,12 @@ module Html = Html;
 // Canvas is chosen from the index.html file. The context is obtained from
 // the canvas. Listeners are added. A level is generated and the general
 // update_loop method is called to make the level playable.
-let load = _ => {
+let load = () => {
   Random.self_init();
-  let canvas_id = "canvas";
   let canvas =
-    switch (Html.getElementById(Html.document, canvas_id)) {
+    switch (Html.getElementById(Html.document, Config.canvasId)) {
     | None =>
-      print_endline("cant find canvas " ++ canvas_id ++ " \n");
+      print_endline("cant find canvas " ++ Config.canvasId ++ " \n");
       failwith("fail");
     | Some(el) => Html.elementToCanvasElement(el)
     };
@@ -21,7 +20,7 @@ let load = _ => {
   Html.addEventListener(Html.document, "keydown", Director.keydown, true);
   Html.addEventListener(Html.document, "keyup", Director.keyup, true);
   Generator.init();
-  Director.update_loop(
+  Director.updateLoop(
     canvas,
     Generator.generate(Config.level_width, Config.level_height, context),
   );
@@ -29,7 +28,7 @@ let load = _ => {
 
 let inc_counter = {
   let loadCount = ref(0);
-  _ => {
+  () => {
     loadCount := loadCount^ + 1;
     if (loadCount^ == Config.images->Array.length) {
       load();
@@ -40,7 +39,7 @@ let inc_counter = {
 };
 
 // Used for concurrency issues.
-let preload = _ => {
+let preload = () => {
   Array.forEachU(
     Config.images,
     (. img_src) => {

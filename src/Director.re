@@ -451,9 +451,9 @@ let run_update_particle = (state, part) => {
   };
 };
 
-/*update_loop is constantly being called to check for collisions and to
- *update each of the objects in the game.*/
-let rec update_loop = (canvas: Html.canvasElement, (player, objs)) => {
+// updateLoop is constantly being called to check for collisions and to
+// update each of the objects in the game.
+let rec updateLoop = (canvas: Html.canvasElement, (player, objs)) => {
   let scale = 1.;
   let ctx = canvas.getContext(. "2d");
   let cwidth = float_of_int(canvas.width) /. scale;
@@ -471,7 +471,7 @@ let rec update_loop = (canvas: Html.canvasElement, (player, objs)) => {
   };
   state.ctx.scale(. scale, scale);
 
-  let rec update_helper = (time, state, player, objs, parts) => {
+  let rec updateHelper = (time, state, player, objs, parts) => {
     switch (state.status) {
     | Won => Draw.gameWon(state.ctx)
     | Lost(t) =>
@@ -480,7 +480,7 @@ let rec update_loop = (canvas: Html.canvasElement, (player, objs)) => {
       if (timeToStart > 0) {
         Draw.gameLost(state.ctx, timeToStart);
         Html.requestAnimationFrame((t: float) =>
-          update_helper(t, state, player, collid_objs^, particles^)
+          updateHelper(t, state, player, collid_objs^, particles^)
         );
       } else {
         let (player, objs) =
@@ -489,7 +489,7 @@ let rec update_loop = (canvas: Html.canvasElement, (player, objs)) => {
             Config.level_height,
             state.ctx,
           );
-        update_loop(canvas, (player, objs));
+        updateLoop(canvas, (player, objs));
       };
 
     | Playing =>
@@ -505,7 +505,7 @@ let rec update_loop = (canvas: Html.canvasElement, (player, objs)) => {
       let player = run_update_collid(state, player, objs);
       if (get_obj(player).kill == true) {
         state.status = Lost(time);
-        update_helper(time, state, player, collid_objs^, particles^);
+        updateHelper(time, state, player, collid_objs^, particles^);
       } else {
         let state = {
           ...state,
@@ -516,12 +516,12 @@ let rec update_loop = (canvas: Html.canvasElement, (player, objs)) => {
         Draw.fps(canvas, fps);
         Draw.hud(canvas, state.score, state.coins);
         Html.requestAnimationFrame((t: float) =>
-          update_helper(t, state, player, collid_objs^, particles^)
+          updateHelper(t, state, player, collid_objs^, particles^)
         );
       };
     };
   };
-  update_helper(0., state, player, objs, []);
+  updateHelper(0., state, player, objs, []);
 };
 
 /* Keydown event handler translates a key press */

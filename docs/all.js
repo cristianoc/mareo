@@ -13,6 +13,8 @@ var map_dim = /* tuple */[
   256
 ];
 
+var canvasId = "canvas";
+
 var root_dir = "sprites/";
 
 var level_width = 2400;
@@ -964,8 +966,7 @@ function gameWon(ctx) {
   ctx.fill();
   ctx.fillStyle = "white";
   ctx.font = "20px 'Press Start 2P'";
-  ctx.fillText("You win!", 180, 128);
-  return failwith("Game over.");
+  return ctx.fillText("You win!", 180, 128);
 }
 
 function gameLost(ctx, elapsed) {
@@ -3343,6 +3344,39 @@ function update_score(state, i) {
   
 }
 
+function playerAttackEnemy(o1, typ, s2, o2, state, context) {
+  o1.invuln = 10;
+  o1.jumping = false;
+  o1.grounded = true;
+  if (typ >= 3) {
+    var r2 = evolve_enemy(o1.dir, typ, s2, o2, context);
+    o1.vel.y = -dampen_jump;
+    o1.pos.y = o1.pos.y - 5;
+    return /* tuple */[
+            undefined,
+            r2
+          ];
+  }
+  dec_health(o2);
+  o1.vel.y = -dampen_jump;
+  if (state.multiplier === 8) {
+    update_score(state, 800);
+    o2.score = 800;
+    return /* tuple */[
+            undefined,
+            evolve_enemy(o1.dir, typ, s2, o2, context)
+          ];
+  }
+  var score = imul(100, state.multiplier);
+  update_score(state, score);
+  o2.score = score;
+  state.multiplier = (state.multiplier << 1);
+  return /* tuple */[
+          undefined,
+          evolve_enemy(o1.dir, typ, s2, o2, context)
+        ];
+}
+
 function enemyAttackPlayer(o1, t2, s2, o2, context) {
   if (t2 >= 3) {
     var r2 = o2.vel.x === 0 ? evolve_enemy(o1.dir, t2, s2, o2, context) : (dec_health(o1), o1.invuln = invuln, undefined);
@@ -3357,6 +3391,69 @@ function enemyAttackPlayer(o1, t2, s2, o2, context) {
           undefined,
           undefined
         ];
+}
+
+function col_enemy_enemy(t1, s1, o1, t2, s2, o2, dir) {
+  if (t1 !== 3) {
+    if (t1 < 4) {
+      if (t2 >= 3) {
+        if (o2.vel.x === 0) {
+          rev_dir(o1, t1, s1);
+          return /* tuple */[
+                  undefined,
+                  undefined
+                ];
+        } else {
+          dec_health(o1);
+          return /* tuple */[
+                  undefined,
+                  undefined
+                ];
+        }
+      } else if (dir >= 2) {
+        rev_dir(o1, t1, s1);
+        rev_dir(o2, t2, s2);
+        return /* tuple */[
+                undefined,
+                undefined
+              ];
+      } else {
+        return /* tuple */[
+                undefined,
+                undefined
+              ];
+      }
+    }
+    if (t2 >= 3) {
+      dec_health(o1);
+      dec_health(o2);
+      return /* tuple */[
+              undefined,
+              undefined
+            ];
+    }
+    
+  } else if (t2 >= 3) {
+    dec_health(o1);
+    dec_health(o2);
+    return /* tuple */[
+            undefined,
+            undefined
+          ];
+  }
+  if (o1.vel.x === 0) {
+    rev_dir(o2, t2, s2);
+    return /* tuple */[
+            undefined,
+            undefined
+          ];
+  } else {
+    dec_health(o2);
+    return /* tuple */[
+            undefined,
+            undefined
+          ];
+  }
 }
 
 function process_collision(dir, c1, c2, state) {
@@ -3487,88 +3584,26 @@ function process_collision(dir, c1, c2, state) {
               exit$$1 = 1;
               break;
           case /* Enemy */1 :
-              var t2$1 = c2[0];
-              var s2$2 = c2[1];
-              var o2$4 = c2[2];
-              if (t1 !== 3) {
-                if (t1 < 4) {
-                  if (t2$1 >= 3) {
-                    if (o2$4.vel.x === 0) {
-                      rev_dir(o1$3, t1, s1);
-                      return /* tuple */[
-                              undefined,
-                              undefined
-                            ];
-                    } else {
-                      dec_health(o1$3);
-                      return /* tuple */[
-                              undefined,
-                              undefined
-                            ];
-                    }
-                  } else if (dir >= 2) {
-                    rev_dir(o1$3, t1, s1);
-                    rev_dir(o2$4, t2$1, s2$2);
-                    return /* tuple */[
-                            undefined,
-                            undefined
-                          ];
-                  } else {
-                    return /* tuple */[
-                            undefined,
-                            undefined
-                          ];
-                  }
-                }
-                if (t2$1 >= 3) {
-                  dec_health(o1$3);
-                  dec_health(o2$4);
-                  return /* tuple */[
-                          undefined,
-                          undefined
-                        ];
-                }
-                
-              } else if (t2$1 >= 3) {
-                dec_health(o1$3);
-                dec_health(o2$4);
-                return /* tuple */[
-                        undefined,
-                        undefined
-                      ];
-              }
-              if (o1$3.vel.x === 0) {
-                rev_dir(o2$4, t2$1, s2$2);
-                return /* tuple */[
-                        undefined,
-                        undefined
-                      ];
-              } else {
-                dec_health(o2$4);
-                return /* tuple */[
-                        undefined,
-                        undefined
-                      ];
-              }
+              return col_enemy_enemy(t1, s1, o1$3, c2[0], c2[1], c2[2], dir);
           case /* Item */2 :
               return /* tuple */[
                       undefined,
                       undefined
                     ];
           case /* Block */3 :
-              var o2$5 = c2[2];
-              var t2$2 = c2[0];
+              var o2$4 = c2[2];
+              var t2$1 = c2[0];
               if (dir >= 2) {
                 if (t1 >= 3) {
-                  if (typeof t2$2 === "number") {
-                    if (t2$2 !== 1) {
+                  if (typeof t2$1 === "number") {
+                    if (t2$1 !== 1) {
                       rev_dir(o1$3, t1, s1);
                       return /* tuple */[
                               undefined,
                               undefined
                             ];
                     } else {
-                      dec_health(o2$5);
+                      dec_health(o2$4);
                       reverse_left_right(o1$3);
                       return /* tuple */[
                               undefined,
@@ -3576,8 +3611,8 @@ function process_collision(dir, c1, c2, state) {
                             ];
                     }
                   }
-                  var updated_block$1 = evolve_block(o2$5, context);
-                  var spawned_item$1 = spawn_above(o1$3.dir, o2$5, t2$2[0], context);
+                  var updated_block$1 = evolve_block(o2$4, context);
+                  var spawned_item$1 = spawn_above(o1$3.dir, o2$4, t2$1[0], context);
                   rev_dir(o1$3, t1, s1);
                   return /* tuple */[
                           updated_block$1,
@@ -3599,12 +3634,12 @@ function process_collision(dir, c1, c2, state) {
         }
         break;
     case /* Item */2 :
-        var o2$6 = c1[2];
+        var o2$5 = c1[2];
         switch (c2.tag | 0) {
           case /* Player */0 :
               o1$1 = c2[2];
               t2 = c1[0];
-              o2$1 = o2$6;
+              o2$1 = o2$5;
               exit$$1 = 2;
               break;
           case /* Enemy */1 :
@@ -3615,13 +3650,13 @@ function process_collision(dir, c1, c2, state) {
                     ];
           case /* Block */3 :
               if (dir >= 2) {
-                reverse_left_right(o2$6);
+                reverse_left_right(o2$5);
                 return /* tuple */[
                         undefined,
                         undefined
                       ];
               } else {
-                collide_block(dir, o2$6);
+                collide_block(dir, o2$5);
                 return /* tuple */[
                         undefined,
                         undefined
@@ -3639,36 +3674,7 @@ function process_collision(dir, c1, c2, state) {
   }
   switch (exit$$1) {
     case 1 :
-        o1.invuln = 10;
-        o1.jumping = false;
-        o1.grounded = true;
-        if (typ >= 3) {
-          var r2 = evolve_enemy(o1.dir, typ, s2, o2, context);
-          o1.vel.y = -dampen_jump;
-          o1.pos.y = o1.pos.y - 5;
-          return /* tuple */[
-                  undefined,
-                  r2
-                ];
-        }
-        dec_health(o2);
-        o1.vel.y = -dampen_jump;
-        if (state.multiplier === 8) {
-          update_score(state, 800);
-          o2.score = 800;
-          return /* tuple */[
-                  undefined,
-                  evolve_enemy(o1.dir, typ, s2, o2, context)
-                ];
-        }
-        var score = imul(100, state.multiplier);
-        update_score(state, score);
-        o2.score = score;
-        state.multiplier = (state.multiplier << 1);
-        return /* tuple */[
-                undefined,
-                evolve_enemy(o1.dir, typ, s2, o2, context)
-              ];
+        return playerAttackEnemy(o1, typ, s2, o2, state, context);
     case 2 :
         if (t2) {
           state.coins = state.coins + 1 | 0;
@@ -3709,30 +3715,26 @@ function broad_phase(collid, all_collids, state) {
               }));
 }
 
-function check_collisions(collid, all_collids, state) {
-  if (collid.tag === /* Block */3) {
-    return /* [] */0;
-  }
-  var broad = broad_phase(collid, all_collids, state);
-  var _cs = broad;
+function narrow_phase(c, cs, state) {
+  var _cs = cs;
   var _acc = /* [] */0;
   while(true) {
     var acc = _acc;
-    var cs = _cs;
-    if (!cs) {
+    var cs$1 = _cs;
+    if (!cs$1) {
       return acc;
     }
-    var h = cs[0];
-    var c_obj = get_obj(collid);
+    var h = cs$1[0];
+    var c_obj = get_obj(c);
     var new_objs;
-    if (equals(collid, h)) {
+    if (equals(c, h)) {
       new_objs = /* tuple */[
         undefined,
         undefined
       ];
     } else {
-      var dir = check_collision(collid, h);
-      new_objs = dir !== undefined && get_obj(h).id !== c_obj.id ? process_collision(dir, collid, h, state) : /* tuple */[
+      var dir = check_collision(c, h);
+      new_objs = dir !== undefined && get_obj(h).id !== c_obj.id ? process_collision(dir, c, h, state) : /* tuple */[
           undefined,
           undefined
         ];
@@ -3759,9 +3761,17 @@ function check_collisions(collid, all_collids, state) {
         ] : acc;
     }
     _acc = acc$1;
-    _cs = cs[1];
+    _cs = cs$1[1];
     continue ;
   }
+}
+
+function check_collisions(collid, all_collids, state) {
+  if (collid.tag === /* Block */3) {
+    return /* [] */0;
+  }
+  var broad = broad_phase(collid, all_collids, state);
+  return narrow_phase(collid, broad, state);
 }
 
 function update_collidable(state, collid, all_collids) {
@@ -3867,7 +3877,25 @@ function run_update_collid(state, collid, all_collids) {
   return player;
 }
 
-function update_loop(canvas, param) {
+function run_update_particle(state, part) {
+  $$process(part);
+  var x = part.pos.x - getPos(state.vpt).x;
+  var y = part.pos.y - getPos(state.vpt).y;
+  render(part.params.sprite, /* tuple */[
+        x,
+        y
+      ]);
+  if (!part.kill) {
+    particles.contents = /* :: */[
+      part,
+      particles.contents
+    ];
+    return ;
+  }
+  
+}
+
+function updateLoop(canvas, param) {
   var player = param[0];
   var ctx = canvas.getContext("2d");
   var cwidth = canvas.width / 1;
@@ -3887,7 +3915,7 @@ function update_loop(canvas, param) {
     status: /* Playing */0
   };
   state.ctx.scale(1, 1);
-  var update_helper = function (time, state, _player, _objs, _parts) {
+  var updateHelper = function (time, state, _player, _objs, _parts) {
     while(true) {
       var parts = _parts;
       var objs = _objs;
@@ -3930,28 +3958,14 @@ function update_loop(canvas, param) {
             }(objs,state$1)));
         forEach(parts, (function(state$1){
             return function (part) {
-              $$process(part);
-              var x = part.pos.x - getPos(state$1.vpt).x;
-              var y = part.pos.y - getPos(state$1.vpt).y;
-              render(part.params.sprite, /* tuple */[
-                    x,
-                    y
-                  ]);
-              if (!part.kill) {
-                particles.contents = /* :: */[
-                  part,
-                  particles.contents
-                ];
-                return ;
-              }
-              
+              return run_update_particle(state$1, part);
             }
             }(state$1)));
         fps(canvas, fps$$1);
         hud(canvas, state$1.score, state$1.coins);
         requestAnimationFrame((function(player$1,state$1){
             return function (t) {
-              return update_helper(t, state$1, player$1, collid_objs.contents, particles.contents);
+              return updateHelper(t, state$1, player$1, collid_objs.contents, particles.contents);
             }
             }(player$1,state$1)));
         return ;
@@ -3961,19 +3975,19 @@ function update_loop(canvas, param) {
         gameLost(state.ctx, timeToStart);
         requestAnimationFrame((function(player){
             return function (t) {
-              return update_helper(t, state, player, collid_objs.contents, particles.contents);
+              return updateHelper(t, state, player, collid_objs.contents, particles.contents);
             }
             }(player)));
         return ;
       }
       var match = generate(level_width, level_height, state.ctx);
-      return update_loop(canvas, /* tuple */[
+      return updateLoop(canvas, /* tuple */[
                   match[0],
                   match[1]
                 ]);
     }
   };
-  return update_helper(0, state, player, param[1], /* [] */0);
+  return updateHelper(0, state, player, param[1], /* [] */0);
 }
 
 function keydown(evt) {
@@ -4102,14 +4116,13 @@ function inc_counter(param) {
   loadCount.contents = loadCount.contents + 1 | 0;
   if (loadCount.contents === images.length) {
     self_init(undefined);
-    var canvas_id = "canvas";
-    var el = document.getElementById(canvas_id);
-    var canvas = el !== null ? el : (console.log("cant find canvas canvas \n"), failwith("fail"));
+    var el = document.getElementById(canvasId);
+    var canvas = el !== null ? el : (console.log("cant find canvas " + (canvasId + " \n")), failwith("fail"));
     var context = canvas.getContext("2d");
     document.addEventListener("keydown", keydown, true);
     document.addEventListener("keyup", keyup, true);
     init$4(undefined);
-    return update_loop(canvas, generate(level_width, level_height, context));
+    return updateLoop(canvas, generate(level_width, level_height, context));
   }
   
 }
