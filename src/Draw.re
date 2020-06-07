@@ -49,9 +49,8 @@ let hud = (canvas: Html.canvasElement, score, coins) => {
 };
 
 // Displays the fps.
-let fps = (canvas: Html.canvasElement, fps_val) => {
+let fps = (context: Html.canvasRenderingContext2D, fps_val) => {
   let fps_str = int_of_float(fps_val) |> string_of_int;
-  let context = canvas.getContext(. "2d");
   context.fillText(. fps_str, 10., 18.);
 };
 

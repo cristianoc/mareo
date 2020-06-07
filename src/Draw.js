@@ -44,9 +44,8 @@ function hud(canvas, score, coins) {
   return context.fillText("Coins: " + coin_string, 120, 18);
 }
 
-function fps(canvas, fps_val) {
+function fps(context, fps_val) {
   var fps_str = String(fps_val | 0);
-  var context = canvas.getContext("2d");
   return context.fillText(fps_str, 10, 18);
 }
 

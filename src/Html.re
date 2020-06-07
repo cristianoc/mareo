@@ -31,6 +31,9 @@ type canvasElement = {
 
 [@bs.val] external window: Dom.window = "window";
 
+type performance = {now: (. unit) => float};
+[@bs.val] external performance: performance = "performance";
+
 /* external createImg: (_ [@bs.as "img"]) -> document -> imageElement = "createElement" [@@bs.send] */
 [@bs.send]
 external createImg: (Dom.document, [@bs.as "img"] _) => imageElement =

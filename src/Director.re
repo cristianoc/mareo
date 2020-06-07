@@ -53,13 +53,20 @@ let collid_objs = ref([]); /* List of next iteration collidable objects */
 let particles = ref([]); /* List of next iteration particles */
 
 let lastTime = ref(0.); /* Used for calculating fps */
+let initialTime = ref(0.); /* Used for calculating fps */
 
 /* Calculates fps as the difference between [t0] and [t1] */
-let calcFps = time => {
+let calcFps = () => {
   let t0 = lastTime^;
+  let time = Html.performance.now(.);
   lastTime := time;
-  let delta = (time -. t0) /. 1000.;
-  1. /. delta;
+  if (t0 == 0.) {
+    initialTime := time;
+    0.;
+  } else {
+    let delta = (time -. t0) /. 1000.;
+    time -. initialTime^ < 1000.0 ? 0. : 1. /. delta;
+  };
 };
 
 /* Adds [i] to the score in [state] */
@@ -491,9 +498,9 @@ let rec updateLoop = (canvas: Html.canvasElement, (player, objs)) => {
 
     | Playing
     | Lost(_) =>
+      let fps = calcFps();
       collid_objs := [];
       particles := [];
-      let fps = calcFps(time);
       Draw.clearCanvas(canvas);
       /* Parallax background */
       let vpos_x_int = int_of_float(state.vpt->Viewport.getPos.x /. 5.);
@@ -516,7 +523,7 @@ let rec updateLoop = (canvas: Html.canvasElement, (player, objs)) => {
       };
       List.forEach(objs, obj => run_update_collid(state, obj, objs));
       List.forEach(parts, part => run_update_particle(state, part));
-      Draw.fps(canvas, fps);
+      Draw.fps(state.ctx, fps);
       Draw.hud(canvas, state.score, state.coins);
       Html.requestAnimationFrame((t: float) =>
         updateHelper(t, state, player, collid_objs^, particles^)

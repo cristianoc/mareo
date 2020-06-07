@@ -31,11 +31,24 @@ var lastTime = {
   contents: 0
 };
 
-function calcFps(time) {
+var initialTime = {
+  contents: 0
+};
+
+function calcFps(param) {
   var t0 = lastTime.contents;
+  var time = performance.now();
   lastTime.contents = time;
+  if (t0 === 0) {
+    initialTime.contents = time;
+    return 0;
+  }
   var delta = (time - t0) / 1000;
-  return 1 / delta;
+  if (time - initialTime.contents < 1000.0) {
+    return 0;
+  } else {
+    return 1 / delta;
+  }
 }
 
 function update_score(state, i) {
@@ -622,9 +635,9 @@ function updateLoop(canvas, param) {
       }
       
     }
+    var fps = calcFps(undefined);
     collid_objs.contents = /* [] */0;
     particles.contents = /* [] */0;
-    var fps = calcFps(time);
     Draw.clearCanvas(canvas);
     var vpos_x_int = Viewport.getPos(state.vpt).x / 5 | 0;
     var bgd_width = state.bgd.params.frameSize[0] | 0;
@@ -655,7 +668,7 @@ function updateLoop(canvas, param) {
     Belt_List.forEach(parts, (function (part) {
             return run_update_particle(state$1, part);
           }));
-    Draw.fps(canvas, fps);
+    Draw.fps(state$1.ctx, fps);
     Draw.hud(canvas, state$1.score, state$1.coins);
     requestAnimationFrame(function (t) {
           return updateHelper(t, state$1, player$1, collid_objs.contents, particles.contents);
@@ -785,6 +798,7 @@ export {
   collid_objs ,
   particles ,
   lastTime ,
+  initialTime ,
   calcFps ,
   update_score ,
   playerAttackEnemy ,
