@@ -1,4 +1,3 @@
-
 open Belt;
 
 module Html = Html;
@@ -25,45 +24,31 @@ let load = () => {
   );
 };
 
-let inc_counter = {
-  let loadCount = ref(0);
-  () => {
-    loadCount := loadCount^ + 1;
-    if (loadCount^ == Config.images->Array.length) {
-      load();
-    } else {
-      ();
-    };
-  };
-};
-
 // Used for concurrency issues.
 let preload = () => {
-  Array.forEachU(
-    Config.images,
-    (. img_src) => {
-      let img_src = Config.root_dir ++ img_src;
-      let img = Html.createImg(Html.document);
-      img.src = img_src;
-      ignore(
-        Html.addEventListenerImg(
-          img,
-          "load",
-          _ev => {
-            inc_counter();
-            true;
-          },
-          true,
-        ),
-      );
-    },
-  );
+  let loadCount = ref(0);
+  let numImages = Config.images->Array.length;
+  Config.images->Array.forEachU((. img_src) => {
+    let img = Html.createImg(Html.document);
+    img.src = Config.root_dir ++ img_src;
+    img->Html.addEventListenerImg(
+      "load",
+      _ => {
+        loadCount := loadCount^ + 1;
+        if (loadCount^ == numImages) {
+          load();
+        };
+        true;
+      },
+      true,
+    );
+  });
 };
 
 Html.windowToJsObj(Html.window)##onload
 #= (
      _ => {
-       ignore(preload());
+       preload();
        true;
      }
    );

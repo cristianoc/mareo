@@ -4108,32 +4108,30 @@ function keyup(evt) {
 
 /* No side effect */
 
-var loadCount = {
-  contents: 0
-};
-
-function inc_counter(param) {
-  loadCount.contents = loadCount.contents + 1 | 0;
-  if (loadCount.contents === images.length) {
-    self_init(undefined);
-    var el = document.getElementById(canvasId);
-    var canvas = el !== null ? el : (console.log("cant find canvas " + (canvasId + " \n")), failwith("fail"));
-    var context = canvas.getContext("2d");
-    document.addEventListener("keydown", keydown, true);
-    document.addEventListener("keyup", keyup, true);
-    init$4(undefined);
-    return updateLoop(canvas, generate(level_width, level_height, context));
-  }
-  
+function load(param) {
+  self_init(undefined);
+  var el = document.getElementById(canvasId);
+  var canvas = el !== null ? el : (console.log("cant find canvas " + (canvasId + " \n")), failwith("fail"));
+  var context = canvas.getContext("2d");
+  document.addEventListener("keydown", keydown, true);
+  document.addEventListener("keyup", keyup, true);
+  init$4(undefined);
+  return updateLoop(canvas, generate(level_width, level_height, context));
 }
 
 function preload(param) {
+  var loadCount = {
+    contents: 0
+  };
+  var numImages = images.length;
   return forEachU$1(images, (function (img_src) {
-                var img_src$1 = root_dir + img_src;
                 var img = document.createElement("img");
-                img.src = img_src$1;
-                img.addEventListener("load", (function (_ev) {
-                        inc_counter(undefined);
+                img.src = root_dir + img_src;
+                img.addEventListener("load", (function (param) {
+                        loadCount.contents = loadCount.contents + 1 | 0;
+                        if (loadCount.contents === numImages) {
+                          load(undefined);
+                        }
                         return true;
                       }), true);
                 
