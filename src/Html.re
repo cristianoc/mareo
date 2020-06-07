@@ -1,4 +1,7 @@
-type imageElement = {mutable src: string};
+type imageElement = {
+  [@live]
+  mutable src: string,
+};
 
 type canvasRenderingContext2D = {
   clearRect: (. float, float, float, float) => unit,

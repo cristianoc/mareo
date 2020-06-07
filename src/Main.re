@@ -1,4 +1,3 @@
-[@bs.config {no_export: no_export}];
 
 open Belt;
 
