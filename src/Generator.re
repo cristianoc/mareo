@@ -125,7 +125,7 @@ let rec generateClouds = (cbx, cby, typ, num) =>
     @ generateClouds(cbx +. 1., cby, typ, num - 1);
   };
 
-// Generate an obj_coord list (typ, coordinates) of coins to be placed.
+// Generate an objCoord list (typ, coordinates) of coins to be placed.
 let rec generateCoins = (blocks: list(blockCoord)): list(blockCoord) => {
   let placeCoin = Random.int(2);
   switch (blocks) {
@@ -156,68 +156,66 @@ let randomStairTyp = () => Random.bool() ? UnBBlock : Brick;
 //    respectively, return an empty list.
 // 2. If current xblock or yblock is within 10 blocks of the left and right sides
 //    of the level map, prevent any objects from being initialized.
-// 3. Else call helper methods to created block formations and return obj_coord
+// 3. Else call helper methods to created block formations and return objCoord
 //    slist.
-let choose_block_pattern =
+let chooseBlockPattern =
     (blockw: float, blockh: float, cbx: float, cby: float, prob: int)
     : list(blockCoord) =>
   if (cbx > blockw || cby > blockh) {
     [];
   } else {
-    let stair_typ = randomStairTyp();
-    let life_block_chance = Random.int(5);
-    let middle_block =
-      if (life_block_chance == 0) {
+    let stairTyp = randomStairTyp();
+    let lifeBlockChance = Random.int(5);
+    let middleBlock =
+      if (lifeBlockChance == 0) {
         QBlock(Mushroom);
       } else {
-        stair_typ;
+        stairTyp;
       };
-    let obj_coord =
-      switch (prob) {
-      | 0 => [
-          (stair_typ, {x: cbx, y: cby}),
-          (middle_block, {x: cbx +. 1., y: cby}),
-          (stair_typ, {x: cbx +. 2., y: cby}),
-        ]
-      | 1 =>
-        let num_clouds = Random.int(5) + 5;
-        if (cby < 5.) {
-          generateClouds(cbx, cby, Cloud, num_clouds);
-        } else {
-          [];
-        };
-      | 2 =>
-        if (blockh -. cby == 1.) {
-          generateGroundStairs(cbx, cby, stair_typ);
-        } else {
-          [];
-        }
-      | 3 =>
-        if (stair_typ == Brick && blockh -. cby > 3.) {
-          generateAirdownStairs(cbx, cby, stair_typ);
-        } else if (blockh -. cby > 2.) {
-          generateAirupStairs(cbx, cby, stair_typ);
-        } else {
-          [(stair_typ, {x: cbx, y: cby})];
-        }
-      | 4 =>
-        if (cby +. 3. -. blockh == 2.) {
-          [(stair_typ, {x: cbx, y: cby})];
-        } else if (cby +. 3. -. blockh == 1.) {
-          [
-            (stair_typ, {x: cbx, y: cby}),
-            (stair_typ, {x: cbx, y: cby +. 1.}),
-          ];
-        } else {
-          [
-            (stair_typ, {x: cbx, y: cby}),
-            (stair_typ, {x: cbx, y: cby +. 1.}),
-            (stair_typ, {x: cbx, y: cby +. 2.}),
-          ];
-        }
-      | _ => failwith("Shouldn't reach here")
+    switch (prob) {
+    | 0 => [
+        (stairTyp, {x: cbx, y: cby}),
+        (middleBlock, {x: cbx +. 1., y: cby}),
+        (stairTyp, {x: cbx +. 2., y: cby}),
+      ]
+    | 1 =>
+      let numClouds = Random.int(5) + 5;
+      if (cby < 5.) {
+        generateClouds(cbx, cby, Cloud, numClouds);
+      } else {
+        [];
       };
-    obj_coord;
+    | 2 =>
+      if (blockh -. cby == 1.) {
+        generateGroundStairs(cbx, cby, stairTyp);
+      } else {
+        [];
+      }
+    | 3 =>
+      if (stairTyp == Brick && blockh -. cby > 3.) {
+        generateAirdownStairs(cbx, cby, stairTyp);
+      } else if (blockh -. cby > 2.) {
+        generateAirupStairs(cbx, cby, stairTyp);
+      } else {
+        [(stairTyp, {x: cbx, y: cby})];
+      }
+    | 4 =>
+      if (cby +. 3. -. blockh == 2.) {
+        [(stairTyp, {x: cbx, y: cby})];
+      } else if (cby +. 3. -. blockh == 1.) {
+        [
+          (stairTyp, {x: cbx, y: cby}),
+          (stairTyp, {x: cbx, y: cby +. 1.}),
+        ];
+      } else {
+        [
+          (stairTyp, {x: cbx, y: cby}),
+          (stairTyp, {x: cbx, y: cby +. 1.}),
+          (stairTyp, {x: cbx, y: cby +. 2.}),
+        ];
+      }
+    | _ => failwith("Shouldn't reach here")
+    };
   };
 
 // Generates a list of enemies to be placed on the ground.
@@ -247,23 +245,22 @@ let rec generateEnemies =
 
 // Generates a list of enemies to be placed upon the block objects.
 let rec generateBlockEnemies =
-        (block_coord: list(blockCoord)): list(enemyCoord) => {
-  let place_enemy = Random.int(20);
-  let enemy_typ = randomEnemyTyp();
-  switch (block_coord) {
+        (blockCoord: list(blockCoord)): list(enemyCoord) => {
+  let placeEnemy = Random.int(20);
+  switch (blockCoord) {
   | [] => []
   | [h, ...t] =>
-    if (place_enemy == 0) {
+    if (placeEnemy == 0) {
       let xc = snd(h).x;
       let yc = snd(h).y;
-      [(enemy_typ, {x: xc, y: yc -. 16.})] @ generateBlockEnemies(t);
+      [(randomEnemyTyp(), {x: xc, y: yc -. 16.})] @ generateBlockEnemies(t);
     } else {
       generateBlockEnemies(t);
     }
   };
 };
 
-// Generate an obj_coord list (typ, coordinates) of blocks to be placed.
+// Generate an objCoord list (typ, coordinates) of blocks to be placed.
 let rec generateBlockLocs =
         (
           blockw: float,
@@ -281,12 +278,12 @@ let rec generateBlockLocs =
     generateBlockLocs(blockw, blockh, cbx, cby +. 1., acc);
   } else {
     let prob = Random.int(100);
-    let block_prob = 5;
-    if (prob < block_prob) {
-      let newacc = choose_block_pattern(blockw, blockh, cbx, cby, prob);
-      let undup_lst = removeOverlap(newacc, acc);
-      let called_acc = acc @ undup_lst;
-      generateBlockLocs(blockw, blockh, cbx, cby +. 1., called_acc);
+    let blockProb = 5;
+    if (prob < blockProb) {
+      let newacc = chooseBlockPattern(blockw, blockh, cbx, cby, prob);
+      let undupLst = removeOverlap(newacc, acc);
+      let calledAcc = acc @ undupLst;
+      generateBlockLocs(blockw, blockh, cbx, cby +. 1., calledAcc);
     } else {
       generateBlockLocs(blockw, blockh, cbx, cby +. 1., acc);
     };
@@ -323,8 +320,8 @@ let rec generateGround =
     generateGround(blockw, blockh, inc +. 1., newacc);
   };
 
-// Convert the obj_coord list called by generate_block_locs to a list of objects
-// with the coordinates given from the obj_coord list.
+// Convert the objCoord list called by generateBlockLocs to a list of objects
+// with the coordinates given from the objCoord list.
 let rec convertToBlockObj =
         (lst: list(blockCoord), context: Html.canvasRenderingContext2D)
         : list(collidable) =>
@@ -335,8 +332,8 @@ let rec convertToBlockObj =
     [ob] @ convertToBlockObj(t, context);
   };
 
-// Convert the obj_coord list called by generate_enemies to a list of objects
-// with the coordinates given from the obj_coord list.
+// Convert the objCoord list called by generateEnemies to a list of objects
+// with the coordinates given from the objCoord list.
 let rec convertToEnemyObj =
         (lst: list(enemyCoord), context: Html.canvasRenderingContext2D)
         : list(collidable) =>
@@ -354,8 +351,8 @@ let rec convertToCoinObj =
   switch (lst) {
   | [] => []
   | [h, ...t] =>
-    let sitem_typ = Coin;
-    let ob = Object.spawn(SItem(sitem_typ), snd(h));
+    let sitemTyp = Coin;
+    let ob = Object.spawn(SItem(sitemTyp), snd(h));
     [ob] @ convertToCoinObj(t, context);
   };
 
@@ -363,13 +360,7 @@ let rec convertToCoinObj =
 // context. Arguments block width (blockw) and block height (blockh) are in
 // block form, not pixels.
 let generateHelper =
-    (
-      blockw: float,
-      blockh: float,
-      _cx: float,
-      _cy: float,
-      context: Html.canvasRenderingContext2D,
-    )
+    (blockw: float, blockh: float, context: Html.canvasRenderingContext2D)
     : list(collidable) => {
   let blockLocs = generateBlockLocs(blockw, blockh, 0., 0., []);
   let convertedBlockLocs = trimEdges(convertList(blockLocs), blockw, blockh);
@@ -401,7 +392,7 @@ let generate =
     (context: Html.canvasRenderingContext2D): (collidable, list(collidable)) => {
   let blockw = Config.levelWidth /. 16.;
   let blockh = Config.levelHeight /. 16. -. 1.;
-  let collideList = generateHelper(blockw, blockh, 0., 0., context);
+  let collideList = generateHelper(blockw, blockh, context);
   let player = Object.spawn(SPlayer(SmallM, Standing), {x: 100., y: 224.});
   (player, collideList);
 };

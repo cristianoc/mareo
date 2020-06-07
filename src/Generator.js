@@ -405,20 +405,20 @@ function randomStairTyp(param) {
   }
 }
 
-function choose_block_pattern(blockw, blockh, cbx, cby, prob) {
+function chooseBlockPattern(blockw, blockh, cbx, cby, prob) {
   if (cbx > blockw || cby > blockh) {
     return /* [] */0;
   }
-  var stair_typ = randomStairTyp(undefined);
-  var life_block_chance = Random.$$int(5);
-  var middle_block = life_block_chance === 0 ? /* QBlock */({
+  var stairTyp = randomStairTyp(undefined);
+  var lifeBlockChance = Random.$$int(5);
+  var middleBlock = lifeBlockChance === 0 ? /* QBlock */({
         _0: /* Mushroom */0
-      }) : stair_typ;
+      }) : stairTyp;
   switch (prob) {
     case 0 :
         return /* :: */{
                 _0: [
-                  stair_typ,
+                  stairTyp,
                   {
                     x: cbx,
                     y: cby
@@ -426,7 +426,7 @@ function choose_block_pattern(blockw, blockh, cbx, cby, prob) {
                 ],
                 _1: /* :: */{
                   _0: [
-                    middle_block,
+                    middleBlock,
                     {
                       x: cbx + 1,
                       y: cby
@@ -434,7 +434,7 @@ function choose_block_pattern(blockw, blockh, cbx, cby, prob) {
                   ],
                   _1: /* :: */{
                     _0: [
-                      stair_typ,
+                      stairTyp,
                       {
                         x: cbx + 2,
                         y: cby
@@ -445,27 +445,27 @@ function choose_block_pattern(blockw, blockh, cbx, cby, prob) {
                 }
               };
     case 1 :
-        var num_clouds = Random.$$int(5) + 5 | 0;
+        var numClouds = Random.$$int(5) + 5 | 0;
         if (cby < 5) {
-          return generateClouds(cbx, cby, /* Cloud */3, num_clouds);
+          return generateClouds(cbx, cby, /* Cloud */3, numClouds);
         } else {
           return /* [] */0;
         }
     case 2 :
         if (blockh - cby === 1) {
-          return generateGroundStairs(cbx, cby, stair_typ);
+          return generateGroundStairs(cbx, cby, stairTyp);
         } else {
           return /* [] */0;
         }
     case 3 :
-        if (stair_typ === /* Brick */1 && blockh - cby > 3) {
-          return generateAirdownStairs(cbx, cby, stair_typ);
+        if (stairTyp === /* Brick */1 && blockh - cby > 3) {
+          return generateAirdownStairs(cbx, cby, stairTyp);
         } else if (blockh - cby > 2) {
-          return generateAirupStairs(cbx, cby, stair_typ);
+          return generateAirupStairs(cbx, cby, stairTyp);
         } else {
           return /* :: */{
                   _0: [
-                    stair_typ,
+                    stairTyp,
                     {
                       x: cbx,
                       y: cby
@@ -478,7 +478,7 @@ function choose_block_pattern(blockw, blockh, cbx, cby, prob) {
         if (cby + 3 - blockh === 2) {
           return /* :: */{
                   _0: [
-                    stair_typ,
+                    stairTyp,
                     {
                       x: cbx,
                       y: cby
@@ -489,7 +489,7 @@ function choose_block_pattern(blockw, blockh, cbx, cby, prob) {
         } else if (cby + 3 - blockh === 1) {
           return /* :: */{
                   _0: [
-                    stair_typ,
+                    stairTyp,
                     {
                       x: cbx,
                       y: cby
@@ -497,7 +497,7 @@ function choose_block_pattern(blockw, blockh, cbx, cby, prob) {
                   ],
                   _1: /* :: */{
                     _0: [
-                      stair_typ,
+                      stairTyp,
                       {
                         x: cbx,
                         y: cby + 1
@@ -509,7 +509,7 @@ function choose_block_pattern(blockw, blockh, cbx, cby, prob) {
         } else {
           return /* :: */{
                   _0: [
-                    stair_typ,
+                    stairTyp,
                     {
                       x: cbx,
                       y: cby
@@ -517,7 +517,7 @@ function choose_block_pattern(blockw, blockh, cbx, cby, prob) {
                   ],
                   _1: /* :: */{
                     _0: [
-                      stair_typ,
+                      stairTyp,
                       {
                         x: cbx,
                         y: cby + 1
@@ -525,7 +525,7 @@ function choose_block_pattern(blockw, blockh, cbx, cby, prob) {
                     ],
                     _1: /* :: */{
                       _0: [
-                        stair_typ,
+                        stairTyp,
                         {
                           x: cbx,
                           y: cby + 2
@@ -580,22 +580,21 @@ function generateEnemies(blockw, blockh, _cbx, _cby, blocks) {
   };
 }
 
-function generateBlockEnemies(_block_coord) {
+function generateBlockEnemies(_blockCoord) {
   while(true) {
-    var block_coord = _block_coord;
-    var place_enemy = Random.$$int(20);
-    var enemy_typ = randomEnemyTyp(undefined);
-    if (!block_coord) {
+    var blockCoord = _blockCoord;
+    var placeEnemy = Random.$$int(20);
+    if (!blockCoord) {
       return /* [] */0;
     }
-    var t = block_coord._1;
-    var h = block_coord._0;
-    if (place_enemy === 0) {
+    var t = blockCoord._1;
+    var h = blockCoord._0;
+    if (placeEnemy === 0) {
       var xc = h[1].x;
       var yc = h[1].y;
       return Pervasives.$at(/* :: */{
                   _0: [
-                    enemy_typ,
+                    randomEnemyTyp(undefined),
                     {
                       x: xc,
                       y: yc - 16
@@ -604,7 +603,7 @@ function generateBlockEnemies(_block_coord) {
                   _1: /* [] */0
                 }, generateBlockEnemies(t));
     }
-    _block_coord = t;
+    _blockCoord = t;
     continue ;
   };
 }
@@ -631,10 +630,10 @@ function generateBlockLocs(blockw, blockh, _cbx, _cby, _acc) {
     }
     var prob = Random.$$int(100);
     if (prob < 5) {
-      var newacc = choose_block_pattern(blockw, blockh, cbx, cby, prob);
-      var undup_lst = removeOverlap(newacc, acc);
-      var called_acc = Pervasives.$at(acc, undup_lst);
-      _acc = called_acc;
+      var newacc = chooseBlockPattern(blockw, blockh, cbx, cby, prob);
+      var undupLst = removeOverlap(newacc, acc);
+      var calledAcc = Pervasives.$at(acc, undupLst);
+      _acc = calledAcc;
       _cby = cby + 1;
       continue ;
     }
@@ -740,7 +739,7 @@ function convertToCoinObj(lst, context) {
             }, convertToCoinObj(lst._1, context));
 }
 
-function generateHelper(blockw, blockh, _cx, _cy, context) {
+function generateHelper(blockw, blockh, context) {
   var blockLocs = generateBlockLocs(blockw, blockh, 0, 0, /* [] */0);
   var convertedBlockLocs = trimEdges(convertList(blockLocs), blockw, blockh);
   var objConvertedBlockLocs = convertToBlockObj(convertedBlockLocs, context);
@@ -766,7 +765,7 @@ function generateHelper(blockw, blockh, _cx, _cy, context) {
 function generate(context) {
   var blockw = Config.levelWidth / 16;
   var blockh = Config.levelHeight / 16 - 1;
-  var collideList = generateHelper(blockw, blockh, 0, 0, context);
+  var collideList = generateHelper(blockw, blockh, context);
   var player = $$Object.spawn({
         TAG: /* SPlayer */0,
         _0: /* SmallM */1,
@@ -797,7 +796,7 @@ export {
   generateCoins ,
   randomEnemyTyp ,
   randomStairTyp ,
-  choose_block_pattern ,
+  chooseBlockPattern ,
   generateEnemies ,
   generateBlockEnemies ,
   generateBlockLocs ,
