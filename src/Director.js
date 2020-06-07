@@ -626,7 +626,7 @@ function updateLoop(canvas, param) {
     last_time.contents = time;
     Draw.clearCanvas(canvas);
     var vpos_x_int = Viewport.getPos(state.vpt).x / 5 | 0;
-    var bgd_width = state.bgd.params.frame_size[0] | 0;
+    var bgd_width = state.bgd.params.frameSize[0] | 0;
     Draw.drawBgd(state.ctx, state.bgd, Caml_int32.mod_(vpos_x_int, bgd_width));
     var player$1 = run_update_collid(state, player, objs);
     if ($$Object.get_obj(player$1).kill === true) {

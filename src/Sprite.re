@@ -3,13 +3,13 @@ open Actors;
 type xy = (float, float);
 
 type sprite_params = {
-  max_frames: int,
-  max_ticks: int,
-  img_src: string,
-  frame_size: xy,
-  src_offset: xy,
-  bbox_offset: xy,
-  bbox_size: xy,
+  maxFrames: int,
+  maxTicks: int,
+  imgSrc: string,
+  frameSize: xy,
+  srcOffset: xy,
+  bboxOffset: xy,
+  bboxSize: xy,
 };
 
 type sprite = {
@@ -19,33 +19,26 @@ type sprite = {
   mutable img: Html.imageElement,
 };
 
-/*setup_sprite is used to initialize a sprite.*/
-let setup_sprite =
+// setupSprite is used to initialize a sprite.
+let setupSprite =
     (
-      ~bb_off as bbox_offset=(0., 0.),
-      ~bb_sz as bbox_size=(0., 0.),
-      img_src,
-      max_frames,
-      max_ticks,
-      frame_size,
-      src_offset,
+      ~bbOff as bboxOffset=(0., 0.),
+      ~bbSz as bboxSize=(0., 0.),
+      ~frameSize=(16., 16.),
+      ~maxTicks=0,
+      ~maxFrames=1,
+      ~srcOffset,
+      imgSrc,
     ) => {
-  let bbox_size =
-    if (bbox_size == (0., 0.)) {
-      frame_size;
+  let bboxSize =
+    if (bboxSize == (0., 0.)) {
+      frameSize;
     } else {
-      bbox_size;
+      bboxSize;
     };
-  let img_src = "./sprites/" ++ img_src;
-  {
-    img_src,
-    max_frames,
-    max_ticks,
-    frame_size,
-    src_offset,
-    bbox_offset,
-    bbox_size,
-  };
+  let maxFrames = maxFrames < 1 ? 1 : maxFrames;
+  let imgSrc = "./sprites/" ++ imgSrc;
+  {imgSrc, maxFrames, maxTicks, frameSize, srcOffset, bboxOffset, bboxSize};
 };
 
 /*The following functions are used in order to define sprite animations
@@ -57,87 +50,71 @@ let make_small_player = ((typ, dir)) =>
   | Left =>
     switch (typ) {
     | Standing =>
-      setup_sprite(
+      setupSprite(
         "mario-small.png",
-        ~bb_off=(3., 1.),
-        ~bb_sz=(11., 15.),
-        1,
-        0,
-        (16., 16.),
-        (0., 0.),
+        ~bbOff=(3., 1.),
+        ~bbSz=(11., 15.),
+        ~srcOffset=(0., 0.),
       )
     | Jumping =>
-      setup_sprite(
+      setupSprite(
         "mario-small.png",
-        ~bb_off=(2., 1.),
-        ~bb_sz=(13., 15.),
-        2,
-        10,
-        (16., 16.),
-        (16., 16.),
+        ~bbOff=(2., 1.),
+        ~bbSz=(13., 15.),
+        ~maxFrames=2,
+        ~maxTicks=10,
+        ~srcOffset=(16., 16.),
       )
     | Running =>
-      setup_sprite(
+      setupSprite(
         "mario-small.png",
-        ~bb_off=(2., 1.),
-        ~bb_sz=(12., 15.),
-        3,
-        5,
-        (16., 16.),
-        (16., 0.),
+        ~bbOff=(2., 1.),
+        ~bbSz=(12., 15.),
+        ~maxFrames=3,
+        ~maxTicks=5,
+        ~srcOffset=(16., 0.),
       )
     | Crouching =>
-      setup_sprite(
+      setupSprite(
         "mario-small.png",
-        ~bb_off=(1., 5.),
-        ~bb_sz=(14., 10.),
-        1,
-        0,
-        (16., 16.),
-        (0., 64.),
+        ~bbOff=(1., 5.),
+        ~bbSz=(14., 10.),
+        ~srcOffset=(0., 64.),
       )
     }
   | Right =>
     switch (typ) {
     | Standing =>
-      setup_sprite(
+      setupSprite(
         "mario-small.png",
-        ~bb_off=(1., 1.),
-        ~bb_sz=(11., 15.),
-        1,
-        0,
-        (16., 16.),
-        (0., 32.),
+        ~bbOff=(1., 1.),
+        ~bbSz=(11., 15.),
+        ~srcOffset=(0., 32.),
       )
     | Jumping =>
-      setup_sprite(
+      setupSprite(
         "mario-small.png",
-        ~bb_off=(2., 1.),
-        ~bb_sz=(13., 15.),
-        2,
-        10,
-        (16., 16.),
-        (16., 48.),
+        ~bbOff=(2., 1.),
+        ~bbSz=(13., 15.),
+        ~maxFrames=2,
+        ~maxTicks=10,
+        ~srcOffset=(16., 48.),
       )
     | Running =>
-      setup_sprite(
+      setupSprite(
         "mario-small.png",
-        ~bb_off=(2., 1.),
-        ~bb_sz=(12., 15.),
-        3,
-        5,
-        (16., 16.),
-        (16., 32.),
+        ~bbOff=(2., 1.),
+        ~bbSz=(12., 15.),
+        ~maxFrames=3,
+        ~maxTicks=5,
+        ~srcOffset=(16., 32.),
       )
     | Crouching =>
-      setup_sprite(
+      setupSprite(
         "mario-small.png",
-        ~bb_off=(1., 5.),
-        ~bb_sz=(14., 10.),
-        1,
-        0,
-        (16., 16.),
-        (0., 64.),
+        ~bbOff=(1., 5.),
+        ~bbSz=(14., 10.),
+        ~srcOffset=(0., 64.),
       )
     }
   };
@@ -148,87 +125,75 @@ let make_big_player = ((typ, dir)) =>
   | Left =>
     switch (typ) {
     | Standing =>
-      setup_sprite(
+      setupSprite(
         "mario-big.png",
-        1,
-        0,
-        ~bb_off=(2., 1.),
-        ~bb_sz=(13., 25.),
-        (16., 27.),
-        (16., 5.),
+        ~bbOff=(2., 1.),
+        ~bbSz=(13., 25.),
+        ~frameSize=(16., 27.),
+        ~srcOffset=(16., 5.),
       )
     | Jumping =>
-      setup_sprite(
+      setupSprite(
         "mario-big.png",
-        1,
-        0,
-        ~bb_off=(2., 1.),
-        ~bb_sz=(12., 25.),
-        (16., 26.),
-        (48., 6.),
+        ~bbOff=(2., 1.),
+        ~bbSz=(12., 25.),
+        ~frameSize=(16., 26.),
+        ~srcOffset=(48., 6.),
       )
     | Running =>
-      setup_sprite(
+      setupSprite(
         "mario-big.png",
-        4,
-        10,
-        ~bb_off=(2., 1.),
-        ~bb_sz=(13., 25.),
-        (16., 27.),
-        (0., 37.),
+        ~maxFrames=4,
+        ~maxTicks=10,
+        ~bbOff=(2., 1.),
+        ~bbSz=(13., 25.),
+        ~frameSize=(16., 27.),
+        ~srcOffset=(0., 37.),
       )
     | Crouching =>
-      setup_sprite(
+      setupSprite(
         "mario-big.png",
-        1,
-        0,
-        ~bb_off=(2., 10.),
-        ~bb_sz=(13., 17.),
-        (16., 27.),
-        (32., 5.),
+        ~bbOff=(2., 10.),
+        ~bbSz=(13., 17.),
+        ~frameSize=(16., 27.),
+        ~srcOffset=(32., 5.),
       )
     }
   | Right =>
     switch (typ) {
     | Standing =>
-      setup_sprite(
+      setupSprite(
         "mario-big.png",
-        1,
-        0,
-        ~bb_off=(1., 1.),
-        ~bb_sz=(13., 25.),
-        (16., 26.),
-        (16., 69.),
+        ~bbOff=(1., 1.),
+        ~bbSz=(13., 25.),
+        ~frameSize=(16., 26.),
+        ~srcOffset=(16., 69.),
       )
     | Jumping =>
-      setup_sprite(
+      setupSprite(
         "mario-big.png",
-        1,
-        0,
-        ~bb_off=(2., 1.),
-        ~bb_sz=(12., 25.),
-        (16., 26.),
-        (48., 70.),
+        ~bbOff=(2., 1.),
+        ~bbSz=(12., 25.),
+        ~frameSize=(16., 26.),
+        ~srcOffset=(48., 70.),
       )
     | Running =>
-      setup_sprite(
+      setupSprite(
         "mario-big.png",
-        4,
-        10,
-        ~bb_off=(2., 1.),
-        ~bb_sz=(13., 25.),
-        (16., 27.),
-        (0., 101.),
+        ~maxFrames=4,
+        ~maxTicks=10,
+        ~bbOff=(2., 1.),
+        ~bbSz=(13., 25.),
+        ~frameSize=(16., 27.),
+        ~srcOffset=(0., 101.),
       )
     | Crouching =>
-      setup_sprite(
+      setupSprite(
         "mario-big.png",
-        1,
-        0,
-        ~bb_off=(2., 10.),
-        ~bb_sz=(13., 17.),
-        (16., 27.),
-        (32., 69.),
+        ~bbOff=(2., 10.),
+        ~bbSz=(13., 17.),
+        ~frameSize=(16., 27.),
+        ~srcOffset=(32., 69.),
       )
     }
   };
@@ -237,74 +202,71 @@ let make_big_player = ((typ, dir)) =>
 let make_enemy = ((typ, dir)) =>
   switch (typ, dir) {
   | (Goomba, _) =>
-    setup_sprite(
+    setupSprite(
       "enemies.png",
-      ~bb_off=(1., 1.),
-      ~bb_sz=(14., 14.),
-      2,
-      10,
-      (16., 16.),
-      (0., 128.),
+      ~bbOff=(1., 1.),
+      ~bbSz=(14., 14.),
+      ~maxFrames=2,
+      ~maxTicks=10,
+      ~srcOffset=(0., 128.),
     )
   | (GKoopa, Left) =>
-    setup_sprite(
+    setupSprite(
       "enemies.png",
-      ~bb_off=(4., 10.),
-      ~bb_sz=(11., 16.),
-      2,
-      10,
-      (16., 27.),
-      (0., 69.),
+      ~bbOff=(4., 10.),
+      ~bbSz=(11., 16.),
+      ~maxFrames=2,
+      ~maxTicks=10,
+      ~frameSize=(16., 27.),
+      ~srcOffset=(0., 69.),
     )
   | (GKoopa, Right) =>
-    setup_sprite(
+    setupSprite(
       "enemies.png",
-      ~bb_off=(1., 10.),
-      ~bb_sz=(11., 16.),
-      2,
-      10,
-      (16., 27.),
-      (32., 69.),
+      ~bbOff=(1., 10.),
+      ~bbSz=(11., 16.),
+      ~maxFrames=2,
+      ~maxTicks=10,
+      ~frameSize=(16., 27.),
+      ~srcOffset=(32., 69.),
     )
   | (RKoopa, Left) =>
-    setup_sprite(
+    setupSprite(
       "enemies.png",
-      ~bb_off=(4., 10.),
-      ~bb_sz=(11., 16.),
-      2,
-      10,
-      (16., 27.),
-      (0., 5.),
+      ~bbOff=(4., 10.),
+      ~bbSz=(11., 16.),
+      ~maxFrames=2,
+      ~maxTicks=10,
+      ~frameSize=(16., 27.),
+      ~srcOffset=(0., 5.),
     )
   | (RKoopa, Right) =>
-    setup_sprite(
+    setupSprite(
       "enemies.png",
-      ~bb_off=(1., 10.),
-      ~bb_sz=(11., 16.),
-      2,
-      10,
-      (16., 27.),
-      (32., 5.),
+      ~bbOff=(1., 10.),
+      ~bbSz=(11., 16.),
+      ~maxFrames=2,
+      ~maxTicks=10,
+      ~frameSize=(16., 27.),
+      ~srcOffset=(32., 5.),
     )
   | (GKoopaShell, _) =>
-    setup_sprite(
+    setupSprite(
       "enemies.png",
-      ~bb_off=(2., 2.),
-      ~bb_sz=(12., 13.),
-      4,
-      10,
-      (16., 16.),
-      (0., 96.),
+      ~bbOff=(2., 2.),
+      ~bbSz=(12., 13.),
+      ~maxFrames=4,
+      ~maxTicks=10,
+      ~srcOffset=(0., 96.),
     )
   | (RKoopaShell, _) =>
-    setup_sprite(
+    setupSprite(
       "enemies.png",
-      ~bb_off=(2., 2.),
-      ~bb_sz=(12., 13.),
-      4,
-      10,
-      (16., 16.),
-      (0., 32.),
+      ~bbOff=(2., 2.),
+      ~bbSz=(12., 13.),
+      ~maxFrames=4,
+      ~maxTicks=10,
+      ~srcOffset=(0., 32.),
     )
   };
 
@@ -313,24 +275,20 @@ let make_item =
   fun
   /* 16x16 grid with 0x0 offset */
   | Coin =>
-    setup_sprite(
+    setupSprite(
       "items.png",
-      ~bb_off=(3., 0.),
-      ~bb_sz=(12., 16.),
-      3,
-      15,
-      (16., 16.),
-      (0., 80.),
+      ~bbOff=(3., 0.),
+      ~bbSz=(12., 16.),
+      ~maxFrames=3,
+      ~maxTicks=15,
+      ~srcOffset=(0., 80.),
     )
   | Mushroom =>
-    setup_sprite(
+    setupSprite(
       "items.png",
-      ~bb_off=(2., 0.),
-      ~bb_sz=(12., 16.),
-      1,
-      0,
-      (16., 16.),
-      (0., 0.),
+      ~bbOff=(2., 0.),
+      ~bbSz=(12., 16.),
+      ~srcOffset=(0., 0.),
     );
 
 /*Sets sprites for blocks: brick, question block, unbreakable block, cloud block
@@ -338,30 +296,58 @@ let make_item =
 let make_block =
   fun
   /* 16x16 grid with 0x0 offset */
-  | Brick => setup_sprite("blocks.png", 5, 10, (16., 16.), (0., 0.))
-  | QBlock(_) => setup_sprite("blocks.png", 4, 15, (16., 16.), (0., 16.))
-  | QBlockUsed => setup_sprite("blocks.png", 1, 0, (16., 16.), (0., 32.))
-  | UnBBlock => setup_sprite("blocks.png", 1, 0, (16., 16.), (0., 48.))
-  | Cloud => setup_sprite("blocks.png", 1, 0, (16., 16.), (0., 64.))
-  | Panel => setup_sprite("panel.png", 3, 15, (26., 26.), (0., 0.))
-  | Ground => setup_sprite("ground.png", 1, 0, (16., 16.), (0., 32.));
+  | Brick =>
+    setupSprite(
+      "blocks.png",
+      ~maxFrames=5,
+      ~maxTicks=10,
+      ~srcOffset=(0., 0.),
+    )
+  | QBlock(_) =>
+    setupSprite(
+      "blocks.png",
+      ~maxFrames=4,
+      ~maxTicks=15,
+      ~srcOffset=(0., 16.),
+    )
+  | QBlockUsed => setupSprite("blocks.png", ~srcOffset=(0., 32.))
+  | UnBBlock => setupSprite("blocks.png", ~srcOffset=(0., 48.))
+  | Cloud => setupSprite("blocks.png", ~srcOffset=(0., 64.))
+  | Panel =>
+    setupSprite(
+      "panel.png",
+      ~maxFrames=3,
+      ~maxTicks=15,
+      ~frameSize=(26., 26.),
+      ~srcOffset=(0., 0.),
+    )
+  | Ground => setupSprite("ground.png", ~srcOffset=(0., 32.));
 
 /*Sets sprites for particles, squished goomba, brick chunks (upon destruction
  * of brick), score text.*/
 let make_particle =
   fun
-  | GoombaSquish =>
-    setup_sprite("enemies.png", 1, 0, (16., 16.), (0., 144.))
-  | BrickChunkL => setup_sprite("chunks.png", 1, 0, (8., 8.), (0., 0.))
-  | BrickChunkR => setup_sprite("chunks.png", 1, 0, (8., 8.), (8., 0.))
-  | Score100 => setup_sprite("score.png", 1, 0, (12., 8.), (0., 0.))
-  | Score200 => setup_sprite("score.png", 1, 0, (12., 9.), (0., 9.))
-  | Score400 => setup_sprite("score.png", 1, 0, (12., 9.), (0., 18.))
-  | Score800 => setup_sprite("score.png", 1, 0, (12., 9.), (0., 27.))
-  | Score1000 => setup_sprite("score.png", 1, 0, (14., 9.), (13., 0.))
-  | Score2000 => setup_sprite("score.png", 1, 0, (14., 9.), (13., 9.))
-  | Score4000 => setup_sprite("score.png", 1, 0, (14., 9.), (13., 18.))
-  | Score8000 => setup_sprite("score.png", 1, 0, (14., 9.), (13., 27.));
+  | GoombaSquish => setupSprite("enemies.png", ~srcOffset=(0., 144.))
+  | BrickChunkL =>
+    setupSprite("chunks.png", ~frameSize=(8., 8.), ~srcOffset=(0., 0.))
+  | BrickChunkR =>
+    setupSprite("chunks.png", ~frameSize=(8., 8.), ~srcOffset=(8., 0.))
+  | Score100 =>
+    setupSprite("score.png", ~frameSize=(12., 8.), ~srcOffset=(0., 0.))
+  | Score200 =>
+    setupSprite("score.png", ~frameSize=(12., 9.), ~srcOffset=(0., 9.))
+  | Score400 =>
+    setupSprite("score.png", ~frameSize=(12., 9.), ~srcOffset=(0., 18.))
+  | Score800 =>
+    setupSprite("score.png", ~frameSize=(12., 9.), ~srcOffset=(0., 27.))
+  | Score1000 =>
+    setupSprite("score.png", ~frameSize=(14., 9.), ~srcOffset=(13., 0.))
+  | Score2000 =>
+    setupSprite("score.png", ~frameSize=(14., 9.), ~srcOffset=(13., 9.))
+  | Score4000 =>
+    setupSprite("score.png", ~frameSize=(14., 9.), ~srcOffset=(13., 18.))
+  | Score8000 =>
+    setupSprite("score.png", ~frameSize=(14., 9.), ~srcOffset=(13., 27.));
 
 /*Calls to set sprite for either big or small mario.*/
 let make_player = (pt, spr_type) =>
@@ -382,7 +368,7 @@ let make_type = (typ, dir: Actors.dir_1d) =>
 /* Makes a sprite from provided [params]. */
 let make_from_params = params => {
   let img = Html.createImg(Html.document);
-  img.src = params.img_src;
+  img.src = params.imgSrc;
   {params, img, frame: ref(0), ticks: ref(0)};
 };
 
@@ -394,12 +380,13 @@ let make = (spawn, dir) => {
 
 /* Make a background */
 let make_bgd = () => {
-  let params = setup_sprite("bgd-1.png", 1, 0, (512., 256.), (0., 0.));
+  let params =
+    setupSprite("bgd-1.png", ~frameSize=(512., 256.), ~srcOffset=(0., 0.));
   make_from_params(params);
 };
 
 /* Make a particle from the given particle type */
-let make_particle = (ptyp) => {
+let make_particle = ptyp => {
   let params = make_particle(ptyp);
   make_from_params(params);
 };
@@ -408,7 +395,7 @@ let make_particle = (ptyp) => {
 let transform_enemy = (enemy_typ, spr, dir) => {
   let params = make_enemy((enemy_typ, dir));
   let img = Html.createImg(Html.document);
-  img.src = params.img_src;
+  img.src = params.imgSrc;
   spr.params = params;
   spr.img = img;
 };
@@ -417,9 +404,9 @@ let transform_enemy = (enemy_typ, spr, dir) => {
 let update_animation = (spr: sprite) => {
   /* Only advance frame when ticked */
   let curr_ticks = spr.ticks^;
-  if (curr_ticks >= spr.params.max_ticks) {
+  if (curr_ticks >= spr.params.maxTicks) {
     spr.ticks := 0;
-    spr.frame := (spr.frame^ + 1) mod spr.params.max_frames;
+    spr.frame := [@doesNotRaise] ((spr.frame^ + 1) mod spr.params.maxFrames);
   } else {
     spr.ticks := curr_ticks + 1;
   };

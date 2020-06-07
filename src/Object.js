@@ -215,10 +215,10 @@ function update_player_keys(player, controls) {
 }
 
 function normalize_pos(pos, p1, p2) {
-  var match = p1.bbox_offset;
-  var match$1 = p2.bbox_offset;
-  var match$2 = p1.bbox_size;
-  var match$3 = p2.bbox_size;
+  var match = p1.bboxOffset;
+  var match$1 = p2.bboxOffset;
+  var match$2 = p1.bboxSize;
+  var match$3 = p2.bboxSize;
   pos.x = pos.x - (match$3[0] + match$1[0]) + (match$2[0] + match[0]);
   pos.y = pos.y - (match$3[1] + match$1[1]) + (match$2[1] + match[1]);
   
@@ -432,7 +432,7 @@ function spawn_above(player_dir, obj, typ) {
         _0: typ
       }, obj.pos);
   var item_obj = item._2;
-  item_obj.pos.y = item_obj.pos.y - item._1.params.frame_size[1];
+  item_obj.pos.y = item_obj.pos.y - item._1.params.frameSize[1];
   item_obj.dir = player_dir ? /* Left */0 : /* Right */1;
   set_vel_to_speed(item_obj);
   return item;
@@ -441,10 +441,10 @@ function spawn_above(player_dir, obj, typ) {
 function get_aabb(obj) {
   var spr = obj._1.params;
   var obj$1 = obj._2;
-  var match = spr.bbox_offset;
+  var match = spr.bboxOffset;
   var box = obj$1.pos.x + match[0];
   var boy = obj$1.pos.y + match[1];
-  var match$1 = spr.bbox_size;
+  var match$1 = spr.bboxSize;
   var sy = match$1[1];
   var sx = match$1[0];
   return {

@@ -3,28 +3,35 @@
 import * as Caml_obj from "bs-platform/lib/es6/caml_obj.js";
 import * as Caml_int32 from "bs-platform/lib/es6/caml_int32.js";
 
-function setup_sprite(bbox_offsetOpt, bbox_sizeOpt, img_src, max_frames, max_ticks, frame_size, src_offset) {
-  var bbox_offset = bbox_offsetOpt !== undefined ? bbox_offsetOpt : [
+function setupSprite(bboxOffsetOpt, bboxSizeOpt, frameSizeOpt, maxTicksOpt, maxFramesOpt, srcOffset, imgSrc) {
+  var bboxOffset = bboxOffsetOpt !== undefined ? bboxOffsetOpt : [
       0,
       0
     ];
-  var bbox_size = bbox_sizeOpt !== undefined ? bbox_sizeOpt : [
+  var bboxSize = bboxSizeOpt !== undefined ? bboxSizeOpt : [
       0,
       0
     ];
-  var bbox_size$1 = Caml_obj.caml_equal(bbox_size, [
+  var frameSize = frameSizeOpt !== undefined ? frameSizeOpt : [
+      16,
+      16
+    ];
+  var maxTicks = maxTicksOpt !== undefined ? maxTicksOpt : 0;
+  var maxFrames = maxFramesOpt !== undefined ? maxFramesOpt : 1;
+  var bboxSize$1 = Caml_obj.caml_equal(bboxSize, [
         0,
         0
-      ]) ? frame_size : bbox_size;
-  var img_src$1 = "./sprites/" + img_src;
+      ]) ? frameSize : bboxSize;
+  var maxFrames$1 = maxFrames < 1 ? 1 : maxFrames;
+  var imgSrc$1 = "./sprites/" + imgSrc;
   return {
-          max_frames: max_frames,
-          max_ticks: max_ticks,
-          img_src: img_src$1,
-          frame_size: frame_size,
-          src_offset: src_offset,
-          bbox_offset: bbox_offset,
-          bbox_size: bbox_size$1
+          maxFrames: maxFrames$1,
+          maxTicks: maxTicks,
+          imgSrc: imgSrc$1,
+          frameSize: frameSize,
+          srcOffset: srcOffset,
+          bboxOffset: bboxOffset,
+          bboxSize: bboxSize$1
         };
 }
 
@@ -33,121 +40,97 @@ function make_small_player(param) {
   if (param[1]) {
     switch (typ) {
       case /* Standing */0 :
-          return setup_sprite([
+          return setupSprite([
                       1,
                       1
                     ], [
                       11,
                       15
-                    ], "mario-small.png", 1, 0, [
-                      16,
-                      16
-                    ], [
+                    ], undefined, undefined, undefined, [
                       0,
                       32
-                    ]);
+                    ], "mario-small.png");
       case /* Jumping */1 :
-          return setup_sprite([
+          return setupSprite([
                       2,
                       1
                     ], [
                       13,
                       15
-                    ], "mario-small.png", 2, 10, [
-                      16,
-                      16
-                    ], [
+                    ], undefined, 10, 2, [
                       16,
                       48
-                    ]);
+                    ], "mario-small.png");
       case /* Running */2 :
-          return setup_sprite([
+          return setupSprite([
                       2,
                       1
                     ], [
                       12,
                       15
-                    ], "mario-small.png", 3, 5, [
-                      16,
-                      16
-                    ], [
+                    ], undefined, 5, 3, [
                       16,
                       32
-                    ]);
+                    ], "mario-small.png");
       case /* Crouching */3 :
-          return setup_sprite([
+          return setupSprite([
                       1,
                       5
                     ], [
                       14,
                       10
-                    ], "mario-small.png", 1, 0, [
-                      16,
-                      16
-                    ], [
+                    ], undefined, undefined, undefined, [
                       0,
                       64
-                    ]);
+                    ], "mario-small.png");
       
     }
   } else {
     switch (typ) {
       case /* Standing */0 :
-          return setup_sprite([
+          return setupSprite([
                       3,
                       1
                     ], [
                       11,
                       15
-                    ], "mario-small.png", 1, 0, [
-                      16,
-                      16
-                    ], [
+                    ], undefined, undefined, undefined, [
                       0,
                       0
-                    ]);
+                    ], "mario-small.png");
       case /* Jumping */1 :
-          return setup_sprite([
+          return setupSprite([
                       2,
                       1
                     ], [
                       13,
                       15
-                    ], "mario-small.png", 2, 10, [
+                    ], undefined, 10, 2, [
                       16,
                       16
-                    ], [
-                      16,
-                      16
-                    ]);
+                    ], "mario-small.png");
       case /* Running */2 :
-          return setup_sprite([
+          return setupSprite([
                       2,
                       1
                     ], [
                       12,
                       15
-                    ], "mario-small.png", 3, 5, [
-                      16,
-                      16
-                    ], [
+                    ], undefined, 5, 3, [
                       16,
                       0
-                    ]);
+                    ], "mario-small.png");
       case /* Crouching */3 :
-          return setup_sprite([
+          return setupSprite([
                       1,
                       5
                     ], [
                       14,
                       10
-                    ], "mario-small.png", 1, 0, [
-                      16,
-                      16
-                    ], [
+                    ], undefined, undefined, undefined, [
                       0,
                       64
-                    ]);
+                    ], "mario-small.png");
       
     }
   }
@@ -158,121 +141,121 @@ function make_big_player(param) {
   if (param[1]) {
     switch (typ) {
       case /* Standing */0 :
-          return setup_sprite([
+          return setupSprite([
                       1,
                       1
                     ], [
                       13,
                       25
-                    ], "mario-big.png", 1, 0, [
-                      16,
-                      26
                     ], [
                       16,
+                      26
+                    ], undefined, undefined, [
+                      16,
                       69
-                    ]);
+                    ], "mario-big.png");
       case /* Jumping */1 :
-          return setup_sprite([
+          return setupSprite([
                       2,
                       1
                     ], [
                       12,
                       25
-                    ], "mario-big.png", 1, 0, [
+                    ], [
                       16,
                       26
-                    ], [
+                    ], undefined, undefined, [
                       48,
                       70
-                    ]);
+                    ], "mario-big.png");
       case /* Running */2 :
-          return setup_sprite([
+          return setupSprite([
                       2,
                       1
                     ], [
                       13,
                       25
-                    ], "mario-big.png", 4, 10, [
+                    ], [
                       16,
                       27
-                    ], [
+                    ], 10, 4, [
                       0,
                       101
-                    ]);
+                    ], "mario-big.png");
       case /* Crouching */3 :
-          return setup_sprite([
+          return setupSprite([
                       2,
                       10
                     ], [
                       13,
                       17
-                    ], "mario-big.png", 1, 0, [
+                    ], [
                       16,
                       27
-                    ], [
+                    ], undefined, undefined, [
                       32,
                       69
-                    ]);
+                    ], "mario-big.png");
       
     }
   } else {
     switch (typ) {
       case /* Standing */0 :
-          return setup_sprite([
+          return setupSprite([
                       2,
                       1
                     ], [
                       13,
                       25
-                    ], "mario-big.png", 1, 0, [
-                      16,
-                      27
                     ], [
                       16,
+                      27
+                    ], undefined, undefined, [
+                      16,
                       5
-                    ]);
+                    ], "mario-big.png");
       case /* Jumping */1 :
-          return setup_sprite([
+          return setupSprite([
                       2,
                       1
                     ], [
                       12,
                       25
-                    ], "mario-big.png", 1, 0, [
+                    ], [
                       16,
                       26
-                    ], [
+                    ], undefined, undefined, [
                       48,
                       6
-                    ]);
+                    ], "mario-big.png");
       case /* Running */2 :
-          return setup_sprite([
+          return setupSprite([
                       2,
                       1
                     ], [
                       13,
                       25
-                    ], "mario-big.png", 4, 10, [
+                    ], [
                       16,
                       27
-                    ], [
+                    ], 10, 4, [
                       0,
                       37
-                    ]);
+                    ], "mario-big.png");
       case /* Crouching */3 :
-          return setup_sprite([
+          return setupSprite([
                       2,
                       10
                     ], [
                       13,
                       17
-                    ], "mario-big.png", 1, 0, [
+                    ], [
                       16,
                       27
-                    ], [
+                    ], undefined, undefined, [
                       32,
                       5
-                    ]);
+                    ], "mario-big.png");
       
     }
   }
@@ -282,202 +265,169 @@ function make_enemy(param) {
   var dir = param[1];
   switch (param[0]) {
     case /* Goomba */0 :
-        return setup_sprite([
+        return setupSprite([
                     1,
                     1
                   ], [
                     14,
                     14
-                  ], "enemies.png", 2, 10, [
-                    16,
-                    16
-                  ], [
+                  ], undefined, 10, 2, [
                     0,
                     128
-                  ]);
+                  ], "enemies.png");
     case /* GKoopa */1 :
         if (dir) {
-          return setup_sprite([
+          return setupSprite([
                       1,
                       10
                     ], [
                       11,
                       16
-                    ], "enemies.png", 2, 10, [
+                    ], [
                       16,
                       27
-                    ], [
+                    ], 10, 2, [
                       32,
                       69
-                    ]);
+                    ], "enemies.png");
         } else {
-          return setup_sprite([
+          return setupSprite([
                       4,
                       10
                     ], [
                       11,
                       16
-                    ], "enemies.png", 2, 10, [
+                    ], [
                       16,
                       27
-                    ], [
+                    ], 10, 2, [
                       0,
                       69
-                    ]);
+                    ], "enemies.png");
         }
     case /* RKoopa */2 :
         if (dir) {
-          return setup_sprite([
+          return setupSprite([
                       1,
                       10
                     ], [
                       11,
                       16
-                    ], "enemies.png", 2, 10, [
+                    ], [
                       16,
                       27
-                    ], [
+                    ], 10, 2, [
                       32,
                       5
-                    ]);
+                    ], "enemies.png");
         } else {
-          return setup_sprite([
+          return setupSprite([
                       4,
                       10
                     ], [
                       11,
                       16
-                    ], "enemies.png", 2, 10, [
+                    ], [
                       16,
                       27
-                    ], [
+                    ], 10, 2, [
                       0,
                       5
-                    ]);
+                    ], "enemies.png");
         }
     case /* GKoopaShell */3 :
-        return setup_sprite([
+        return setupSprite([
                     2,
                     2
                   ], [
                     12,
                     13
-                  ], "enemies.png", 4, 10, [
-                    16,
-                    16
-                  ], [
+                  ], undefined, 10, 4, [
                     0,
                     96
-                  ]);
+                  ], "enemies.png");
     case /* RKoopaShell */4 :
-        return setup_sprite([
+        return setupSprite([
                     2,
                     2
                   ], [
                     12,
                     13
-                  ], "enemies.png", 4, 10, [
-                    16,
-                    16
-                  ], [
+                  ], undefined, 10, 4, [
                     0,
                     32
-                  ]);
+                  ], "enemies.png");
     
   }
 }
 
 function make_item(param) {
   if (param) {
-    return setup_sprite([
+    return setupSprite([
                 3,
                 0
               ], [
                 12,
                 16
-              ], "items.png", 3, 15, [
-                16,
-                16
-              ], [
+              ], undefined, 15, 3, [
                 0,
                 80
-              ]);
+              ], "items.png");
   } else {
-    return setup_sprite([
+    return setupSprite([
                 2,
                 0
               ], [
                 12,
                 16
-              ], "items.png", 1, 0, [
-                16,
-                16
-              ], [
+              ], undefined, undefined, undefined, [
                 0,
                 0
-              ]);
+              ], "items.png");
   }
 }
 
 function make_block(param) {
   if (typeof param !== "number") {
-    return setup_sprite(undefined, undefined, "blocks.png", 4, 15, [
-                16,
-                16
-              ], [
+    return setupSprite(undefined, undefined, undefined, 15, 4, [
                 0,
                 16
-              ]);
+              ], "blocks.png");
   }
   switch (param) {
     case /* QBlockUsed */0 :
-        return setup_sprite(undefined, undefined, "blocks.png", 1, 0, [
-                    16,
-                    16
-                  ], [
+        return setupSprite(undefined, undefined, undefined, undefined, undefined, [
                     0,
                     32
-                  ]);
+                  ], "blocks.png");
     case /* Brick */1 :
-        return setup_sprite(undefined, undefined, "blocks.png", 5, 10, [
-                    16,
-                    16
-                  ], [
+        return setupSprite(undefined, undefined, undefined, 10, 5, [
                     0,
                     0
-                  ]);
+                  ], "blocks.png");
     case /* UnBBlock */2 :
-        return setup_sprite(undefined, undefined, "blocks.png", 1, 0, [
-                    16,
-                    16
-                  ], [
+        return setupSprite(undefined, undefined, undefined, undefined, undefined, [
                     0,
                     48
-                  ]);
+                  ], "blocks.png");
     case /* Cloud */3 :
-        return setup_sprite(undefined, undefined, "blocks.png", 1, 0, [
-                    16,
-                    16
-                  ], [
+        return setupSprite(undefined, undefined, undefined, undefined, undefined, [
                     0,
                     64
-                  ]);
+                  ], "blocks.png");
     case /* Panel */4 :
-        return setup_sprite(undefined, undefined, "panel.png", 3, 15, [
+        return setupSprite(undefined, undefined, [
                     26,
                     26
-                  ], [
+                  ], 15, 3, [
                     0,
                     0
-                  ]);
+                  ], "panel.png");
     case /* Ground */5 :
-        return setup_sprite(undefined, undefined, "ground.png", 1, 0, [
-                    16,
-                    16
-                  ], [
+        return setupSprite(undefined, undefined, undefined, undefined, undefined, [
                     0,
                     32
-                  ]);
+                  ], "ground.png");
     
   }
 }
@@ -485,93 +435,90 @@ function make_block(param) {
 function make_particle(param) {
   switch (param) {
     case /* GoombaSquish */0 :
-        return setup_sprite(undefined, undefined, "enemies.png", 1, 0, [
-                    16,
-                    16
-                  ], [
+        return setupSprite(undefined, undefined, undefined, undefined, undefined, [
                     0,
                     144
-                  ]);
+                  ], "enemies.png");
     case /* BrickChunkL */1 :
-        return setup_sprite(undefined, undefined, "chunks.png", 1, 0, [
+        return setupSprite(undefined, undefined, [
                     8,
                     8
-                  ], [
+                  ], undefined, undefined, [
                     0,
                     0
-                  ]);
+                  ], "chunks.png");
     case /* BrickChunkR */2 :
-        return setup_sprite(undefined, undefined, "chunks.png", 1, 0, [
+        return setupSprite(undefined, undefined, [
                     8,
                     8
-                  ], [
+                  ], undefined, undefined, [
                     8,
                     0
-                  ]);
+                  ], "chunks.png");
     case /* Score100 */3 :
-        return setup_sprite(undefined, undefined, "score.png", 1, 0, [
+        return setupSprite(undefined, undefined, [
                     12,
                     8
-                  ], [
+                  ], undefined, undefined, [
                     0,
                     0
-                  ]);
+                  ], "score.png");
     case /* Score200 */4 :
-        return setup_sprite(undefined, undefined, "score.png", 1, 0, [
+        return setupSprite(undefined, undefined, [
                     12,
                     9
-                  ], [
+                  ], undefined, undefined, [
                     0,
                     9
-                  ]);
+                  ], "score.png");
     case /* Score400 */5 :
-        return setup_sprite(undefined, undefined, "score.png", 1, 0, [
+        return setupSprite(undefined, undefined, [
                     12,
                     9
-                  ], [
+                  ], undefined, undefined, [
                     0,
                     18
-                  ]);
+                  ], "score.png");
     case /* Score800 */6 :
-        return setup_sprite(undefined, undefined, "score.png", 1, 0, [
+        return setupSprite(undefined, undefined, [
                     12,
                     9
-                  ], [
+                  ], undefined, undefined, [
                     0,
                     27
-                  ]);
+                  ], "score.png");
     case /* Score1000 */7 :
-        return setup_sprite(undefined, undefined, "score.png", 1, 0, [
+        return setupSprite(undefined, undefined, [
                     14,
                     9
-                  ], [
+                  ], undefined, undefined, [
                     13,
                     0
-                  ]);
+                  ], "score.png");
     case /* Score2000 */8 :
-        return setup_sprite(undefined, undefined, "score.png", 1, 0, [
+        return setupSprite(undefined, undefined, [
                     14,
                     9
-                  ], [
+                  ], undefined, undefined, [
                     13,
                     9
-                  ]);
+                  ], "score.png");
     case /* Score4000 */9 :
-        return setup_sprite(undefined, undefined, "score.png", 1, 0, [
+        return setupSprite(undefined, undefined, [
                     14,
                     9
-                  ], [
+                  ], undefined, undefined, [
                     13,
                     18
-                  ]);
+                  ], "score.png");
     case /* Score8000 */10 :
-        return setup_sprite(undefined, undefined, "score.png", 1, 0, [
+        return setupSprite(undefined, undefined, [
                     14,
                     9
-                  ], [
+                  ], undefined, undefined, [
                     13,
                     27
-                  ]);
+                  ], "score.png");
     
   }
 }
@@ -606,7 +553,7 @@ function make_type(typ, dir) {
 
 function make_from_params(params) {
   var img = document.createElement("img");
-  img.src = params.img_src;
+  img.src = params.imgSrc;
   return {
           params: params,
           frame: {
@@ -624,13 +571,13 @@ function make(spawn, dir) {
 }
 
 function make_bgd(param) {
-  return make_from_params(setup_sprite(undefined, undefined, "bgd-1.png", 1, 0, [
+  return make_from_params(setupSprite(undefined, undefined, [
                   512,
                   256
-                ], [
+                ], undefined, undefined, [
                   0,
                   0
-                ]));
+                ], "bgd-1.png"));
 }
 
 function make_particle$1(ptyp) {
@@ -643,7 +590,7 @@ function transform_enemy(enemy_typ, spr, dir) {
         dir
       ]);
   var img = document.createElement("img");
-  img.src = params.img_src;
+  img.src = params.imgSrc;
   spr.params = params;
   spr.img = img;
   
@@ -651,9 +598,9 @@ function transform_enemy(enemy_typ, spr, dir) {
 
 function update_animation(spr) {
   var curr_ticks = spr.ticks.contents;
-  if (curr_ticks >= spr.params.max_ticks) {
+  if (curr_ticks >= spr.params.maxTicks) {
     spr.ticks.contents = 0;
-    spr.frame.contents = Caml_int32.mod_(spr.frame.contents + 1 | 0, spr.params.max_frames);
+    spr.frame.contents = Caml_int32.mod_(spr.frame.contents + 1 | 0, spr.params.maxFrames);
   } else {
     spr.ticks.contents = curr_ticks + 1 | 0;
   }
@@ -661,7 +608,7 @@ function update_animation(spr) {
 }
 
 export {
-  setup_sprite ,
+  setupSprite ,
   make_small_player ,
   make_big_player ,
   make_enemy ,

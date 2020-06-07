@@ -474,7 +474,9 @@ let rec updateLoop = (canvas: Html.canvasElement, (player, objs)) => {
     switch (state.status) {
     | Won => Draw.gameWon(state.ctx)
     | Lost(t) when time -. t > Config.delayWhenLost =>
-      let timeToStart = Config.restartAfter - int_of_float(time -. t) / 1000;
+      let timeToStart =
+        [@doesNotRaise]
+        (Config.restartAfter - int_of_float(time -. t) / 1000);
       if (timeToStart > 0) {
         Draw.gameLost(state.ctx, timeToStart);
         Html.requestAnimationFrame((t: float) =>
@@ -494,11 +496,11 @@ let rec updateLoop = (canvas: Html.canvasElement, (player, objs)) => {
       Draw.clearCanvas(canvas);
       /* Parallax background */
       let vpos_x_int = int_of_float(state.vpt->Viewport.getPos.x /. 5.);
-      let bgd_width = int_of_float(fst(state.bgd.params.frame_size));
+      let bgd_width = int_of_float(fst(state.bgd.params.frameSize));
       Draw.drawBgd(
         state.ctx,
         state.bgd,
-        float_of_int(vpos_x_int mod bgd_width),
+        [@doesNotRaise] float_of_int(vpos_x_int mod bgd_width),
       );
       let player = run_update_collid(state, player, objs);
       if (get_obj(player).kill == true) {
@@ -537,7 +539,7 @@ let keydown = evt => {
     | 65 => pressed_keys.left = true
     | 40
     | 83 => pressed_keys.down = true
-    | 66 => pressed_keys.bbox = (pressed_keys.bbox + 1) mod 2
+    | 66 => pressed_keys.bbox = [@doesNotRaise] ((pressed_keys.bbox + 1) mod 2)
     | _ => ()
     };
   true;

@@ -2,17 +2,17 @@
 
 
 function renderBbox(context, sprite, param) {
-  var match = sprite.params.bbox_offset;
-  var match$1 = sprite.params.bbox_size;
+  var match = sprite.params.bboxOffset;
+  var match$1 = sprite.params.bboxSize;
   context.strokeStyle = "#FF0000";
   return context.strokeRect(param[0] + match[0], param[1] + match[1], match$1[0], match$1[1]);
 }
 
 function render(context, sprite, param) {
-  var match = sprite.params.src_offset;
-  var match$1 = sprite.params.frame_size;
+  var match = sprite.params.srcOffset;
+  var match$1 = sprite.params.frameSize;
   var sw = match$1[0];
-  var match$2 = sprite.params.frame_size;
+  var match$2 = sprite.params.frameSize;
   var sx = match[0] + sprite.frame.contents * sw;
   return context.drawImage(sprite.img, sx, match[1], sw, match$1[1], param[0], param[1], match$2[0], match$2[1]);
 }
@@ -23,7 +23,7 @@ function drawBgd(context, bgd, off_x) {
         0
       ]);
   return render(context, bgd, [
-              bgd.params.frame_size[0] - off_x,
+              bgd.params.frameSize[0] - off_x,
               0
             ]);
 }

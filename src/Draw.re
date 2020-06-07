@@ -2,18 +2,18 @@ open Sprite;
 
 let renderBbox =
     (context: Html.canvasRenderingContext2D, sprite, (posx, posy)) => {
-  let (bbox, bboy) = sprite.params.bbox_offset;
-  let (bbsx, bbsy) = sprite.params.bbox_size;
+  let (bbox, bboy) = sprite.params.bboxOffset;
+  let (bbsx, bbsy) = sprite.params.bboxSize;
   context.strokeStyle = "#FF0000";
   context.strokeRect(. posx +. bbox, posy +. bboy, bbsx, bbsy);
 };
 
 // Draws a sprite onto the canvas
 let render = (context: Html.canvasRenderingContext2D, sprite, (posx, posy)) => {
-  let (sx, sy) = sprite.params.src_offset;
-  let (sw, sh) = sprite.params.frame_size;
+  let (sx, sy) = sprite.params.srcOffset;
+  let (sw, sh) = sprite.params.frameSize;
   let (dx, dy) = (posx, posy);
-  let (dw, dh) = sprite.params.frame_size;
+  let (dw, dh) = sprite.params.frameSize;
   let sx = sx +. float_of_int(sprite.frame^) *. sw;
   context.drawImage(. sprite.img, sx, sy, sw, sh, dx, dy, dw, dh);
 };
@@ -23,7 +23,7 @@ let render = (context: Html.canvasRenderingContext2D, sprite, (posx, posy)) => {
 // between two background images.
 let drawBgd = (context, bgd, off_x) => {
   render(context, bgd, (-. off_x, 0.));
-  render(context, bgd, (fst(bgd.params.frame_size) -. off_x, 0.));
+  render(context, bgd, (fst(bgd.params.frameSize) -. off_x, 0.));
 };
 
 // Used for animation updating. Canvas is cleared each frame and redrawn.

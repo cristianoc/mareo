@@ -214,10 +214,10 @@ let update_player_keys = (player: obj, controls: controls): unit => {
  *of some action, the new sprite must be normalized so that things aren't
  *jumpy*/
 let normalize_pos = (pos, p1: Sprite.sprite_params, p2: Sprite.sprite_params) => {
-  let (box1, boy1) = p1.bbox_offset
-  and (box2, boy2) = p2.bbox_offset;
-  let (bw1, bh1) = p1.bbox_size
-  and (bw2, bh2) = p2.bbox_size;
+  let (box1, boy1) = p1.bboxOffset
+  and (box2, boy2) = p2.bboxOffset;
+  let (bw1, bh1) = p1.bboxSize
+  and (bw2, bh2) = p2.bboxSize;
   pos.x = pos.x -. (bw2 +. box2) +. (bw1 +. box1);
   pos.y = pos.y -. (bh2 +. boy2) +. (bh1 +. boy1);
 };
@@ -368,7 +368,7 @@ let evolve_block = obj => {
 let spawn_above = (player_dir, obj, typ) => {
   let item = spawn(SItem(typ), obj.pos);
   let item_obj = get_obj(item);
-  item_obj.pos.y = item_obj.pos.y -. snd(get_sprite(item).params.frame_size);
+  item_obj.pos.y = item_obj.pos.y -. snd(get_sprite(item).params.frameSize);
   item_obj.dir = opposite_dir(player_dir);
   set_vel_to_speed(item_obj);
   item;
@@ -378,9 +378,9 @@ let spawn_above = (player_dir, obj, typ) => {
 let get_aabb = obj => {
   let spr = get_sprite(obj).params;
   let obj = get_obj(obj);
-  let (offx, offy) = spr.bbox_offset;
+  let (offx, offy) = spr.bboxOffset;
   let (box, boy) = (obj.pos.x +. offx, obj.pos.y +. offy);
-  let (sx, sy) = spr.bbox_size;
+  let (sx, sy) = spr.bboxSize;
   {
     center: {
       x: box +. sx /. 2.,
