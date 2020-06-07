@@ -9,7 +9,7 @@
     "build": "bsb",
     "clean": "bsb -clean-world",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "rollup": "rollup -c rollupconfig.js"
+    "rollup": "rollup -c rollupconfig.js -w"
   },
   "repository": {
     "type": "git",

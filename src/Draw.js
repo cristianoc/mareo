@@ -1,7 +1,7 @@
 
 
 
-function render_bbox(sprite, param) {
+function renderBbox(sprite, param) {
   var context = sprite.context;
   var match = sprite.params.bbox_offset;
   var match$1 = sprite.params.bbox_size;
@@ -19,7 +19,7 @@ function render(sprite, param) {
   return context.drawImage(sprite.img, sx, match[1], sw, match$1[1], param[0], param[1], match$2[0], match$2[1]);
 }
 
-function draw_bgd(bgd, off_x) {
+function drawBgd(bgd, off_x) {
   render(bgd, [
         -off_x,
         0
@@ -30,7 +30,7 @@ function draw_bgd(bgd, off_x) {
             ]);
 }
 
-function clear_canvas(canvas) {
+function clearCanvas(canvas) {
   var context = canvas.getContext("2d");
   var cwidth = canvas.width;
   var cheight = canvas.height;
@@ -72,10 +72,10 @@ function gameLost(ctx, elapsed) {
 }
 
 export {
-  render_bbox ,
+  renderBbox ,
   render ,
-  draw_bgd ,
-  clear_canvas ,
+  drawBgd ,
+  clearCanvas ,
   hud ,
   fps ,
   gameWon ,

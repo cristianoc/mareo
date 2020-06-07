@@ -375,7 +375,7 @@ let update_collidable = (state, collid: Object.collidable, all_collids) => {
     let vpt_adj_xy = Viewport.coord_to_viewport(state.vpt, obj.pos);
     Draw.render(spr, (vpt_adj_xy.x, vpt_adj_xy.y));
     if (check_bbox_enabled()) {
-      Draw.render_bbox(spr, (vpt_adj_xy.x, vpt_adj_xy.y));
+      Draw.renderBbox(spr, (vpt_adj_xy.x, vpt_adj_xy.y));
     };
     if (obj.vel.x != 0. || !is_enemy(collid)) {
       Sprite.update_animation(spr);
@@ -492,11 +492,11 @@ let rec updateLoop = (canvas: Html.canvasElement, (player, objs)) => {
       particles := [];
       let fps = calc_fps(last_time^, time);
       last_time := time;
-      Draw.clear_canvas(canvas);
+      Draw.clearCanvas(canvas);
       /* Parallax background */
       let vpos_x_int = int_of_float(state.vpt->Viewport.getPos.x /. 5.);
       let bgd_width = int_of_float(fst(state.bgd.params.frame_size));
-      Draw.draw_bgd(state.bgd, float_of_int(vpos_x_int mod bgd_width));
+      Draw.drawBgd(state.bgd, float_of_int(vpos_x_int mod bgd_width));
       let player = run_update_collid(state, player, objs);
       if (get_obj(player).kill == true) {
         state.status = Lost(time);

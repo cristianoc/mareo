@@ -1,6 +1,6 @@
 open Sprite;
 
-let render_bbox = (sprite, (posx, posy)) => {
+let renderBbox = (sprite, (posx, posy)) => {
   let context = sprite.context;
   let (bbox, bboy) = sprite.params.bbox_offset;
   let (bbsx, bbsy) = sprite.params.bbox_size;
@@ -22,13 +22,13 @@ let render = (sprite, (posx, posy)) => {
 // Draws two background images, which needs to be done because of the
 // constantly changing viewport, which is always at most going to be
 // between two background images.
-let draw_bgd = (bgd, off_x) => {
+let drawBgd = (bgd, off_x) => {
   render(bgd, (-. off_x, 0.));
   render(bgd, (fst(bgd.params.frame_size) -. off_x, 0.));
 };
 
 // Used for animation updating. Canvas is cleared each frame and redrawn.
-let clear_canvas = (canvas: Html.canvasElement) => {
+let clearCanvas = (canvas: Html.canvasElement) => {
   let context = canvas.getContext(. "2d");
   let cwidth = float_of_int(canvas.width);
   let cheight = float_of_int(canvas.height);

@@ -492,7 +492,7 @@ function update_collidable(state, collid, all_collids) {
         vpt_adj_xy.y
       ]);
   if (pressed_keys.bbox === 1) {
-    Draw.render_bbox(spr, [
+    Draw.renderBbox(spr, [
           vpt_adj_xy.x,
           vpt_adj_xy.y
         ]);
@@ -631,10 +631,10 @@ function updateLoop(canvas, param) {
         particles.contents = /* [] */0;
         var fps = calc_fps(last_time.contents, time);
         last_time.contents = time;
-        Draw.clear_canvas(canvas);
+        Draw.clearCanvas(canvas);
         var vpos_x_int = Viewport.getPos(state.vpt).x / 5 | 0;
         var bgd_width = state.bgd.params.frame_size[0] | 0;
-        Draw.draw_bgd(state.bgd, Caml_int32.mod_(vpos_x_int, bgd_width));
+        Draw.drawBgd(state.bgd, Caml_int32.mod_(vpos_x_int, bgd_width));
         var player$1 = run_update_collid(state, player, objs);
         if ($$Object.get_obj(player$1).kill === true) {
           state.status = /* Lost */{
