@@ -165,9 +165,9 @@ let chooseBlockPattern =
     [];
   } else {
     let stairTyp = randomStairTyp();
-    let lifeBlockChance = Random.int(5);
+    let lifeBlock = Random.int(5) == 0;
     let middleBlock =
-      if (lifeBlockChance == 0) {
+      if (lifeBlock) {
         QBlock(Mushroom);
       } else {
         stairTyp;

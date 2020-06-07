@@ -410,8 +410,8 @@ function chooseBlockPattern(blockw, blockh, cbx, cby, prob) {
     return /* [] */0;
   }
   var stairTyp = randomStairTyp(undefined);
-  var lifeBlockChance = Random.$$int(5);
-  var middleBlock = lifeBlockChance === 0 ? /* QBlock */({
+  var lifeBlock = Random.$$int(5) === 0;
+  var middleBlock = lifeBlock ? /* QBlock */({
         _0: /* Mushroom */0
       }) : stairTyp;
   switch (prob) {
