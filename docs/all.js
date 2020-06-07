@@ -8,7 +8,7 @@ var images = [
   "mario-small.png"
 ];
 
-var map_dim = /* tuple */[
+var mapDim = /* tuple */[
   2400,
   256
 ];
@@ -17,9 +17,9 @@ var canvasId = "canvas";
 
 var root_dir = "sprites/";
 
-var level_width = 2400;
+var levelWidth = 2400;
 
-var level_height = 256;
+var levelHeight = 256;
 
 
 /* No side effect */
@@ -3290,9 +3290,9 @@ function generate_helper(blockw, blockh, _cx, _cy, context) {
                         ]))));
 }
 
-function generate(w, h, context) {
-  var blockw = w / 16;
-  var blockh = h / 16 - 1;
+function generate(context) {
+  var blockw = levelWidth / 16;
+  var blockh = levelHeight / 16 - 1;
   var collide_list = generate_helper(blockw, blockh, 0, 0, context);
   var player = spawn(/* SPlayer */__(0, [
           /* SmallM */1,
@@ -3903,12 +3903,12 @@ function updateLoop(canvas, param) {
   var viewport = make$8(/* tuple */[
         cwidth,
         cheight
-      ], map_dim);
+      ], mapDim);
   var state = {
     bgd: make_bgd(ctx),
     ctx: ctx,
     vpt: update(viewport, get_obj(player).pos),
-    map: map_dim[1],
+    map: mapDim[1],
     score: 0,
     coins: 0,
     multiplier: 1,
@@ -3980,7 +3980,7 @@ function updateLoop(canvas, param) {
             }(player)));
         return ;
       }
-      var match = generate(level_width, level_height, state.ctx);
+      var match = generate(state.ctx);
       return updateLoop(canvas, /* tuple */[
                   match[0],
                   match[1]
@@ -4116,7 +4116,7 @@ function load(param) {
   document.addEventListener("keydown", keydown, true);
   document.addEventListener("keyup", keyup, true);
   init$4(undefined);
-  return updateLoop(canvas, generate(level_width, level_height, context));
+  return updateLoop(canvas, generate(context));
 }
 
 function preload(param) {

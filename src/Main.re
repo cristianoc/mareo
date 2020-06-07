@@ -18,10 +18,7 @@ let load = () => {
   Html.addEventListener(Html.document, "keydown", Director.keydown, true);
   Html.addEventListener(Html.document, "keyup", Director.keyup, true);
   Generator.init();
-  Director.updateLoop(
-    canvas,
-    Generator.generate(Config.level_width, Config.level_height, context),
-  );
+  Director.updateLoop(canvas, Generator.generate(context));
 };
 
 // Used for concurrency issues.

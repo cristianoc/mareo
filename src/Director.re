@@ -458,7 +458,7 @@ let rec updateLoop = (canvas: Html.canvasElement, (player, objs)) => {
   let ctx = canvas.getContext(. "2d");
   let cwidth = float_of_int(canvas.width) /. scale;
   let cheight = float_of_int(canvas.height) /. scale;
-  let viewport = Viewport.make((cwidth, cheight), Config.map_dim);
+  let viewport = Viewport.make((cwidth, cheight), Config.mapDim);
   let state = {
     bgd: Sprite.make_bgd(ctx),
     vpt: Viewport.update(viewport, get_obj(player).pos),
@@ -466,7 +466,7 @@ let rec updateLoop = (canvas: Html.canvasElement, (player, objs)) => {
     score: 0,
     coins: 0,
     multiplier: 1,
-    map: snd(Config.map_dim),
+    map: snd(Config.mapDim),
     status: Playing,
   };
   state.ctx.scale(. scale, scale);
@@ -483,12 +483,7 @@ let rec updateLoop = (canvas: Html.canvasElement, (player, objs)) => {
           updateHelper(t, state, player, collid_objs^, particles^)
         );
       } else {
-        let (player, objs) =
-          Generator.generate(
-            Config.level_width,
-            Config.level_height,
-            state.ctx,
-          );
+        let (player, objs) = Generator.generate(state.ctx);
         updateLoop(canvas, (player, objs));
       };
 

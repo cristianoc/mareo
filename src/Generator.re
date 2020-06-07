@@ -439,10 +439,9 @@ let generate_helper =
 // are in pixel form. Converts to block form to call generate_helper. Spawns
 // the list of collidables received from generate_helper to display on canvas.
 let generate =
-    (w: float, h: float, context: Html.canvasRenderingContext2D)
-    : (collidable, list(collidable)) => {
-  let blockw = w /. 16.;
-  let blockh = h /. 16. -. 1.;
+    (context: Html.canvasRenderingContext2D): (collidable, list(collidable)) => {
+  let blockw = Config.levelWidth /. 16.;
+  let blockh = Config.levelHeight /. 16. -. 1.;
   let collide_list = generate_helper(blockw, blockh, 0., 0., context);
   let player =
     Object.spawn(SPlayer(SmallM, Standing), context, {x: 100., y: 224.});

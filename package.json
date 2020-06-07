@@ -1,5 +1,5 @@
 {
-  "name": "Mareo",
+  "name": "mareo",
   "private": true,
   "version": "0.0.0",
   "description": "Fork of https://github.com/mahsu/MariOCaml, compiled using BuckleScript instead of js_of_ocaml",
