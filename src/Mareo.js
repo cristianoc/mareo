@@ -1,6 +1,5 @@
 
 
-import * as Load from "./Load.js";
 import * as Config from "./Config.js";
 import * as Director from "./Director.js";
 import * as Generator from "./Generator.js";
@@ -18,7 +17,7 @@ function preload(param) {
                         loadCount.contents = loadCount.contents + 1 | 0;
                         if (loadCount.contents === numImages) {
                           Generator.init(undefined);
-                          Director.updateLoop(Load.getCanvas(undefined), Generator.generate(undefined));
+                          Director.updateLoop(Generator.generate(undefined));
                         }
                         return true;
                       }), true);

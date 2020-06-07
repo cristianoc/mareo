@@ -20,7 +20,6 @@ type status =
  * is only true when the game is over). */
 type st = {
   bgd: sprite,
-  ctx: Html.canvasRenderingContext2D,
   vpt: Viewport.viewport,
   map: float,
   mutable score: int,
@@ -359,9 +358,9 @@ let update_collidable = (state, collid: Object.collidable, all_collids) => {
     let evolved = check_collisions(collid, all_collids, state);
     /* Render and update animation */
     let vpt_adj_xy = Viewport.coord_to_viewport(state.vpt, obj.pos);
-    Draw.render(state.ctx, spr, (vpt_adj_xy.x, vpt_adj_xy.y));
+    Draw.render(spr, (vpt_adj_xy.x, vpt_adj_xy.y));
     if (Keys.check_bbox_enabled()) {
-      Draw.renderBbox(state.ctx, spr, (vpt_adj_xy.x, vpt_adj_xy.y));
+      Draw.renderBbox(spr, (vpt_adj_xy.x, vpt_adj_xy.y));
     };
     if (obj.vel.x != 0. || !is_enemy(collid)) {
       Sprite.update_animation(spr);
@@ -412,7 +411,7 @@ let run_update_particle = (state, part) => {
   Particle.process(part);
   let x = part.pos.x -. state.vpt->Viewport.getPos.x
   and y = part.pos.y -. state.vpt->Viewport.getPos.y;
-  Draw.render(state.ctx, part.params.sprite, (x, y));
+  Draw.render(part.params.sprite, (x, y));
   if (!part.kill) {
     particles := [part, ...particles^];
   };
@@ -420,39 +419,37 @@ let run_update_particle = (state, part) => {
 
 // updateLoop is constantly being called to check for collisions and to
 // update each of the objects in the game.
-let rec updateLoop = (canvas: Html.canvasElement, (player, objs)) => {
-  let scale = 1.;
-  let ctx = canvas.getContext(. "2d");
-  let cwidth = float_of_int(canvas.width) /. scale;
-  let cheight = float_of_int(canvas.height) /. scale;
+let rec updateLoop = ((player, objs)) => {
+  let canvas = Load.getCanvas();
+  let cwidth = float_of_int(canvas.width) /. Config.scale;
+  let cheight = float_of_int(canvas.height) /. Config.scale;
   let viewport = Viewport.make((cwidth, cheight), Config.mapDim);
   let state = {
     bgd: Sprite.make_bgd(),
     vpt: Viewport.update(viewport, get_obj(player).pos),
-    ctx,
     score: 0,
     coins: 0,
     multiplier: 1,
     map: snd(Config.mapDim),
     status: Playing,
   };
-  state.ctx.scale(. scale, scale);
+  Load.getContext().scale(. Config.scale, Config.scale);
 
   let rec updateHelper = (time, state, player, objs, parts) => {
     switch (state.status) {
-    | Won => Draw.gameWon(state.ctx)
+    | Won => Draw.gameWon()
     | Lost(t) when time -. t > Config.delayWhenLost =>
       let timeToStart =
         [@doesNotRaise]
         (Config.restartAfter - int_of_float(time -. t) / 1000);
       if (timeToStart > 0) {
-        Draw.gameLost(state.ctx, timeToStart);
+        Draw.gameLost(timeToStart);
         Html.requestAnimationFrame((t: float) =>
           updateHelper(t, state, player, collid_objs^, particles^)
         );
       } else {
         let (player, objs) = Generator.generate();
-        updateLoop(canvas, (player, objs));
+        updateLoop((player, objs));
       };
 
     | Playing
@@ -460,12 +457,11 @@ let rec updateLoop = (canvas: Html.canvasElement, (player, objs)) => {
       let fps = calcFps();
       collid_objs := [];
       particles := [];
-      Draw.clearCanvas(canvas);
+      Draw.clearCanvas();
       /* Parallax background */
       let vpos_x_int = int_of_float(state.vpt->Viewport.getPos.x /. 5.);
       let bgd_width = int_of_float(fst(state.bgd.params.frameSize));
       Draw.drawBgd(
-        state.ctx,
         state.bgd,
         [@doesNotRaise] float_of_int(vpos_x_int mod bgd_width),
       );
@@ -482,8 +478,8 @@ let rec updateLoop = (canvas: Html.canvasElement, (player, objs)) => {
       };
       List.forEach(objs, obj => run_update_collid(state, obj, objs));
       List.forEach(parts, part => run_update_particle(state, part));
-      Draw.fps(state.ctx, fps);
-      Draw.hud(canvas, state.score, state.coins);
+      Draw.fps(fps);
+      Draw.hud(state.score, state.coins);
       Html.requestAnimationFrame((t: float) =>
         updateHelper(t, state, player, collid_objs^, particles^)
       );

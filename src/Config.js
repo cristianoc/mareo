@@ -25,6 +25,8 @@ var restartAfter = 5;
 
 var root_dir = "sprites/";
 
+var scale = 1;
+
 export {
   canvasId ,
   delayWhenLost ,
@@ -34,6 +36,7 @@ export {
   mapDim ,
   restartAfter ,
   root_dir ,
+  scale ,
   
 }
 /* No side effect */

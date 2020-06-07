@@ -13,3 +13,5 @@ let mapDim = (levelWidth, levelHeight);
 let restartAfter = 5;
 
 let root_dir = "sprites/";
+
+let scale = 1.;

@@ -2,6 +2,7 @@
 
 import * as Draw from "./Draw.js";
 import * as Keys from "./Keys.js";
+import * as Load from "./Load.js";
 import * as Config from "./Config.js";
 import * as $$Object from "./Object.js";
 import * as Sprite from "./Sprite.js";
@@ -468,12 +469,12 @@ function update_collidable(state, collid, all_collids) {
   $$Object.process_obj(obj, state.map);
   var evolved = check_collisions(collid, all_collids, state);
   var vpt_adj_xy = Viewport.coord_to_viewport(state.vpt, obj.pos);
-  Draw.render(state.ctx, spr, [
+  Draw.render(spr, [
         vpt_adj_xy.x,
         vpt_adj_xy.y
       ]);
   if (Keys.check_bbox_enabled(undefined)) {
-    Draw.renderBbox(state.ctx, spr, [
+    Draw.renderBbox(spr, [
           vpt_adj_xy.x,
           vpt_adj_xy.y
         ]);
@@ -524,7 +525,7 @@ function run_update_particle(state, part) {
   Particle.$$process(part);
   var x = part.pos.x - Viewport.getPos(state.vpt).x;
   var y = part.pos.y - Viewport.getPos(state.vpt).y;
-  Draw.render(state.ctx, part.params.sprite, [
+  Draw.render(part.params.sprite, [
         x,
         y
       ]);
@@ -538,18 +539,17 @@ function run_update_particle(state, part) {
   
 }
 
-function updateLoop(canvas, param) {
+function updateLoop(param) {
   var player = param[0];
-  var ctx = canvas.getContext("2d");
-  var cwidth = canvas.width / 1;
-  var cheight = canvas.height / 1;
+  var canvas = Load.getCanvas(undefined);
+  var cwidth = canvas.width / Config.scale;
+  var cheight = canvas.height / Config.scale;
   var viewport = Viewport.make([
         cwidth,
         cheight
       ], Config.mapDim);
   var state = {
     bgd: Sprite.make_bgd(undefined),
-    ctx: ctx,
     vpt: Viewport.update(viewport, $$Object.get_obj(player).pos),
     map: Config.mapDim[1],
     score: 0,
@@ -557,12 +557,12 @@ function updateLoop(canvas, param) {
     multiplier: 1,
     status: /* Playing */0
   };
-  state.ctx.scale(1, 1);
+  Load.getContext(undefined).scale(Config.scale, Config.scale);
   var updateHelper = function (time, state, player, objs, parts) {
     var t = state.status;
     if (typeof t === "number") {
       if (t !== 0) {
-        return Draw.gameWon(state.ctx);
+        return Draw.gameWon(undefined);
       }
       
     } else {
@@ -570,14 +570,14 @@ function updateLoop(canvas, param) {
       if (time - t$1 > Config.delayWhenLost) {
         var timeToStart = Config.restartAfter - ((time - t$1 | 0) / 1000 | 0) | 0;
         if (timeToStart > 0) {
-          Draw.gameLost(state.ctx, timeToStart);
+          Draw.gameLost(timeToStart);
           requestAnimationFrame(function (t) {
                 return updateHelper(t, state, player, collid_objs.contents, particles.contents);
               });
           return ;
         }
         var match = Generator.generate(undefined);
-        return updateLoop(canvas, [
+        return updateLoop([
                     match[0],
                     match[1]
                   ]);
@@ -587,10 +587,10 @@ function updateLoop(canvas, param) {
     var fps = calcFps(undefined);
     collid_objs.contents = /* [] */0;
     particles.contents = /* [] */0;
-    Draw.clearCanvas(canvas);
+    Draw.clearCanvas(undefined);
     var vpos_x_int = Viewport.getPos(state.vpt).x / 5 | 0;
     var bgd_width = state.bgd.params.frameSize[0] | 0;
-    Draw.drawBgd(state.ctx, state.bgd, Caml_int32.mod_(vpos_x_int, bgd_width));
+    Draw.drawBgd(state.bgd, Caml_int32.mod_(vpos_x_int, bgd_width));
     var player$1 = run_update_collid(state, player, objs);
     if ($$Object.get_obj(player$1).kill === true) {
       var match$1 = state.status;
@@ -603,7 +603,6 @@ function updateLoop(canvas, param) {
     }
     var state$1 = {
       bgd: state.bgd,
-      ctx: state.ctx,
       vpt: Viewport.update(state.vpt, $$Object.get_obj(player$1).pos),
       map: state.map,
       score: state.score,
@@ -617,8 +616,8 @@ function updateLoop(canvas, param) {
     Belt_List.forEach(parts, (function (part) {
             return run_update_particle(state$1, part);
           }));
-    Draw.fps(state$1.ctx, fps);
-    Draw.hud(canvas, state$1.score, state$1.coins);
+    Draw.fps(fps);
+    Draw.hud(state$1.score, state$1.coins);
     requestAnimationFrame(function (t) {
           return updateHelper(t, state$1, player$1, collid_objs.contents, particles.contents);
         });
