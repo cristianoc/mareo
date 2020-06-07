@@ -617,79 +617,72 @@ function updateLoop(canvas, param) {
     status: /* Playing */0
   };
   state.ctx.scale(1, 1);
-  var updateHelper = function (time, state, _player, _objs, _parts) {
-    while(true) {
-      var parts = _parts;
-      var objs = _objs;
-      var player = _player;
-      var t = state.status;
-      if (typeof t === "number") {
-        if (t !== 0) {
-          return Draw.gameWon(state.ctx);
+  var updateHelper = function (time, state, player, objs, parts) {
+    var t = state.status;
+    if (typeof t === "number") {
+      if (t !== 0) {
+        return Draw.gameWon(state.ctx);
+      }
+      
+    } else {
+      var t$1 = t._0;
+      if (time - t$1 > Config.delayWhenLost) {
+        var timeToStart = Config.restartAfter - ((time - t$1 | 0) / 1000 | 0) | 0;
+        if (timeToStart > 0) {
+          Draw.gameLost(state.ctx, timeToStart);
+          requestAnimationFrame(function (t) {
+                return updateHelper(t, state, player, collid_objs.contents, particles.contents);
+              });
+          return ;
         }
-        collid_objs.contents = /* [] */0;
-        particles.contents = /* [] */0;
-        var fps = calc_fps(last_time.contents, time);
-        last_time.contents = time;
-        Draw.clearCanvas(canvas);
-        var vpos_x_int = Viewport.getPos(state.vpt).x / 5 | 0;
-        var bgd_width = state.bgd.params.frame_size[0] | 0;
-        Draw.drawBgd(state.bgd, Caml_int32.mod_(vpos_x_int, bgd_width));
-        var player$1 = run_update_collid(state, player, objs);
-        if ($$Object.get_obj(player$1).kill === true) {
-          state.status = /* Lost */{
-            _0: time
-          };
-          _parts = particles.contents;
-          _objs = collid_objs.contents;
-          _player = player$1;
-          continue ;
-        }
-        var state$1 = {
-          bgd: state.bgd,
-          ctx: state.ctx,
-          vpt: Viewport.update(state.vpt, $$Object.get_obj(player$1).pos),
-          map: state.map,
-          score: state.score,
-          coins: state.coins,
-          multiplier: state.multiplier,
-          status: state.status
+        var match = Generator.generate(state.ctx);
+        return updateLoop(canvas, [
+                    match[0],
+                    match[1]
+                  ]);
+      }
+      
+    }
+    collid_objs.contents = /* [] */0;
+    particles.contents = /* [] */0;
+    var fps = calc_fps(last_time.contents, time);
+    last_time.contents = time;
+    Draw.clearCanvas(canvas);
+    var vpos_x_int = Viewport.getPos(state.vpt).x / 5 | 0;
+    var bgd_width = state.bgd.params.frame_size[0] | 0;
+    Draw.drawBgd(state.bgd, Caml_int32.mod_(vpos_x_int, bgd_width));
+    var player$1 = run_update_collid(state, player, objs);
+    if ($$Object.get_obj(player$1).kill === true) {
+      var match$1 = state.status;
+      if (typeof match$1 === "number") {
+        state.status = /* Lost */{
+          _0: time
         };
-        Belt_List.forEach(objs, (function(objs,state$1){
-            return function (obj) {
-              return run_update_collid(state$1, obj, objs);
-            }
-            }(objs,state$1)));
-        Belt_List.forEach(parts, (function(state$1){
-            return function (part) {
-              return run_update_particle(state$1, part);
-            }
-            }(state$1)));
-        Draw.fps(canvas, fps);
-        Draw.hud(canvas, state$1.score, state$1.coins);
-        requestAnimationFrame((function(player$1,state$1){
-            return function (t) {
-              return updateHelper(t, state$1, player$1, collid_objs.contents, particles.contents);
-            }
-            }(player$1,state$1)));
-        return ;
       }
-      var timeToStart = 5 - ((time - t._0 | 0) / 1000 | 0) | 0;
-      if (timeToStart > 0) {
-        Draw.gameLost(state.ctx, timeToStart);
-        requestAnimationFrame((function(player){
-            return function (t) {
-              return updateHelper(t, state, player, collid_objs.contents, particles.contents);
-            }
-            }(player)));
-        return ;
-      }
-      var match = Generator.generate(state.ctx);
-      return updateLoop(canvas, [
-                  match[0],
-                  match[1]
-                ]);
+      
+    }
+    var state$1 = {
+      bgd: state.bgd,
+      ctx: state.ctx,
+      vpt: Viewport.update(state.vpt, $$Object.get_obj(player$1).pos),
+      map: state.map,
+      score: state.score,
+      coins: state.coins,
+      multiplier: state.multiplier,
+      status: state.status
     };
+    Belt_List.forEach(objs, (function (obj) {
+            return run_update_collid(state$1, obj, objs);
+          }));
+    Belt_List.forEach(parts, (function (part) {
+            return run_update_particle(state$1, part);
+          }));
+    Draw.fps(canvas, fps);
+    Draw.hud(canvas, state$1.score, state$1.coins);
+    requestAnimationFrame(function (t) {
+          return updateHelper(t, state$1, player$1, collid_objs.contents, particles.contents);
+        });
+    
   };
   return updateHelper(0, state, player, param[1], /* [] */0);
 }

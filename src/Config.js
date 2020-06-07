@@ -15,19 +15,25 @@ var mapDim = [
 
 var canvasId = "canvas";
 
-var root_dir = "sprites/";
+var delayWhenLost = 300;
 
 var levelWidth = 2400;
 
 var levelHeight = 256;
 
+var restartAfter = 5;
+
+var root_dir = "sprites/";
+
 export {
   canvasId ,
-  root_dir ,
+  delayWhenLost ,
   images ,
   levelWidth ,
   levelHeight ,
   mapDim ,
+  restartAfter ,
+  root_dir ,
   
 }
 /* No side effect */

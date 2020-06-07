@@ -474,9 +474,8 @@ let rec updateLoop = (canvas: Html.canvasElement, (player, objs)) => {
   let rec updateHelper = (time, state, player, objs, parts) => {
     switch (state.status) {
     | Won => Draw.gameWon(state.ctx)
-    | Lost(t) =>
-      let restartAfter = 5;
-      let timeToStart = restartAfter - int_of_float(time -. t) / 1000;
+    | Lost(t) when time -. t > Config.delayWhenLost =>
+      let timeToStart = Config.restartAfter - int_of_float(time -. t) / 1000;
       if (timeToStart > 0) {
         Draw.gameLost(state.ctx, timeToStart);
         Html.requestAnimationFrame((t: float) =>
@@ -487,7 +486,8 @@ let rec updateLoop = (canvas: Html.canvasElement, (player, objs)) => {
         updateLoop(canvas, (player, objs));
       };
 
-    | Playing =>
+    | Playing
+    | Lost(_) =>
       collid_objs := [];
       particles := [];
       let fps = calc_fps(last_time^, time);
@@ -499,21 +499,22 @@ let rec updateLoop = (canvas: Html.canvasElement, (player, objs)) => {
       Draw.drawBgd(state.bgd, float_of_int(vpos_x_int mod bgd_width));
       let player = run_update_collid(state, player, objs);
       if (get_obj(player).kill == true) {
-        state.status = Lost(time);
-        updateHelper(time, state, player, collid_objs^, particles^);
-      } else {
-        let state = {
-          ...state,
-          vpt: Viewport.update(state.vpt, get_obj(player).pos),
+        switch (state.status) {
+        | Lost(_) => ()
+        | _ => state.status = Lost(time)
         };
-        List.forEach(objs, obj => run_update_collid(state, obj, objs));
-        List.forEach(parts, part => run_update_particle(state, part));
-        Draw.fps(canvas, fps);
-        Draw.hud(canvas, state.score, state.coins);
-        Html.requestAnimationFrame((t: float) =>
-          updateHelper(t, state, player, collid_objs^, particles^)
-        );
       };
+      let state = {
+        ...state,
+        vpt: Viewport.update(state.vpt, get_obj(player).pos),
+      };
+      List.forEach(objs, obj => run_update_collid(state, obj, objs));
+      List.forEach(parts, part => run_update_particle(state, part));
+      Draw.fps(canvas, fps);
+      Draw.hud(canvas, state.score, state.coins);
+      Html.requestAnimationFrame((t: float) =>
+        updateHelper(t, state, player, collid_objs^, particles^)
+      );
     };
   };
   updateHelper(0., state, player, objs, []);
