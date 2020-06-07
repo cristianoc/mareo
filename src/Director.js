@@ -27,12 +27,14 @@ var particles = {
   contents: /* [] */0
 };
 
-var last_time = {
+var lastTime = {
   contents: 0
 };
 
-function calc_fps(t0, t1) {
-  var delta = (t1 - t0) / 1000;
+function calcFps(time) {
+  var t0 = lastTime.contents;
+  lastTime.contents = time;
+  var delta = (time - t0) / 1000;
   return 1 / delta;
 }
 
@@ -622,8 +624,7 @@ function updateLoop(canvas, param) {
     }
     collid_objs.contents = /* [] */0;
     particles.contents = /* [] */0;
-    var fps = calc_fps(last_time.contents, time);
-    last_time.contents = time;
+    var fps = calcFps(time);
     Draw.clearCanvas(canvas);
     var vpos_x_int = Viewport.getPos(state.vpt).x / 5 | 0;
     var bgd_width = state.bgd.params.frameSize[0] | 0;
@@ -783,8 +784,8 @@ export {
   pressed_keys ,
   collid_objs ,
   particles ,
-  last_time ,
-  calc_fps ,
+  lastTime ,
+  calcFps ,
   update_score ,
   playerAttackEnemy ,
   enemyAttackPlayer ,

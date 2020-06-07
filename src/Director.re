@@ -52,11 +52,13 @@ let collid_objs = ref([]); /* List of next iteration collidable objects */
 
 let particles = ref([]); /* List of next iteration particles */
 
-let last_time = ref(0.); /* Used for calculating fps */
+let lastTime = ref(0.); /* Used for calculating fps */
 
 /* Calculates fps as the difference between [t0] and [t1] */
-let calc_fps = (t0, t1) => {
-  let delta = (t1 -. t0) /. 1000.;
+let calcFps = time => {
+  let t0 = lastTime^;
+  lastTime := time;
+  let delta = (time -. t0) /. 1000.;
   1. /. delta;
 };
 
@@ -491,8 +493,7 @@ let rec updateLoop = (canvas: Html.canvasElement, (player, objs)) => {
     | Lost(_) =>
       collid_objs := [];
       particles := [];
-      let fps = calc_fps(last_time^, time);
-      last_time := time;
+      let fps = calcFps(time);
       Draw.clearCanvas(canvas);
       /* Parallax background */
       let vpos_x_int = int_of_float(state.vpt->Viewport.getPos.x /. 5.);
