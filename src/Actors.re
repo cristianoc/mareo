@@ -27,14 +27,14 @@ type item_typ =
   | Mushroom
   | Coin;
 
-type enemy_typ =
+type enemyTyp =
   | Goomba
   | GKoopa
   | RKoopa
   | GKoopaShell
   | RKoopaShell;
 
-type block_typ =
+type blockTyp =
   | QBlock(item_typ)
   | QBlockUsed
   | Brick
@@ -64,6 +64,6 @@ type part_typ =
 
 type spawn_typ =
   | SPlayer(pl_typ, player_typ)
-  | SEnemy(enemy_typ)
+  | SEnemy(enemyTyp)
   | SItem(item_typ)
-  | SBlock(block_typ);
+  | SBlock(blockTyp);

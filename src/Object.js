@@ -30,27 +30,40 @@ function set_vel_to_speed(obj) {
   
 }
 
+function make_player(param) {
+  return setup_obj(undefined, 2.8, undefined);
+}
+
+function make_item(param) {
+  if (param) {
+    return setup_obj(false, undefined, undefined);
+  } else {
+    return setup_obj(undefined, undefined, undefined);
+  }
+}
+
+function make_enemy(param) {
+  if (param >= 3) {
+    return setup_obj(undefined, 3, undefined);
+  } else {
+    return setup_obj(undefined, undefined, undefined);
+  }
+}
+
+function make_block(param) {
+  return setup_obj(false, undefined, undefined);
+}
+
 function make_type(t) {
   switch (t.TAG | 0) {
     case /* SPlayer */0 :
-        return setup_obj(undefined, 2.8, undefined);
+        return make_player(undefined);
     case /* SEnemy */1 :
-        var param = t._0;
-        if (param >= 3) {
-          return setup_obj(undefined, 3, undefined);
-        } else {
-          return setup_obj(undefined, undefined, undefined);
-        }
+        return make_enemy(t._0);
     case /* SItem */2 :
-        var param$1 = t._0;
-        if (param$1) {
-          return setup_obj(false, undefined, undefined);
-        } else {
-          return setup_obj(undefined, undefined, undefined);
-        }
+        return make_item(t._0);
     case /* SBlock */3 :
-        t._0;
-        return setup_obj(false, undefined, undefined);
+        return make_block(t._0);
     
   }
 }
@@ -158,6 +171,49 @@ function equals(col1, col2) {
   return col1._2.id === col2._2.id;
 }
 
+function update_player_keys(player, controls) {
+  var lr_acc = player.vel.x * 0.2;
+  switch (controls) {
+    case /* CLeft */0 :
+        if (!player.crouch) {
+          if (player.vel.x > -player.params.speed) {
+            player.vel.x = player.vel.x - (0.4 - lr_acc);
+          }
+          player.dir = /* Left */0;
+          return ;
+        } else {
+          return ;
+        }
+    case /* CRight */1 :
+        if (!player.crouch) {
+          if (player.vel.x < player.params.speed) {
+            player.vel.x = player.vel.x + (0.4 + lr_acc);
+          }
+          player.dir = /* Right */1;
+          return ;
+        } else {
+          return ;
+        }
+    case /* CUp */2 :
+        if (!player.jumping && player.grounded) {
+          player.jumping = true;
+          player.grounded = false;
+          player.vel.y = Caml_primitive.caml_float_max(player.vel.y - (5.7 + Math.abs(player.vel.x) * 0.25), -6);
+          return ;
+        } else {
+          return ;
+        }
+    case /* CDown */3 :
+        if (!player.jumping && player.grounded) {
+          player.crouch = true;
+          return ;
+        } else {
+          return ;
+        }
+    
+  }
+}
+
 function normalize_pos(pos, p1, p2) {
   var match = p1.bbox_offset;
   var match$1 = p2.bbox_offset;
@@ -173,46 +229,7 @@ function update_player(player, keys, context) {
   var prev_dir = player.dir;
   var prev_vx = Math.abs(player.vel.x);
   Belt_List.forEach(keys, (function (param) {
-          var lr_acc = player.vel.x * 0.2;
-          switch (param) {
-            case /* CLeft */0 :
-                if (!player.crouch) {
-                  if (player.vel.x > -player.params.speed) {
-                    player.vel.x = player.vel.x - (0.4 - lr_acc);
-                  }
-                  player.dir = /* Left */0;
-                  return ;
-                } else {
-                  return ;
-                }
-            case /* CRight */1 :
-                if (!player.crouch) {
-                  if (player.vel.x < player.params.speed) {
-                    player.vel.x = player.vel.x + (0.4 + lr_acc);
-                  }
-                  player.dir = /* Right */1;
-                  return ;
-                } else {
-                  return ;
-                }
-            case /* CUp */2 :
-                if (!player.jumping && player.grounded) {
-                  player.jumping = true;
-                  player.grounded = false;
-                  player.vel.y = Caml_primitive.caml_float_max(player.vel.y - (5.7 + Math.abs(player.vel.x) * 0.25), -6);
-                  return ;
-                } else {
-                  return ;
-                }
-            case /* CDown */3 :
-                if (!player.jumping && player.grounded) {
-                  player.crouch = true;
-                  return ;
-                } else {
-                  return ;
-                }
-            
-          }
+          return update_player_keys(player, param);
         }));
   var v = player.vel.x * 0.9;
   var vel_damped = Math.abs(v) < 0.1 ? 0 : v;
@@ -312,6 +329,14 @@ function collide_block(dir, obj) {
     obj.jumping = false;
   }
   
+}
+
+function opposite_dir(dir) {
+  if (dir) {
+    return /* Left */0;
+  } else {
+    return /* Right */1;
+  }
 }
 
 function reverse_left_right(obj) {
@@ -597,31 +622,65 @@ function kill(collid, ctx) {
   }
 }
 
-var invuln = 60;
+var friction = 0.9;
+
+var gravity = 0.2;
+
+var max_y_vel = 4.5;
+
+var player_speed = 2.8;
+
+var player_jump = 5.7;
+
+var player_max_jump = -6;
 
 var dampen_jump = 4;
 
+var invuln = 60;
+
 export {
-  invuln ,
+  friction ,
+  gravity ,
+  max_y_vel ,
+  player_speed ,
+  player_jump ,
+  player_max_jump ,
   dampen_jump ,
+  invuln ,
+  id_counter ,
+  setup_obj ,
+  set_vel_to_speed ,
+  make_player ,
+  make_item ,
+  make_enemy ,
+  make_block ,
+  make_type ,
+  new_id ,
+  make ,
+  spawn ,
   get_sprite ,
   get_obj ,
-  spawn ,
-  equals ,
   is_player ,
   is_enemy ,
+  equals ,
+  update_player_keys ,
   normalize_pos ,
-  kill ,
-  process_obj ,
   update_player ,
-  check_collision ,
-  evolve_enemy ,
-  evolve_block ,
-  dec_health ,
-  rev_dir ,
-  reverse_left_right ,
+  update_vel ,
+  update_pos ,
+  process_obj ,
   collide_block ,
+  opposite_dir ,
+  reverse_left_right ,
+  evolve_enemy ,
+  rev_dir ,
+  dec_health ,
+  evolve_block ,
   spawn_above ,
+  get_aabb ,
+  col_bypass ,
+  check_collision ,
+  kill ,
   
 }
 /* No side effect */

@@ -28,6 +28,256 @@ function setup_sprite(bbox_offsetOpt, bbox_sizeOpt, img_src, max_frames, max_tic
         };
 }
 
+function make_small_player(param) {
+  var typ = param[0];
+  if (param[1]) {
+    switch (typ) {
+      case /* Standing */0 :
+          return setup_sprite([
+                      1,
+                      1
+                    ], [
+                      11,
+                      15
+                    ], "mario-small.png", 1, 0, [
+                      16,
+                      16
+                    ], [
+                      0,
+                      32
+                    ]);
+      case /* Jumping */1 :
+          return setup_sprite([
+                      2,
+                      1
+                    ], [
+                      13,
+                      15
+                    ], "mario-small.png", 2, 10, [
+                      16,
+                      16
+                    ], [
+                      16,
+                      48
+                    ]);
+      case /* Running */2 :
+          return setup_sprite([
+                      2,
+                      1
+                    ], [
+                      12,
+                      15
+                    ], "mario-small.png", 3, 5, [
+                      16,
+                      16
+                    ], [
+                      16,
+                      32
+                    ]);
+      case /* Crouching */3 :
+          return setup_sprite([
+                      1,
+                      5
+                    ], [
+                      14,
+                      10
+                    ], "mario-small.png", 1, 0, [
+                      16,
+                      16
+                    ], [
+                      0,
+                      64
+                    ]);
+      
+    }
+  } else {
+    switch (typ) {
+      case /* Standing */0 :
+          return setup_sprite([
+                      3,
+                      1
+                    ], [
+                      11,
+                      15
+                    ], "mario-small.png", 1, 0, [
+                      16,
+                      16
+                    ], [
+                      0,
+                      0
+                    ]);
+      case /* Jumping */1 :
+          return setup_sprite([
+                      2,
+                      1
+                    ], [
+                      13,
+                      15
+                    ], "mario-small.png", 2, 10, [
+                      16,
+                      16
+                    ], [
+                      16,
+                      16
+                    ]);
+      case /* Running */2 :
+          return setup_sprite([
+                      2,
+                      1
+                    ], [
+                      12,
+                      15
+                    ], "mario-small.png", 3, 5, [
+                      16,
+                      16
+                    ], [
+                      16,
+                      0
+                    ]);
+      case /* Crouching */3 :
+          return setup_sprite([
+                      1,
+                      5
+                    ], [
+                      14,
+                      10
+                    ], "mario-small.png", 1, 0, [
+                      16,
+                      16
+                    ], [
+                      0,
+                      64
+                    ]);
+      
+    }
+  }
+}
+
+function make_big_player(param) {
+  var typ = param[0];
+  if (param[1]) {
+    switch (typ) {
+      case /* Standing */0 :
+          return setup_sprite([
+                      1,
+                      1
+                    ], [
+                      13,
+                      25
+                    ], "mario-big.png", 1, 0, [
+                      16,
+                      26
+                    ], [
+                      16,
+                      69
+                    ]);
+      case /* Jumping */1 :
+          return setup_sprite([
+                      2,
+                      1
+                    ], [
+                      12,
+                      25
+                    ], "mario-big.png", 1, 0, [
+                      16,
+                      26
+                    ], [
+                      48,
+                      70
+                    ]);
+      case /* Running */2 :
+          return setup_sprite([
+                      2,
+                      1
+                    ], [
+                      13,
+                      25
+                    ], "mario-big.png", 4, 10, [
+                      16,
+                      27
+                    ], [
+                      0,
+                      101
+                    ]);
+      case /* Crouching */3 :
+          return setup_sprite([
+                      2,
+                      10
+                    ], [
+                      13,
+                      17
+                    ], "mario-big.png", 1, 0, [
+                      16,
+                      27
+                    ], [
+                      32,
+                      69
+                    ]);
+      
+    }
+  } else {
+    switch (typ) {
+      case /* Standing */0 :
+          return setup_sprite([
+                      2,
+                      1
+                    ], [
+                      13,
+                      25
+                    ], "mario-big.png", 1, 0, [
+                      16,
+                      27
+                    ], [
+                      16,
+                      5
+                    ]);
+      case /* Jumping */1 :
+          return setup_sprite([
+                      2,
+                      1
+                    ], [
+                      12,
+                      25
+                    ], "mario-big.png", 1, 0, [
+                      16,
+                      26
+                    ], [
+                      48,
+                      6
+                    ]);
+      case /* Running */2 :
+          return setup_sprite([
+                      2,
+                      1
+                    ], [
+                      13,
+                      25
+                    ], "mario-big.png", 4, 10, [
+                      16,
+                      27
+                    ], [
+                      0,
+                      37
+                    ]);
+      case /* Crouching */3 :
+          return setup_sprite([
+                      2,
+                      10
+                    ], [
+                      13,
+                      17
+                    ], "mario-big.png", 1, 0, [
+                      16,
+                      27
+                    ], [
+                      32,
+                      5
+                    ]);
+      
+    }
+  }
+}
+
 function make_enemy(param) {
   var dir = param[1];
   switch (param[0]) {
@@ -137,6 +387,101 @@ function make_enemy(param) {
   }
 }
 
+function make_item(param) {
+  if (param) {
+    return setup_sprite([
+                3,
+                0
+              ], [
+                12,
+                16
+              ], "items.png", 3, 15, [
+                16,
+                16
+              ], [
+                0,
+                80
+              ]);
+  } else {
+    return setup_sprite([
+                2,
+                0
+              ], [
+                12,
+                16
+              ], "items.png", 1, 0, [
+                16,
+                16
+              ], [
+                0,
+                0
+              ]);
+  }
+}
+
+function make_block(param) {
+  if (typeof param !== "number") {
+    return setup_sprite(undefined, undefined, "blocks.png", 4, 15, [
+                16,
+                16
+              ], [
+                0,
+                16
+              ]);
+  }
+  switch (param) {
+    case /* QBlockUsed */0 :
+        return setup_sprite(undefined, undefined, "blocks.png", 1, 0, [
+                    16,
+                    16
+                  ], [
+                    0,
+                    32
+                  ]);
+    case /* Brick */1 :
+        return setup_sprite(undefined, undefined, "blocks.png", 5, 10, [
+                    16,
+                    16
+                  ], [
+                    0,
+                    0
+                  ]);
+    case /* UnBBlock */2 :
+        return setup_sprite(undefined, undefined, "blocks.png", 1, 0, [
+                    16,
+                    16
+                  ], [
+                    0,
+                    48
+                  ]);
+    case /* Cloud */3 :
+        return setup_sprite(undefined, undefined, "blocks.png", 1, 0, [
+                    16,
+                    16
+                  ], [
+                    0,
+                    64
+                  ]);
+    case /* Panel */4 :
+        return setup_sprite(undefined, undefined, "panel.png", 3, 15, [
+                    26,
+                    26
+                  ], [
+                    0,
+                    0
+                  ]);
+    case /* Ground */5 :
+        return setup_sprite(undefined, undefined, "ground.png", 1, 0, [
+                    16,
+                    16
+                  ], [
+                    0,
+                    32
+                  ]);
+    
+  }
+}
+
 function make_particle(param) {
   switch (param) {
     case /* GoombaSquish */0 :
@@ -231,359 +576,30 @@ function make_particle(param) {
   }
 }
 
+function make_player(pt, spr_type) {
+  if (pt) {
+    return make_small_player(spr_type);
+  } else {
+    return make_big_player(spr_type);
+  }
+}
+
 function make_type(typ, dir) {
   switch (typ.TAG | 0) {
     case /* SPlayer */0 :
-        var pt = typ._0;
-        var spr_type = [
-          typ._1,
-          dir
-        ];
-        if (pt) {
-          var typ$1 = spr_type[0];
-          if (spr_type[1]) {
-            switch (typ$1) {
-              case /* Standing */0 :
-                  return setup_sprite([
-                              1,
-                              1
-                            ], [
-                              11,
-                              15
-                            ], "mario-small.png", 1, 0, [
-                              16,
-                              16
-                            ], [
-                              0,
-                              32
-                            ]);
-              case /* Jumping */1 :
-                  return setup_sprite([
-                              2,
-                              1
-                            ], [
-                              13,
-                              15
-                            ], "mario-small.png", 2, 10, [
-                              16,
-                              16
-                            ], [
-                              16,
-                              48
-                            ]);
-              case /* Running */2 :
-                  return setup_sprite([
-                              2,
-                              1
-                            ], [
-                              12,
-                              15
-                            ], "mario-small.png", 3, 5, [
-                              16,
-                              16
-                            ], [
-                              16,
-                              32
-                            ]);
-              case /* Crouching */3 :
-                  return setup_sprite([
-                              1,
-                              5
-                            ], [
-                              14,
-                              10
-                            ], "mario-small.png", 1, 0, [
-                              16,
-                              16
-                            ], [
-                              0,
-                              64
-                            ]);
-              
-            }
-          } else {
-            switch (typ$1) {
-              case /* Standing */0 :
-                  return setup_sprite([
-                              3,
-                              1
-                            ], [
-                              11,
-                              15
-                            ], "mario-small.png", 1, 0, [
-                              16,
-                              16
-                            ], [
-                              0,
-                              0
-                            ]);
-              case /* Jumping */1 :
-                  return setup_sprite([
-                              2,
-                              1
-                            ], [
-                              13,
-                              15
-                            ], "mario-small.png", 2, 10, [
-                              16,
-                              16
-                            ], [
-                              16,
-                              16
-                            ]);
-              case /* Running */2 :
-                  return setup_sprite([
-                              2,
-                              1
-                            ], [
-                              12,
-                              15
-                            ], "mario-small.png", 3, 5, [
-                              16,
-                              16
-                            ], [
-                              16,
-                              0
-                            ]);
-              case /* Crouching */3 :
-                  return setup_sprite([
-                              1,
-                              5
-                            ], [
-                              14,
-                              10
-                            ], "mario-small.png", 1, 0, [
-                              16,
-                              16
-                            ], [
-                              0,
-                              64
-                            ]);
-              
-            }
-          }
-        } else {
-          var typ$2 = spr_type[0];
-          if (spr_type[1]) {
-            switch (typ$2) {
-              case /* Standing */0 :
-                  return setup_sprite([
-                              1,
-                              1
-                            ], [
-                              13,
-                              25
-                            ], "mario-big.png", 1, 0, [
-                              16,
-                              26
-                            ], [
-                              16,
-                              69
-                            ]);
-              case /* Jumping */1 :
-                  return setup_sprite([
-                              2,
-                              1
-                            ], [
-                              12,
-                              25
-                            ], "mario-big.png", 1, 0, [
-                              16,
-                              26
-                            ], [
-                              48,
-                              70
-                            ]);
-              case /* Running */2 :
-                  return setup_sprite([
-                              2,
-                              1
-                            ], [
-                              13,
-                              25
-                            ], "mario-big.png", 4, 10, [
-                              16,
-                              27
-                            ], [
-                              0,
-                              101
-                            ]);
-              case /* Crouching */3 :
-                  return setup_sprite([
-                              2,
-                              10
-                            ], [
-                              13,
-                              17
-                            ], "mario-big.png", 1, 0, [
-                              16,
-                              27
-                            ], [
-                              32,
-                              69
-                            ]);
-              
-            }
-          } else {
-            switch (typ$2) {
-              case /* Standing */0 :
-                  return setup_sprite([
-                              2,
-                              1
-                            ], [
-                              13,
-                              25
-                            ], "mario-big.png", 1, 0, [
-                              16,
-                              27
-                            ], [
-                              16,
-                              5
-                            ]);
-              case /* Jumping */1 :
-                  return setup_sprite([
-                              2,
-                              1
-                            ], [
-                              12,
-                              25
-                            ], "mario-big.png", 1, 0, [
-                              16,
-                              26
-                            ], [
-                              48,
-                              6
-                            ]);
-              case /* Running */2 :
-                  return setup_sprite([
-                              2,
-                              1
-                            ], [
-                              13,
-                              25
-                            ], "mario-big.png", 4, 10, [
-                              16,
-                              27
-                            ], [
-                              0,
-                              37
-                            ]);
-              case /* Crouching */3 :
-                  return setup_sprite([
-                              2,
-                              10
-                            ], [
-                              13,
-                              17
-                            ], "mario-big.png", 1, 0, [
-                              16,
-                              27
-                            ], [
-                              32,
-                              5
-                            ]);
-              
-            }
-          }
-        }
+        return make_player(typ._0, [
+                    typ._1,
+                    dir
+                  ]);
     case /* SEnemy */1 :
         return make_enemy([
                     typ._0,
                     dir
                   ]);
     case /* SItem */2 :
-        var param = typ._0;
-        if (param) {
-          return setup_sprite([
-                      3,
-                      0
-                    ], [
-                      12,
-                      16
-                    ], "items.png", 3, 15, [
-                      16,
-                      16
-                    ], [
-                      0,
-                      80
-                    ]);
-        } else {
-          return setup_sprite([
-                      2,
-                      0
-                    ], [
-                      12,
-                      16
-                    ], "items.png", 1, 0, [
-                      16,
-                      16
-                    ], [
-                      0,
-                      0
-                    ]);
-        }
+        return make_item(typ._0);
     case /* SBlock */3 :
-        var param$1 = typ._0;
-        if (typeof param$1 !== "number") {
-          return setup_sprite(undefined, undefined, "blocks.png", 4, 15, [
-                      16,
-                      16
-                    ], [
-                      0,
-                      16
-                    ]);
-        }
-        switch (param$1) {
-          case /* QBlockUsed */0 :
-              return setup_sprite(undefined, undefined, "blocks.png", 1, 0, [
-                          16,
-                          16
-                        ], [
-                          0,
-                          32
-                        ]);
-          case /* Brick */1 :
-              return setup_sprite(undefined, undefined, "blocks.png", 5, 10, [
-                          16,
-                          16
-                        ], [
-                          0,
-                          0
-                        ]);
-          case /* UnBBlock */2 :
-              return setup_sprite(undefined, undefined, "blocks.png", 1, 0, [
-                          16,
-                          16
-                        ], [
-                          0,
-                          48
-                        ]);
-          case /* Cloud */3 :
-              return setup_sprite(undefined, undefined, "blocks.png", 1, 0, [
-                          16,
-                          16
-                        ], [
-                          0,
-                          64
-                        ]);
-          case /* Panel */4 :
-              return setup_sprite(undefined, undefined, "panel.png", 3, 15, [
-                          26,
-                          26
-                        ], [
-                          0,
-                          0
-                        ]);
-          case /* Ground */5 :
-              return setup_sprite(undefined, undefined, "ground.png", 1, 0, [
-                          16,
-                          16
-                        ], [
-                          0,
-                          32
-                        ]);
-          
-        }
+        return make_block(typ._0);
     
   }
 }
@@ -649,6 +665,15 @@ function update_animation(spr) {
 }
 
 export {
+  setup_sprite ,
+  make_small_player ,
+  make_big_player ,
+  make_enemy ,
+  make_item ,
+  make_block ,
+  make_player ,
+  make_type ,
+  make_from_params ,
   make ,
   make_bgd ,
   make_particle$1 as make_particle,

@@ -6,70 +6,39 @@ import * as Random from "bs-platform/lib/es6/random.js";
 import * as Caml_obj from "bs-platform/lib/es6/caml_obj.js";
 import * as Pervasives from "bs-platform/lib/es6/pervasives.js";
 
-function mem_loc(checkloc, _loclist) {
+function convertList(lst) {
+  if (!lst) {
+    return /* [] */0;
+  }
+  var match = lst._0;
+  var pos = match[1];
+  return Pervasives.$at(/* :: */{
+              _0: [
+                match[0],
+                {
+                  x: pos.x * 16,
+                  y: pos.y * 16
+                }
+              ],
+              _1: /* [] */0
+            }, convertList(lst._1));
+}
+
+function memPos(checkpos, _objs) {
   while(true) {
-    var loclist = _loclist;
-    if (!loclist) {
+    var objs = _objs;
+    if (!objs) {
       return false;
     }
-    if (Caml_obj.caml_equal(checkloc, loclist._0[1])) {
+    if (Caml_obj.caml_equal(checkpos, objs._0[1])) {
       return true;
     }
-    _loclist = loclist._1;
+    _objs = objs._1;
     continue ;
   };
 }
 
-function convert_list(lst) {
-  if (!lst) {
-    return /* [] */0;
-  }
-  var h = lst._0;
-  return Pervasives.$at(/* :: */{
-              _0: [
-                h[0],
-                {
-                  x: h[1].x * 16,
-                  y: h[1].y * 16
-                }
-              ],
-              _1: /* [] */0
-            }, convert_list(lst._1));
-}
-
-function choose_enemy_typ(typ) {
-  switch (typ) {
-    case 0 :
-        return /* RKoopa */2;
-    case 1 :
-        return /* GKoopa */1;
-    case 2 :
-        return /* Goomba */0;
-    default:
-      return Pervasives.failwith("Shouldn't reach here");
-  }
-}
-
-function choose_sblock_typ(typ) {
-  switch (typ) {
-    case 0 :
-        return /* Brick */1;
-    case 1 :
-        return /* UnBBlock */2;
-    case 2 :
-        return /* Cloud */3;
-    case 3 :
-        return /* QBlock */{
-                _0: /* Mushroom */0
-              };
-    case 4 :
-        return /* Ground */5;
-    default:
-      return Pervasives.failwith("Shouldn't reach here");
-  }
-}
-
-function avoid_overlap(_lst, currentLst) {
+function removeOverlap(_lst, currentObjs) {
   while(true) {
     var lst = _lst;
     if (!lst) {
@@ -77,18 +46,18 @@ function avoid_overlap(_lst, currentLst) {
     }
     var t = lst._1;
     var h = lst._0;
-    if (!mem_loc(h[1], currentLst)) {
-      return Pervasives.$at(/* :: */{
-                  _0: h,
-                  _1: /* [] */0
-                }, avoid_overlap(t, currentLst));
+    if (!memPos(h[1], currentObjs)) {
+      return /* :: */{
+              _0: h,
+              _1: removeOverlap(t, currentObjs)
+            };
     }
     _lst = t;
     continue ;
   };
 }
 
-function trim_edges(_lst, blockw, blockh) {
+function trimEdges(_lst, blockw, blockh) {
   while(true) {
     var lst = _lst;
     if (!lst) {
@@ -104,14 +73,14 @@ function trim_edges(_lst, blockw, blockh) {
       return Pervasives.$at(/* :: */{
                   _0: h,
                   _1: /* [] */0
-                }, trim_edges(t, blockw, blockh));
+                }, trimEdges(t, blockw, blockh));
     }
     _lst = t;
     continue ;
   };
 }
 
-function generate_ground_stairs(cbx, cby, typ) {
+function generateGroundStairs(cbx, cby, typ) {
   var four_0 = [
     typ,
     {
@@ -216,7 +185,7 @@ function generate_ground_stairs(cbx, cby, typ) {
   return Pervasives.$at(four, Pervasives.$at(three, Pervasives.$at(two, one)));
 }
 
-function generate_airup_stairs(cbx, cby, typ) {
+function generateAirupStairs(cbx, cby, typ) {
   var one_0 = [
     typ,
     {
@@ -292,7 +261,7 @@ function generate_airup_stairs(cbx, cby, typ) {
   return Pervasives.$at(one, Pervasives.$at(two, three));
 }
 
-function generate_airdown_stairs(cbx, cby, typ) {
+function generateAirdownStairs(cbx, cby, typ) {
   var three_0 = [
     typ,
     {
@@ -368,7 +337,7 @@ function generate_airdown_stairs(cbx, cby, typ) {
   return Pervasives.$at(three, Pervasives.$at(two, one));
 }
 
-function generate_clouds(cbx, cby, typ, num) {
+function generateClouds(cbx, cby, typ, num) {
   if (num === 0) {
     return /* [] */0;
   } else {
@@ -381,46 +350,89 @@ function generate_clouds(cbx, cby, typ, num) {
                   }
                 ],
                 _1: /* [] */0
-              }, generate_clouds(cbx + 1, cby, typ, num - 1 | 0));
+              }, generateClouds(cbx + 1, cby, typ, num - 1 | 0));
   }
 }
 
-function generate_coins(_block_coord) {
+function generateCoins(_blocks) {
   while(true) {
-    var block_coord = _block_coord;
-    var place_coin = Random.$$int(2);
-    if (!block_coord) {
+    var blocks = _blocks;
+    var placeCoin = Random.$$int(2);
+    if (!blocks) {
       return /* [] */0;
     }
-    var t = block_coord._1;
-    var h = block_coord._0;
-    if (place_coin === 0) {
-      var xc = h[1].x;
-      var yc = h[1].y;
+    var t = blocks._1;
+    var pos = blocks._0[1];
+    if (placeCoin === 0) {
+      var xc = pos.x;
+      var yc = pos.y;
       return Pervasives.$at(/* :: */{
                   _0: [
-                    0,
+                    /* QBlock */{
+                      _0: /* Coin */1
+                    },
                     {
                       x: xc,
                       y: yc - 16
                     }
                   ],
                   _1: /* [] */0
-                }, generate_coins(t));
+                }, generateCoins(t));
     }
-    _block_coord = t;
+    _blocks = t;
     continue ;
   };
+}
+
+function randomBlockTyp(param) {
+  var match = Random.$$int(5);
+  switch (match) {
+    case 0 :
+        return /* Brick */1;
+    case 1 :
+        return /* UnBBlock */2;
+    case 2 :
+        return /* Cloud */3;
+    case 3 :
+        return /* QBlock */{
+                _0: /* Mushroom */0
+              };
+    default:
+      return /* Ground */5;
+  }
+}
+
+function randomEnemyTyp(param) {
+  var match = Random.$$int(3);
+  if (match !== 0) {
+    if (match !== 1) {
+      return /* Goomba */0;
+    } else {
+      return /* GKoopa */1;
+    }
+  } else {
+    return /* RKoopa */2;
+  }
+}
+
+function randomStairTyp(param) {
+  if (Random.bool(undefined)) {
+    return /* UnBBlock */2;
+  } else {
+    return /* Brick */1;
+  }
 }
 
 function choose_block_pattern(blockw, blockh, cbx, cby, prob) {
   if (cbx > blockw || cby > blockh) {
     return /* [] */0;
   }
-  var block_typ = Random.$$int(4);
-  var stair_typ = Random.$$int(2);
+  randomBlockTyp(undefined);
+  var stair_typ = randomStairTyp(undefined);
   var life_block_chance = Random.$$int(5);
-  var middle_block = life_block_chance === 0 ? 3 : stair_typ;
+  var middle_block = life_block_chance === 0 ? /* QBlock */({
+        _0: /* Mushroom */0
+      }) : stair_typ;
   switch (prob) {
     case 0 :
         if (blockw - cbx > 2) {
@@ -452,56 +464,45 @@ function choose_block_pattern(blockw, blockh, cbx, cby, prob) {
                     }
                   }
                 };
-        } else if (blockw - cbx > 1) {
-          return /* :: */{
-                  _0: [
-                    block_typ,
-                    {
-                      x: cbx,
-                      y: cby
-                    }
-                  ],
-                  _1: /* :: */{
-                    _0: [
-                      block_typ,
-                      {
-                        x: cbx + 1,
-                        y: cby
-                      }
-                    ],
-                    _1: /* [] */0
-                  }
-                };
-        } else {
-          return /* :: */{
-                  _0: [
-                    block_typ,
-                    {
-                      x: cbx,
-                      y: cby
-                    }
-                  ],
-                  _1: /* [] */0
-                };
         }
+        if (blockw - cbx > 1) {
+          throw {
+                RE_EXN_ID: "Assert_failure",
+                _1: [
+                  "Generator.re",
+                  195,
+                  10
+                ],
+                Error: new Error()
+              };
+        }
+        throw {
+              RE_EXN_ID: "Assert_failure",
+              _1: [
+                "Generator.re",
+                201,
+                10
+              ],
+              Error: new Error()
+            };
     case 1 :
         var num_clouds = Random.$$int(5) + 5 | 0;
         if (cby < 5) {
-          return generate_clouds(cbx, cby, 2, num_clouds);
+          return generateClouds(cbx, cby, /* Cloud */3, num_clouds);
         } else {
           return /* [] */0;
         }
     case 2 :
         if (blockh - cby === 1) {
-          return generate_ground_stairs(cbx, cby, stair_typ);
+          return generateGroundStairs(cbx, cby, stair_typ);
         } else {
           return /* [] */0;
         }
     case 3 :
-        if (stair_typ === 0 && blockh - cby > 3) {
-          return generate_airdown_stairs(cbx, cby, stair_typ);
+        if (stair_typ === /* Brick */1 && blockh - cby > 3) {
+          return generateAirdownStairs(cbx, cby, stair_typ);
         } else if (blockh - cby > 2) {
-          return generate_airup_stairs(cbx, cby, stair_typ);
+          return generateAirupStairs(cbx, cby, stair_typ);
         } else {
           return /* :: */{
                   _0: [
@@ -576,23 +577,12 @@ function choose_block_pattern(blockw, blockh, cbx, cby, prob) {
                   }
                 };
         }
-    case 5 :
-        return /* :: */{
-                _0: [
-                  3,
-                  {
-                    x: cbx,
-                    y: cby
-                  }
-                ],
-                _1: /* [] */0
-              };
     default:
       return Pervasives.failwith("Shouldn't reach here");
   }
 }
 
-function generate_enemies(blockw, blockh, _cbx, _cby, acc) {
+function generateEnemies(blockw, blockh, _cbx, _cby, blocks) {
   while(true) {
     var cby = _cby;
     var cbx = _cbx;
@@ -604,17 +594,17 @@ function generate_enemies(blockw, blockh, _cbx, _cby, acc) {
       _cbx = cbx + 1;
       continue ;
     }
-    if (mem_loc({
+    if (memPos({
             x: cbx,
             y: cby
-          }, acc) || cby === 0) {
+          }, blocks) || cby === 0) {
       _cby = cby + 1;
       continue ;
     }
-    var prob = Random.$$int(30);
-    if (prob < 3 && blockh - 1 === cby) {
+    var isEnemy = Random.$$int(10) === 0;
+    if (isEnemy && blockh - 1 === cby) {
       var enemy_0 = [
-        prob,
+        randomEnemyTyp(undefined),
         {
           x: cbx * 16,
           y: cby * 16
@@ -624,18 +614,18 @@ function generate_enemies(blockw, blockh, _cbx, _cby, acc) {
         _0: enemy_0,
         _1: /* [] */0
       };
-      return Pervasives.$at(enemy, generate_enemies(blockw, blockh, cbx, cby + 1, acc));
+      return Pervasives.$at(enemy, generateEnemies(blockw, blockh, cbx, cby + 1, blocks));
     }
     _cby = cby + 1;
     continue ;
   };
 }
 
-function generate_block_enemies(_block_coord) {
+function generateBlockEnemies(_block_coord) {
   while(true) {
     var block_coord = _block_coord;
     var place_enemy = Random.$$int(20);
-    var enemy_typ = Random.$$int(3);
+    var enemy_typ = randomEnemyTyp(undefined);
     if (!block_coord) {
       return /* [] */0;
     }
@@ -653,14 +643,14 @@ function generate_block_enemies(_block_coord) {
                     }
                   ],
                   _1: /* [] */0
-                }, generate_block_enemies(t));
+                }, generateBlockEnemies(t));
     }
     _block_coord = t;
     continue ;
   };
 }
 
-function generate_block_locs(blockw, blockh, _cbx, _cby, _acc) {
+function generateBlockLocs(blockw, blockh, _cbx, _cby, _acc) {
   while(true) {
     var acc = _acc;
     var cby = _cby;
@@ -673,7 +663,7 @@ function generate_block_locs(blockw, blockh, _cbx, _cby, _acc) {
       _cbx = cbx + 1;
       continue ;
     }
-    if (mem_loc({
+    if (memPos({
             x: cbx,
             y: cby
           }, acc) || cby === 0) {
@@ -683,7 +673,7 @@ function generate_block_locs(blockw, blockh, _cbx, _cby, _acc) {
     var prob = Random.$$int(100);
     if (prob < 5) {
       var newacc = choose_block_pattern(blockw, blockh, cbx, cby, prob);
-      var undup_lst = avoid_overlap(newacc, acc);
+      var undup_lst = removeOverlap(newacc, acc);
       var called_acc = Pervasives.$at(acc, undup_lst);
       _acc = called_acc;
       _cby = cby + 1;
@@ -694,7 +684,7 @@ function generate_block_locs(blockw, blockh, _cbx, _cby, _acc) {
   };
 }
 
-function generate_panel(context, blockw, blockh) {
+function generatePanel(context, blockw, blockh) {
   return $$Object.spawn({
               TAG: /* SBlock */3,
               _0: /* Panel */4
@@ -704,7 +694,7 @@ function generate_panel(context, blockw, blockh) {
             });
 }
 
-function generate_ground(blockw, blockh, _inc, _acc) {
+function generateGround(blockw, blockh, _inc, _acc) {
   while(true) {
     var acc = _acc;
     var inc = _inc;
@@ -715,7 +705,7 @@ function generate_ground(blockw, blockh, _inc, _acc) {
       var skip = Random.$$int(10);
       var newacc = Pervasives.$at(acc, /* :: */{
             _0: [
-              4,
+              /* Ground */5,
               {
                 x: inc * 16,
                 y: blockh * 16
@@ -733,7 +723,7 @@ function generate_ground(blockw, blockh, _inc, _acc) {
     }
     var newacc$1 = Pervasives.$at(acc, /* :: */{
           _0: [
-            4,
+            /* Ground */5,
             {
               x: inc * 16,
               y: blockh * 16
@@ -747,39 +737,37 @@ function generate_ground(blockw, blockh, _inc, _acc) {
   };
 }
 
-function convert_to_block_obj(lst, context) {
+function convertToBlockObj(lst, context) {
   if (!lst) {
     return /* [] */0;
   }
-  var h = lst._0;
-  var sblock_typ = choose_sblock_typ(h[0]);
+  var match = lst._0;
   var ob = $$Object.spawn({
         TAG: /* SBlock */3,
-        _0: sblock_typ
-      }, context, h[1]);
+        _0: match[0]
+      }, context, match[1]);
   return Pervasives.$at(/* :: */{
               _0: ob,
               _1: /* [] */0
-            }, convert_to_block_obj(lst._1, context));
+            }, convertToBlockObj(lst._1, context));
 }
 
-function convert_to_enemy_obj(lst, context) {
+function convertToEnemyObj(lst, context) {
   if (!lst) {
     return /* [] */0;
   }
-  var h = lst._0;
-  var senemy_typ = choose_enemy_typ(h[0]);
+  var match = lst._0;
   var ob = $$Object.spawn({
         TAG: /* SEnemy */1,
-        _0: senemy_typ
-      }, context, h[1]);
+        _0: match[0]
+      }, context, match[1]);
   return Pervasives.$at(/* :: */{
               _0: ob,
               _1: /* [] */0
-            }, convert_to_enemy_obj(lst._1, context));
+            }, convertToEnemyObj(lst._1, context));
 }
 
-function convert_to_coin_obj(lst, context) {
+function convertToCoinObj(lst, context) {
   if (!lst) {
     return /* [] */0;
   }
@@ -790,29 +778,28 @@ function convert_to_coin_obj(lst, context) {
   return Pervasives.$at(/* :: */{
               _0: ob,
               _1: /* [] */0
-            }, convert_to_coin_obj(lst._1, context));
+            }, convertToCoinObj(lst._1, context));
 }
 
-function generate_helper(blockw, blockh, _cx, _cy, context) {
-  var block_locs = generate_block_locs(blockw, blockh, 0, 0, /* [] */0);
-  var converted_block_locs = trim_edges(convert_list(block_locs), blockw, blockh);
-  var obj_converted_block_locs = convert_to_block_obj(converted_block_locs, context);
-  var ground_blocks = generate_ground(blockw, blockh, 0, /* [] */0);
-  var obj_converted_ground_blocks = convert_to_block_obj(ground_blocks, context);
-  var block_locations = Pervasives.$at(block_locs, ground_blocks);
-  var all_blocks = Pervasives.$at(obj_converted_block_locs, obj_converted_ground_blocks);
-  var enemy_locs = generate_enemies(blockw, blockh, 0, 0, block_locations);
-  var obj_converted_enemies = convert_to_enemy_obj(enemy_locs, context);
-  var coin_locs = generate_coins(converted_block_locs);
-  var undup_coin_locs = trim_edges(avoid_overlap(coin_locs, converted_block_locs), blockw, blockh);
-  var converted_block_coin_locs = Pervasives.$at(converted_block_locs, coin_locs);
-  var enemy_block_locs = generate_block_enemies(converted_block_locs);
-  var undup_enemy_block_locs = avoid_overlap(enemy_block_locs, converted_block_coin_locs);
-  var obj_enemy_blocks = convert_to_enemy_obj(undup_enemy_block_locs, context);
-  var coin_objects = convert_to_coin_obj(undup_coin_locs, context);
-  var obj_panel = generate_panel(context, blockw, blockh);
-  return Pervasives.$at(all_blocks, Pervasives.$at(obj_converted_enemies, Pervasives.$at(coin_objects, Pervasives.$at(obj_enemy_blocks, /* :: */{
-                          _0: obj_panel,
+function generateHelper(blockw, blockh, _cx, _cy, context) {
+  var blockLocs = generateBlockLocs(blockw, blockh, 0, 0, /* [] */0);
+  var convertedBlockLocs = trimEdges(convertList(blockLocs), blockw, blockh);
+  var objConvertedBlockLocs = convertToBlockObj(convertedBlockLocs, context);
+  var groundBlocks = generateGround(blockw, blockh, 0, /* [] */0);
+  var objConvertedGroundBlocks = convertToBlockObj(groundBlocks, context);
+  var blockLocations = Pervasives.$at(blockLocs, groundBlocks);
+  var allBlocks = Pervasives.$at(objConvertedBlockLocs, objConvertedGroundBlocks);
+  var enemyLocs = generateEnemies(blockw, blockh, 0, 0, blockLocations);
+  var objConvertedEnemies = convertToEnemyObj(enemyLocs, context);
+  var coinsLocs = generateCoins(convertedBlockLocs);
+  var undupCoinLocs = trimEdges(removeOverlap(coinsLocs, convertedBlockLocs), blockw, blockh);
+  var enemyBlockLocs = generateBlockEnemies(convertedBlockLocs);
+  var undupEnemyBlockLocs = removeOverlap(removeOverlap(enemyBlockLocs, convertedBlockLocs), coinsLocs);
+  var objEnemyBlocks = convertToEnemyObj(undupEnemyBlockLocs, context);
+  var coinObjects = convertToCoinObj(undupCoinLocs, context);
+  var objPanel = generatePanel(context, blockw, blockh);
+  return Pervasives.$at(allBlocks, Pervasives.$at(objConvertedEnemies, Pervasives.$at(coinObjects, Pervasives.$at(objEnemyBlocks, /* :: */{
+                          _0: objPanel,
                           _1: /* [] */0
                         }))));
 }
@@ -820,7 +807,7 @@ function generate_helper(blockw, blockh, _cx, _cy, context) {
 function generate(context) {
   var blockw = Config.levelWidth / 16;
   var blockh = Config.levelHeight / 16 - 1;
-  var collide_list = generate_helper(blockw, blockh, 0, 0, context);
+  var collideList = generateHelper(blockw, blockh, 0, 0, context);
   var player = $$Object.spawn({
         TAG: /* SPlayer */0,
         _0: /* SmallM */1,
@@ -831,7 +818,7 @@ function generate(context) {
       });
   return [
           player,
-          collide_list
+          collideList
         ];
 }
 
@@ -840,27 +827,28 @@ function init(param) {
 }
 
 export {
-  mem_loc ,
-  convert_list ,
-  choose_enemy_typ ,
-  choose_sblock_typ ,
-  avoid_overlap ,
-  trim_edges ,
-  generate_ground_stairs ,
-  generate_airup_stairs ,
-  generate_airdown_stairs ,
-  generate_clouds ,
-  generate_coins ,
+  convertList ,
+  memPos ,
+  removeOverlap ,
+  trimEdges ,
+  generateGroundStairs ,
+  generateAirupStairs ,
+  generateAirdownStairs ,
+  generateClouds ,
+  generateCoins ,
+  randomBlockTyp ,
+  randomEnemyTyp ,
+  randomStairTyp ,
   choose_block_pattern ,
-  generate_enemies ,
-  generate_block_enemies ,
-  generate_block_locs ,
-  generate_panel ,
-  generate_ground ,
-  convert_to_block_obj ,
-  convert_to_enemy_obj ,
-  convert_to_coin_obj ,
-  generate_helper ,
+  generateEnemies ,
+  generateBlockEnemies ,
+  generateBlockLocs ,
+  generatePanel ,
+  generateGround ,
+  convertToBlockObj ,
+  convertToEnemyObj ,
+  convertToCoinObj ,
+  generateHelper ,
   generate ,
   init ,
   

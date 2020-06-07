@@ -48,9 +48,9 @@ type obj = {
 
 type collidable =
   | Player(pl_typ, Sprite.sprite, obj)
-  | Enemy(enemy_typ, Sprite.sprite, obj)
+  | Enemy(enemyTyp, Sprite.sprite, obj)
   | Item(item_typ, Sprite.sprite, obj)
-  | Block(block_typ, Sprite.sprite, obj);
+  | Block(blockTyp, Sprite.sprite, obj);
 
 /*setup_obj is used to set gravity and speed, with default values true and 1.*/
 let setup_obj = (~g as has_gravity=true, ~spd as speed=1., ()) => {
