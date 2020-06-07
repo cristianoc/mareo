@@ -68,7 +68,7 @@ function gameLost(ctx, elapsed) {
   ctx.fillStyle = "white";
   ctx.font = "20px 'Press Start 2P'";
   ctx.fillText("GAME OVER. You lose! ", 60, 100);
-  return ctx.fillText(String(elapsed), 230, 170);
+  return ctx.fillText(String(elapsed), 230, 150);
 }
 
 export {
