@@ -4,6 +4,7 @@ import * as Load from "./Load.js";
 import * as Config from "./Config.js";
 import * as $$Object from "./Object.js";
 import * as Random from "bs-platform/lib/es6/random.js";
+import * as Caml_obj from "bs-platform/lib/es6/caml_obj.js";
 import * as Belt_List from "bs-platform/lib/es6/belt_List.js";
 import * as Pervasives from "bs-platform/lib/es6/pervasives.js";
 
@@ -12,27 +13,24 @@ function convertList(lst) {
     return /* [] */0;
   }
   var match = lst._0;
-  var pos = match[1];
   return Pervasives.$at(/* :: */{
               _0: [
                 match[0],
-                {
-                  x: pos.x * 16,
-                  y: pos.y * 16
-                }
+                match[1] * 16,
+                match[2] * 16
               ],
               _1: /* [] */0
             }, convertList(lst._1));
 }
 
-function memPos(checkpos, _objs) {
+function memPos(x, y, _objs) {
   while(true) {
     var objs = _objs;
     if (!objs) {
       return false;
     }
-    var pos = objs._0[1];
-    if (checkpos.x === pos.x && checkpos.y === pos.y) {
+    var match = objs._0;
+    if (Caml_obj.caml_equal(x, match[1]) && Caml_obj.caml_equal(y, match[2])) {
       return true;
     }
     _objs = objs._1;
@@ -48,7 +46,7 @@ function removeOverlap(_lst, currentObjs) {
     }
     var t = lst._1;
     var h = lst._0;
-    if (!memPos(h[1], currentObjs)) {
+    if (!memPos(h[1], h[2], currentObjs)) {
       return /* :: */{
               _0: h,
               _1: removeOverlap(t, currentObjs)
@@ -63,47 +61,39 @@ var pixx = Config.blockw * 16;
 
 var pixy = Config.blockh * 16;
 
-function trimEdge(pos) {
-  return !(pos.x < 128 || pixx - pos.x < 528 || pos.y === 0 || pixy - pos.y < 48);
+function trimEdge(x, y) {
+  return !(x < 128 || pixx - x < 528 || y === 0 || pixy - y < 48);
 }
 
 function trimEdges(lst) {
   return Belt_List.keep(lst, (function (param) {
-                return trimEdge(param[1]);
+                return trimEdge(param[1], param[2]);
               }));
 }
 
 function generateGroundStairs(cbx, cby, typ) {
   var four_0 = [
     typ,
-    {
-      x: cbx,
-      y: cby
-    }
+    cbx,
+    cby
   ];
   var four_1 = /* :: */{
     _0: [
       typ,
-      {
-        x: cbx + 1,
-        y: cby
-      }
+      cbx + 1,
+      cby
     ],
     _1: /* :: */{
       _0: [
         typ,
-        {
-          x: cbx + 2,
-          y: cby
-        }
+        cbx + 2,
+        cby
       ],
       _1: /* :: */{
         _0: [
           typ,
-          {
-            x: cbx + 3,
-            y: cby
-          }
+          cbx + 3,
+          cby
         ],
         _1: /* [] */0
       }
@@ -115,26 +105,20 @@ function generateGroundStairs(cbx, cby, typ) {
   };
   var three_0 = [
     typ,
-    {
-      x: cbx + 1,
-      y: cby - 1
-    }
+    cbx + 1,
+    cby - 1
   ];
   var three_1 = /* :: */{
     _0: [
       typ,
-      {
-        x: cbx + 2,
-        y: cby - 1
-      }
+      cbx + 2,
+      cby - 1
     ],
     _1: /* :: */{
       _0: [
         typ,
-        {
-          x: cbx + 3,
-          y: cby - 1
-        }
+        cbx + 3,
+        cby - 1
       ],
       _1: /* [] */0
     }
@@ -145,18 +129,14 @@ function generateGroundStairs(cbx, cby, typ) {
   };
   var two_0 = [
     typ,
-    {
-      x: cbx + 2,
-      y: cby - 2
-    }
+    cbx + 2,
+    cby - 2
   ];
   var two_1 = /* :: */{
     _0: [
       typ,
-      {
-        x: cbx + 3,
-        y: cby - 2
-      }
+      cbx + 3,
+      cby - 2
     ],
     _1: /* [] */0
   };
@@ -166,10 +146,8 @@ function generateGroundStairs(cbx, cby, typ) {
   };
   var one_0 = [
     typ,
-    {
-      x: cbx + 3,
-      y: cby - 3
-    }
+    cbx + 3,
+    cby - 3
   ];
   var one = /* :: */{
     _0: one_0,
@@ -181,18 +159,14 @@ function generateGroundStairs(cbx, cby, typ) {
 function generateAirupStairs(cbx, cby, typ) {
   var one_0 = [
     typ,
-    {
-      x: cbx,
-      y: cby
-    }
+    cbx,
+    cby
   ];
   var one_1 = /* :: */{
     _0: [
       typ,
-      {
-        x: cbx + 1,
-        y: cby
-      }
+      cbx + 1,
+      cby
     ],
     _1: /* [] */0
   };
@@ -202,18 +176,14 @@ function generateAirupStairs(cbx, cby, typ) {
   };
   var two_0 = [
     typ,
-    {
-      x: cbx + 3,
-      y: cby - 1
-    }
+    cbx + 3,
+    cby - 1
   ];
   var two_1 = /* :: */{
     _0: [
       typ,
-      {
-        x: cbx + 4,
-        y: cby - 1
-      }
+      cbx + 4,
+      cby - 1
     ],
     _1: /* [] */0
   };
@@ -223,26 +193,20 @@ function generateAirupStairs(cbx, cby, typ) {
   };
   var three_0 = [
     typ,
-    {
-      x: cbx + 4,
-      y: cby - 2
-    }
+    cbx + 4,
+    cby - 2
   ];
   var three_1 = /* :: */{
     _0: [
       typ,
-      {
-        x: cbx + 5,
-        y: cby - 2
-      }
+      cbx + 5,
+      cby - 2
     ],
     _1: /* :: */{
       _0: [
         typ,
-        {
-          x: cbx + 6,
-          y: cby - 2
-        }
+        cbx + 6,
+        cby - 2
       ],
       _1: /* [] */0
     }
@@ -257,26 +221,20 @@ function generateAirupStairs(cbx, cby, typ) {
 function generateAirdownStairs(cbx, cby, typ) {
   var three_0 = [
     typ,
-    {
-      x: cbx,
-      y: cby
-    }
+    cbx,
+    cby
   ];
   var three_1 = /* :: */{
     _0: [
       typ,
-      {
-        x: cbx + 1,
-        y: cby
-      }
+      cbx + 1,
+      cby
     ],
     _1: /* :: */{
       _0: [
         typ,
-        {
-          x: cbx + 2,
-          y: cby
-        }
+        cbx + 2,
+        cby
       ],
       _1: /* [] */0
     }
@@ -287,18 +245,14 @@ function generateAirdownStairs(cbx, cby, typ) {
   };
   var two_0 = [
     typ,
-    {
-      x: cbx + 2,
-      y: cby + 1
-    }
+    cbx + 2,
+    cby + 1
   ];
   var two_1 = /* :: */{
     _0: [
       typ,
-      {
-        x: cbx + 3,
-        y: cby + 1
-      }
+      cbx + 3,
+      cby + 1
     ],
     _1: /* [] */0
   };
@@ -308,18 +262,14 @@ function generateAirdownStairs(cbx, cby, typ) {
   };
   var one_0 = [
     typ,
-    {
-      x: cbx + 5,
-      y: cby + 2
-    }
+    cbx + 5,
+    cby + 2
   ];
   var one_1 = /* :: */{
     _0: [
       typ,
-      {
-        x: cbx + 6,
-        y: cby + 2
-      }
+      cbx + 6,
+      cby + 2
     ],
     _1: /* [] */0
   };
@@ -337,10 +287,8 @@ function generateClouds(cbx, cby, typ, num) {
     return Pervasives.$at(/* :: */{
                 _0: [
                   typ,
-                  {
-                    x: cbx,
-                    y: cby
-                  }
+                  cbx,
+                  cby
                 ],
                 _1: /* [] */0
               }, generateClouds(cbx + 1, cby, typ, num - 1 | 0));
@@ -355,19 +303,15 @@ function generateCoins(_blocks) {
       return /* [] */0;
     }
     var t = blocks._1;
-    var pos = blocks._0[1];
+    var match = blocks._0;
     if (placeCoin === 0) {
-      var xc = pos.x;
-      var yc = pos.y;
       return Pervasives.$at(/* :: */{
                   _0: [
                     /* QBlock */{
                       _0: /* Coin */1
                     },
-                    {
-                      x: xc,
-                      y: yc - 16
-                    }
+                    match[1],
+                    match[2] - 16
                   ],
                   _1: /* [] */0
                 }, generateCoins(t));
@@ -413,26 +357,20 @@ function chooseBlockPattern(cbx, cby) {
         return /* :: */{
                 _0: [
                   stairTyp,
-                  {
-                    x: cbx,
-                    y: cby
-                  }
+                  cbx,
+                  cby
                 ],
                 _1: /* :: */{
                   _0: [
                     middleBlock,
-                    {
-                      x: cbx + 1,
-                      y: cby
-                    }
+                    cbx + 1,
+                    cby
                   ],
                   _1: /* :: */{
                     _0: [
                       stairTyp,
-                      {
-                        x: cbx + 2,
-                        y: cby
-                      }
+                      cbx + 2,
+                      cby
                     ],
                     _1: /* [] */0
                   }
@@ -460,10 +398,8 @@ function chooseBlockPattern(cbx, cby) {
           return /* :: */{
                   _0: [
                     stairTyp,
-                    {
-                      x: cbx,
-                      y: cby
-                    }
+                    cbx,
+                    cby
                   ],
                   _1: /* [] */0
                 };
@@ -473,10 +409,8 @@ function chooseBlockPattern(cbx, cby) {
         return /* :: */{
                 _0: [
                   stairTyp,
-                  {
-                    x: cbx,
-                    y: cby
-                  }
+                  cbx,
+                  cby
                 ],
                 _1: /* [] */0
               };
@@ -484,18 +418,14 @@ function chooseBlockPattern(cbx, cby) {
         return /* :: */{
                 _0: [
                   stairTyp,
-                  {
-                    x: cbx,
-                    y: cby
-                  }
+                  cbx,
+                  cby
                 ],
                 _1: /* :: */{
                   _0: [
                     stairTyp,
-                    {
-                      x: cbx,
-                      y: cby + 1
-                    }
+                    cbx,
+                    cby + 1
                   ],
                   _1: /* [] */0
                 }
@@ -504,26 +434,20 @@ function chooseBlockPattern(cbx, cby) {
         return /* :: */{
                 _0: [
                   stairTyp,
-                  {
-                    x: cbx,
-                    y: cby
-                  }
+                  cbx,
+                  cby
                 ],
                 _1: /* :: */{
                   _0: [
                     stairTyp,
-                    {
-                      x: cbx,
-                      y: cby + 1
-                    }
+                    cbx,
+                    cby + 1
                   ],
                   _1: /* :: */{
                     _0: [
                       stairTyp,
-                      {
-                        x: cbx,
-                        y: cby + 2
-                      }
+                      cbx,
+                      cby + 2
                     ],
                     _1: /* [] */0
                   }
@@ -545,10 +469,7 @@ function generateEnemies(_cbx, _cby, blocks) {
       _cbx = cbx + 1;
       continue ;
     }
-    if (memPos({
-            x: cbx,
-            y: cby
-          }, blocks) || cby === 0) {
+    if (memPos(cbx, cby, blocks) || cby === 0) {
       _cby = cby + 1;
       continue ;
     }
@@ -556,10 +477,8 @@ function generateEnemies(_cbx, _cby, blocks) {
     if (isEnemy && Config.blockh - 1 === cby) {
       var enemy_0 = [
         randomEnemyTyp(undefined),
-        {
-          x: cbx * 16,
-          y: cby * 16
-        }
+        cbx * 16,
+        cby * 16
       ];
       var enemy = /* :: */{
         _0: enemy_0,
@@ -580,17 +499,13 @@ function generateBlockEnemies(_blockCoord) {
       return /* [] */0;
     }
     var t = blockCoord._1;
-    var h = blockCoord._0;
+    var match = blockCoord._0;
     if (placeEnemy === 0) {
-      var xc = h[1].x;
-      var yc = h[1].y;
       return Pervasives.$at(/* :: */{
                   _0: [
                     randomEnemyTyp(undefined),
-                    {
-                      x: xc,
-                      y: yc - 16
-                    }
+                    match[1],
+                    match[2] - 16
                   ],
                   _1: /* [] */0
                 }, generateBlockEnemies(t));
@@ -613,10 +528,7 @@ function generateBlockLocs(_cbx, _cby, _acc) {
       _cbx = cbx + 1;
       continue ;
     }
-    if (memPos({
-            x: cbx,
-            y: cby
-          }, acc) || cby === 0) {
+    if (memPos(cbx, cby, acc) || cby === 0) {
       _cby = cby + 1;
       continue ;
     }
@@ -637,10 +549,7 @@ function generatePanel(param) {
   return $$Object.spawn({
               TAG: /* SBlock */3,
               _0: /* Panel */4
-            }, {
-              x: Config.blockw * 16 - 256,
-              y: Config.blockh * 16 * 2 / 3
-            });
+            }, Config.blockw * 16 - 256, Config.blockh * 16 * 2 / 3);
 }
 
 function generateGround(_inc, _acc) {
@@ -655,10 +564,8 @@ function generateGround(_inc, _acc) {
       var newacc = Pervasives.$at(acc, /* :: */{
             _0: [
               /* Ground */5,
-              {
-                x: inc * 16,
-                y: Config.blockh * 16
-              }
+              inc * 16,
+              Config.blockh * 16
             ],
             _1: /* [] */0
           });
@@ -673,10 +580,8 @@ function generateGround(_inc, _acc) {
     var newacc$1 = Pervasives.$at(acc, /* :: */{
           _0: [
             /* Ground */5,
-            {
-              x: inc * 16,
-              y: Config.blockh * 16
-            }
+            inc * 16,
+            Config.blockh * 16
           ],
           _1: /* [] */0
         });
@@ -694,7 +599,7 @@ function convertToBlockObj(lst, context) {
   var ob = $$Object.spawn({
         TAG: /* SBlock */3,
         _0: match[0]
-      }, match[1]);
+      }, match[1], match[2]);
   return Pervasives.$at(/* :: */{
               _0: ob,
               _1: /* [] */0
@@ -709,7 +614,7 @@ function convertToEnemyObj(lst, context) {
   var ob = $$Object.spawn({
         TAG: /* SEnemy */1,
         _0: match[0]
-      }, match[1]);
+      }, match[1], match[2]);
   return Pervasives.$at(/* :: */{
               _0: ob,
               _1: /* [] */0
@@ -720,10 +625,11 @@ function convertToCoinObj(lst, context) {
   if (!lst) {
     return /* [] */0;
   }
+  var match = lst._0;
   var ob = $$Object.spawn({
         TAG: /* SItem */2,
         _0: /* Coin */1
-      }, lst._0[1]);
+      }, match[1], match[2]);
   return Pervasives.$at(/* :: */{
               _0: ob,
               _1: /* [] */0
@@ -759,10 +665,7 @@ function generate(param) {
         TAG: /* SPlayer */0,
         _0: /* SmallM */1,
         _1: /* Standing */0
-      }, {
-        x: 100,
-        y: 224
-      });
+      }, 100, 224);
   var elapsed = performance.now() - initial;
   console.log("generated", Belt_List.length(collideList), "objects in " + (elapsed.toString() + " milliseconds"));
   return [

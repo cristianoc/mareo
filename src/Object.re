@@ -110,14 +110,16 @@ let new_id = () => {
 };
 
 // create a new sprite and object from a spawnable object
-let make = (~dir=Left, spawnable, pos) => {
+let make = (~dir=Left, spawnable, x, y) => {
   let spr = Sprite.make(spawnable, dir);
   let params = make_type(spawnable);
   let id = new_id();
-  let pos = {x: pos.x, y: pos.y}; // Make a copy to avoid aliasing
   let obj = {
     params,
-    pos,
+    pos: {
+      x,
+      y,
+    },
     vel: {
       x: 0.0,
       y: 0.0,
@@ -136,8 +138,8 @@ let make = (~dir=Left, spawnable, pos) => {
 };
 
 /*spawn returns a new collidable*/
-let spawn = (spawnable, pos) => {
-  let (spr, obj) = make(spawnable, pos);
+let spawn = (spawnable, x, y) => {
+  let (spr, obj) = make(spawnable, x, y);
   switch (spawnable) {
   | SPlayer(typ, _) => Player(typ, spr, obj)
   | SEnemy(t) =>
@@ -317,12 +319,12 @@ let evolve_enemy = (player_dir, typ, spr: Sprite.sprite, obj) =>
   switch (typ) {
   | GKoopa =>
     let (new_spr, new_obj) =
-      make(~dir=obj.dir, SEnemy(GKoopaShell), obj.pos);
+      make(~dir=obj.dir, SEnemy(GKoopaShell), obj.pos.x, obj.pos.y);
     normalize_pos(new_obj.pos, spr.params, new_spr.params);
     Some(Enemy(GKoopaShell, new_spr, new_obj));
   | RKoopa =>
     let (new_spr, new_obj) =
-      make(~dir=obj.dir, SEnemy(RKoopaShell), obj.pos);
+      make(~dir=obj.dir, SEnemy(RKoopaShell), obj.pos.x, obj.pos.y);
     normalize_pos(new_obj.pos, spr.params, new_spr.params);
     Some(Enemy(RKoopaShell, new_spr, new_obj));
   | GKoopaShell
@@ -360,13 +362,13 @@ let dec_health = obj => {
 /*Used for deleting a block and replacing it with a used block*/
 let evolve_block = obj => {
   dec_health(obj);
-  let (new_spr, new_obj) = make(SBlock(QBlockUsed), obj.pos);
+  let (new_spr, new_obj) = make(SBlock(QBlockUsed), obj.pos.x, obj.pos.y);
   Block(QBlockUsed, new_spr, new_obj);
 };
 
 // Used for spawning items above question mark blocks
 let spawn_above = (player_dir, obj, typ) => {
-  let item = spawn(SItem(typ), obj.pos);
+  let item = spawn(SItem(typ), obj.pos.x, obj.pos.y);
   let item_obj = get_obj(item);
   item_obj.pos.y = item_obj.pos.y -. snd(get_sprite(item).params.frameSize);
   item_obj.dir = opposite_dir(player_dir);

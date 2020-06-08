@@ -73,18 +73,17 @@ function new_id(param) {
   return id_counter.contents;
 }
 
-function make(dirOpt, spawnable, pos) {
+function make(dirOpt, spawnable, x, y) {
   var dir = dirOpt !== undefined ? dirOpt : /* Left */0;
   var spr = Sprite.make(spawnable, dir);
   var params = make_type(spawnable);
   var id = new_id(undefined);
-  var pos$1 = {
-    x: pos.x,
-    y: pos.y
-  };
   var obj = {
     params: params,
-    pos: pos$1,
+    pos: {
+      x: x,
+      y: y
+    },
     vel: {
       x: 0.0,
       y: 0.0
@@ -105,8 +104,8 @@ function make(dirOpt, spawnable, pos) {
         ];
 }
 
-function spawn(spawnable, pos) {
-  var match = make(undefined, spawnable, pos);
+function spawn(spawnable, x, y) {
+  var match = make(undefined, spawnable, x, y);
   var obj = match[1];
   var spr = match[0];
   switch (spawnable.TAG | 0) {
@@ -354,7 +353,7 @@ function evolve_enemy(player_dir, typ, spr, obj) {
         var match = make(obj.dir, {
               TAG: /* SEnemy */1,
               _0: /* GKoopaShell */3
-            }, obj.pos);
+            }, obj.pos.x, obj.pos.y);
         var new_obj = match[1];
         var new_spr = match[0];
         normalize_pos(new_obj.pos, spr.params, new_spr.params);
@@ -368,7 +367,7 @@ function evolve_enemy(player_dir, typ, spr, obj) {
         var match$1 = make(obj.dir, {
               TAG: /* SEnemy */1,
               _0: /* RKoopaShell */4
-            }, obj.pos);
+            }, obj.pos.x, obj.pos.y);
         var new_obj$1 = match$1[1];
         var new_spr$1 = match$1[0];
         normalize_pos(new_obj$1.pos, spr.params, new_spr$1.params);
@@ -417,7 +416,7 @@ function evolve_block(obj) {
   var match = make(undefined, {
         TAG: /* SBlock */3,
         _0: /* QBlockUsed */0
-      }, obj.pos);
+      }, obj.pos.x, obj.pos.y);
   return {
           TAG: /* Block */3,
           _0: /* QBlockUsed */0,
@@ -430,7 +429,7 @@ function spawn_above(player_dir, obj, typ) {
   var item = spawn({
         TAG: /* SItem */2,
         _0: typ
-      }, obj.pos);
+      }, obj.pos.x, obj.pos.y);
   var item_obj = item._2;
   item_obj.pos.y = item_obj.pos.y - item._1.params.frameSize[1];
   item_obj.dir = player_dir ? /* Left */0 : /* Right */1;
