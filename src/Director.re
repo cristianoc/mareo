@@ -358,9 +358,9 @@ let update_collidable = (state, collid: Object.collidable, all_collids) => {
     let evolved = check_collisions(collid, all_collids, state);
     /* Render and update animation */
     let vpt_adj_xy = Viewport.coord_to_viewport(state.vpt, obj.pos);
-    Draw.render(spr, (vpt_adj_xy.x, vpt_adj_xy.y));
+    Draw.render(spr, vpt_adj_xy.x, vpt_adj_xy.y);
     if (Keys.check_bbox_enabled()) {
-      Draw.renderBbox(spr, (vpt_adj_xy.x, vpt_adj_xy.y));
+      Draw.renderBbox(spr, vpt_adj_xy.x, vpt_adj_xy.y);
     };
     if (obj.vel.x != 0. || !is_enemy(collid)) {
       Sprite.update_animation(spr);
@@ -411,7 +411,7 @@ let run_update_particle = (state, part) => {
   Particle.process(part);
   let x = part.pos.x -. state.vpt->Viewport.getPos.x
   and y = part.pos.y -. state.vpt->Viewport.getPos.y;
-  Draw.render(part.params.sprite, (x, y));
+  Draw.render(part.params.sprite, x, y);
   if (!part.kill) {
     particles := [part, ...particles^];
   };

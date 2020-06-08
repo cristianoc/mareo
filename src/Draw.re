@@ -1,6 +1,6 @@
 open Sprite;
 
-let renderBbox = (sprite, (posx, posy)) => {
+let renderBbox = (sprite, posx, posy) => {
   let (bbox, bboy) = sprite.params.bboxOffset;
   let (bbsx, bbsy) = sprite.params.bboxSize;
   let context = Load.getContext();
@@ -9,7 +9,7 @@ let renderBbox = (sprite, (posx, posy)) => {
 };
 
 // Draws a sprite onto the canvas
-let render = (sprite, (posx, posy)) => {
+let render = (sprite, posx, posy) => {
   let (sx, sy) = sprite.params.srcOffset;
   let (sw, sh) = sprite.params.frameSize;
   let (dx, dy) = (posx, posy);
@@ -23,8 +23,8 @@ let render = (sprite, (posx, posy)) => {
 // constantly changing viewport, which is always at most going to be
 // between two background images.
 let drawBgd = (bgd, off_x) => {
-  render(bgd, (-. off_x, 0.));
-  render(bgd, (fst(bgd.params.frameSize) -. off_x, 0.));
+  render(bgd, -. off_x, 0.);
+  render(bgd, fst(bgd.params.frameSize) -. off_x, 0.);
 };
 
 // Used for animation updating. Canvas is cleared each frame and redrawn.

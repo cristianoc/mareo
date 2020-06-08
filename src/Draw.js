@@ -2,33 +2,27 @@
 
 import * as Load from "./Load.js";
 
-function renderBbox(sprite, param) {
+function renderBbox(sprite, posx, posy) {
   var match = sprite.params.bboxOffset;
   var match$1 = sprite.params.bboxSize;
   var context = Load.getContext(undefined);
   context.strokeStyle = "#FF0000";
-  return context.strokeRect(param[0] + match[0], param[1] + match[1], match$1[0], match$1[1]);
+  return context.strokeRect(posx + match[0], posy + match[1], match$1[0], match$1[1]);
 }
 
-function render(sprite, param) {
+function render(sprite, posx, posy) {
   var match = sprite.params.srcOffset;
   var match$1 = sprite.params.frameSize;
   var sw = match$1[0];
   var match$2 = sprite.params.frameSize;
   var sx = match[0] + sprite.frame * sw;
   var context = Load.getContext(undefined);
-  return context.drawImage(sprite.img, sx, match[1], sw, match$1[1], param[0], param[1], match$2[0], match$2[1]);
+  return context.drawImage(sprite.img, sx, match[1], sw, match$1[1], posx, posy, match$2[0], match$2[1]);
 }
 
 function drawBgd(bgd, off_x) {
-  render(bgd, [
-        -off_x,
-        0
-      ]);
-  return render(bgd, [
-              bgd.params.frameSize[0] - off_x,
-              0
-            ]);
+  render(bgd, -off_x, 0);
+  return render(bgd, bgd.params.frameSize[0] - off_x, 0);
 }
 
 function clearCanvas(param) {

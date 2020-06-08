@@ -469,15 +469,9 @@ function update_collidable(state, collid, all_collids) {
   $$Object.process_obj(obj, state.map);
   var evolved = check_collisions(collid, all_collids, state);
   var vpt_adj_xy = Viewport.coord_to_viewport(state.vpt, obj.pos);
-  Draw.render(spr, [
-        vpt_adj_xy.x,
-        vpt_adj_xy.y
-      ]);
+  Draw.render(spr, vpt_adj_xy.x, vpt_adj_xy.y);
   if (Keys.check_bbox_enabled(undefined)) {
-    Draw.renderBbox(spr, [
-          vpt_adj_xy.x,
-          vpt_adj_xy.y
-        ]);
+    Draw.renderBbox(spr, vpt_adj_xy.x, vpt_adj_xy.y);
   }
   if (obj.vel.x !== 0 || !$$Object.is_enemy(collid)) {
     Sprite.update_animation(spr);
@@ -525,10 +519,7 @@ function run_update_particle(state, part) {
   Particle.$$process(part);
   var x = part.pos.x - Viewport.getPos(state.vpt).x;
   var y = part.pos.y - Viewport.getPos(state.vpt).y;
-  Draw.render(part.params.sprite, [
-        x,
-        y
-      ]);
+  Draw.render(part.params.sprite, x, y);
   if (!part.kill) {
     particles.contents = /* :: */{
       _0: part,
