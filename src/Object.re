@@ -461,7 +461,7 @@ let kill = collid =>
     let pos = (o.pos.x, o.pos.y);
     let score =
       if (o.score > 0) {
-        [Particle.make_score(o.score, pos)];
+        [Particle.makeScore(o.score, pos)];
       } else {
         [];
       };
@@ -498,7 +498,7 @@ let kill = collid =>
     }
   | Item(t, _, o) =>
     switch (t) {
-    | Mushroom => [Particle.make_score(o.score, (o.pos.x, o.pos.y))]
+    | Mushroom => [Particle.makeScore(o.score, (o.pos.x, o.pos.y))]
     | _ => []
     }
   | _ => []

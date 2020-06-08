@@ -46,7 +46,7 @@ function make(velOpt, accOpt, partType, pos) {
         };
 }
 
-function make_score(score, pos) {
+function makeScore(score, pos) {
   var t = score >= 801 ? (
       score >= 2001 ? (
           score !== 4000 ? (
@@ -72,13 +72,13 @@ function make_score(score, pos) {
             ], undefined, t, pos);
 }
 
-function update_vel(part) {
+function updateVel(part) {
   part.vel.x = part.vel.x + part.acc.x;
   part.vel.y = part.vel.y + part.acc.y;
   
 }
 
-function update_pos(part) {
+function updatePos(part) {
   part.pos.x = part.vel.x + part.pos.x;
   part.pos.y = part.vel.y + part.pos.y;
   
@@ -89,8 +89,8 @@ function $$process(part) {
   if (part.life === 0) {
     part.kill = true;
   }
-  update_vel(part);
-  return update_pos(part);
+  updateVel(part);
+  return updatePos(part);
 }
 
 export {
@@ -98,9 +98,9 @@ export {
   makeParams ,
   makeType ,
   make ,
-  make_score ,
-  update_vel ,
-  update_pos ,
+  makeScore ,
+  updateVel ,
+  updatePos ,
   $$process ,
   
 }

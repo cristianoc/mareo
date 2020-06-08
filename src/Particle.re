@@ -1,12 +1,12 @@
 open Actors;
 
-type part_params = {
+type params = {
   sprite: Sprite.t,
   lifetime: int,
 };
 
-type particle = {
-  params: part_params,
+type t = {
+  params: params,
   pos: Actors.xy,
   vel: Actors.xy,
   acc: Actors.xy,
@@ -48,7 +48,7 @@ let make = (~vel=(0., 0.), ~acc=(0., 0.), partType, pos) => {
   {params, pos, vel, acc, kill: false, life: params.lifetime};
 };
 
-let make_score = (score, pos) => {
+let makeScore = (score, pos) => {
   let t =
     switch (score) {
     | 100 => Score100
@@ -64,14 +64,14 @@ let make_score = (score, pos) => {
   make(~vel=(0.5, (-0.7)), t, pos);
 };
 
-/* Mutably update the velocity of a particle */
-let update_vel = part => {
+// Mutably update the velocity of a particle
+let updateVel = part => {
   part.vel.x = part.vel.x +. part.acc.x;
   part.vel.y = part.vel.y +. part.acc.y;
 };
 
-/* Mutably update the position of a particle */
-let update_pos = part => {
+// Mutably update the position of a particle
+let updatePos = part => {
   part.pos.x = part.vel.x +. part.pos.x;
   part.pos.y = part.vel.y +. part.pos.y;
 };
@@ -81,6 +81,6 @@ let process = part => {
   if (part.life == 0) {
     part.kill = true;
   };
-  update_vel(part);
-  update_pos(part);
+  updateVel(part);
+  updatePos(part);
 };

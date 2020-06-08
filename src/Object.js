@@ -446,7 +446,7 @@ function kill(collid) {
           pos_1
         ];
         var score = o.score > 0 ? /* :: */({
-              _0: Particle.make_score(o.score, pos),
+              _0: Particle.makeScore(o.score, pos),
               _1: /* [] */0
             }) : /* [] */0;
         var remains = collid._0 !== 0 ? /* [] */0 : /* :: */({
@@ -460,7 +460,7 @@ function kill(collid) {
           return /* [] */0;
         } else {
           return /* :: */{
-                  _0: Particle.make_score(o$1.score, [
+                  _0: Particle.makeScore(o$1.score, [
                         o$1.pos.x,
                         o$1.pos.y
                       ]),
