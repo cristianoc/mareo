@@ -584,42 +584,11 @@ function makeTypeToremove$1(t) {
   }
 }
 
-function makeToRemove(dirOpt, spawnable, x, y) {
-  var dir = dirOpt !== undefined ? dirOpt : /* Left */0;
-  var spr = maketoRemove0(spawnable, dir);
-  var params = makeTypeToremove$1(spawnable);
-  var id = $$Object.new_id(undefined);
-  var obj = {
-    params: params,
-    pos: {
-      x: x,
-      y: y
-    },
-    vel: {
-      x: 0.0,
-      y: 0.0
-    },
-    id: id,
-    jumping: false,
-    grounded: false,
-    dir: dir,
-    invuln: 0,
-    kill: false,
-    health: 1,
-    crouch: false,
-    score: 0
-  };
-  return [
-          spr,
-          obj
-        ];
-}
-
 function generatePanel(param) {
-  var match = makeToRemove(undefined, {
-        TAG: /* SBlock */3,
-        _0: /* Panel */4
-      }, Config.blockw * 16 - 256, Config.blockh * 16 * 2 / 3);
+  var match = $$Object.make(undefined, maketoRemove0({
+            TAG: /* SBlock */3,
+            _0: /* Panel */4
+          }, /* Left */0), $$Object.make_block(/* Panel */4), Config.blockw * 16 - 256, Config.blockh * 16 * 2 / 3);
   return {
           TAG: /* Block */3,
           _0: /* Panel */4,
@@ -673,10 +642,13 @@ function convertToBlockObj(lst, context) {
   }
   var match = lst._0;
   var blockTyp = match[0];
-  var match$1 = makeToRemove(undefined, {
-        TAG: /* SBlock */3,
-        _0: blockTyp
-      }, match[1], match[2]);
+  var match$1 = $$Object.make(undefined, maketoRemove0({
+            TAG: /* SBlock */3,
+            _0: blockTyp
+          }, /* Left */0), makeTypeToremove$1({
+            TAG: /* SBlock */3,
+            _0: blockTyp
+          }), match[1], match[2]);
   var ob_1 = match$1[0];
   var ob_2 = match$1[1];
   var ob = {
@@ -697,10 +669,13 @@ function convertToEnemyObj(lst, context) {
   }
   var match = lst._0;
   var enemyTyp = match[0];
-  var match$1 = makeToRemove(undefined, {
-        TAG: /* SEnemy */1,
-        _0: enemyTyp
-      }, match[1], match[2]);
+  var match$1 = $$Object.make(undefined, maketoRemove0({
+            TAG: /* SEnemy */1,
+            _0: enemyTyp
+          }, /* Left */0), makeTypeToremove$1({
+            TAG: /* SEnemy */1,
+            _0: enemyTyp
+          }), match[1], match[2]);
   var obj = match$1[1];
   $$Object.set_vel_to_speed(obj);
   var ob_1 = match$1[0];
@@ -721,10 +696,10 @@ function convertToCoinObj(lst, context) {
     return /* [] */0;
   }
   var match = lst._0;
-  var match$1 = makeToRemove(undefined, {
-        TAG: /* SItem */2,
-        _0: /* Coin */1
-      }, match[1], match[2]);
+  var match$1 = $$Object.make(undefined, maketoRemove0({
+            TAG: /* SItem */2,
+            _0: /* Coin */1
+          }, /* Left */0), $$Object.make_item(/* Coin */1), match[1], match[2]);
   var ob_1 = match$1[0];
   var ob_2 = match$1[1];
   var ob = {
@@ -764,11 +739,15 @@ function generateHelper(context) {
 function generate(param) {
   var initial = performance.now();
   var collideList = generateHelper(Load.getContext(undefined));
-  var match = makeToRemove(undefined, {
-        TAG: /* SPlayer */0,
-        _0: /* SmallM */1,
-        _1: /* Standing */0
-      }, 100, 224);
+  var match = $$Object.make(undefined, maketoRemove0({
+            TAG: /* SPlayer */0,
+            _0: /* SmallM */1,
+            _1: /* Standing */0
+          }, /* Left */0), makeTypeToremove$1({
+            TAG: /* SPlayer */0,
+            _0: /* SmallM */1,
+            _1: /* Standing */0
+          }), 100, 224);
   var player_1 = match[0];
   var player_2 = match[1];
   var player = {
@@ -810,7 +789,6 @@ export {
   generateBlockLocs ,
   maketoRemove0 ,
   makeTypeToremove$1 as makeTypeToremove,
-  makeToRemove ,
   generatePanel ,
   generateGround ,
   convertToBlockObj ,

@@ -264,40 +264,13 @@ let makeTypeToremove =
   | SItem(t) => Object.make_item(t)
   | SBlock(t) => Object.make_block(t);
 
-// create a new sprite and object from a spawnable object
-let makeToRemove = (~dir=Left, spawnable, x, y) => {
-  let spr = maketoRemove0(spawnable, dir);
-  let params = makeTypeToremove(spawnable);
-  let id = Object.new_id();
-  let obj = {
-    Object.params,
-    pos: {
-      x,
-      y,
-    },
-    vel: {
-      x: 0.0,
-      y: 0.0,
-    },
-    id,
-    jumping: false,
-    grounded: false,
-    dir,
-    invuln: 0,
-    kill: false,
-    health: 1,
-    crouch: false,
-    score: 0,
-  };
-  (spr, obj);
-};
-
 // Generate the ending item panel at the end of the level. Games ends upon
 // collision with player.
 let generatePanel = (): Object.collidable => {
   let (spr, obj) =
-    makeToRemove(
-      SBlock(Panel),
+    Object.make(
+      maketoRemove0(SBlock(Panel), Left),
+      makeTypeToremove(SBlock(Panel)),
       Config.blockw *. 16. -. 256.,
       Config.blockh *. 16. *. 2. /. 3.,
     );
@@ -331,7 +304,13 @@ let rec convertToBlockObj =
   switch (lst) {
   | [] => []
   | [(blockTyp, x, y), ...t] =>
-    let (spr, obj) = makeToRemove(SBlock(blockTyp), x, y);
+    let (spr, obj) =
+      Object.make(
+        maketoRemove0(SBlock(blockTyp), Left),
+        makeTypeToremove(SBlock(blockTyp)),
+        x,
+        y,
+      );
     let ob = Object.Block(blockTyp, spr, obj);
     [ob] @ convertToBlockObj(t, context);
   };
@@ -344,7 +323,13 @@ let rec convertToEnemyObj =
   switch (lst) {
   | [] => []
   | [(enemyTyp, x, y), ...t] =>
-    let (spr, obj) = makeToRemove(SEnemy(enemyTyp), x, y);
+    let (spr, obj) =
+      Object.make(
+        maketoRemove0(SEnemy(enemyTyp), Left),
+        makeTypeToremove(SEnemy(enemyTyp)),
+        x,
+        y,
+      );
     Object.set_vel_to_speed(obj);
     let ob = Object.Enemy(enemyTyp, spr, obj);
     [ob] @ convertToEnemyObj(t, context);
@@ -357,7 +342,13 @@ let rec convertToCoinObj =
   switch (lst) {
   | [] => []
   | [(_, x, y), ...t] =>
-    let (spr, obj) = makeToRemove(SItem(Coin), x, y);
+    let (spr, obj) =
+      Object.make(
+        maketoRemove0(SItem(Coin), Left),
+        makeTypeToremove(SItem(Coin)),
+        x,
+        y,
+      );
     let ob = Object.Item(Coin, spr, obj);
     [ob] @ convertToCoinObj(t, context);
   };
@@ -392,7 +383,13 @@ let generateHelper =
 let generate = (): (Object.collidable, list(Object.collidable)) => {
   let initial = Html.performance.now(.);
   let collideList = generateHelper(Load.getContext());
-  let (spr, obj) = makeToRemove(SPlayer(SmallM, Standing), 100., 224.);
+  let (spr, obj) =
+    Object.make(
+      maketoRemove0(SPlayer(SmallM, Standing), Left),
+      makeTypeToremove(SPlayer(SmallM, Standing)),
+      100.,
+      224.,
+    );
   let player = Object.Player(SmallM, spr, obj);
   let elapsed = Html.performance.now(.) -. initial;
   Js.log3(
