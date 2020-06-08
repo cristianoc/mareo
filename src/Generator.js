@@ -585,7 +585,7 @@ function makeTypeToremove$1(t) {
 }
 
 function generatePanel(param) {
-  var match = $$Object.make(undefined, maketoRemove0({
+  var match = $$Object.make(/* Left */0, maketoRemove0({
             TAG: /* SBlock */3,
             _0: /* Panel */4
           }, /* Left */0), $$Object.make_block(/* Panel */4), Config.blockw * 16 - 256, Config.blockh * 16 * 2 / 3);
@@ -642,7 +642,7 @@ function convertToBlockObj(lst, context) {
   }
   var match = lst._0;
   var blockTyp = match[0];
-  var match$1 = $$Object.make(undefined, maketoRemove0({
+  var match$1 = $$Object.make(/* Left */0, maketoRemove0({
             TAG: /* SBlock */3,
             _0: blockTyp
           }, /* Left */0), makeTypeToremove$1({
@@ -669,7 +669,7 @@ function convertToEnemyObj(lst, context) {
   }
   var match = lst._0;
   var enemyTyp = match[0];
-  var match$1 = $$Object.make(undefined, maketoRemove0({
+  var match$1 = $$Object.make(/* Left */0, maketoRemove0({
             TAG: /* SEnemy */1,
             _0: enemyTyp
           }, /* Left */0), makeTypeToremove$1({
@@ -696,7 +696,7 @@ function convertToCoinObj(lst, context) {
     return /* [] */0;
   }
   var match = lst._0;
-  var match$1 = $$Object.make(undefined, maketoRemove0({
+  var match$1 = $$Object.make(/* Left */0, maketoRemove0({
             TAG: /* SItem */2,
             _0: /* Coin */1
           }, /* Left */0), $$Object.make_item(/* Coin */1), match[1], match[2]);
@@ -739,7 +739,7 @@ function generateHelper(context) {
 function generate(param) {
   var initial = performance.now();
   var collideList = generateHelper(Load.getContext(undefined));
-  var match = $$Object.make(undefined, maketoRemove0({
+  var match = $$Object.make(/* Left */0, maketoRemove0({
             TAG: /* SPlayer */0,
             _0: /* SmallM */1,
             _1: /* Standing */0

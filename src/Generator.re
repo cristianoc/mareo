@@ -269,6 +269,7 @@ let makeTypeToremove =
 let generatePanel = (): Object.collidable => {
   let (spr, obj) =
     Object.make(
+      ~dir=Left,
       maketoRemove0(SBlock(Panel), Left),
       makeTypeToremove(SBlock(Panel)),
       Config.blockw *. 16. -. 256.,
@@ -306,6 +307,7 @@ let rec convertToBlockObj =
   | [(blockTyp, x, y), ...t] =>
     let (spr, obj) =
       Object.make(
+        ~dir=Left,
         maketoRemove0(SBlock(blockTyp), Left),
         makeTypeToremove(SBlock(blockTyp)),
         x,
@@ -325,6 +327,7 @@ let rec convertToEnemyObj =
   | [(enemyTyp, x, y), ...t] =>
     let (spr, obj) =
       Object.make(
+        ~dir=Left,
         maketoRemove0(SEnemy(enemyTyp), Left),
         makeTypeToremove(SEnemy(enemyTyp)),
         x,
@@ -344,6 +347,7 @@ let rec convertToCoinObj =
   | [(_, x, y), ...t] =>
     let (spr, obj) =
       Object.make(
+        ~dir=Left,
         maketoRemove0(SItem(Coin), Left),
         makeTypeToremove(SItem(Coin)),
         x,
@@ -385,6 +389,7 @@ let generate = (): (Object.collidable, list(Object.collidable)) => {
   let collideList = generateHelper(Load.getContext());
   let (spr, obj) =
     Object.make(
+      ~dir=Left,
       maketoRemove0(SPlayer(SmallM, Standing), Left),
       makeTypeToremove(SPlayer(SmallM, Standing)),
       100.,

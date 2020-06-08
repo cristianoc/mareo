@@ -103,7 +103,7 @@ let new_id = () => {
 };
 
 // create a new sprite and object from a spawnable object
-let make = (~dir=Left, spr, params, x, y) => {
+let make = (~dir, spr, params, x, y) => {
   let id = new_id();
   let obj = {
     params,
@@ -377,7 +377,7 @@ let evolve_block = obj => {
 let spawn_above = (player_dir, obj, itemTyp) => {
   let item = {
     let (spr, obj) =
-      make(
+      make(~dir=Left,
         Sprite.make_item(itemTyp)->Sprite.make_from_params,
         make_item(itemTyp),
         obj.pos.x,

@@ -59,8 +59,7 @@ function new_id(param) {
   return id_counter.contents;
 }
 
-function make(dirOpt, spr, params, x, y) {
-  var dir = dirOpt !== undefined ? dirOpt : /* Left */0;
+function make(dir, spr, params, x, y) {
   var id = new_id(undefined);
   var obj = {
     params: params,
@@ -337,7 +336,7 @@ function evolve_block(obj) {
 }
 
 function spawn_above(player_dir, obj, itemTyp) {
-  var match = make(undefined, Sprite.make_from_params(Sprite.make_item(itemTyp)), make_item(itemTyp), obj.pos.x, obj.pos.y);
+  var match = make(/* Left */0, Sprite.make_from_params(Sprite.make_item(itemTyp)), make_item(itemTyp), obj.pos.x, obj.pos.y);
   var obj$1 = match[1];
   var spr = match[0];
   var item = {
