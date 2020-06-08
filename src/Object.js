@@ -7,20 +7,20 @@ import * as Belt_List from "bs-platform/lib/es6/belt_List.js";
 import * as Pervasives from "bs-platform/lib/es6/pervasives.js";
 import * as Caml_primitive from "bs-platform/lib/es6/caml_primitive.js";
 
-var id_counter = {
+var idCounter = {
   contents: Pervasives.min_int
 };
 
-function setup_obj(has_gravityOpt, speedOpt, param) {
-  var has_gravity = has_gravityOpt !== undefined ? has_gravityOpt : true;
+function setup(hasGravityOpt, speedOpt, param) {
+  var hasGravity = hasGravityOpt !== undefined ? hasGravityOpt : true;
   var speed = speedOpt !== undefined ? speedOpt : 1;
   return {
-          has_gravity: has_gravity,
+          hasGravity: hasGravity,
           speed: speed
         };
 }
 
-function set_vel_to_speed(obj) {
+function setVelToSpeed(obj) {
   var speed = obj.params.speed;
   var match = obj.dir;
   if (match) {
@@ -31,37 +31,37 @@ function set_vel_to_speed(obj) {
   
 }
 
-function make_player(param) {
-  return setup_obj(undefined, Config.player_speed, undefined);
+function makePlayer(param) {
+  return setup(undefined, Config.player_speed, undefined);
 }
 
-function make_item(param) {
+function makeItem(param) {
   if (param) {
-    return setup_obj(false, undefined, undefined);
+    return setup(false, undefined, undefined);
   } else {
-    return setup_obj(undefined, undefined, undefined);
+    return setup(undefined, undefined, undefined);
   }
 }
 
-function make_enemy(param) {
+function makeEnemy(param) {
   if (param >= 3) {
-    return setup_obj(undefined, 3, undefined);
+    return setup(undefined, 3, undefined);
   } else {
-    return setup_obj(undefined, undefined, undefined);
+    return setup(undefined, undefined, undefined);
   }
 }
 
-function make_block(param) {
-  return setup_obj(false, undefined, undefined);
+function makeBlock(param) {
+  return setup(false, undefined, undefined);
 }
 
-function new_id(param) {
-  id_counter.contents = id_counter.contents + 1 | 0;
-  return id_counter.contents;
+function newId(param) {
+  idCounter.contents = idCounter.contents + 1 | 0;
+  return idCounter.contents;
 }
 
 function make(dir, spr, params, x, y) {
-  var id = new_id(undefined);
+  var id = newId(undefined);
   var obj = {
     params: params,
     pos: {
@@ -88,15 +88,15 @@ function make(dir, spr, params, x, y) {
         ];
 }
 
-function get_sprite(param) {
+function getSprite(param) {
   return param._1;
 }
 
-function get_obj(param) {
+function getObj(param) {
   return param._2;
 }
 
-function is_player(param) {
+function isPlayer(param) {
   if (param.TAG) {
     return false;
   } else {
@@ -104,7 +104,7 @@ function is_player(param) {
   }
 }
 
-function is_enemy(param) {
+function isEnemy(param) {
   if (param.TAG === /* Enemy */1) {
     return true;
   } else {
@@ -116,7 +116,7 @@ function equals(col1, col2) {
   return col1._2.id === col2._2.id;
 }
 
-function update_player_keys(player, controls) {
+function updatePlayerKeys(player, controls) {
   var lr_acc = player.vel.x * 0.2;
   switch (controls) {
     case /* CLeft */0 :
@@ -159,7 +159,7 @@ function update_player_keys(player, controls) {
   }
 }
 
-function normalize_pos(pos, p1, p2) {
+function normalizePos(pos, p1, p2) {
   var match = p1.bboxOffset;
   var match$1 = p2.bboxOffset;
   var match$2 = p1.bboxSize;
@@ -169,12 +169,12 @@ function normalize_pos(pos, p1, p2) {
   
 }
 
-function update_player(player, keys) {
+function updatePlayer(player, keys) {
   var prev_jumping = player.jumping;
   var prev_dir = player.dir;
   var prev_vx = Math.abs(player.vel.x);
   Belt_List.forEach(keys, (function (param) {
-          return update_player_keys(player, param);
+          return updatePlayerKeys(player, param);
         }));
   var v = player.vel.x * Config.friction;
   var vel_damped = Math.abs(v) < 0.1 ? 0 : v;
@@ -201,11 +201,11 @@ function update_player(player, keys) {
   
 }
 
-function update_vel(obj) {
+function updateVel(obj) {
   if (obj.grounded) {
     obj.vel.y = 0;
     return ;
-  } else if (obj.params.has_gravity) {
+  } else if (obj.params.hasGravity) {
     obj.vel.y = Caml_primitive.caml_float_min(obj.vel.y + Config.gravity + Math.abs(obj.vel.y) * 0.01, Config.max_y_vel);
     return ;
   } else {
@@ -213,18 +213,18 @@ function update_vel(obj) {
   }
 }
 
-function update_pos(obj) {
+function updatePos(obj) {
   obj.pos.x = obj.vel.x + obj.pos.x;
-  if (obj.params.has_gravity) {
+  if (obj.params.hasGravity) {
     obj.pos.y = obj.vel.y + obj.pos.y;
     return ;
   }
   
 }
 
-function process_obj(obj, mapy) {
-  update_vel(obj);
-  update_pos(obj);
+function processObj(obj, mapy) {
+  updateVel(obj);
+  updatePos(obj);
   if (obj.pos.y > mapy) {
     obj.kill = true;
     return ;
@@ -232,7 +232,7 @@ function process_obj(obj, mapy) {
   
 }
 
-function collide_block(dir, obj) {
+function collideBlock(dir, obj) {
   if (dir !== 1) {
     if (dir !== 0) {
       obj.vel.x = 0;
@@ -247,7 +247,7 @@ function collide_block(dir, obj) {
   
 }
 
-function opposite_dir(dir) {
+function oppositeDir(dir) {
   if (dir) {
     return /* Left */0;
   } else {
@@ -255,13 +255,13 @@ function opposite_dir(dir) {
   }
 }
 
-function reverse_left_right(obj) {
+function reverseLeftRight(obj) {
   obj.vel.x = -obj.vel.x;
   obj.dir = obj.dir ? /* Left */0 : /* Right */1;
   
 }
 
-function evolve_enemy(player_dir, typ, spr, obj) {
+function evolveEnemy(player_dir, typ, spr, obj) {
   switch (typ) {
     case /* Goomba */0 :
         obj.kill = true;
@@ -270,10 +270,10 @@ function evolve_enemy(player_dir, typ, spr, obj) {
         var match = make(obj.dir, Sprite.make_from_params(Sprite.make_enemy([
                       /* GKoopaShell */3,
                       obj.dir
-                    ])), make_enemy(/* GKoopaShell */3), obj.pos.x, obj.pos.y);
+                    ])), makeEnemy(/* GKoopaShell */3), obj.pos.x, obj.pos.y);
         var new_obj = match[1];
         var new_spr = match[0];
-        normalize_pos(new_obj.pos, spr.params, new_spr.params);
+        normalizePos(new_obj.pos, spr.params, new_spr.params);
         return {
                 TAG: /* Enemy */1,
                 _0: /* GKoopaShell */3,
@@ -284,7 +284,7 @@ function evolve_enemy(player_dir, typ, spr, obj) {
         var match$1 = make(obj.dir, Sprite.make_from_params(Sprite.make_enemy([
                       /* RKoopaShell */4,
                       obj.dir
-                    ])), make_enemy(/* RKoopaShell */4), obj.pos.x, obj.pos.y);
+                    ])), makeEnemy(/* RKoopaShell */4), obj.pos.x, obj.pos.y);
         return {
                 TAG: /* Enemy */1,
                 _0: /* RKoopaShell */4,
@@ -300,19 +300,19 @@ function evolve_enemy(player_dir, typ, spr, obj) {
   if (obj.vel.x !== 0) {
     obj.vel.x = 0;
   } else {
-    set_vel_to_speed(obj);
+    setVelToSpeed(obj);
   }
   
 }
 
-function rev_dir(o, t, s) {
-  reverse_left_right(o);
+function revDir(o, t, s) {
+  reverseLeftRight(o);
   var old_params = s.params;
   Sprite.transform_enemy(t, s, o.dir);
-  return normalize_pos(o.pos, old_params, s.params);
+  return normalizePos(o.pos, old_params, s.params);
 }
 
-function dec_health(obj) {
+function decHealth(obj) {
   var health = obj.health - 1 | 0;
   if (health === 0) {
     obj.kill = true;
@@ -325,9 +325,9 @@ function dec_health(obj) {
   }
 }
 
-function evolve_block(obj) {
-  dec_health(obj);
-  var match = make(obj.dir, Sprite.make_from_params(Sprite.make_block(/* QBlockUsed */0)), make_block(/* QBlockUsed */0), obj.pos.x, obj.pos.y);
+function evolveBlock(obj) {
+  decHealth(obj);
+  var match = make(obj.dir, Sprite.make_from_params(Sprite.make_block(/* QBlockUsed */0)), makeBlock(/* QBlockUsed */0), obj.pos.x, obj.pos.y);
   return {
           TAG: /* Block */3,
           _0: /* QBlockUsed */0,
@@ -336,8 +336,8 @@ function evolve_block(obj) {
         };
 }
 
-function spawn_above(player_dir, obj, itemTyp) {
-  var match = make(/* Left */0, Sprite.make_from_params(Sprite.make_item(itemTyp)), make_item(itemTyp), obj.pos.x, obj.pos.y);
+function spawnAbove(player_dir, obj, itemTyp) {
+  var match = make(/* Left */0, Sprite.make_from_params(Sprite.make_item(itemTyp)), makeItem(itemTyp), obj.pos.x, obj.pos.y);
   var obj$1 = match[1];
   var spr = match[0];
   var item = {
@@ -348,11 +348,11 @@ function spawn_above(player_dir, obj, itemTyp) {
   };
   obj$1.pos.y = obj$1.pos.y - spr.params.frameSize[1];
   obj$1.dir = player_dir ? /* Left */0 : /* Right */1;
-  set_vel_to_speed(obj$1);
+  setVelToSpeed(obj$1);
   return item;
 }
 
-function get_aabb(obj) {
+function getAabb(obj) {
   var spr = obj._1.params;
   var obj$1 = obj._2;
   var match = spr.bboxOffset;
@@ -373,7 +373,7 @@ function get_aabb(obj) {
         };
 }
 
-function col_bypass(c1, c2) {
+function colBypass(c1, c2) {
   var o1 = c1._2;
   var o2 = c2._2;
   var ctypes;
@@ -409,11 +409,11 @@ function col_bypass(c1, c2) {
   }
 }
 
-function check_collision(c1, c2) {
-  var b1 = get_aabb(c1);
-  var b2 = get_aabb(c2);
+function checkCollision(c1, c2) {
+  var b1 = getAabb(c1);
+  var b2 = getAabb(c2);
   var o1 = c1._2;
-  if (col_bypass(c1, c2)) {
+  if (colBypass(c1, c2)) {
     return ;
   }
   var vx = b1.center.x - b2.center.x;
@@ -537,37 +537,37 @@ function kill(collid) {
 }
 
 export {
-  id_counter ,
-  setup_obj ,
-  set_vel_to_speed ,
-  make_player ,
-  make_item ,
-  make_enemy ,
-  make_block ,
-  new_id ,
+  idCounter ,
+  setup ,
+  setVelToSpeed ,
+  makePlayer ,
+  makeItem ,
+  makeEnemy ,
+  makeBlock ,
+  newId ,
   make ,
-  get_sprite ,
-  get_obj ,
-  is_player ,
-  is_enemy ,
+  getSprite ,
+  getObj ,
+  isPlayer ,
+  isEnemy ,
   equals ,
-  update_player_keys ,
-  normalize_pos ,
-  update_player ,
-  update_vel ,
-  update_pos ,
-  process_obj ,
-  collide_block ,
-  opposite_dir ,
-  reverse_left_right ,
-  evolve_enemy ,
-  rev_dir ,
-  dec_health ,
-  evolve_block ,
-  spawn_above ,
-  get_aabb ,
-  col_bypass ,
-  check_collision ,
+  updatePlayerKeys ,
+  normalizePos ,
+  updatePlayer ,
+  updateVel ,
+  updatePos ,
+  processObj ,
+  collideBlock ,
+  oppositeDir ,
+  reverseLeftRight ,
+  evolveEnemy ,
+  revDir ,
+  decHealth ,
+  evolveBlock ,
+  spawnAbove ,
+  getAabb ,
+  colBypass ,
+  checkCollision ,
   kill ,
   
 }

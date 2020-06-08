@@ -1,8 +1,8 @@
-type dir_1d =
+type dir1d =
   | Left
   | Right;
 
-type dir_2d =
+type dir2d =
   | North
   | South
   | East
@@ -19,11 +19,11 @@ type controls =
   | CUp
   | CDown;
 
-type pl_typ =
+type plTyp =
   | BigM
   | SmallM;
 
-type item_typ =
+type itemTyp =
   | Mushroom
   | Coin;
 
@@ -35,7 +35,7 @@ type enemyTyp =
   | RKoopaShell;
 
 type blockTyp =
-  | QBlock(item_typ)
+  | QBlock(itemTyp)
   | QBlockUsed
   | Brick
   | UnBBlock

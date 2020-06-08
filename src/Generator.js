@@ -547,7 +547,7 @@ function generateBlockLocs(_cbx, _cby, _acc) {
 }
 
 function generatePanel(param) {
-  var match = $$Object.make(/* Left */0, Sprite.make_from_params(Sprite.make_block(/* Panel */4)), $$Object.make_block(/* Panel */4), Config.blockw * 16 - 256, Config.blockh * 16 * 2 / 3);
+  var match = $$Object.make(/* Left */0, Sprite.make_from_params(Sprite.make_block(/* Panel */4)), $$Object.makeBlock(/* Panel */4), Config.blockw * 16 - 256, Config.blockh * 16 * 2 / 3);
   return {
           TAG: /* Block */3,
           _0: /* Panel */4,
@@ -601,7 +601,7 @@ function convertToBlockObj(lst, context) {
   }
   var match = lst._0;
   var blockTyp = match[0];
-  var match$1 = $$Object.make(/* Left */0, Sprite.make_from_params(Sprite.make_block(blockTyp)), $$Object.make_block(blockTyp), match[1], match[2]);
+  var match$1 = $$Object.make(/* Left */0, Sprite.make_from_params(Sprite.make_block(blockTyp)), $$Object.makeBlock(blockTyp), match[1], match[2]);
   var ob_1 = match$1[0];
   var ob_2 = match$1[1];
   var ob = {
@@ -625,9 +625,9 @@ function convertToEnemyObj(lst, context) {
   var match$1 = $$Object.make(/* Left */0, Sprite.make_from_params(Sprite.make_enemy([
                 enemyTyp,
                 /* Left */0
-              ])), $$Object.make_enemy(enemyTyp), match[1], match[2]);
+              ])), $$Object.makeEnemy(enemyTyp), match[1], match[2]);
   var obj = match$1[1];
-  $$Object.set_vel_to_speed(obj);
+  $$Object.setVelToSpeed(obj);
   var ob_1 = match$1[0];
   var ob = {
     TAG: /* Enemy */1,
@@ -635,10 +635,10 @@ function convertToEnemyObj(lst, context) {
     _1: ob_1,
     _2: obj
   };
-  return Pervasives.$at(/* :: */{
-              _0: ob,
-              _1: /* [] */0
-            }, convertToEnemyObj(lst._1, context));
+  return /* :: */{
+          _0: ob,
+          _1: convertToEnemyObj(lst._1, context)
+        };
 }
 
 function convertToCoinObj(lst, context) {
@@ -646,7 +646,7 @@ function convertToCoinObj(lst, context) {
     return /* [] */0;
   }
   var match = lst._0;
-  var match$1 = $$Object.make(/* Left */0, Sprite.make_from_params(Sprite.make_item(/* Coin */1)), $$Object.make_item(/* Coin */1), match[1], match[2]);
+  var match$1 = $$Object.make(/* Left */0, Sprite.make_from_params(Sprite.make_item(/* Coin */1)), $$Object.makeItem(/* Coin */1), match[1], match[2]);
   var ob_1 = match$1[0];
   var ob_2 = match$1[1];
   var ob = {
@@ -689,7 +689,7 @@ function generate(param) {
   var match = $$Object.make(/* Left */0, Sprite.make_from_params(Sprite.make_player(/* SmallM */1, [
                 /* Standing */0,
                 /* Left */0
-              ])), $$Object.make_player(undefined), 100, 224);
+              ])), $$Object.makePlayer(undefined), 100, 224);
   var player_1 = match[0];
   var player_2 = match[1];
   var player = {

@@ -244,7 +244,7 @@ let generatePanel = (): Object.collidable => {
     Object.make(
       ~dir=Left,
       Sprite.make_block(Panel)->Sprite.make_from_params,
-      Object.make_block(Panel),
+      Object.makeBlock(Panel),
       Config.blockw *. 16. -. 256.,
       Config.blockh *. 16. *. 2. /. 3.,
     );
@@ -282,7 +282,7 @@ let rec convertToBlockObj =
       Object.make(
         ~dir=Left,
         Sprite.make_block(blockTyp)->Sprite.make_from_params,
-        Object.make_block(blockTyp),
+        Object.makeBlock(blockTyp),
         x,
         y,
       );
@@ -302,13 +302,13 @@ let rec convertToEnemyObj =
       Object.make(
         ~dir=Left,
         Sprite.make_enemy((enemyTyp, Left))->Sprite.make_from_params,
-        Object.make_enemy(enemyTyp),
+        Object.makeEnemy(enemyTyp),
         x,
         y,
       );
-    Object.set_vel_to_speed(obj);
+    Object.setVelToSpeed(obj);
     let ob = Object.Enemy(enemyTyp, spr, obj);
-    [ob] @ convertToEnemyObj(t, context);
+    [ob, ...convertToEnemyObj(t, context)];
   };
 
 // Convert the list of coordinates into a list of Coin objects
@@ -322,7 +322,7 @@ let rec convertToCoinObj =
       Object.make(
         ~dir=Left,
         Sprite.make_item(Coin)->Sprite.make_from_params,
-        Object.make_item(Coin),
+        Object.makeItem(Coin),
         x,
         y,
       );
@@ -364,7 +364,7 @@ let generate = (): (Object.collidable, list(Object.collidable)) => {
     Object.make(
       ~dir=Left,
       Sprite.make_player(SmallM, (Standing, Left))->Sprite.make_from_params,
-      Object.make_player(),
+      Object.makePlayer(),
       100.,
       224.,
     );

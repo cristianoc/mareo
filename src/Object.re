@@ -8,11 +8,11 @@ type aabb = {
 };
 
 type params = {
-  has_gravity: bool,
+  hasGravity: bool,
   speed: float,
 };
 
-let id_counter = ref(min_int);
+let idCounter = ref(min_int);
 
 type t = {
   params,
@@ -21,7 +21,7 @@ type t = {
   id: int,
   mutable jumping: bool,
   mutable grounded: bool,
-  mutable dir: Actors.dir_1d,
+  mutable dir: Actors.dir1d,
   mutable invuln: int,
   mutable kill: bool,
   mutable health: int,
@@ -30,20 +30,20 @@ type t = {
 };
 
 type collidable =
-  | Player(pl_typ, Sprite.t, t)
+  | Player(plTyp, Sprite.t, t)
   | Enemy(enemyTyp, Sprite.t, t)
-  | Item(item_typ, Sprite.t, t)
+  | Item(itemTyp, Sprite.t, t)
   | Block(blockTyp, Sprite.t, t);
 
-/*setup_obj is used to set gravity and speed, with default values true and 1.*/
-let setup_obj = (~g as has_gravity=true, ~spd as speed=1., ()) => {
-  has_gravity,
+// used to set gravity and speed, with default values true and 1
+let setup = (~g as hasGravity=true, ~spd as speed=1., ()) => {
+  hasGravity,
   speed,
 };
 
 /* Sets an object's x velocity to the speed specified in its params based on
  * its direction */
-let set_vel_to_speed = obj => {
+let setVelToSpeed = obj => {
   let speed = obj.params.speed;
   switch (obj.dir) {
   | Left => obj.vel.x = -. speed
@@ -54,40 +54,40 @@ let set_vel_to_speed = obj => {
 /* The following make functions all set the objects' has_gravity and speed,
  * returning an [obj_params] that can be directly plugged into the [obj]
  * during creation. */
-let make_player = () => setup_obj(~spd=Config.player_speed, ());
+let makePlayer = () => setup(~spd=Config.player_speed, ());
 
-let make_item =
+let makeItem =
   fun
-  | Mushroom => setup_obj()
-  | Coin => setup_obj(~g=false, ());
+  | Mushroom => setup()
+  | Coin => setup(~g=false, ());
 
-let make_enemy =
+let makeEnemy =
   fun
-  | Goomba => setup_obj()
-  | GKoopa => setup_obj()
-  | RKoopa => setup_obj()
-  | GKoopaShell => setup_obj(~spd=3., ())
-  | RKoopaShell => setup_obj(~spd=3., ());
+  | Goomba => setup()
+  | GKoopa => setup()
+  | RKoopa => setup()
+  | GKoopaShell => setup(~spd=3., ())
+  | RKoopaShell => setup(~spd=3., ());
 
-let make_block =
+let makeBlock =
   fun
-  | QBlock(_) => setup_obj(~g=false, ())
-  | QBlockUsed => setup_obj(~g=false, ())
-  | Brick => setup_obj(~g=false, ())
-  | UnBBlock => setup_obj(~g=false, ())
-  | Cloud => setup_obj(~g=false, ())
-  | Panel => setup_obj(~g=false, ())
-  | Ground => setup_obj(~g=false, ());
+  | QBlock(_) => setup(~g=false, ())
+  | QBlockUsed => setup(~g=false, ())
+  | Brick => setup(~g=false, ())
+  | UnBBlock => setup(~g=false, ())
+  | Cloud => setup(~g=false, ())
+  | Panel => setup(~g=false, ())
+  | Ground => setup(~g=false, ());
 
 /*Used in object creation and to compare two objects.*/
-let new_id = () => {
-  id_counter := id_counter^ + 1;
-  id_counter^;
+let newId = () => {
+  idCounter := idCounter^ + 1;
+  idCounter^;
 };
 
 // create a new sprite and object from a spawnable object
 let make = (~dir, spr, params, x, y) => {
-  let id = new_id();
+  let id = newId();
   let obj = {
     params,
     pos: {
@@ -112,34 +112,34 @@ let make = (~dir, spr, params, x, y) => {
 };
 
 /*Helper methods for getting sprites and objects from their collidables*/
-let get_sprite =
+let getSprite =
   fun
   | Player(_, s, _)
   | Enemy(_, s, _)
   | Item(_, s, _)
   | Block(_, s, _) => s;
 
-let get_obj =
+let getObj =
   fun
   | Player(_, _, o)
   | Enemy(_, _, o)
   | Item(_, _, o)
   | Block(_, _, o) => o;
 
-let is_player =
+let isPlayer =
   fun
   | Player(_, _, _) => true
   | _ => false;
 
-let is_enemy =
+let isEnemy =
   fun
   | Enemy(_, _, _) => true
   | _ => false;
 
-let equals = (col1, col2) => get_obj(col1).id == get_obj(col2).id;
+let equals = (col1, col2) => getObj(col1).id == getObj(col2).id;
 
-/*Matches the controls being used and updates each of the player's params.*/
-let update_player_keys = (player: t, controls: controls): unit => {
+// Matches the controls being used and updates each of the player's params
+let updatePlayerKeys = (player: t, controls: controls): unit => {
   let lr_acc = player.vel.x *. 0.2;
   switch (controls) {
   | CLeft =>
@@ -174,10 +174,10 @@ let update_player_keys = (player: t, controls: controls): unit => {
   };
 };
 
-/*Used for sprite changing. If sprites change to different dimensions as a result
- *of some action, the new sprite must be normalized so that things aren't
- *jumpy*/
-let normalize_pos = (pos, p1: Sprite.params, p2: Sprite.params) => {
+// Used for sprite changing. If sprites change to different dimensions as a result
+// of some action, the new sprite must be normalized so that things aren't
+// jumpy
+let normalizePos = (pos, p1: Sprite.params, p2: Sprite.params) => {
   let (box1, boy1) = p1.bboxOffset
   and (box2, boy2) = p2.bboxOffset;
   let (bw1, bh1) = p1.bboxSize
@@ -186,13 +186,13 @@ let normalize_pos = (pos, p1: Sprite.params, p2: Sprite.params) => {
   pos.y = pos.y -. (bh2 +. boy2) +. (bh1 +. boy1);
 };
 
-/*Update player is constantly being called to check for if big or small
- *Mario sprites/collidables should be used.*/
-let update_player = (player, keys) => {
+// Update player is constantly being called to check for if big or small
+// Mario sprites/collidables should be used
+let updatePlayer = (player, keys) => {
   let prev_jumping = player.jumping;
   let prev_dir = player.dir
   and prev_vx = abs_float(player.vel.x);
-  List.forEach(keys, update_player_keys(player));
+  List.forEach(keys, updatePlayerKeys(player));
   let v = player.vel.x *. Config.friction;
   let vel_damped =
     if (abs_float(v) < 0.1) {
@@ -235,11 +235,11 @@ let update_player = (player, keys) => {
   };
 };
 
-/*The following two helper methods update velocity and position of the player*/
-let update_vel = obj =>
+// The following two helper methods update velocity and position of the player
+let updateVel = obj =>
   if (obj.grounded) {
     obj.vel.y = 0.;
-  } else if (obj.params.has_gravity) {
+  } else if (obj.params.hasGravity) {
     obj.vel.y =
       min(
         obj.vel.y +. Config.gravity +. abs_float(obj.vel.y) *. 0.01,
@@ -247,24 +247,24 @@ let update_vel = obj =>
       );
   };
 
-let update_pos = obj => {
+let updatePos = obj => {
   obj.pos.x = obj.vel.x +. obj.pos.x;
-  if (obj.params.has_gravity) {
+  if (obj.params.hasGravity) {
     obj.pos.y = obj.vel.y +. obj.pos.y;
   };
 };
 
-/*Calls two above helper functions to update velocity and position of player.*/
-let process_obj = (obj, mapy) => {
-  update_vel(obj);
-  update_pos(obj);
+// Calls two above helper functions to update velocity and position of player
+let processObj = (obj, mapy) => {
+  updateVel(obj);
+  updatePos(obj);
   if (obj.pos.y > mapy) {
     obj.kill = true;
   };
 };
 
-/*Checks upon collision of block and updates the values of the object.*/
-let collide_block = (dir, obj) =>
+// Check upon collision of block and updates the values of the object
+let collideBlock = (dir, obj) =>
   switch (dir) {
   | North => obj.vel.y = (-0.001)
   | South =>
@@ -275,41 +275,41 @@ let collide_block = (dir, obj) =>
   | West => obj.vel.x = 0.
   };
 
-/*Simple helper method that reverses the direction in question*/
-let opposite_dir = dir =>
+// Simple helper method that reverses the direction in question
+let oppositeDir = dir =>
   switch (dir) {
   | Left => Right
   | Right => Left
   };
 
-/*Used for enemy-enemy collisions*/
-let reverse_left_right = obj => {
+// Used for enemy-enemy collisions
+let reverseLeftRight = obj => {
   obj.vel.x = -. obj.vel.x;
-  obj.dir = opposite_dir(obj.dir);
+  obj.dir = oppositeDir(obj.dir);
 };
 
-/*Actually creates a new enemy and deletes the previous. The positions must be
- *normalized. This method is typically called when enemies are killed and a
- *new sprite must be used (i.e., koopa to koopa shell). */
-let evolve_enemy = (player_dir, typ, spr: Sprite.t, obj) =>
+// Actually creates a new enemy and deletes the previous. The positions must be
+// normalized. This method is typically called when enemies are killed and a
+// new sprite must be used (i.e., koopa to koopa shell).
+let evolveEnemy = (player_dir, typ, spr: Sprite.t, obj) =>
   switch (typ) {
   | GKoopa =>
     let (new_spr, new_obj) =
       make(
         ~dir=obj.dir,
         Sprite.make_enemy((GKoopaShell, obj.dir))->Sprite.make_from_params,
-        make_enemy(GKoopaShell),
+        makeEnemy(GKoopaShell),
         obj.pos.x,
         obj.pos.y,
       );
-    normalize_pos(new_obj.pos, spr.params, new_spr.params);
+    normalizePos(new_obj.pos, spr.params, new_spr.params);
     Some(Enemy(GKoopaShell, new_spr, new_obj));
   | RKoopa =>
     let (new_spr, new_obj) =
       make(
         ~dir=obj.dir,
         Sprite.make_enemy((RKoopaShell, obj.dir))->Sprite.make_from_params,
-        make_enemy(RKoopaShell),
+        makeEnemy(RKoopaShell),
         obj.pos.x,
         obj.pos.y,
       );
@@ -320,7 +320,7 @@ let evolve_enemy = (player_dir, typ, spr: Sprite.t, obj) =>
     if (obj.vel.x != 0.) {
       obj.vel.x = 0.;
     } else {
-      set_vel_to_speed(obj);
+      setVelToSpeed(obj);
     };
     None;
   | _ =>
@@ -328,16 +328,16 @@ let evolve_enemy = (player_dir, typ, spr: Sprite.t, obj) =>
     None;
   };
 
-/*Updates the direction of the sprite. */
-let rev_dir = (o, t, s: Sprite.t) => {
-  reverse_left_right(o);
+// Update the direction of the sprite
+let revDir = (o, t, s: Sprite.t) => {
+  reverseLeftRight(o);
   let old_params = s.params;
   Sprite.transform_enemy(t, s, o.dir);
-  normalize_pos(o.pos, old_params, s.params);
+  normalizePos(o.pos, old_params, s.params);
 };
 
-/*Used for killing enemies, or to make big Mario into small Mario*/
-let dec_health = obj => {
+// Used for killing enemies, or to make big Mario into small Mario
+let decHealth = obj => {
   let health = obj.health - 1;
   if (health == 0) {
     obj.kill = true;
@@ -346,14 +346,14 @@ let dec_health = obj => {
   };
 };
 
-/*Used for deleting a block and replacing it with a used block*/
-let evolve_block = obj => {
-  dec_health(obj);
+// Used for deleting a block and replacing it with a used block
+let evolveBlock = obj => {
+  decHealth(obj);
   let (new_spr, new_obj) =
     make(
       ~dir=obj.dir,
       Sprite.make_block(QBlockUsed)->Sprite.make_from_params,
-      make_block(QBlockUsed),
+      makeBlock(QBlockUsed),
       obj.pos.x,
       obj.pos.y,
     );
@@ -361,29 +361,29 @@ let evolve_block = obj => {
 };
 
 // Used for spawning items above question mark blocks
-let spawn_above = (player_dir, obj, itemTyp) => {
+let spawnAbove = (player_dir, obj, itemTyp) => {
   let item = {
     let (spr, obj) =
       make(
         ~dir=Left,
         Sprite.make_item(itemTyp)->Sprite.make_from_params,
-        make_item(itemTyp),
+        makeItem(itemTyp),
         obj.pos.x,
         obj.pos.y,
       );
     Item(itemTyp, spr, obj);
   };
-  let item_obj = get_obj(item);
-  item_obj.pos.y = item_obj.pos.y -. snd(get_sprite(item).params.frameSize);
-  item_obj.dir = opposite_dir(player_dir);
-  set_vel_to_speed(item_obj);
+  let item_obj = getObj(item);
+  item_obj.pos.y = item_obj.pos.y -. snd(getSprite(item).params.frameSize);
+  item_obj.dir = oppositeDir(player_dir);
+  setVelToSpeed(item_obj);
   item;
 };
 
-/*Used to get the bounding box.*/
-let get_aabb = obj => {
-  let spr = get_sprite(obj).params;
-  let obj = get_obj(obj);
+// Used to get the bounding box
+let getAabb = obj => {
+  let spr = getSprite(obj).params;
+  let obj = getObj(obj);
   let (offx, offy) = spr.bboxOffset;
   let (box, boy) = (obj.pos.x +. offx, obj.pos.y +. offy);
   let (sx, sy) = spr.bboxSize;
@@ -399,9 +399,9 @@ let get_aabb = obj => {
   };
 };
 
-let col_bypass = (c1, c2) => {
-  let o1 = get_obj(c1)
-  and o2 = get_obj(c2);
+let colBypass = (c1, c2) => {
+  let o1 = getObj(c1)
+  and o2 = getObj(c2);
   let ctypes =
     switch (c1, c2) {
     | (Item(_, _, _), Enemy(_, _, _))
@@ -418,14 +418,14 @@ let col_bypass = (c1, c2) => {
   o1.kill || o2.kill || ctypes;
 };
 
-/*Used for checking if collisions occur. Compares half-widths and half-heights
- *and adjusts for when collisions do occur, by changing position so that
- *a second collision does not occur again immediately. This causes snapping.*/
-let check_collision = (c1, c2) => {
-  let b1 = get_aabb(c1)
-  and b2 = get_aabb(c2);
-  let o1 = get_obj(c1);
-  if (col_bypass(c1, c2)) {
+// Used for checking if collisions occur. Compares half-widths and half-heights
+// and adjusts for when collisions do occur, by changing position so that
+// a second collision does not occur again immediately. This causes snapping
+let checkCollision = (c1, c2) => {
+  let b1 = getAabb(c1)
+  and b2 = getAabb(c2);
+  let o1 = getObj(c1);
+  if (colBypass(c1, c2)) {
     None;
   } else {
     let vx = b1.center.x -. b2.center.x;
@@ -456,7 +456,7 @@ let check_collision = (c1, c2) => {
   };
 };
 
-/*"Kills" the matched object by setting certain parameters for each.*/
+// "Kills" the matched object by setting certain parameters for each
 let kill = collid =>
   switch (collid) {
   | Enemy(t, _, o) =>

@@ -55,7 +55,7 @@ function playerAttackEnemy(o1, typ, s2, o2, state) {
   o1.jumping = false;
   o1.grounded = true;
   if (typ >= 3) {
-    var r2 = $$Object.evolve_enemy(o1.dir, typ, s2, o2);
+    var r2 = $$Object.evolveEnemy(o1.dir, typ, s2, o2);
     o1.vel.y = -Config.dampen_jump;
     o1.pos.y = o1.pos.y - 5;
     return [
@@ -63,14 +63,14 @@ function playerAttackEnemy(o1, typ, s2, o2, state) {
             r2
           ];
   }
-  $$Object.dec_health(o2);
+  $$Object.decHealth(o2);
   o1.vel.y = -Config.dampen_jump;
   if (state.multiplier === 8) {
     update_score(state, 800);
     o2.score = 800;
     return [
             undefined,
-            $$Object.evolve_enemy(o1.dir, typ, s2, o2)
+            $$Object.evolveEnemy(o1.dir, typ, s2, o2)
           ];
   }
   var score = Math.imul(100, state.multiplier);
@@ -79,19 +79,19 @@ function playerAttackEnemy(o1, typ, s2, o2, state) {
   state.multiplier = (state.multiplier << 1);
   return [
           undefined,
-          $$Object.evolve_enemy(o1.dir, typ, s2, o2)
+          $$Object.evolveEnemy(o1.dir, typ, s2, o2)
         ];
 }
 
 function enemyAttackPlayer(o1, t2, s2, o2) {
   if (t2 >= 3) {
-    var r2 = o2.vel.x === 0 ? $$Object.evolve_enemy(o1.dir, t2, s2, o2) : ($$Object.dec_health(o1), o1.invuln = Config.invuln, undefined);
+    var r2 = o2.vel.x === 0 ? $$Object.evolveEnemy(o1.dir, t2, s2, o2) : ($$Object.decHealth(o1), o1.invuln = Config.invuln, undefined);
     return [
             undefined,
             r2
           ];
   }
-  $$Object.dec_health(o1);
+  $$Object.decHealth(o1);
   o1.invuln = Config.invuln;
   return [
           undefined,
@@ -104,21 +104,21 @@ function col_enemy_enemy(t1, s1, o1, t2, s2, o2, dir) {
     if (t1 < 4) {
       if (t2 >= 3) {
         if (o2.vel.x === 0) {
-          $$Object.rev_dir(o1, t1, s1);
+          $$Object.revDir(o1, t1, s1);
           return [
                   undefined,
                   undefined
                 ];
         } else {
-          $$Object.dec_health(o1);
+          $$Object.decHealth(o1);
           return [
                   undefined,
                   undefined
                 ];
         }
       } else if (dir >= 2) {
-        $$Object.rev_dir(o1, t1, s1);
-        $$Object.rev_dir(o2, t2, s2);
+        $$Object.revDir(o1, t1, s1);
+        $$Object.revDir(o2, t2, s2);
         return [
                 undefined,
                 undefined
@@ -131,8 +131,8 @@ function col_enemy_enemy(t1, s1, o1, t2, s2, o2, dir) {
       }
     }
     if (t2 >= 3) {
-      $$Object.dec_health(o1);
-      $$Object.dec_health(o2);
+      $$Object.decHealth(o1);
+      $$Object.decHealth(o2);
       return [
               undefined,
               undefined
@@ -140,21 +140,21 @@ function col_enemy_enemy(t1, s1, o1, t2, s2, o2, dir) {
     }
     
   } else if (t2 >= 3) {
-    $$Object.dec_health(o1);
-    $$Object.dec_health(o2);
+    $$Object.decHealth(o1);
+    $$Object.decHealth(o2);
     return [
             undefined,
             undefined
           ];
   }
   if (o1.vel.x === 0) {
-    $$Object.rev_dir(o2, t2, s2);
+    $$Object.revDir(o2, t2, s2);
     return [
             undefined,
             undefined
           ];
   } else {
-    $$Object.dec_health(o2);
+    $$Object.decHealth(o2);
     return [
             undefined,
             undefined
@@ -204,14 +204,14 @@ function process_collision(dir, c1, c2, state) {
                 exit = 2;
                 if (exit === 2) {
                   if (dir !== 1) {
-                    $$Object.collide_block(dir, o1$1);
+                    $$Object.collideBlock(dir, o1$1);
                     return [
                             undefined,
                             undefined
                           ];
                   } else {
                     state.multiplier = 1;
-                    $$Object.collide_block(dir, o1$1);
+                    $$Object.collideBlock(dir, o1$1);
                     return [
                             undefined,
                             undefined
@@ -223,7 +223,7 @@ function process_collision(dir, c1, c2, state) {
                 if (typeof t === "number") {
                   if (t !== 1) {
                     if (t !== 4) {
-                      $$Object.collide_block(dir, o1$1);
+                      $$Object.collideBlock(dir, o1$1);
                       return [
                               undefined,
                               undefined
@@ -236,23 +236,23 @@ function process_collision(dir, c1, c2, state) {
                             ];
                     }
                   } else if (c1._0 === /* BigM */0) {
-                    $$Object.collide_block(dir, o1$1);
-                    $$Object.dec_health(o2$2);
+                    $$Object.collideBlock(dir, o1$1);
+                    $$Object.decHealth(o2$2);
                     return [
                             undefined,
                             undefined
                           ];
                   } else {
-                    $$Object.collide_block(dir, o1$1);
+                    $$Object.collideBlock(dir, o1$1);
                     return [
                             undefined,
                             undefined
                           ];
                   }
                 }
-                var updated_block = $$Object.evolve_block(o2$2);
-                var spawned_item = $$Object.spawn_above(o1$1.dir, o2$2, t._0);
-                $$Object.collide_block(dir, o1$1);
+                var updated_block = $$Object.evolveBlock(o2$2);
+                var spawned_item = $$Object.spawnAbove(o1$1.dir, o2$2, t._0);
+                $$Object.collideBlock(dir, o1$1);
                 return [
                         spawned_item,
                         updated_block
@@ -288,35 +288,35 @@ function process_collision(dir, c1, c2, state) {
                 if (t1 >= 3) {
                   if (typeof t2$1 === "number") {
                     if (t2$1 !== 1) {
-                      $$Object.rev_dir(o1$2, t1, s1);
+                      $$Object.revDir(o1$2, t1, s1);
                       return [
                               undefined,
                               undefined
                             ];
                     } else {
-                      $$Object.dec_health(o2$3);
-                      $$Object.reverse_left_right(o1$2);
+                      $$Object.decHealth(o2$3);
+                      $$Object.reverseLeftRight(o1$2);
                       return [
                               undefined,
                               undefined
                             ];
                     }
                   }
-                  var updated_block$1 = $$Object.evolve_block(o2$3);
-                  var spawned_item$1 = $$Object.spawn_above(o1$2.dir, o2$3, t2$1._0);
-                  $$Object.rev_dir(o1$2, t1, s1);
+                  var updated_block$1 = $$Object.evolveBlock(o2$3);
+                  var spawned_item$1 = $$Object.spawnAbove(o1$2.dir, o2$3, t2$1._0);
+                  $$Object.revDir(o1$2, t1, s1);
                   return [
                           updated_block$1,
                           spawned_item$1
                         ];
                 }
-                $$Object.rev_dir(o1$2, t1, s1);
+                $$Object.revDir(o1$2, t1, s1);
                 return [
                         undefined,
                         undefined
                       ];
               }
-              $$Object.collide_block(dir, o1$2);
+              $$Object.collideBlock(dir, o1$2);
               return [
                       undefined,
                       undefined
@@ -339,13 +339,13 @@ function process_collision(dir, c1, c2, state) {
                     ];
           case /* Block */3 :
               if (dir >= 2) {
-                $$Object.reverse_left_right(o2$4);
+                $$Object.reverseLeftRight(o2$4);
                 return [
                         undefined,
                         undefined
                       ];
               } else {
-                $$Object.collide_block(dir, o2$4);
+                $$Object.collideBlock(dir, o2$4);
                 return [
                         undefined,
                         undefined
@@ -363,14 +363,14 @@ function process_collision(dir, c1, c2, state) {
   }
   if (t2) {
     state.coins = state.coins + 1 | 0;
-    $$Object.dec_health(o2);
+    $$Object.decHealth(o2);
     update_score(state, 100);
     return [
             undefined,
             undefined
           ];
   } else {
-    $$Object.dec_health(o2);
+    $$Object.decHealth(o2);
     if (o1.health === 2) {
       
     } else {
@@ -388,9 +388,9 @@ function process_collision(dir, c1, c2, state) {
 }
 
 function broad_phase(collid, all_collids, state) {
-  var obj = $$Object.get_obj(collid);
+  var obj = $$Object.getObj(collid);
   return Belt_List.keep(all_collids, (function (_c) {
-                if (Viewport.in_viewport(state.vpt, obj.pos) || $$Object.is_player(collid)) {
+                if (Viewport.in_viewport(state.vpt, obj.pos) || $$Object.isPlayer(collid)) {
                   return true;
                 } else {
                   return Viewport.out_of_viewport_below(state.vpt, obj.pos.y);
@@ -408,7 +408,7 @@ function narrow_phase(c, cs, state) {
       return acc;
     }
     var h = cs$1._0;
-    var c_obj = $$Object.get_obj(c);
+    var c_obj = $$Object.getObj(c);
     var new_objs;
     if ($$Object.equals(c, h)) {
       new_objs = [
@@ -416,8 +416,8 @@ function narrow_phase(c, cs, state) {
         undefined
       ];
     } else {
-      var dir = $$Object.check_collision(c, h);
-      new_objs = dir !== undefined && $$Object.get_obj(h).id !== c_obj.id ? process_collision(dir, c, h, state) : [
+      var dir = $$Object.checkCollision(c, h);
+      new_objs = dir !== undefined && $$Object.getObj(h).id !== c_obj.id ? process_collision(dir, c, h, state) : [
           undefined,
           undefined
         ];
@@ -458,22 +458,22 @@ function check_collisions(collid, all_collids, state) {
 }
 
 function update_collidable(state, collid, all_collids) {
-  var obj = $$Object.get_obj(collid);
-  var spr = $$Object.get_sprite(collid);
+  var obj = $$Object.getObj(collid);
+  var spr = $$Object.getSprite(collid);
   obj.invuln = obj.invuln > 0 ? obj.invuln - 1 | 0 : 0;
-  var viewport_filter = Viewport.in_viewport(state.vpt, obj.pos) || $$Object.is_player(collid) || Viewport.out_of_viewport_below(state.vpt, obj.pos.y);
+  var viewport_filter = Viewport.in_viewport(state.vpt, obj.pos) || $$Object.isPlayer(collid) || Viewport.out_of_viewport_below(state.vpt, obj.pos.y);
   if (!(!obj.kill && viewport_filter)) {
     return /* [] */0;
   }
   obj.grounded = false;
-  $$Object.process_obj(obj, state.map);
+  $$Object.processObj(obj, state.map);
   var evolved = check_collisions(collid, all_collids, state);
   var vpt_adj_xy = Viewport.coord_to_viewport(state.vpt, obj.pos);
   Draw.render(spr, vpt_adj_xy.x, vpt_adj_xy.y);
   if (Keys.check_bbox_enabled(undefined)) {
     Draw.renderBbox(spr, vpt_adj_xy.x, vpt_adj_xy.y);
   }
-  if (obj.vel.x !== 0 || !$$Object.is_enemy(collid)) {
+  if (obj.vel.x !== 0 || !$$Object.isEnemy(collid)) {
     Sprite.update_animation(spr);
   }
   return evolved;
@@ -481,7 +481,7 @@ function update_collidable(state, collid, all_collids) {
 
 function run_update_collid(state, collid, all_collids) {
   if (collid.TAG) {
-    var obj = $$Object.get_obj(collid);
+    var obj = $$Object.getObj(collid);
     var evolved = update_collidable(state, collid, all_collids);
     if (!obj.kill) {
       collid_objs.contents = /* :: */{
@@ -496,11 +496,11 @@ function run_update_collid(state, collid, all_collids) {
   var o = collid._2;
   var keys = Keys.translate_keys(undefined);
   o.crouch = false;
-  var match = $$Object.update_player(o, keys);
+  var match = $$Object.updatePlayer(o, keys);
   var player;
   if (match !== undefined) {
     var new_spr = match[1];
-    $$Object.normalize_pos(o.pos, collid._1.params, new_spr.params);
+    $$Object.normalizePos(o.pos, collid._1.params, new_spr.params);
     player = {
       TAG: /* Player */0,
       _0: match[0],
@@ -541,7 +541,7 @@ function updateLoop(param) {
       ], Config.mapDim);
   var state = {
     bgd: Sprite.make_bgd(undefined),
-    vpt: Viewport.update(viewport, $$Object.get_obj(player).pos),
+    vpt: Viewport.update(viewport, $$Object.getObj(player).pos),
     map: Config.mapDim[1],
     score: 0,
     coins: 0,
@@ -583,7 +583,7 @@ function updateLoop(param) {
     var bgd_width = state.bgd.params.frameSize[0] | 0;
     Draw.drawBgd(state.bgd, Caml_int32.mod_(vpos_x_int, bgd_width));
     var player$1 = run_update_collid(state, player, objs);
-    if ($$Object.get_obj(player$1).kill === true) {
+    if ($$Object.getObj(player$1).kill === true) {
       var match$1 = state.status;
       if (typeof match$1 === "number") {
         state.status = /* Lost */{
@@ -594,7 +594,7 @@ function updateLoop(param) {
     }
     var state$1 = {
       bgd: state.bgd,
-      vpt: Viewport.update(state.vpt, $$Object.get_obj(player$1).pos),
+      vpt: Viewport.update(state.vpt, $$Object.getObj(player$1).pos),
       map: state.map,
       score: state.score,
       coins: state.coins,
