@@ -1,7 +1,5 @@
 open Actors;
 
-open Object;
-
 open Belt;
 
 // Note: Canvas is 512 by 256 (w*h) -> 32 by 16 blocks
@@ -239,11 +237,79 @@ let rec generateBlockLocs =
     generateBlockLocs(cbx, cby +. 1., acc);
   };
 
+type spawn_typ =
+  | SPlayer(pl_typ, player_typ)
+  | SEnemy(enemyTyp)
+  | SItem(item_typ)
+  | SBlock(blockTyp);
+
+let makeTypeToremove = (spawnable, dir: Actors.dir_1d) =>
+  switch (spawnable) {
+  | SPlayer(pt, st) => Sprite.make_player(pt, (st, dir))
+  | SEnemy(t) => Sprite.make_enemy((t, dir))
+  | SItem(t) => Sprite.make_item(t)
+  | SBlock(t) => Sprite.make_block(t)
+  };
+
+/*Make is the wrapper function to cycle through sprite animations*/
+let maketoRemove0 = (spawnable, dir) => {
+  let params = makeTypeToremove(spawnable, dir);
+  Sprite.make_from_params(params);
+};
+
+let makeTypeToremove =
+  fun
+  | SPlayer(_) => Object.make_player()
+  | SEnemy(t) => Object.make_enemy(t)
+  | SItem(t) => Object.make_item(t)
+  | SBlock(t) => Object.make_block(t);
+
+// create a new sprite and object from a spawnable object
+let makeToRemove = (~dir=Left, spawnable, x, y) => {
+  let spr = maketoRemove0(spawnable, dir);
+  let params = makeTypeToremove(spawnable);
+  let id = Object.new_id();
+  let obj = {
+    Object.params,
+    pos: {
+      x,
+      y,
+    },
+    vel: {
+      x: 0.0,
+      y: 0.0,
+    },
+    id,
+    jumping: false,
+    grounded: false,
+    dir,
+    invuln: 0,
+    kill: false,
+    health: 1,
+    crouch: false,
+    score: 0,
+  };
+  (spr, obj);
+};
+
+/*spawn returns a new collidable*/
+let spawnToRemove = (spawnable, x, y) => {
+  let (spr, obj) = makeToRemove(spawnable, x, y);
+  switch (spawnable) {
+  | SPlayer(typ, _) => Object.Player(typ, spr, obj)
+  | SEnemy(t) =>
+    Object.set_vel_to_speed(obj);
+    Enemy(t, spr, obj);
+  | SItem(t) => Item(t, spr, obj)
+  | SBlock(t) => Block(t, spr, obj)
+  };
+};
+
 // Generate the ending item panel at the end of the level. Games ends upon
 // collision with player.
-let generatePanel = (): collidable => {
+let generatePanel = (): Object.collidable => {
   let ob =
-    Object.spawn(
+    spawnToRemove(
       SBlock(Panel),
       Config.blockw *. 16. -. 256.,
       Config.blockh *. 16. *. 2. /. 3.,
@@ -274,11 +340,11 @@ let rec generateGround =
 // with the coordinates given from the objCoord list.
 let rec convertToBlockObj =
         (lst: list(blockCoord), context: Html.canvasRenderingContext2D)
-        : list(collidable) =>
+        : list(Object.collidable) =>
   switch (lst) {
   | [] => []
   | [(blockTyp, x, y), ...t] =>
-    let ob = Object.spawn(SBlock(blockTyp), x, y);
+    let ob = spawnToRemove(SBlock(blockTyp), x, y);
     [ob] @ convertToBlockObj(t, context);
   };
 
@@ -286,23 +352,23 @@ let rec convertToBlockObj =
 // with the coordinates given from the objCoord list.
 let rec convertToEnemyObj =
         (lst: list(enemyCoord), context: Html.canvasRenderingContext2D)
-        : list(collidable) =>
+        : list(Object.collidable) =>
   switch (lst) {
   | [] => []
   | [(enemyTyp, x, y), ...t] =>
-    let ob = Object.spawn(SEnemy(enemyTyp), x, y);
+    let ob = spawnToRemove(SEnemy(enemyTyp), x, y);
     [ob] @ convertToEnemyObj(t, context);
   };
 
 // Convert the list of coordinates into a list of Coin objects
 let rec convertToCoinObj =
         (lst: list(blockCoord), context: Html.canvasRenderingContext2D)
-        : list(collidable) =>
+        : list(Object.collidable) =>
   switch (lst) {
   | [] => []
   | [(_, x, y), ...t] =>
     let sitemTyp = Coin;
-    let ob = Object.spawn(SItem(sitemTyp), x, y);
+    let ob = spawnToRemove(SItem(sitemTyp), x, y);
     [ob] @ convertToCoinObj(t, context);
   };
 
@@ -310,7 +376,7 @@ let rec convertToCoinObj =
 // context. Arguments block width (blockw) and block height (blockh) are in
 // block form, not pixels.
 let generateHelper =
-    (context: Html.canvasRenderingContext2D): list(collidable) => {
+    (context: Html.canvasRenderingContext2D): list(Object.collidable) => {
   let blockLocs = generateBlockLocs(0., 0., [])->convertList->trimEdges;
   let objConvertedBlockLocs = convertToBlockObj(blockLocs, context);
   let groundBlocks = generateGround(0., []);
@@ -333,10 +399,10 @@ let generateHelper =
 // Main function called to procedurally generate the level map. w and h args
 // are in pixel form. Converts to block form to call generateHelper. Spawns
 // the list of collidables received from generateHelper to display on canvas.
-let generate = (): (collidable, list(collidable)) => {
+let generate = (): (Object.collidable, list(Object.collidable)) => {
   let initial = Html.performance.now(.);
   let collideList = generateHelper(Load.getContext());
-  let player = Object.spawn(SPlayer(SmallM, Standing), 100., 224.);
+  let player = spawnToRemove(SPlayer(SmallM, Standing), 100., 224.);
   let elapsed = Html.performance.now(.) -. initial;
   Js.log3(
     "generated",

@@ -4,6 +4,7 @@ import * as Load from "./Load.js";
 import * as Config from "./Config.js";
 import * as $$Object from "./Object.js";
 import * as Random from "bs-platform/lib/es6/random.js";
+import * as Sprite from "./Sprite.js";
 import * as Caml_obj from "bs-platform/lib/es6/caml_obj.js";
 import * as Belt_List from "bs-platform/lib/es6/belt_List.js";
 import * as Pervasives from "bs-platform/lib/es6/pervasives.js";
@@ -545,8 +546,115 @@ function generateBlockLocs(_cbx, _cby, _acc) {
   };
 }
 
+function makeTypeToremove(spawnable, dir) {
+  switch (spawnable.TAG | 0) {
+    case /* SPlayer */0 :
+        return Sprite.make_player(spawnable._0, [
+                    spawnable._1,
+                    dir
+                  ]);
+    case /* SEnemy */1 :
+        return Sprite.make_enemy([
+                    spawnable._0,
+                    dir
+                  ]);
+    case /* SItem */2 :
+        return Sprite.make_item(spawnable._0);
+    case /* SBlock */3 :
+        return Sprite.make_block(spawnable._0);
+    
+  }
+}
+
+function maketoRemove0(spawnable, dir) {
+  return Sprite.make_from_params(makeTypeToremove(spawnable, dir));
+}
+
+function makeTypeToremove$1(t) {
+  switch (t.TAG | 0) {
+    case /* SPlayer */0 :
+        return $$Object.make_player(undefined);
+    case /* SEnemy */1 :
+        return $$Object.make_enemy(t._0);
+    case /* SItem */2 :
+        return $$Object.make_item(t._0);
+    case /* SBlock */3 :
+        return $$Object.make_block(t._0);
+    
+  }
+}
+
+function makeToRemove(dirOpt, spawnable, x, y) {
+  var dir = dirOpt !== undefined ? dirOpt : /* Left */0;
+  var spr = maketoRemove0(spawnable, dir);
+  var params = makeTypeToremove$1(spawnable);
+  var id = $$Object.new_id(undefined);
+  var obj = {
+    params: params,
+    pos: {
+      x: x,
+      y: y
+    },
+    vel: {
+      x: 0.0,
+      y: 0.0
+    },
+    id: id,
+    jumping: false,
+    grounded: false,
+    dir: dir,
+    invuln: 0,
+    kill: false,
+    health: 1,
+    crouch: false,
+    score: 0
+  };
+  return [
+          spr,
+          obj
+        ];
+}
+
+function spawnToRemove(spawnable, x, y) {
+  var match = makeToRemove(undefined, spawnable, x, y);
+  var obj = match[1];
+  var spr = match[0];
+  switch (spawnable.TAG | 0) {
+    case /* SPlayer */0 :
+        return {
+                TAG: /* Player */0,
+                _0: spawnable._0,
+                _1: spr,
+                _2: obj
+              };
+    case /* SEnemy */1 :
+        $$Object.set_vel_to_speed(obj);
+        return {
+                TAG: /* Enemy */1,
+                _0: spawnable._0,
+                _1: spr,
+                _2: obj
+              };
+    case /* SItem */2 :
+        return {
+                TAG: /* Item */2,
+                _0: spawnable._0,
+                _1: spr,
+                _2: obj
+              };
+    case /* SBlock */3 :
+        return {
+                TAG: /* Block */3,
+                _0: spawnable._0,
+                _1: spr,
+                _2: obj
+              };
+    
+  }
+}
+
 function generatePanel(param) {
-  return $$Object.spawn({
+  return spawnToRemove({
               TAG: /* SBlock */3,
               _0: /* Panel */4
             }, Config.blockw * 16 - 256, Config.blockh * 16 * 2 / 3);
@@ -596,7 +704,7 @@ function convertToBlockObj(lst, context) {
     return /* [] */0;
   }
   var match = lst._0;
-  var ob = $$Object.spawn({
+  var ob = spawnToRemove({
         TAG: /* SBlock */3,
         _0: match[0]
       }, match[1], match[2]);
@@ -611,7 +719,7 @@ function convertToEnemyObj(lst, context) {
     return /* [] */0;
   }
   var match = lst._0;
-  var ob = $$Object.spawn({
+  var ob = spawnToRemove({
         TAG: /* SEnemy */1,
         _0: match[0]
       }, match[1], match[2]);
@@ -626,7 +734,7 @@ function convertToCoinObj(lst, context) {
     return /* [] */0;
   }
   var match = lst._0;
-  var ob = $$Object.spawn({
+  var ob = spawnToRemove({
         TAG: /* SItem */2,
         _0: /* Coin */1
       }, match[1], match[2]);
@@ -661,7 +769,7 @@ function generateHelper(context) {
 function generate(param) {
   var initial = performance.now();
   var collideList = generateHelper(Load.getContext(undefined));
-  var player = $$Object.spawn({
+  var player = spawnToRemove({
         TAG: /* SPlayer */0,
         _0: /* SmallM */1,
         _1: /* Standing */0
@@ -697,6 +805,10 @@ export {
   generateEnemies ,
   generateBlockEnemies ,
   generateBlockLocs ,
+  maketoRemove0 ,
+  makeTypeToremove$1 as makeTypeToremove,
+  makeToRemove ,
+  spawnToRemove ,
   generatePanel ,
   generateGround ,
   convertToBlockObj ,

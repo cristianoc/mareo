@@ -350,19 +350,10 @@ let make_particle =
     setupSprite("score.png", ~frameSize=(14., 9.), ~srcOffset=(13., 27.));
 
 /*Calls to set sprite for either big or small mario.*/
-let make_player = (pt, spr_type) =>
-  switch (pt) {
+let make_player = (plSize, spr_type) =>
+  switch (plSize) {
   | BigM => make_big_player(spr_type)
   | SmallM => make_small_player(spr_type)
-  };
-
-/*Calls to set sprites for each type of object.*/
-let make_type = (typ, dir: Actors.dir_1d) =>
-  switch (typ) {
-  | SPlayer(pt, st) => make_player(pt, (st, dir))
-  | SEnemy(t) => make_enemy((t, dir))
-  | SItem(t) => make_item(t)
-  | SBlock(t) => make_block(t)
   };
 
 /* Makes a sprite from provided [params]. */
@@ -370,12 +361,6 @@ let make_from_params = params => {
   let img = Html.createImg(Html.document);
   img.src = params.imgSrc;
   {params, img, frame: 0, ticks: 0};
-};
-
-/*Make is the wrapper function to cycle through sprite animations*/
-let make = (spawn, dir) => {
-  let params = make_type(spawn, dir);
-  make_from_params(params);
 };
 
 /* Make a background */

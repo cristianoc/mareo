@@ -54,29 +54,13 @@ function make_block(param) {
   return setup_obj(false, undefined, undefined);
 }
 
-function make_type(t) {
-  switch (t.TAG | 0) {
-    case /* SPlayer */0 :
-        return make_player(undefined);
-    case /* SEnemy */1 :
-        return make_enemy(t._0);
-    case /* SItem */2 :
-        return make_item(t._0);
-    case /* SBlock */3 :
-        return make_block(t._0);
-    
-  }
-}
-
 function new_id(param) {
   id_counter.contents = id_counter.contents + 1 | 0;
   return id_counter.contents;
 }
 
-function make(dirOpt, spawnable, x, y) {
+function make(dirOpt, spr, params, x, y) {
   var dir = dirOpt !== undefined ? dirOpt : /* Left */0;
-  var spr = Sprite.make(spawnable, dir);
-  var params = make_type(spawnable);
   var id = new_id(undefined);
   var obj = {
     params: params,
@@ -102,44 +86,6 @@ function make(dirOpt, spawnable, x, y) {
           spr,
           obj
         ];
-}
-
-function spawn(spawnable, x, y) {
-  var match = make(undefined, spawnable, x, y);
-  var obj = match[1];
-  var spr = match[0];
-  switch (spawnable.TAG | 0) {
-    case /* SPlayer */0 :
-        return {
-                TAG: /* Player */0,
-                _0: spawnable._0,
-                _1: spr,
-                _2: obj
-              };
-    case /* SEnemy */1 :
-        set_vel_to_speed(obj);
-        return {
-                TAG: /* Enemy */1,
-                _0: spawnable._0,
-                _1: spr,
-                _2: obj
-              };
-    case /* SItem */2 :
-        return {
-                TAG: /* Item */2,
-                _0: spawnable._0,
-                _1: spr,
-                _2: obj
-              };
-    case /* SBlock */3 :
-        return {
-                TAG: /* Block */3,
-                _0: spawnable._0,
-                _1: spr,
-                _2: obj
-              };
-    
-  }
 }
 
 function get_sprite(param) {
@@ -233,55 +179,26 @@ function update_player(player, keys) {
   var v = player.vel.x * 0.9;
   var vel_damped = Math.abs(v) < 0.1 ? 0 : v;
   player.vel.x = vel_damped;
-  var pl_typ = player.health <= 1 ? /* SmallM */1 : /* BigM */0;
-  if (!prev_jumping && player.jumping) {
+  var plSize = player.health <= 1 ? /* SmallM */1 : /* BigM */0;
+  var playerTyp = !prev_jumping && player.jumping ? /* Jumping */1 : (
+      prev_dir !== player.dir || prev_vx === 0 && Math.abs(player.vel.x) > 0 && !player.jumping ? /* Running */2 : (
+          prev_dir !== player.dir && player.jumping && prev_jumping ? /* Jumping */1 : (
+              player.vel.y === 0 && player.crouch ? /* Crouching */3 : (
+                  player.vel.y === 0 && player.vel.x === 0 ? /* Standing */0 : undefined
+                )
+            )
+        )
+    );
+  if (playerTyp !== undefined) {
     return [
-            pl_typ,
-            Sprite.make({
-                  TAG: /* SPlayer */0,
-                  _0: pl_typ,
-                  _1: /* Jumping */1
-                }, player.dir)
+            plSize,
+            Sprite.make_from_params(Sprite.make_player(plSize, [
+                      playerTyp,
+                      player.dir
+                    ]))
           ];
-  } else if (prev_dir !== player.dir || prev_vx === 0 && Math.abs(player.vel.x) > 0 && !player.jumping) {
-    return [
-            pl_typ,
-            Sprite.make({
-                  TAG: /* SPlayer */0,
-                  _0: pl_typ,
-                  _1: /* Running */2
-                }, player.dir)
-          ];
-  } else if (prev_dir !== player.dir && player.jumping && prev_jumping) {
-    return [
-            pl_typ,
-            Sprite.make({
-                  TAG: /* SPlayer */0,
-                  _0: pl_typ,
-                  _1: /* Jumping */1
-                }, player.dir)
-          ];
-  } else if (player.vel.y === 0 && player.crouch) {
-    return [
-            pl_typ,
-            Sprite.make({
-                  TAG: /* SPlayer */0,
-                  _0: pl_typ,
-                  _1: /* Crouching */3
-                }, player.dir)
-          ];
-  } else if (player.vel.y === 0 && player.vel.x === 0) {
-    return [
-            pl_typ,
-            Sprite.make({
-                  TAG: /* SPlayer */0,
-                  _0: pl_typ,
-                  _1: /* Standing */0
-                }, player.dir)
-          ];
-  } else {
-    return ;
   }
+  
 }
 
 function update_vel(obj) {
@@ -350,10 +267,10 @@ function evolve_enemy(player_dir, typ, spr, obj) {
         obj.kill = true;
         return ;
     case /* GKoopa */1 :
-        var match = make(obj.dir, {
-              TAG: /* SEnemy */1,
-              _0: /* GKoopaShell */3
-            }, obj.pos.x, obj.pos.y);
+        var match = make(obj.dir, Sprite.make_from_params(Sprite.make_enemy([
+                      /* GKoopaShell */3,
+                      obj.dir
+                    ])), make_enemy(/* GKoopaShell */3), obj.pos.x, obj.pos.y);
         var new_obj = match[1];
         var new_spr = match[0];
         normalize_pos(new_obj.pos, spr.params, new_spr.params);
@@ -364,18 +281,15 @@ function evolve_enemy(player_dir, typ, spr, obj) {
                 _2: new_obj
               };
     case /* RKoopa */2 :
-        var match$1 = make(obj.dir, {
-              TAG: /* SEnemy */1,
-              _0: /* RKoopaShell */4
-            }, obj.pos.x, obj.pos.y);
-        var new_obj$1 = match$1[1];
-        var new_spr$1 = match$1[0];
-        normalize_pos(new_obj$1.pos, spr.params, new_spr$1.params);
+        var match$1 = make(obj.dir, Sprite.make_from_params(Sprite.make_enemy([
+                      /* RKoopaShell */4,
+                      obj.dir
+                    ])), make_enemy(/* RKoopaShell */4), obj.pos.x, obj.pos.y);
         return {
                 TAG: /* Enemy */1,
                 _0: /* RKoopaShell */4,
-                _1: new_spr$1,
-                _2: new_obj$1
+                _1: match$1[0],
+                _2: match$1[1]
               };
     case /* GKoopaShell */3 :
     case /* RKoopaShell */4 :
@@ -413,10 +327,7 @@ function dec_health(obj) {
 
 function evolve_block(obj) {
   dec_health(obj);
-  var match = make(undefined, {
-        TAG: /* SBlock */3,
-        _0: /* QBlockUsed */0
-      }, obj.pos.x, obj.pos.y);
+  var match = make(obj.dir, Sprite.make_from_params(Sprite.make_block(/* QBlockUsed */0)), make_block(/* QBlockUsed */0), obj.pos.x, obj.pos.y);
   return {
           TAG: /* Block */3,
           _0: /* QBlockUsed */0,
@@ -425,15 +336,19 @@ function evolve_block(obj) {
         };
 }
 
-function spawn_above(player_dir, obj, typ) {
-  var item = spawn({
-        TAG: /* SItem */2,
-        _0: typ
-      }, obj.pos.x, obj.pos.y);
-  var item_obj = item._2;
-  item_obj.pos.y = item_obj.pos.y - item._1.params.frameSize[1];
-  item_obj.dir = player_dir ? /* Left */0 : /* Right */1;
-  set_vel_to_speed(item_obj);
+function spawn_above(player_dir, obj, itemTyp) {
+  var match = make(undefined, Sprite.make_from_params(Sprite.make_item(itemTyp)), make_item(itemTyp), obj.pos.x, obj.pos.y);
+  var obj$1 = match[1];
+  var spr = match[0];
+  var item = {
+    TAG: /* Item */2,
+    _0: itemTyp,
+    _1: spr,
+    _2: obj$1
+  };
+  obj$1.pos.y = obj$1.pos.y - spr.params.frameSize[1];
+  obj$1.dir = player_dir ? /* Left */0 : /* Right */1;
+  set_vel_to_speed(obj$1);
   return item;
 }
 
@@ -653,10 +568,8 @@ export {
   make_item ,
   make_enemy ,
   make_block ,
-  make_type ,
   new_id ,
   make ,
-  spawn ,
   get_sprite ,
   get_obj ,
   is_player ,

@@ -96,13 +96,6 @@ let make_block =
   | Panel => setup_obj(~g=false, ())
   | Ground => setup_obj(~g=false, ());
 
-let make_type =
-  fun
-  | SPlayer(_) => make_player()
-  | SEnemy(t) => make_enemy(t)
-  | SItem(t) => make_item(t)
-  | SBlock(t) => make_block(t);
-
 /*Used in object creation and to compare two objects.*/
 let new_id = () => {
   id_counter := id_counter^ + 1;
@@ -110,9 +103,7 @@ let new_id = () => {
 };
 
 // create a new sprite and object from a spawnable object
-let make = (~dir=Left, spawnable, x, y) => {
-  let spr = Sprite.make(spawnable, dir);
-  let params = make_type(spawnable);
+let make = (~dir=Left, spr, params, x, y) => {
   let id = new_id();
   let obj = {
     params,
@@ -135,19 +126,6 @@ let make = (~dir=Left, spawnable, x, y) => {
     score: 0,
   };
   (spr, obj);
-};
-
-/*spawn returns a new collidable*/
-let spawn = (spawnable, x, y) => {
-  let (spr, obj) = make(spawnable, x, y);
-  switch (spawnable) {
-  | SPlayer(typ, _) => Player(typ, spr, obj)
-  | SEnemy(t) =>
-    set_vel_to_speed(obj);
-    Enemy(t, spr, obj);
-  | SItem(t) => Item(t, spr, obj)
-  | SBlock(t) => Block(t, spr, obj)
-  };
 };
 
 /*Helper methods for getting sprites and objects from their collidables*/
@@ -239,26 +217,37 @@ let update_player = (player, keys) => {
       v;
     };
   player.vel.x = vel_damped;
-  let pl_typ =
+  let plSize =
     if (player.health <= 1) {
       SmallM;
     } else {
       BigM;
     };
-  if (!prev_jumping && player.jumping) {
-    Some((pl_typ, Sprite.make(SPlayer(pl_typ, Jumping), player.dir)));
-  } else if (prev_dir != player.dir
-             || (prev_vx == 0. && abs_float(player.vel.x) > 0.)
-             && !player.jumping) {
-    Some((pl_typ, Sprite.make(SPlayer(pl_typ, Running), player.dir)));
-  } else if (prev_dir != player.dir && player.jumping && prev_jumping) {
-    Some((pl_typ, Sprite.make(SPlayer(pl_typ, Jumping), player.dir)));
-  } else if (player.vel.y == 0. && player.crouch) {
-    Some((pl_typ, Sprite.make(SPlayer(pl_typ, Crouching), player.dir)));
-  } else if (player.vel.y == 0. && player.vel.x == 0.) {
-    Some((pl_typ, Sprite.make(SPlayer(pl_typ, Standing), player.dir)));
-  } else {
-    None;
+
+  let playerTyp =
+    if (!prev_jumping && player.jumping) {
+      Some(Jumping);
+    } else if (prev_dir != player.dir
+               || (prev_vx == 0. && abs_float(player.vel.x) > 0.)
+               && !player.jumping) {
+      Some(Running);
+    } else if (prev_dir != player.dir && player.jumping && prev_jumping) {
+      Some(Jumping);
+    } else if (player.vel.y == 0. && player.crouch) {
+      Some(Crouching);
+    } else if (player.vel.y == 0. && player.vel.x == 0.) {
+      Some(Standing);
+    } else {
+      None;
+    };
+  switch (playerTyp) {
+  | Some(playerTyp) =>
+    Some((
+      plSize,
+      Sprite.make_player(plSize, (playerTyp, player.dir))
+      ->Sprite.make_from_params,
+    ))
+  | None => None
   };
 };
 
@@ -319,13 +308,24 @@ let evolve_enemy = (player_dir, typ, spr: Sprite.sprite, obj) =>
   switch (typ) {
   | GKoopa =>
     let (new_spr, new_obj) =
-      make(~dir=obj.dir, SEnemy(GKoopaShell), obj.pos.x, obj.pos.y);
+      make(
+        ~dir=obj.dir,
+        Sprite.make_enemy((GKoopaShell, obj.dir))->Sprite.make_from_params,
+        make_enemy(GKoopaShell),
+        obj.pos.x,
+        obj.pos.y,
+      );
     normalize_pos(new_obj.pos, spr.params, new_spr.params);
     Some(Enemy(GKoopaShell, new_spr, new_obj));
   | RKoopa =>
     let (new_spr, new_obj) =
-      make(~dir=obj.dir, SEnemy(RKoopaShell), obj.pos.x, obj.pos.y);
-    normalize_pos(new_obj.pos, spr.params, new_spr.params);
+      make(
+        ~dir=obj.dir,
+        Sprite.make_enemy((RKoopaShell, obj.dir))->Sprite.make_from_params,
+        make_enemy(RKoopaShell),
+        obj.pos.x,
+        obj.pos.y,
+      );
     Some(Enemy(RKoopaShell, new_spr, new_obj));
   | GKoopaShell
   | RKoopaShell =>
@@ -362,13 +362,29 @@ let dec_health = obj => {
 /*Used for deleting a block and replacing it with a used block*/
 let evolve_block = obj => {
   dec_health(obj);
-  let (new_spr, new_obj) = make(SBlock(QBlockUsed), obj.pos.x, obj.pos.y);
+  let (new_spr, new_obj) =
+    make(
+      ~dir=obj.dir,
+      Sprite.make_block(QBlockUsed)->Sprite.make_from_params,
+      make_block(QBlockUsed),
+      obj.pos.x,
+      obj.pos.y,
+    );
   Block(QBlockUsed, new_spr, new_obj);
 };
 
 // Used for spawning items above question mark blocks
-let spawn_above = (player_dir, obj, typ) => {
-  let item = spawn(SItem(typ), obj.pos.x, obj.pos.y);
+let spawn_above = (player_dir, obj, itemTyp) => {
+  let item = {
+    let (spr, obj) =
+      make(
+        Sprite.make_item(itemTyp)->Sprite.make_from_params,
+        make_item(itemTyp),
+        obj.pos.x,
+        obj.pos.y,
+      );
+    Item(itemTyp, spr, obj);
+  };
   let item_obj = get_obj(item);
   item_obj.pos.y = item_obj.pos.y -. snd(get_sprite(item).params.frameSize);
   item_obj.dir = opposite_dir(player_dir);

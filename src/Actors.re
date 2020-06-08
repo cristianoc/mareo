@@ -61,9 +61,3 @@ type part_typ =
   | Score2000
   | Score4000
   | Score8000;
-
-type spawn_typ =
-  | SPlayer(pl_typ, player_typ)
-  | SEnemy(enemyTyp)
-  | SItem(item_typ)
-  | SBlock(blockTyp);

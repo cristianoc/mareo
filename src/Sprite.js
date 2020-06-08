@@ -523,31 +523,11 @@ function make_particle(param) {
   }
 }
 
-function make_player(pt, spr_type) {
-  if (pt) {
+function make_player(plSize, spr_type) {
+  if (plSize) {
     return make_small_player(spr_type);
   } else {
     return make_big_player(spr_type);
-  }
-}
-
-function make_type(typ, dir) {
-  switch (typ.TAG | 0) {
-    case /* SPlayer */0 :
-        return make_player(typ._0, [
-                    typ._1,
-                    dir
-                  ]);
-    case /* SEnemy */1 :
-        return make_enemy([
-                    typ._0,
-                    dir
-                  ]);
-    case /* SItem */2 :
-        return make_item(typ._0);
-    case /* SBlock */3 :
-        return make_block(typ._0);
-    
   }
 }
 
@@ -560,10 +540,6 @@ function make_from_params(params) {
           ticks: 0,
           img: img
         };
-}
-
-function make(spawn, dir) {
-  return make_from_params(make_type(spawn, dir));
 }
 
 function make_bgd(param) {
@@ -611,9 +587,7 @@ export {
   make_item ,
   make_block ,
   make_player ,
-  make_type ,
   make_from_params ,
-  make ,
   make_bgd ,
   make_particle$1 as make_particle,
   transform_enemy ,
