@@ -4,7 +4,6 @@ import * as Load from "./Load.js";
 import * as Config from "./Config.js";
 import * as $$Object from "./Object.js";
 import * as Random from "bs-platform/lib/es6/random.js";
-import * as Caml_obj from "bs-platform/lib/es6/caml_obj.js";
 import * as Belt_List from "bs-platform/lib/es6/belt_List.js";
 import * as Pervasives from "bs-platform/lib/es6/pervasives.js";
 
@@ -32,7 +31,8 @@ function memPos(checkpos, _objs) {
     if (!objs) {
       return false;
     }
-    if (Caml_obj.caml_equal(checkpos, objs._0[1])) {
+    var pos = objs._0[1];
+    if (checkpos.x === pos.x && checkpos.y === pos.y) {
       return true;
     }
     _objs = objs._1;

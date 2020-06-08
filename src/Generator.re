@@ -23,7 +23,7 @@ let rec memPos = (checkpos: Actors.xy, objs: list(_)): bool =>
   switch (objs) {
   | [] => false
   | [(_, pos), ...t] =>
-    if (checkpos == pos) {
+    if (checkpos.x == pos.x && checkpos.y == pos.y) {
       true;
     } else {
       memPos(checkpos, t);
