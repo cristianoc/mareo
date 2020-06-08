@@ -1,5 +1,6 @@
 
 
+import * as List from "bs-platform/lib/es6/list.js";
 import * as Load from "./Load.js";
 import * as Config from "./Config.js";
 import * as $$Object from "./Object.js";
@@ -762,6 +763,7 @@ function generateHelper(blockw, blockh, context) {
 }
 
 function generate(param) {
+  var initial = performance.now();
   var blockw = Config.levelWidth / 16;
   var blockh = Config.levelHeight / 16 - 1;
   var collideList = generateHelper(blockw, blockh, Load.getContext(undefined));
@@ -773,6 +775,8 @@ function generate(param) {
         x: 100,
         y: 224
       });
+  var elapsed = performance.now() - initial;
+  console.log("generated", List.length(collideList), "objects in " + (elapsed.toString() + " milliseconds"));
   return [
           player,
           collideList

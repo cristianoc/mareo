@@ -14,7 +14,7 @@ let render = (sprite, (posx, posy)) => {
   let (sw, sh) = sprite.params.frameSize;
   let (dx, dy) = (posx, posy);
   let (dw, dh) = sprite.params.frameSize;
-  let sx = sx +. float_of_int(sprite.frame^) *. sw;
+  let sx = sx +. float_of_int(sprite.frame) *. sw;
   let context = Load.getContext();
   context.drawImage(. sprite.img, sx, sy, sw, sh, dx, dy, dw, dh);
 };

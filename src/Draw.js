@@ -15,7 +15,7 @@ function render(sprite, param) {
   var match$1 = sprite.params.frameSize;
   var sw = match$1[0];
   var match$2 = sprite.params.frameSize;
-  var sx = match[0] + sprite.frame.contents * sw;
+  var sx = match[0] + sprite.frame * sw;
   var context = Load.getContext(undefined);
   return context.drawImage(sprite.img, sx, match[1], sw, match$1[1], param[0], param[1], match$2[0], match$2[1]);
 }

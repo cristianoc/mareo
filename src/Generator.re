@@ -383,10 +383,17 @@ let generateHelper =
 // are in pixel form. Converts to block form to call generateHelper. Spawns
 // the list of collidables received from generateHelper to display on canvas.
 let generate = (): (collidable, list(collidable)) => {
+  let initial = Html.performance.now(.);
   let blockw = Config.levelWidth /. 16.;
   let blockh = Config.levelHeight /. 16. -. 1.;
   let collideList = generateHelper(blockw, blockh, Load.getContext());
   let player = Object.spawn(SPlayer(SmallM, Standing), {x: 100., y: 224.});
+  let elapsed = Html.performance.now(.) -. initial;
+  Js.log3(
+    "generated",
+    collideList |> List.length,
+    "objects in " ++ Js.Float.toString(elapsed) ++ " milliseconds",
+  );
   (player, collideList);
 };
 

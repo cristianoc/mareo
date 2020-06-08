@@ -14,8 +14,8 @@ type sprite_params = {
 
 type sprite = {
   mutable params: sprite_params,
-  frame: ref(int),
-  ticks: ref(int),
+  mutable frame: int,
+  mutable ticks: int,
   mutable img: Html.imageElement,
 };
 
@@ -369,7 +369,7 @@ let make_type = (typ, dir: Actors.dir_1d) =>
 let make_from_params = params => {
   let img = Html.createImg(Html.document);
   img.src = params.imgSrc;
-  {params, img, frame: ref(0), ticks: ref(0)};
+  {params, img, frame: 0, ticks: 0};
 };
 
 /*Make is the wrapper function to cycle through sprite animations*/
@@ -403,11 +403,11 @@ let transform_enemy = (enemy_typ, spr, dir) => {
 /*update_animation is the main method to cycle through sprite animations*/
 let update_animation = (spr: sprite) => {
   /* Only advance frame when ticked */
-  let curr_ticks = spr.ticks^;
+  let curr_ticks = spr.ticks;
   if (curr_ticks >= spr.params.maxTicks) {
-    spr.ticks := 0;
-    spr.frame := [@doesNotRaise] ((spr.frame^ + 1) mod spr.params.maxFrames);
+    spr.ticks = 0;
+    spr.frame = [@doesNotRaise] ((spr.frame + 1) mod spr.params.maxFrames);
   } else {
-    spr.ticks := curr_ticks + 1;
+    spr.ticks = curr_ticks + 1;
   };
 };

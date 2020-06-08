@@ -556,12 +556,8 @@ function make_from_params(params) {
   img.src = params.imgSrc;
   return {
           params: params,
-          frame: {
-            contents: 0
-          },
-          ticks: {
-            contents: 0
-          },
+          frame: 0,
+          ticks: 0,
           img: img
         };
 }
@@ -597,12 +593,12 @@ function transform_enemy(enemy_typ, spr, dir) {
 }
 
 function update_animation(spr) {
-  var curr_ticks = spr.ticks.contents;
+  var curr_ticks = spr.ticks;
   if (curr_ticks >= spr.params.maxTicks) {
-    spr.ticks.contents = 0;
-    spr.frame.contents = Caml_int32.mod_(spr.frame.contents + 1 | 0, spr.params.maxFrames);
+    spr.ticks = 0;
+    spr.frame = Caml_int32.mod_(spr.frame + 1 | 0, spr.params.maxFrames);
   } else {
-    spr.ticks.contents = curr_ticks + 1 | 0;
+    spr.ticks = curr_ticks + 1 | 0;
   }
   
 }
