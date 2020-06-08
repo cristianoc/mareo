@@ -539,7 +539,7 @@ function makeFromParams(params) {
         };
 }
 
-function make_bgd(param) {
+function makeBgd(param) {
   return makeFromParams(setupSprite(undefined, undefined, [
                   512,
                   256
@@ -549,11 +549,11 @@ function make_bgd(param) {
                 ], "bgd-1.png"));
 }
 
-function make_particle(ptyp) {
+function makeParticle$1(ptyp) {
   return makeFromParams(makeParticle(ptyp));
 }
 
-function transform_enemy(enemy_typ, spr, dir) {
+function transformEnemy(enemy_typ, spr, dir) {
   var params = makeEnemy(enemy_typ, dir);
   var img = document.createElement("img");
   img.src = params.imgSrc;
@@ -562,7 +562,7 @@ function transform_enemy(enemy_typ, spr, dir) {
   
 }
 
-function update_animation(spr) {
+function updateAnimation(spr) {
   var curr_ticks = spr.ticks;
   if (curr_ticks >= spr.params.maxTicks) {
     spr.ticks = 0;
@@ -580,13 +580,12 @@ export {
   makeEnemy ,
   makeItem ,
   makeBlock ,
-  makeParticle ,
   makePlayer ,
   makeFromParams ,
-  make_bgd ,
-  make_particle ,
-  transform_enemy ,
-  update_animation ,
+  makeBgd ,
+  makeParticle$1 as makeParticle,
+  transformEnemy ,
+  updateAnimation ,
   
 }
 /* No side effect */

@@ -2,35 +2,28 @@
 
 import * as Sprite from "./Sprite.js";
 
-function pair_to_xy(pair) {
+function pairToXy(pair) {
   return {
           x: pair[0],
           y: pair[1]
         };
 }
 
-function make_params(sprite, lifetime) {
+function makeParams(sprite, lifetime) {
   return {
           sprite: sprite,
           lifetime: lifetime
         };
 }
 
-function make_type(typ) {
-  if (typ === 2 || typ === 1) {
-    return {
-            sprite: Sprite.make_particle(typ),
-            lifetime: 300
-          };
-  } else {
-    return {
-            sprite: Sprite.make_particle(typ),
-            lifetime: 30
-          };
-  }
+function makeType(typ) {
+  return {
+          sprite: Sprite.makeParticle(typ),
+          lifetime: typ === 2 || typ === 1 ? 300 : 30
+        };
 }
 
-function make(velOpt, accOpt, part_type, pos) {
+function make(velOpt, accOpt, partType, pos) {
   var vel = velOpt !== undefined ? velOpt : [
       0,
       0
@@ -39,10 +32,10 @@ function make(velOpt, accOpt, part_type, pos) {
       0,
       0
     ];
-  var params = make_type(part_type);
-  var pos$1 = pair_to_xy(pos);
-  var vel$1 = pair_to_xy(vel);
-  var acc$1 = pair_to_xy(acc);
+  var params = makeType(partType);
+  var pos$1 = pairToXy(pos);
+  var vel$1 = pairToXy(vel);
+  var acc$1 = pairToXy(acc);
   return {
           params: params,
           pos: pos$1,
@@ -101,9 +94,9 @@ function $$process(part) {
 }
 
 export {
-  pair_to_xy ,
-  make_params ,
-  make_type ,
+  pairToXy ,
+  makeParams ,
+  makeType ,
   make ,
   make_score ,
   update_vel ,

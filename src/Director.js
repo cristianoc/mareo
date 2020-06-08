@@ -474,7 +474,7 @@ function update_collidable(state, collid, all_collids) {
     Draw.renderBbox(spr, vpt_adj_xy.x, vpt_adj_xy.y);
   }
   if (obj.vel.x !== 0 || !$$Object.isEnemy(collid)) {
-    Sprite.update_animation(spr);
+    Sprite.updateAnimation(spr);
   }
   return evolved;
 }
@@ -540,7 +540,7 @@ function updateLoop(param) {
         cheight
       ], Config.mapDim);
   var state = {
-    bgd: Sprite.make_bgd(undefined),
+    bgd: Sprite.makeBgd(undefined),
     vpt: Viewport.update(viewport, $$Object.getObj(player).pos),
     map: Config.mapDim[1],
     score: 0,

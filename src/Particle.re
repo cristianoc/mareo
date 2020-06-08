@@ -15,33 +15,36 @@ type particle = {
 };
 
 /* Converts an x,y [pair] to an Actors.xy record */
-let pair_to_xy = pair => {x: fst(pair), y: snd(pair)};
+let pairToXy = pair => {x: fst(pair), y: snd(pair)};
 
-/* Function wrapper to assist in generating the template paramss for a
- * particle. */
-let make_params = (sprite, lifetime) => {sprite, lifetime};
+// Function wrapper to assist in generating the template paramss for a
+// particle.
+let makeParams = (sprite, lifetime) => {sprite, lifetime};
 
 /* Generate the template for a specific particle type */
-let make_type = typ =>
-  switch (typ) {
-  | GoombaSquish as t => make_params(Sprite.make_particle(t), 30)
-  | BrickChunkL as t => make_params(Sprite.make_particle(t), 300)
-  | BrickChunkR as t => make_params(Sprite.make_particle(t), 300)
-  | Score100 as t => make_params(Sprite.make_particle(t), 30)
-  | Score200 as t => make_params(Sprite.make_particle(t), 30)
-  | Score400 as t => make_params(Sprite.make_particle(t), 30)
-  | Score800 as t => make_params(Sprite.make_particle(t), 30)
-  | Score1000 as t => make_params(Sprite.make_particle(t), 30)
-  | Score2000 as t => make_params(Sprite.make_particle(t), 30)
-  | Score4000 as t => make_params(Sprite.make_particle(t), 30)
-  | Score8000 as t => make_params(Sprite.make_particle(t), 30)
-  };
+let makeType = typ =>
+  makeParams(
+    Sprite.makeParticle(typ),
+    switch (typ) {
+    | BrickChunkL
+    | BrickChunkR => 300
+    | GoombaSquish
+    | Score100
+    | Score200
+    | Score400
+    | Score800
+    | Score1000
+    | Score2000
+    | Score4000
+    | Score8000 => 30
+    },
+  );
 
-let make = (~vel=(0., 0.), ~acc=(0., 0.), part_type, pos) => {
-  let params = make_type(part_type);
-  let pos = pair_to_xy(pos)
-  and vel = pair_to_xy(vel)
-  and acc = pair_to_xy(acc);
+let make = (~vel=(0., 0.), ~acc=(0., 0.), partType, pos) => {
+  let params = makeType(partType);
+  let pos = pairToXy(pos)
+  and vel = pairToXy(vel)
+  and acc = pairToXy(acc);
   {params, pos, vel, acc, kill: false, life: params.lifetime};
 };
 

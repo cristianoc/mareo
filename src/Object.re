@@ -330,7 +330,7 @@ let evolveEnemy = (player_dir, typ, spr: Sprite.t, obj) =>
 let revDir = (o, t, s: Sprite.t) => {
   reverseLeftRight(o);
   let old_params = s.params;
-  Sprite.transform_enemy(t, s, o.dir);
+  Sprite.transformEnemy(t, s, o.dir);
   normalizePos(o.pos, old_params, s.params);
 };
 

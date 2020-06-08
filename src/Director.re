@@ -348,7 +348,7 @@ let update_collidable = (state, collid: Object.collidable, all_collids) => {
       Draw.renderBbox(spr, vpt_adj_xy.x, vpt_adj_xy.y);
     };
     if (obj.vel.x != 0. || !Object.isEnemy(collid)) {
-      Sprite.update_animation(spr);
+      Sprite.updateAnimation(spr);
     };
     evolved;
   } else {
@@ -410,7 +410,7 @@ let rec updateLoop = ((player, objs)) => {
   let cheight = float_of_int(canvas.height) /. Config.scale;
   let viewport = Viewport.make((cwidth, cheight), Config.mapDim);
   let state = {
-    bgd: Sprite.make_bgd(),
+    bgd: Sprite.makeBgd(),
     vpt: Viewport.update(viewport, Object.getObj(player).pos),
     score: 0,
     coins: 0,

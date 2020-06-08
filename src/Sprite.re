@@ -363,21 +363,21 @@ let makeFromParams = params => {
   {params, img, frame: 0, ticks: 0};
 };
 
-/* Make a background */
-let make_bgd = () => {
+// Make a background
+let makeBgd = () => {
   let params =
     setupSprite("bgd-1.png", ~frameSize=(512., 256.), ~srcOffset=(0., 0.));
   makeFromParams(params);
 };
 
-/* Make a particle from the given particle type */
-let make_particle = ptyp => {
+// Make a particle from the given particle type
+let makeParticle = ptyp => {
   let params = makeParticle(ptyp);
   makeFromParams(params);
 };
 
-/*Transform_enemy is used in order to switch the direction an enemy faces.*/
-let transform_enemy = (enemy_typ, spr, dir) => {
+// used in order to switch the direction an enemy faces
+let transformEnemy = (enemy_typ, spr, dir) => {
   let params = makeEnemy(enemy_typ, dir);
   let img = Html.createImg(Html.document);
   img.src = params.imgSrc;
@@ -385,8 +385,8 @@ let transform_enemy = (enemy_typ, spr, dir) => {
   spr.img = img;
 };
 
-/*update_animation is the main method to cycle through sprite animations*/
-let update_animation = (spr: t) => {
+// main method to cycle through sprite animations
+let updateAnimation = (spr: t) => {
   /* Only advance frame when ticked */
   let curr_ticks = spr.ticks;
   if (curr_ticks >= spr.params.maxTicks) {

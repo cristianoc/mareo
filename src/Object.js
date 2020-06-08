@@ -299,7 +299,7 @@ function evolveEnemy(player_dir, typ, spr, obj) {
 function revDir(o, t, s) {
   reverseLeftRight(o);
   var old_params = s.params;
-  Sprite.transform_enemy(t, s, o.dir);
+  Sprite.transformEnemy(t, s, o.dir);
   return normalizePos(o.pos, old_params, s.params);
 }
 
