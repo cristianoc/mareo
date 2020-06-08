@@ -17,3 +17,19 @@ let restartAfter = 5;
 let root_dir = "sprites/";
 
 let scale = 1.;
+
+let friction = 0.9;
+
+let gravity = 0.2;
+
+let max_y_vel = 4.5;
+
+let player_speed = 2.8;
+
+let player_jump = 5.7;
+
+let player_max_jump = (-6.);
+
+let dampen_jump = 4.;
+
+let invuln = 60;

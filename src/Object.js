@@ -1,5 +1,6 @@
 
 
+import * as Config from "./Config.js";
 import * as Sprite from "./Sprite.js";
 import * as Particle from "./Particle.js";
 import * as Belt_List from "bs-platform/lib/es6/belt_List.js";
@@ -31,7 +32,7 @@ function set_vel_to_speed(obj) {
 }
 
 function make_player(param) {
-  return setup_obj(undefined, 2.8, undefined);
+  return setup_obj(undefined, Config.player_speed, undefined);
 }
 
 function make_item(param) {
@@ -142,7 +143,7 @@ function update_player_keys(player, controls) {
         if (!player.jumping && player.grounded) {
           player.jumping = true;
           player.grounded = false;
-          player.vel.y = Caml_primitive.caml_float_max(player.vel.y - (5.7 + Math.abs(player.vel.x) * 0.25), -6);
+          player.vel.y = Caml_primitive.caml_float_max(player.vel.y - (Config.player_jump + Math.abs(player.vel.x) * 0.25), Config.player_max_jump);
           return ;
         } else {
           return ;
@@ -175,7 +176,7 @@ function update_player(player, keys) {
   Belt_List.forEach(keys, (function (param) {
           return update_player_keys(player, param);
         }));
-  var v = player.vel.x * 0.9;
+  var v = player.vel.x * Config.friction;
   var vel_damped = Math.abs(v) < 0.1 ? 0 : v;
   player.vel.x = vel_damped;
   var plSize = player.health <= 1 ? /* SmallM */1 : /* BigM */0;
@@ -205,7 +206,7 @@ function update_vel(obj) {
     obj.vel.y = 0;
     return ;
   } else if (obj.params.has_gravity) {
-    obj.vel.y = Caml_primitive.caml_float_min(obj.vel.y + 0.2 + Math.abs(obj.vel.y) * 0.01, 4.5);
+    obj.vel.y = Caml_primitive.caml_float_min(obj.vel.y + Config.gravity + Math.abs(obj.vel.y) * 0.01, Config.max_y_vel);
     return ;
   } else {
     return ;
@@ -535,31 +536,7 @@ function kill(collid) {
   }
 }
 
-var friction = 0.9;
-
-var gravity = 0.2;
-
-var max_y_vel = 4.5;
-
-var player_speed = 2.8;
-
-var player_jump = 5.7;
-
-var player_max_jump = -6;
-
-var dampen_jump = 4;
-
-var invuln = 60;
-
 export {
-  friction ,
-  gravity ,
-  max_y_vel ,
-  player_speed ,
-  player_jump ,
-  player_max_jump ,
-  dampen_jump ,
-  invuln ,
   id_counter ,
   setup_obj ,
   set_vel_to_speed ,

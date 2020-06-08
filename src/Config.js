@@ -31,6 +31,22 @@ var root_dir = "sprites/";
 
 var scale = 1;
 
+var friction = 0.9;
+
+var gravity = 0.2;
+
+var max_y_vel = 4.5;
+
+var player_speed = 2.8;
+
+var player_jump = 5.7;
+
+var player_max_jump = -6;
+
+var dampen_jump = 4;
+
+var invuln = 60;
+
 export {
   canvasId ,
   delayWhenLost ,
@@ -43,6 +59,14 @@ export {
   restartAfter ,
   root_dir ,
   scale ,
+  friction ,
+  gravity ,
+  max_y_vel ,
+  player_speed ,
+  player_jump ,
+  player_max_jump ,
+  dampen_jump ,
+  invuln ,
   
 }
 /* No side effect */

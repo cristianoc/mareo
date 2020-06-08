@@ -2,23 +2,6 @@ open Belt;
 
 open Actors;
 
-/*Variables*/
-let friction = 0.9;
-
-let gravity = 0.2;
-
-let max_y_vel = 4.5;
-
-let player_speed = 2.8;
-
-let player_jump = 5.7;
-
-let player_max_jump = (-6.);
-
-let dampen_jump = 4.;
-
-let invuln = 60;
-
 type aabb = {
   center: xy,
   half: xy,
@@ -71,7 +54,7 @@ let set_vel_to_speed = obj => {
 /* The following make functions all set the objects' has_gravity and speed,
  * returning an [obj_params] that can be directly plugged into the [obj]
  * during creation. */
-let make_player = () => setup_obj(~spd=player_speed, ());
+let make_player = () => setup_obj(~spd=Config.player_speed, ());
 
 let make_item =
   fun
@@ -179,8 +162,9 @@ let update_player_keys = (player: obj, controls: controls): unit => {
       player.grounded = false;
       player.vel.y =
         max(
-          player.vel.y -. (player_jump +. abs_float(player.vel.x) *. 0.25),
-          player_max_jump,
+          player.vel.y
+          -. (Config.player_jump +. abs_float(player.vel.x) *. 0.25),
+          Config.player_max_jump,
         );
     }
   | CDown =>
@@ -209,7 +193,7 @@ let update_player = (player, keys) => {
   let prev_dir = player.dir
   and prev_vx = abs_float(player.vel.x);
   List.forEach(keys, update_player_keys(player));
-  let v = player.vel.x *. friction;
+  let v = player.vel.x *. Config.friction;
   let vel_damped =
     if (abs_float(v) < 0.1) {
       0.;
@@ -257,7 +241,10 @@ let update_vel = obj =>
     obj.vel.y = 0.;
   } else if (obj.params.has_gravity) {
     obj.vel.y =
-      min(obj.vel.y +. gravity +. abs_float(obj.vel.y) *. 0.01, max_y_vel);
+      min(
+        obj.vel.y +. Config.gravity +. abs_float(obj.vel.y) *. 0.01,
+        Config.max_y_vel,
+      );
   };
 
 let update_pos = obj => {

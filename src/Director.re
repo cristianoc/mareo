@@ -60,12 +60,12 @@ let playerAttackEnemy = (o1, typ, s2, o2, state) => {
   | GKoopaShell
   | RKoopaShell =>
     let r2 = Object.evolve_enemy(o1.dir, typ, s2, o2);
-    o1.vel.y = -. Object.dampen_jump;
+    o1.vel.y = -. Config.dampen_jump;
     o1.pos.y = o1.pos.y -. 5.;
     (None, r2);
   | _ =>
     Object.dec_health(o2);
-    o1.vel.y = -. Object.dampen_jump;
+    o1.vel.y = -. Config.dampen_jump;
     if (state.multiplier == 8) {
       update_score(state, 800);
       o2.score = 800;
@@ -90,13 +90,13 @@ let enemyAttackPlayer = (o1: Object.obj, t2, s2, o2: Object.obj) => {
         Object.evolve_enemy(o1.dir, t2, s2, o2);
       } else {
         Object.dec_health(o1);
-        o1.invuln = Object.invuln;
+        o1.invuln = Config.invuln;
         None;
       };
     (None, r2);
   | _ =>
     Object.dec_health(o1);
-    o1.invuln = Object.invuln;
+    o1.invuln = Config.invuln;
     (None, None);
   };
 };
