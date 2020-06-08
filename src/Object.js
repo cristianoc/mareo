@@ -192,10 +192,7 @@ function updatePlayer(player, keys) {
   if (playerTyp !== undefined) {
     return [
             plSize,
-            Sprite.make_from_params(Sprite.make_player(plSize, [
-                      playerTyp,
-                      player.dir
-                    ]))
+            Sprite.makeFromParams(Sprite.makePlayer(plSize, playerTyp, player.dir))
           ];
   }
   
@@ -267,10 +264,7 @@ function evolveEnemy(player_dir, typ, spr, obj) {
         obj.kill = true;
         return ;
     case /* GKoopa */1 :
-        var match = make(obj.dir, Sprite.make_from_params(Sprite.make_enemy([
-                      /* GKoopaShell */3,
-                      obj.dir
-                    ])), makeEnemy(/* GKoopaShell */3), obj.pos.x, obj.pos.y);
+        var match = make(obj.dir, Sprite.makeFromParams(Sprite.makeEnemy(/* GKoopaShell */3, obj.dir)), makeEnemy(/* GKoopaShell */3), obj.pos.x, obj.pos.y);
         var new_obj = match[1];
         var new_spr = match[0];
         normalizePos(new_obj.pos, spr.params, new_spr.params);
@@ -281,10 +275,7 @@ function evolveEnemy(player_dir, typ, spr, obj) {
                 _2: new_obj
               };
     case /* RKoopa */2 :
-        var match$1 = make(obj.dir, Sprite.make_from_params(Sprite.make_enemy([
-                      /* RKoopaShell */4,
-                      obj.dir
-                    ])), makeEnemy(/* RKoopaShell */4), obj.pos.x, obj.pos.y);
+        var match$1 = make(obj.dir, Sprite.makeFromParams(Sprite.makeEnemy(/* RKoopaShell */4, obj.dir)), makeEnemy(/* RKoopaShell */4), obj.pos.x, obj.pos.y);
         return {
                 TAG: /* Enemy */1,
                 _0: /* RKoopaShell */4,
@@ -327,7 +318,7 @@ function decHealth(obj) {
 
 function evolveBlock(obj) {
   decHealth(obj);
-  var match = make(obj.dir, Sprite.make_from_params(Sprite.make_block(/* QBlockUsed */0)), makeBlock(/* QBlockUsed */0), obj.pos.x, obj.pos.y);
+  var match = make(obj.dir, Sprite.makeFromParams(Sprite.makeBlock(/* QBlockUsed */0)), makeBlock(/* QBlockUsed */0), obj.pos.x, obj.pos.y);
   return {
           TAG: /* Block */3,
           _0: /* QBlockUsed */0,
@@ -337,7 +328,7 @@ function evolveBlock(obj) {
 }
 
 function spawnAbove(player_dir, obj, itemTyp) {
-  var match = make(/* Left */0, Sprite.make_from_params(Sprite.make_item(itemTyp)), makeItem(itemTyp), obj.pos.x, obj.pos.y);
+  var match = make(/* Left */0, Sprite.makeFromParams(Sprite.makeItem(itemTyp)), makeItem(itemTyp), obj.pos.x, obj.pos.y);
   var obj$1 = match[1];
   var spr = match[0];
   var item = {

@@ -41,10 +41,10 @@ let setupSprite =
   {imgSrc, maxFrames, maxTicks, frameSize, srcOffset, bboxOffset, bboxSize};
 };
 
-/*The following functions are used in order to define sprite animations
- *from their sprite sheets. Also creates bounding boxes if necessary.*/
-/*Sets sprite for small mario.*/
-let make_small_player = ((typ, dir)) =>
+// The following functions are used in order to define sprite animations
+// from their sprite sheets. Also creates bounding boxes if necessary.
+// Sets sprite for small mario.
+let makeSmallPlayer = (typ, dir) =>
   switch (dir) {
   /* 16x16 grid with 0x0 offset*/
   | Left =>
@@ -119,8 +119,8 @@ let make_small_player = ((typ, dir)) =>
     }
   };
 
-/*Sets sprite for big mario.*/
-let make_big_player = ((typ, dir)) =>
+// Sets sprite for big mario
+let makeBigPlayer = (typ, dir) =>
   switch (dir) {
   | Left =>
     switch (typ) {
@@ -198,8 +198,8 @@ let make_big_player = ((typ, dir)) =>
     }
   };
 
-/*Sets sprites for enemies: Goomba, Red Koopa, Green Koopa.*/
-let make_enemy = ((typ, dir)) =>
+// Set sprites for enemies: Goomba, Red Koopa, Green Koopa.
+let makeEnemy = (typ, dir) =>
   switch (typ, dir) {
   | (Goomba, _) =>
     setupSprite(
@@ -270,8 +270,8 @@ let make_enemy = ((typ, dir)) =>
     )
   };
 
-/*Sets sprites for items: coin, fireflower, mushroom, star.*/
-let make_item =
+// Set sprites for items: coin, fireflower, mushroom, star
+let makeItem =
   fun
   /* 16x16 grid with 0x0 offset */
   | Coin =>
@@ -291,9 +291,9 @@ let make_item =
       ~srcOffset=(0., 0.),
     );
 
-/*Sets sprites for blocks: brick, question block, unbreakable block, cloud block
- * panel block, ground block.*/
-let make_block =
+// Set sprites for blocks: brick, question block, unbreakable block, cloud block
+// panel block, ground block.*/
+let makeBlock =
   fun
   /* 16x16 grid with 0x0 offset */
   | Brick =>
@@ -323,9 +323,9 @@ let make_block =
     )
   | Ground => setupSprite("ground.png", ~srcOffset=(0., 32.));
 
-/*Sets sprites for particles, squished goomba, brick chunks (upon destruction
- * of brick), score text.*/
-let make_particle =
+// Set sprites for particles, squished goomba, brick chunks (upon destruction
+// of brick), score text.
+let makeParticle =
   fun
   | GoombaSquish => setupSprite("enemies.png", ~srcOffset=(0., 144.))
   | BrickChunkL =>
@@ -349,15 +349,15 @@ let make_particle =
   | Score8000 =>
     setupSprite("score.png", ~frameSize=(14., 9.), ~srcOffset=(13., 27.));
 
-/*Calls to set sprite for either big or small mario.*/
-let make_player = (plSize, spr_type) =>
+// Call to set sprite for either big or small mario.
+let makePlayer = (plSize, typ, dir) =>
   switch (plSize) {
-  | BigM => make_big_player(spr_type)
-  | SmallM => make_small_player(spr_type)
+  | BigM => makeBigPlayer(typ, dir)
+  | SmallM => makeSmallPlayer(typ, dir)
   };
 
-/* Makes a sprite from provided [params]. */
-let make_from_params = params => {
+// Make a sprite from provided [params]
+let makeFromParams = params => {
   let img = Html.createImg(Html.document);
   img.src = params.imgSrc;
   {params, img, frame: 0, ticks: 0};
@@ -367,18 +367,18 @@ let make_from_params = params => {
 let make_bgd = () => {
   let params =
     setupSprite("bgd-1.png", ~frameSize=(512., 256.), ~srcOffset=(0., 0.));
-  make_from_params(params);
+  makeFromParams(params);
 };
 
 /* Make a particle from the given particle type */
 let make_particle = ptyp => {
-  let params = make_particle(ptyp);
-  make_from_params(params);
+  let params = makeParticle(ptyp);
+  makeFromParams(params);
 };
 
 /*Transform_enemy is used in order to switch the direction an enemy faces.*/
 let transform_enemy = (enemy_typ, spr, dir) => {
-  let params = make_enemy((enemy_typ, dir));
+  let params = makeEnemy(enemy_typ, dir);
   let img = Html.createImg(Html.document);
   img.src = params.imgSrc;
   spr.params = params;

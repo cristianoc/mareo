@@ -228,8 +228,8 @@ let updatePlayer = (player, keys) => {
   | Some(playerTyp) =>
     Some((
       plSize,
-      Sprite.make_player(plSize, (playerTyp, player.dir))
-      ->Sprite.make_from_params,
+      Sprite.makePlayer(plSize, playerTyp, player.dir)
+      ->Sprite.makeFromParams,
     ))
   | None => None
   };
@@ -297,7 +297,7 @@ let evolveEnemy = (player_dir, typ, spr: Sprite.t, obj) =>
     let (new_spr, new_obj) =
       make(
         ~dir=obj.dir,
-        Sprite.make_enemy((GKoopaShell, obj.dir))->Sprite.make_from_params,
+        Sprite.makeEnemy(GKoopaShell, obj.dir)->Sprite.makeFromParams,
         makeEnemy(GKoopaShell),
         obj.pos.x,
         obj.pos.y,
@@ -308,7 +308,7 @@ let evolveEnemy = (player_dir, typ, spr: Sprite.t, obj) =>
     let (new_spr, new_obj) =
       make(
         ~dir=obj.dir,
-        Sprite.make_enemy((RKoopaShell, obj.dir))->Sprite.make_from_params,
+        Sprite.makeEnemy(RKoopaShell, obj.dir)->Sprite.makeFromParams,
         makeEnemy(RKoopaShell),
         obj.pos.x,
         obj.pos.y,
@@ -352,7 +352,7 @@ let evolveBlock = obj => {
   let (new_spr, new_obj) =
     make(
       ~dir=obj.dir,
-      Sprite.make_block(QBlockUsed)->Sprite.make_from_params,
+      Sprite.makeBlock(QBlockUsed)->Sprite.makeFromParams,
       makeBlock(QBlockUsed),
       obj.pos.x,
       obj.pos.y,
@@ -366,7 +366,7 @@ let spawnAbove = (player_dir, obj, itemTyp) => {
     let (spr, obj) =
       make(
         ~dir=Left,
-        Sprite.make_item(itemTyp)->Sprite.make_from_params,
+        Sprite.makeItem(itemTyp)->Sprite.makeFromParams,
         makeItem(itemTyp),
         obj.pos.x,
         obj.pos.y,

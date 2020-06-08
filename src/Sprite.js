@@ -35,9 +35,8 @@ function setupSprite(bboxOffsetOpt, bboxSizeOpt, frameSizeOpt, maxTicksOpt, maxF
         };
 }
 
-function make_small_player(param) {
-  var typ = param[0];
-  if (param[1]) {
+function makeSmallPlayer(typ, dir) {
+  if (dir) {
     switch (typ) {
       case /* Standing */0 :
           return setupSprite([
@@ -136,9 +135,8 @@ function make_small_player(param) {
   }
 }
 
-function make_big_player(param) {
-  var typ = param[0];
-  if (param[1]) {
+function makeBigPlayer(typ, dir) {
+  if (dir) {
     switch (typ) {
       case /* Standing */0 :
           return setupSprite([
@@ -261,9 +259,8 @@ function make_big_player(param) {
   }
 }
 
-function make_enemy(param) {
-  var dir = param[1];
-  switch (param[0]) {
+function makeEnemy(typ, dir) {
+  switch (typ) {
     case /* Goomba */0 :
         return setupSprite([
                     1,
@@ -361,7 +358,7 @@ function make_enemy(param) {
   }
 }
 
-function make_item(param) {
+function makeItem(param) {
   if (param) {
     return setupSprite([
                 3,
@@ -387,7 +384,7 @@ function make_item(param) {
   }
 }
 
-function make_block(param) {
+function makeBlock(param) {
   if (typeof param !== "number") {
     return setupSprite(undefined, undefined, undefined, 15, 4, [
                 0,
@@ -432,7 +429,7 @@ function make_block(param) {
   }
 }
 
-function make_particle(param) {
+function makeParticle(param) {
   switch (param) {
     case /* GoombaSquish */0 :
         return setupSprite(undefined, undefined, undefined, undefined, undefined, [
@@ -523,15 +520,15 @@ function make_particle(param) {
   }
 }
 
-function make_player(plSize, spr_type) {
+function makePlayer(plSize, typ, dir) {
   if (plSize) {
-    return make_small_player(spr_type);
+    return makeSmallPlayer(typ, dir);
   } else {
-    return make_big_player(spr_type);
+    return makeBigPlayer(typ, dir);
   }
 }
 
-function make_from_params(params) {
+function makeFromParams(params) {
   var img = document.createElement("img");
   img.src = params.imgSrc;
   return {
@@ -543,7 +540,7 @@ function make_from_params(params) {
 }
 
 function make_bgd(param) {
-  return make_from_params(setupSprite(undefined, undefined, [
+  return makeFromParams(setupSprite(undefined, undefined, [
                   512,
                   256
                 ], undefined, undefined, [
@@ -552,15 +549,12 @@ function make_bgd(param) {
                 ], "bgd-1.png"));
 }
 
-function make_particle$1(ptyp) {
-  return make_from_params(make_particle(ptyp));
+function make_particle(ptyp) {
+  return makeFromParams(makeParticle(ptyp));
 }
 
 function transform_enemy(enemy_typ, spr, dir) {
-  var params = make_enemy([
-        enemy_typ,
-        dir
-      ]);
+  var params = makeEnemy(enemy_typ, dir);
   var img = document.createElement("img");
   img.src = params.imgSrc;
   spr.params = params;
@@ -581,15 +575,16 @@ function update_animation(spr) {
 
 export {
   setupSprite ,
-  make_small_player ,
-  make_big_player ,
-  make_enemy ,
-  make_item ,
-  make_block ,
-  make_player ,
-  make_from_params ,
+  makeSmallPlayer ,
+  makeBigPlayer ,
+  makeEnemy ,
+  makeItem ,
+  makeBlock ,
+  makeParticle ,
+  makePlayer ,
+  makeFromParams ,
   make_bgd ,
-  make_particle$1 as make_particle,
+  make_particle ,
   transform_enemy ,
   update_animation ,
   
