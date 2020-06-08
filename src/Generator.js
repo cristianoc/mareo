@@ -546,26 +546,6 @@ function generateBlockLocs(_cbx, _cby, _acc) {
   };
 }
 
-function makeTypeToremove(spawnable, dir) {
-  switch (spawnable.TAG | 0) {
-    case /* SPlayer */0 :
-        return Sprite.make_player(spawnable._0, [
-                    spawnable._1,
-                    dir
-                  ]);
-    case /* SEnemy */1 :
-        return Sprite.make_enemy([
-                    spawnable._0,
-                    dir
-                  ]);
-    case /* SItem */2 :
-        return Sprite.make_item(spawnable._0);
-    case /* SBlock */3 :
-        return Sprite.make_block(spawnable._0);
-    
-  }
-}
-
 function generatePanel(param) {
   var match = $$Object.make(/* Left */0, Sprite.make_from_params(Sprite.make_block(/* Panel */4)), $$Object.make_block(/* Panel */4), Config.blockw * 16 - 256, Config.blockh * 16 * 2 / 3);
   return {
@@ -621,10 +601,7 @@ function convertToBlockObj(lst, context) {
   }
   var match = lst._0;
   var blockTyp = match[0];
-  var match$1 = $$Object.make(/* Left */0, Sprite.make_from_params(makeTypeToremove({
-                TAG: /* SBlock */3,
-                _0: blockTyp
-              }, /* Left */0)), $$Object.make_block(blockTyp), match[1], match[2]);
+  var match$1 = $$Object.make(/* Left */0, Sprite.make_from_params(Sprite.make_block(blockTyp)), $$Object.make_block(blockTyp), match[1], match[2]);
   var ob_1 = match$1[0];
   var ob_2 = match$1[1];
   var ob = {
@@ -645,10 +622,10 @@ function convertToEnemyObj(lst, context) {
   }
   var match = lst._0;
   var enemyTyp = match[0];
-  var match$1 = $$Object.make(/* Left */0, Sprite.make_from_params(makeTypeToremove({
-                TAG: /* SEnemy */1,
-                _0: enemyTyp
-              }, /* Left */0)), $$Object.make_enemy(enemyTyp), match[1], match[2]);
+  var match$1 = $$Object.make(/* Left */0, Sprite.make_from_params(Sprite.make_enemy([
+                enemyTyp,
+                /* Left */0
+              ])), $$Object.make_enemy(enemyTyp), match[1], match[2]);
   var obj = match$1[1];
   $$Object.set_vel_to_speed(obj);
   var ob_1 = match$1[0];
@@ -709,11 +686,10 @@ function generateHelper(context) {
 function generate(param) {
   var initial = performance.now();
   var collideList = generateHelper(Load.getContext(undefined));
-  var match = $$Object.make(/* Left */0, Sprite.make_from_params(makeTypeToremove({
-                TAG: /* SPlayer */0,
-                _0: /* SmallM */1,
-                _1: /* Standing */0
-              }, /* Left */0)), $$Object.make_player(undefined), 100, 224);
+  var match = $$Object.make(/* Left */0, Sprite.make_from_params(Sprite.make_player(/* SmallM */1, [
+                /* Standing */0,
+                /* Left */0
+              ])), $$Object.make_player(undefined), 100, 224);
   var player_1 = match[0];
   var player_2 = match[1];
   var player = {
@@ -753,7 +729,6 @@ export {
   generateEnemies ,
   generateBlockEnemies ,
   generateBlockLocs ,
-  makeTypeToremove ,
   generatePanel ,
   generateGround ,
   convertToBlockObj ,

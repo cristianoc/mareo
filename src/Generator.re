@@ -237,27 +237,13 @@ let rec generateBlockLocs =
     generateBlockLocs(cbx, cby +. 1., acc);
   };
 
-type spawn_typ =
-  | SPlayer(pl_typ, player_typ)
-  | SEnemy(enemyTyp)
-  | SItem(item_typ)
-  | SBlock(blockTyp);
-
-let makeTypeToremove = (spawnable, dir: Actors.dir_1d) =>
-  switch (spawnable) {
-  | SPlayer(pt, st) => Sprite.make_player(pt, (st, dir))
-  | SEnemy(t) => Sprite.make_enemy((t, dir))
-  | SItem(t) => Sprite.make_item(t)
-  | SBlock(t) => Sprite.make_block(t)
-  };
-
 // Generate the ending item panel at the end of the level. Games ends upon
 // collision with player.
 let generatePanel = (): Object.collidable => {
   let (spr, obj) =
     Object.make(
       ~dir=Left,
-      makeTypeToremove(SBlock(Panel), Left)->Sprite.make_from_params,
+      Sprite.make_block(Panel)->Sprite.make_from_params,
       Object.make_block(Panel),
       Config.blockw *. 16. -. 256.,
       Config.blockh *. 16. *. 2. /. 3.,
@@ -295,7 +281,7 @@ let rec convertToBlockObj =
     let (spr, obj) =
       Object.make(
         ~dir=Left,
-        makeTypeToremove(SBlock(blockTyp), Left)->Sprite.make_from_params,
+        Sprite.make_block(blockTyp)->Sprite.make_from_params,
         Object.make_block(blockTyp),
         x,
         y,
@@ -315,7 +301,7 @@ let rec convertToEnemyObj =
     let (spr, obj) =
       Object.make(
         ~dir=Left,
-        makeTypeToremove(SEnemy(enemyTyp), Left)->Sprite.make_from_params,
+        Sprite.make_enemy((enemyTyp, Left))->Sprite.make_from_params,
         Object.make_enemy(enemyTyp),
         x,
         y,
@@ -335,7 +321,7 @@ let rec convertToCoinObj =
     let (spr, obj) =
       Object.make(
         ~dir=Left,
-        makeTypeToremove(SItem(Coin), Left)->Sprite.make_from_params,
+        Sprite.make_item(Coin)->Sprite.make_from_params,
         Object.make_item(Coin),
         x,
         y,
@@ -377,8 +363,7 @@ let generate = (): (Object.collidable, list(Object.collidable)) => {
   let (spr, obj) =
     Object.make(
       ~dir=Left,
-      makeTypeToremove(SPlayer(SmallM, Standing), Left)
-      ->Sprite.make_from_params,
+      Sprite.make_player(SmallM, (Standing, Left))->Sprite.make_from_params,
       Object.make_player(),
       100.,
       224.,
