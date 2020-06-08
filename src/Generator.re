@@ -251,27 +251,14 @@ let makeTypeToremove = (spawnable, dir: Actors.dir_1d) =>
   | SBlock(t) => Sprite.make_block(t)
   };
 
-/*Make is the wrapper function to cycle through sprite animations*/
-let maketoRemove0 = (spawnable, dir) => {
-  let params = makeTypeToremove(spawnable, dir);
-  Sprite.make_from_params(params);
-};
-
-let makeTypeToremove =
-  fun
-  | SPlayer(_) => Object.make_player()
-  | SEnemy(t) => Object.make_enemy(t)
-  | SItem(t) => Object.make_item(t)
-  | SBlock(t) => Object.make_block(t);
-
 // Generate the ending item panel at the end of the level. Games ends upon
 // collision with player.
 let generatePanel = (): Object.collidable => {
   let (spr, obj) =
     Object.make(
       ~dir=Left,
-      maketoRemove0(SBlock(Panel), Left),
-      makeTypeToremove(SBlock(Panel)),
+      makeTypeToremove(SBlock(Panel), Left)->Sprite.make_from_params,
+      Object.make_block(Panel),
       Config.blockw *. 16. -. 256.,
       Config.blockh *. 16. *. 2. /. 3.,
     );
@@ -308,8 +295,8 @@ let rec convertToBlockObj =
     let (spr, obj) =
       Object.make(
         ~dir=Left,
-        maketoRemove0(SBlock(blockTyp), Left),
-        makeTypeToremove(SBlock(blockTyp)),
+        makeTypeToremove(SBlock(blockTyp), Left)->Sprite.make_from_params,
+        Object.make_block(blockTyp),
         x,
         y,
       );
@@ -328,8 +315,8 @@ let rec convertToEnemyObj =
     let (spr, obj) =
       Object.make(
         ~dir=Left,
-        maketoRemove0(SEnemy(enemyTyp), Left),
-        makeTypeToremove(SEnemy(enemyTyp)),
+        makeTypeToremove(SEnemy(enemyTyp), Left)->Sprite.make_from_params,
+        Object.make_enemy(enemyTyp),
         x,
         y,
       );
@@ -348,8 +335,8 @@ let rec convertToCoinObj =
     let (spr, obj) =
       Object.make(
         ~dir=Left,
-        maketoRemove0(SItem(Coin), Left),
-        makeTypeToremove(SItem(Coin)),
+        makeTypeToremove(SItem(Coin), Left)->Sprite.make_from_params,
+        Object.make_item(Coin),
         x,
         y,
       );
@@ -390,8 +377,9 @@ let generate = (): (Object.collidable, list(Object.collidable)) => {
   let (spr, obj) =
     Object.make(
       ~dir=Left,
-      maketoRemove0(SPlayer(SmallM, Standing), Left),
-      makeTypeToremove(SPlayer(SmallM, Standing)),
+      makeTypeToremove(SPlayer(SmallM, Standing), Left)
+      ->Sprite.make_from_params,
+      Object.make_player(),
       100.,
       224.,
     );

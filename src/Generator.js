@@ -566,29 +566,8 @@ function makeTypeToremove(spawnable, dir) {
   }
 }
 
-function maketoRemove0(spawnable, dir) {
-  return Sprite.make_from_params(makeTypeToremove(spawnable, dir));
-}
-
-function makeTypeToremove$1(t) {
-  switch (t.TAG | 0) {
-    case /* SPlayer */0 :
-        return $$Object.make_player(undefined);
-    case /* SEnemy */1 :
-        return $$Object.make_enemy(t._0);
-    case /* SItem */2 :
-        return $$Object.make_item(t._0);
-    case /* SBlock */3 :
-        return $$Object.make_block(t._0);
-    
-  }
-}
-
 function generatePanel(param) {
-  var match = $$Object.make(/* Left */0, maketoRemove0({
-            TAG: /* SBlock */3,
-            _0: /* Panel */4
-          }, /* Left */0), $$Object.make_block(/* Panel */4), Config.blockw * 16 - 256, Config.blockh * 16 * 2 / 3);
+  var match = $$Object.make(/* Left */0, Sprite.make_from_params(Sprite.make_block(/* Panel */4)), $$Object.make_block(/* Panel */4), Config.blockw * 16 - 256, Config.blockh * 16 * 2 / 3);
   return {
           TAG: /* Block */3,
           _0: /* Panel */4,
@@ -642,13 +621,10 @@ function convertToBlockObj(lst, context) {
   }
   var match = lst._0;
   var blockTyp = match[0];
-  var match$1 = $$Object.make(/* Left */0, maketoRemove0({
-            TAG: /* SBlock */3,
-            _0: blockTyp
-          }, /* Left */0), makeTypeToremove$1({
-            TAG: /* SBlock */3,
-            _0: blockTyp
-          }), match[1], match[2]);
+  var match$1 = $$Object.make(/* Left */0, Sprite.make_from_params(makeTypeToremove({
+                TAG: /* SBlock */3,
+                _0: blockTyp
+              }, /* Left */0)), $$Object.make_block(blockTyp), match[1], match[2]);
   var ob_1 = match$1[0];
   var ob_2 = match$1[1];
   var ob = {
@@ -669,13 +645,10 @@ function convertToEnemyObj(lst, context) {
   }
   var match = lst._0;
   var enemyTyp = match[0];
-  var match$1 = $$Object.make(/* Left */0, maketoRemove0({
-            TAG: /* SEnemy */1,
-            _0: enemyTyp
-          }, /* Left */0), makeTypeToremove$1({
-            TAG: /* SEnemy */1,
-            _0: enemyTyp
-          }), match[1], match[2]);
+  var match$1 = $$Object.make(/* Left */0, Sprite.make_from_params(makeTypeToremove({
+                TAG: /* SEnemy */1,
+                _0: enemyTyp
+              }, /* Left */0)), $$Object.make_enemy(enemyTyp), match[1], match[2]);
   var obj = match$1[1];
   $$Object.set_vel_to_speed(obj);
   var ob_1 = match$1[0];
@@ -696,10 +669,7 @@ function convertToCoinObj(lst, context) {
     return /* [] */0;
   }
   var match = lst._0;
-  var match$1 = $$Object.make(/* Left */0, maketoRemove0({
-            TAG: /* SItem */2,
-            _0: /* Coin */1
-          }, /* Left */0), $$Object.make_item(/* Coin */1), match[1], match[2]);
+  var match$1 = $$Object.make(/* Left */0, Sprite.make_from_params(Sprite.make_item(/* Coin */1)), $$Object.make_item(/* Coin */1), match[1], match[2]);
   var ob_1 = match$1[0];
   var ob_2 = match$1[1];
   var ob = {
@@ -739,15 +709,11 @@ function generateHelper(context) {
 function generate(param) {
   var initial = performance.now();
   var collideList = generateHelper(Load.getContext(undefined));
-  var match = $$Object.make(/* Left */0, maketoRemove0({
-            TAG: /* SPlayer */0,
-            _0: /* SmallM */1,
-            _1: /* Standing */0
-          }, /* Left */0), makeTypeToremove$1({
-            TAG: /* SPlayer */0,
-            _0: /* SmallM */1,
-            _1: /* Standing */0
-          }), 100, 224);
+  var match = $$Object.make(/* Left */0, Sprite.make_from_params(makeTypeToremove({
+                TAG: /* SPlayer */0,
+                _0: /* SmallM */1,
+                _1: /* Standing */0
+              }, /* Left */0)), $$Object.make_player(undefined), 100, 224);
   var player_1 = match[0];
   var player_2 = match[1];
   var player = {
@@ -787,8 +753,7 @@ export {
   generateEnemies ,
   generateBlockEnemies ,
   generateBlockLocs ,
-  maketoRemove0 ,
-  makeTypeToremove$1 as makeTypeToremove,
+  makeTypeToremove ,
   generatePanel ,
   generateGround ,
   convertToBlockObj ,
