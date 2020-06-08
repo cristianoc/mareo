@@ -8,6 +8,10 @@ var images = [
   "mario-small.png"
 ];
 
+var blockw = 2400 / 16;
+
+var blockh = 256 / 16 - 1;
+
 var mapDim = [
   2400,
   256
@@ -33,6 +37,8 @@ export {
   images ,
   levelWidth ,
   levelHeight ,
+  blockw ,
+  blockh ,
   mapDim ,
   restartAfter ,
   root_dir ,

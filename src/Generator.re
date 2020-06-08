@@ -2,6 +2,8 @@ open Actors;
 
 open Object;
 
+open Belt;
+
 // Note: Canvas is 512 by 256 (w*h) -> 32 by 16 blocks
 // Holds obj typ and its coordinates. (int, (x-coord, y-coord))
 type blockCoord = (Actors.blockTyp, Actors.xy);
@@ -44,22 +46,17 @@ let rec removeOverlap =
     }
   };
 
+let pixx = Config.blockw *. 16.;
+let pixy = Config.blockh *. 16.;
+
 // Get rid of objects with coordinates in the ending frame, within 128 pixels of
 // the start, at the very top, and two blocks from the ground.
-let rec trimEdges = (lst: list('a), blockw: float, blockh: float): list('a) =>
-  switch (lst) {
-  | [] => []
-  | [h, ...t] =>
-    let cx = snd(h).x;
-    let cy = snd(h).y;
-    let pixx = blockw *. 16.;
-    let pixy = blockh *. 16.;
-    if (cx < 128. || pixx -. cx < 528. || cy == 0. || pixy -. cy < 48.) {
-      trimEdges(t, blockw, blockh);
-    } else {
-      [h] @ trimEdges(t, blockw, blockh);
-    };
-  };
+let trimEdge = pos => {
+  !(
+    pos.x < 128. || pixx -. pos.x < 528. || pos.y == 0. || pixy -. pos.y < 48.
+  );
+};
+let trimEdges = lst => lst->List.keep(((_, pos)) => pos->trimEdge);
 
 // Generate a stair formation with block typ being dependent on typ. This type
 // of stair formation requires that the first step be on the ground.
@@ -158,9 +155,8 @@ let randomStairTyp = () => Random.bool() ? UnBBlock : Brick;
 //    of the level map, prevent any objects from being initialized.
 // 3. Else call helper methods to created block formations and return objCoord
 //    slist.
-let chooseBlockPattern =
-    (blockw: float, blockh: float, cbx: float, cby: float): list(blockCoord) =>
-  if (cbx > blockw || cby > blockh) {
+let chooseBlockPattern = (cbx: float, cby: float): list(blockCoord) =>
+  if (cbx > Config.blockw || cby > Config.blockh) {
     [];
   } else {
     let stairTyp = randomStairTyp();
@@ -185,23 +181,23 @@ let chooseBlockPattern =
         [];
       };
     | 2 =>
-      if (blockh -. cby == 1.) {
+      if (Config.blockh -. cby == 1.) {
         generateGroundStairs(cbx, cby, stairTyp);
       } else {
         [];
       }
     | 3 =>
-      if (stairTyp == Brick && blockh -. cby > 3.) {
+      if (stairTyp == Brick && Config.blockh -. cby > 3.) {
         generateAirdownStairs(cbx, cby, stairTyp);
-      } else if (blockh -. cby > 2.) {
+      } else if (Config.blockh -. cby > 2.) {
         generateAirupStairs(cbx, cby, stairTyp);
       } else {
         [(stairTyp, {x: cbx, y: cby})];
       }
     | _ =>
-      if (cby +. 3. -. blockh == 2.) {
+      if (cby +. 3. -. Config.blockh == 2.) {
         [(stairTyp, {x: cbx, y: cby})];
-      } else if (cby +. 3. -. blockh == 1.) {
+      } else if (cby +. 3. -. Config.blockh == 1.) {
         [
           (stairTyp, {x: cbx, y: cby}),
           (stairTyp, {x: cbx, y: cby +. 1.}),
@@ -217,27 +213,20 @@ let chooseBlockPattern =
   };
 
 // Generates a list of enemies to be placed on the ground.
-let rec generateEnemies =
-        (
-          blockw: float,
-          blockh: float,
-          cbx: float,
-          cby: float,
-          blocks: list(blockCoord),
-        ) =>
-  if (cbx > blockw -. 32.) {
+let rec generateEnemies = (cbx: float, cby: float, blocks: list(blockCoord)) =>
+  if (cbx > Config.blockw -. 32.) {
     [];
-  } else if (cby > blockh -. 1. || cbx < 15.) {
-    generateEnemies(blockw, blockh, cbx +. 1., 0., blocks);
+  } else if (cby > Config.blockh -. 1. || cbx < 15.) {
+    generateEnemies(cbx +. 1., 0., blocks);
   } else if (memPos({x: cbx, y: cby}, blocks) || cby == 0.) {
-    generateEnemies(blockw, blockh, cbx, cby +. 1., blocks);
+    generateEnemies(cbx, cby +. 1., blocks);
   } else {
     let isEnemy = Random.int(10) == 0;
-    if (isEnemy && blockh -. 1. == cby) {
+    if (isEnemy && Config.blockh -. 1. == cby) {
       let enemy = [(randomEnemyTyp(), {x: cbx *. 16., y: cby *. 16.})];
-      enemy @ generateEnemies(blockw, blockh, cbx, cby +. 1., blocks);
+      enemy @ generateEnemies(cbx, cby +. 1., blocks);
     } else {
-      generateEnemies(blockw, blockh, cbx, cby +. 1., blocks);
+      generateEnemies(cbx, cby +. 1., blocks);
     };
   };
 
@@ -260,36 +249,32 @@ let rec generateBlockEnemies =
 
 // Generate an objCoord list (typ, coordinates) of blocks to be placed.
 let rec generateBlockLocs =
-        (
-          blockw: float,
-          blockh: float,
-          cbx: float,
-          cby: float,
-          acc: list(blockCoord),
-        )
-        : list(blockCoord) =>
-  if (blockw -. cbx < 33.) {
+        (cbx: float, cby: float, acc: list(blockCoord)): list(blockCoord) =>
+  if (Config.blockw -. cbx < 33.) {
     acc;
-  } else if (cby > blockh -. 1.) {
-    generateBlockLocs(blockw, blockh, cbx +. 1., 0., acc);
+  } else if (cby > Config.blockh -. 1.) {
+    generateBlockLocs(cbx +. 1., 0., acc);
   } else if (memPos({x: cbx, y: cby}, acc) || cby == 0.) {
-    generateBlockLocs(blockw, blockh, cbx, cby +. 1., acc);
+    generateBlockLocs(cbx, cby +. 1., acc);
   } else if (Random.int(20) == 0) {
-    let newacc = chooseBlockPattern(blockw, blockh, cbx, cby);
+    let newacc = chooseBlockPattern(cbx, cby);
     let undupLst = removeOverlap(newacc, acc);
     let calledAcc = acc @ undupLst;
-    generateBlockLocs(blockw, blockh, cbx, cby +. 1., calledAcc);
+    generateBlockLocs(cbx, cby +. 1., calledAcc);
   } else {
-    generateBlockLocs(blockw, blockh, cbx, cby +. 1., acc);
+    generateBlockLocs(cbx, cby +. 1., acc);
   };
 
 // Generate the ending item panel at the end of the level. Games ends upon
 // collision with player.
-let generatePanel = (blockw: float, blockh: float): collidable => {
+let generatePanel = (): collidable => {
   let ob =
     Object.spawn(
       SBlock(Panel),
-      {Actors.x: blockw *. 16. -. 256., y: blockh *. 16. *. 2. /. 3.},
+      {
+        Actors.x: Config.blockw *. 16. -. 256.,
+        y: Config.blockh *. 16. *. 2. /. 3.,
+      },
     );
   ob;
 };
@@ -297,21 +282,20 @@ let generatePanel = (blockw: float, blockh: float): collidable => {
 // Generate the list of brick locations needed to display the ground.
 // 1/10 chance that a ground block is skipped each call to create holes.
 let rec generateGround =
-        (blockw: float, blockh: float, inc: float, acc: list(blockCoord))
-        : list(blockCoord) =>
-  if (inc > blockw) {
+        (inc: float, acc: list(blockCoord)): list(blockCoord) =>
+  if (inc > Config.blockw) {
     acc;
   } else if (inc > 10.) {
     let skip = Random.int(10);
-    let newacc = acc @ [(Ground, {x: inc *. 16., y: blockh *. 16.})];
-    if (skip == 7 && blockw -. inc > 32.) {
-      generateGround(blockw, blockh, inc +. 1., acc);
+    let newacc = acc @ [(Ground, {x: inc *. 16., y: Config.blockh *. 16.})];
+    if (skip == 7 && Config.blockw -. inc > 32.) {
+      generateGround(inc +. 1., acc);
     } else {
-      generateGround(blockw, blockh, inc +. 1., newacc);
+      generateGround(inc +. 1., newacc);
     };
   } else {
-    let newacc = acc @ [(Ground, {x: inc *. 16., y: blockh *. 16.})];
-    generateGround(blockw, blockh, inc +. 1., newacc);
+    let newacc = acc @ [(Ground, {x: inc *. 16., y: Config.blockh *. 16.})];
+    generateGround(inc +. 1., newacc);
   };
 
 // Convert the objCoord list called by generateBlockLocs to a list of objects
@@ -354,20 +338,19 @@ let rec convertToCoinObj =
 // context. Arguments block width (blockw) and block height (blockh) are in
 // block form, not pixels.
 let generateHelper =
-    (blockw: float, blockh: float, context: Html.canvasRenderingContext2D)
-    : list(collidable) => {
-  let blockLocs = generateBlockLocs(blockw, blockh, 0., 0., []);
-  let convertedBlockLocs = trimEdges(convertList(blockLocs), blockw, blockh);
+    (context: Html.canvasRenderingContext2D): list(collidable) => {
+  let blockLocs = generateBlockLocs(0., 0., []);
+  let convertedBlockLocs = trimEdges(convertList(blockLocs));
   let objConvertedBlockLocs = convertToBlockObj(convertedBlockLocs, context);
-  let groundBlocks = generateGround(blockw, blockh, 0., []);
+  let groundBlocks = generateGround(0., []);
   let objConvertedGroundBlocks = convertToBlockObj(groundBlocks, context);
   let blockLocations = blockLocs @ groundBlocks;
   let allBlocks = objConvertedBlockLocs @ objConvertedGroundBlocks;
-  let enemyLocs = generateEnemies(blockw, blockh, 0., 0., blockLocations);
+  let enemyLocs = generateEnemies(0., 0., blockLocations);
   let objConvertedEnemies = convertToEnemyObj(enemyLocs, context);
   let coinsLocs = generateCoins(convertedBlockLocs);
   let undupCoinLocs =
-    trimEdges(removeOverlap(coinsLocs, convertedBlockLocs), blockw, blockh);
+    trimEdges(removeOverlap(coinsLocs, convertedBlockLocs));
   let enemyBlockLocs = generateBlockEnemies(convertedBlockLocs);
   let undupEnemyBlockLocs =
     enemyBlockLocs
@@ -375,7 +358,7 @@ let generateHelper =
     ->removeOverlap(coinsLocs);
   let objEnemyBlocks = convertToEnemyObj(undupEnemyBlockLocs, context);
   let coinObjects = convertToCoinObj(undupCoinLocs, context);
-  let objPanel = generatePanel(blockw, blockh);
+  let objPanel = generatePanel();
   allBlocks @ objConvertedEnemies @ coinObjects @ objEnemyBlocks @ [objPanel];
 };
 
@@ -384,9 +367,7 @@ let generateHelper =
 // the list of collidables received from generateHelper to display on canvas.
 let generate = (): (collidable, list(collidable)) => {
   let initial = Html.performance.now(.);
-  let blockw = Config.levelWidth /. 16.;
-  let blockh = Config.levelHeight /. 16. -. 1.;
-  let collideList = generateHelper(blockw, blockh, Load.getContext());
+  let collideList = generateHelper(Load.getContext());
   let player = Object.spawn(SPlayer(SmallM, Standing), {x: 100., y: 224.});
   let elapsed = Html.performance.now(.) -. initial;
   Js.log3(

@@ -1,11 +1,11 @@
 
 
-import * as List from "bs-platform/lib/es6/list.js";
 import * as Load from "./Load.js";
 import * as Config from "./Config.js";
 import * as $$Object from "./Object.js";
 import * as Random from "bs-platform/lib/es6/random.js";
 import * as Caml_obj from "bs-platform/lib/es6/caml_obj.js";
+import * as Belt_List from "bs-platform/lib/es6/belt_List.js";
 import * as Pervasives from "bs-platform/lib/es6/pervasives.js";
 
 function convertList(lst) {
@@ -59,27 +59,18 @@ function removeOverlap(_lst, currentObjs) {
   };
 }
 
-function trimEdges(_lst, blockw, blockh) {
-  while(true) {
-    var lst = _lst;
-    if (!lst) {
-      return /* [] */0;
-    }
-    var t = lst._1;
-    var h = lst._0;
-    var cx = h[1].x;
-    var cy = h[1].y;
-    var pixx = blockw * 16;
-    var pixy = blockh * 16;
-    if (!(cx < 128 || pixx - cx < 528 || cy === 0 || pixy - cy < 48)) {
-      return Pervasives.$at(/* :: */{
-                  _0: h,
-                  _1: /* [] */0
-                }, trimEdges(t, blockw, blockh));
-    }
-    _lst = t;
-    continue ;
-  };
+var pixx = Config.blockw * 16;
+
+var pixy = Config.blockh * 16;
+
+function trimEdge(pos) {
+  return !(pos.x < 128 || pixx - pos.x < 528 || pos.y === 0 || pixy - pos.y < 48);
+}
+
+function trimEdges(lst) {
+  return Belt_List.keep(lst, (function (param) {
+                return trimEdge(param[1]);
+              }));
 }
 
 function generateGroundStairs(cbx, cby, typ) {
@@ -407,8 +398,8 @@ function randomStairTyp(param) {
   }
 }
 
-function chooseBlockPattern(blockw, blockh, cbx, cby) {
-  if (cbx > blockw || cby > blockh) {
+function chooseBlockPattern(cbx, cby) {
+  if (cbx > Config.blockw || cby > Config.blockh) {
     return /* [] */0;
   }
   var stairTyp = randomStairTyp(undefined);
@@ -455,15 +446,15 @@ function chooseBlockPattern(blockw, blockh, cbx, cby) {
           return /* [] */0;
         }
     case 2 :
-        if (blockh - cby === 1) {
+        if (Config.blockh - cby === 1) {
           return generateGroundStairs(cbx, cby, stairTyp);
         } else {
           return /* [] */0;
         }
     case 3 :
-        if (stairTyp === /* Brick */1 && blockh - cby > 3) {
+        if (stairTyp === /* Brick */1 && Config.blockh - cby > 3) {
           return generateAirdownStairs(cbx, cby, stairTyp);
-        } else if (blockh - cby > 2) {
+        } else if (Config.blockh - cby > 2) {
           return generateAirupStairs(cbx, cby, stairTyp);
         } else {
           return /* :: */{
@@ -478,7 +469,7 @@ function chooseBlockPattern(blockw, blockh, cbx, cby) {
                 };
         }
     default:
-      if (cby + 3 - blockh === 2) {
+      if (cby + 3 - Config.blockh === 2) {
         return /* :: */{
                 _0: [
                   stairTyp,
@@ -489,7 +480,7 @@ function chooseBlockPattern(blockw, blockh, cbx, cby) {
                 ],
                 _1: /* [] */0
               };
-      } else if (cby + 3 - blockh === 1) {
+      } else if (cby + 3 - Config.blockh === 1) {
         return /* :: */{
                 _0: [
                   stairTyp,
@@ -542,14 +533,14 @@ function chooseBlockPattern(blockw, blockh, cbx, cby) {
   }
 }
 
-function generateEnemies(blockw, blockh, _cbx, _cby, blocks) {
+function generateEnemies(_cbx, _cby, blocks) {
   while(true) {
     var cby = _cby;
     var cbx = _cbx;
-    if (cbx > blockw - 32) {
+    if (cbx > Config.blockw - 32) {
       return /* [] */0;
     }
-    if (cby > blockh - 1 || cbx < 15) {
+    if (cby > Config.blockh - 1 || cbx < 15) {
       _cby = 0;
       _cbx = cbx + 1;
       continue ;
@@ -562,7 +553,7 @@ function generateEnemies(blockw, blockh, _cbx, _cby, blocks) {
       continue ;
     }
     var isEnemy = Random.$$int(10) === 0;
-    if (isEnemy && blockh - 1 === cby) {
+    if (isEnemy && Config.blockh - 1 === cby) {
       var enemy_0 = [
         randomEnemyTyp(undefined),
         {
@@ -574,7 +565,7 @@ function generateEnemies(blockw, blockh, _cbx, _cby, blocks) {
         _0: enemy_0,
         _1: /* [] */0
       };
-      return Pervasives.$at(enemy, generateEnemies(blockw, blockh, cbx, cby + 1, blocks));
+      return Pervasives.$at(enemy, generateEnemies(cbx, cby + 1, blocks));
     }
     _cby = cby + 1;
     continue ;
@@ -609,15 +600,15 @@ function generateBlockEnemies(_blockCoord) {
   };
 }
 
-function generateBlockLocs(blockw, blockh, _cbx, _cby, _acc) {
+function generateBlockLocs(_cbx, _cby, _acc) {
   while(true) {
     var acc = _acc;
     var cby = _cby;
     var cbx = _cbx;
-    if (blockw - cbx < 33) {
+    if (Config.blockw - cbx < 33) {
       return acc;
     }
-    if (cby > blockh - 1) {
+    if (cby > Config.blockh - 1) {
       _cby = 0;
       _cbx = cbx + 1;
       continue ;
@@ -630,7 +621,7 @@ function generateBlockLocs(blockw, blockh, _cbx, _cby, _acc) {
       continue ;
     }
     if (Random.$$int(20) === 0) {
-      var newacc = chooseBlockPattern(blockw, blockh, cbx, cby);
+      var newacc = chooseBlockPattern(cbx, cby);
       var undupLst = removeOverlap(newacc, acc);
       var calledAcc = Pervasives.$at(acc, undupLst);
       _acc = calledAcc;
@@ -642,21 +633,21 @@ function generateBlockLocs(blockw, blockh, _cbx, _cby, _acc) {
   };
 }
 
-function generatePanel(blockw, blockh) {
+function generatePanel(param) {
   return $$Object.spawn({
               TAG: /* SBlock */3,
               _0: /* Panel */4
             }, {
-              x: blockw * 16 - 256,
-              y: blockh * 16 * 2 / 3
+              x: Config.blockw * 16 - 256,
+              y: Config.blockh * 16 * 2 / 3
             });
 }
 
-function generateGround(blockw, blockh, _inc, _acc) {
+function generateGround(_inc, _acc) {
   while(true) {
     var acc = _acc;
     var inc = _inc;
-    if (inc > blockw) {
+    if (inc > Config.blockw) {
       return acc;
     }
     if (inc > 10) {
@@ -666,12 +657,12 @@ function generateGround(blockw, blockh, _inc, _acc) {
               /* Ground */5,
               {
                 x: inc * 16,
-                y: blockh * 16
+                y: Config.blockh * 16
               }
             ],
             _1: /* [] */0
           });
-      if (skip === 7 && blockw - inc > 32) {
+      if (skip === 7 && Config.blockw - inc > 32) {
         _inc = inc + 1;
         continue ;
       }
@@ -684,7 +675,7 @@ function generateGround(blockw, blockh, _inc, _acc) {
             /* Ground */5,
             {
               x: inc * 16,
-              y: blockh * 16
+              y: Config.blockh * 16
             }
           ],
           _1: /* [] */0
@@ -739,23 +730,23 @@ function convertToCoinObj(lst, context) {
             }, convertToCoinObj(lst._1, context));
 }
 
-function generateHelper(blockw, blockh, context) {
-  var blockLocs = generateBlockLocs(blockw, blockh, 0, 0, /* [] */0);
-  var convertedBlockLocs = trimEdges(convertList(blockLocs), blockw, blockh);
+function generateHelper(context) {
+  var blockLocs = generateBlockLocs(0, 0, /* [] */0);
+  var convertedBlockLocs = trimEdges(convertList(blockLocs));
   var objConvertedBlockLocs = convertToBlockObj(convertedBlockLocs, context);
-  var groundBlocks = generateGround(blockw, blockh, 0, /* [] */0);
+  var groundBlocks = generateGround(0, /* [] */0);
   var objConvertedGroundBlocks = convertToBlockObj(groundBlocks, context);
   var blockLocations = Pervasives.$at(blockLocs, groundBlocks);
   var allBlocks = Pervasives.$at(objConvertedBlockLocs, objConvertedGroundBlocks);
-  var enemyLocs = generateEnemies(blockw, blockh, 0, 0, blockLocations);
+  var enemyLocs = generateEnemies(0, 0, blockLocations);
   var objConvertedEnemies = convertToEnemyObj(enemyLocs, context);
   var coinsLocs = generateCoins(convertedBlockLocs);
-  var undupCoinLocs = trimEdges(removeOverlap(coinsLocs, convertedBlockLocs), blockw, blockh);
+  var undupCoinLocs = trimEdges(removeOverlap(coinsLocs, convertedBlockLocs));
   var enemyBlockLocs = generateBlockEnemies(convertedBlockLocs);
   var undupEnemyBlockLocs = removeOverlap(removeOverlap(enemyBlockLocs, convertedBlockLocs), coinsLocs);
   var objEnemyBlocks = convertToEnemyObj(undupEnemyBlockLocs, context);
   var coinObjects = convertToCoinObj(undupCoinLocs, context);
-  var objPanel = generatePanel(blockw, blockh);
+  var objPanel = generatePanel(undefined);
   return Pervasives.$at(allBlocks, Pervasives.$at(objConvertedEnemies, Pervasives.$at(coinObjects, Pervasives.$at(objEnemyBlocks, /* :: */{
                           _0: objPanel,
                           _1: /* [] */0
@@ -764,9 +755,7 @@ function generateHelper(blockw, blockh, context) {
 
 function generate(param) {
   var initial = performance.now();
-  var blockw = Config.levelWidth / 16;
-  var blockh = Config.levelHeight / 16 - 1;
-  var collideList = generateHelper(blockw, blockh, Load.getContext(undefined));
+  var collideList = generateHelper(Load.getContext(undefined));
   var player = $$Object.spawn({
         TAG: /* SPlayer */0,
         _0: /* SmallM */1,
@@ -776,7 +765,7 @@ function generate(param) {
         y: 224
       });
   var elapsed = performance.now() - initial;
-  console.log("generated", List.length(collideList), "objects in " + (elapsed.toString() + " milliseconds"));
+  console.log("generated", Belt_List.length(collideList), "objects in " + (elapsed.toString() + " milliseconds"));
   return [
           player,
           collideList
@@ -791,6 +780,9 @@ export {
   convertList ,
   memPos ,
   removeOverlap ,
+  pixx ,
+  pixy ,
+  trimEdge ,
   trimEdges ,
   generateGroundStairs ,
   generateAirupStairs ,
