@@ -547,7 +547,7 @@ function generateBlockLocs(_cbx, _cby, _acc) {
 }
 
 function generatePanel(param) {
-  var match = $$Object.make(/* Left */0, Sprite.makeFromParams(Sprite.makeBlock(/* Panel */4)), $$Object.makeBlock(/* Panel */4), Config.blockw * 16 - 256, Config.blockh * 16 * 2 / 3);
+  var match = $$Object.make(/* Left */0, Sprite.makeBlock(/* Panel */4), $$Object.makeBlock(/* Panel */4), Config.blockw * 16 - 256, Config.blockh * 16 * 2 / 3);
   return {
           TAG: /* Block */3,
           _0: /* Panel */4,
@@ -601,7 +601,7 @@ function convertToBlockObj(lst, context) {
   }
   var match = lst._0;
   var blockTyp = match[0];
-  var match$1 = $$Object.make(/* Left */0, Sprite.makeFromParams(Sprite.makeBlock(blockTyp)), $$Object.makeBlock(blockTyp), match[1], match[2]);
+  var match$1 = $$Object.make(/* Left */0, Sprite.makeBlock(blockTyp), $$Object.makeBlock(blockTyp), match[1], match[2]);
   var ob_1 = match$1[0];
   var ob_2 = match$1[1];
   var ob = {
@@ -622,7 +622,7 @@ function convertToEnemyObj(lst, context) {
   }
   var match = lst._0;
   var enemyTyp = match[0];
-  var match$1 = $$Object.make(/* Left */0, Sprite.makeFromParams(Sprite.makeEnemy(enemyTyp, /* Left */0)), $$Object.makeEnemy(enemyTyp), match[1], match[2]);
+  var match$1 = $$Object.make(/* Left */0, Sprite.makeEnemy(enemyTyp, /* Left */0), $$Object.makeEnemy(enemyTyp), match[1], match[2]);
   var obj = match$1[1];
   $$Object.setVelToSpeed(obj);
   var ob_1 = match$1[0];
@@ -643,7 +643,7 @@ function convertToCoinObj(lst, context) {
     return /* [] */0;
   }
   var match = lst._0;
-  var match$1 = $$Object.make(/* Left */0, Sprite.makeFromParams(Sprite.makeItem(/* Coin */1)), $$Object.makeItem(/* Coin */1), match[1], match[2]);
+  var match$1 = $$Object.make(/* Left */0, Sprite.makeItem(/* Coin */1), $$Object.makeItem(/* Coin */1), match[1], match[2]);
   var ob_1 = match$1[0];
   var ob_2 = match$1[1];
   var ob = {
@@ -683,7 +683,7 @@ function generateHelper(context) {
 function generate(param) {
   var initial = performance.now();
   var collideList = generateHelper(Load.getContext(undefined));
-  var match = $$Object.make(/* Left */0, Sprite.makeFromParams(Sprite.makePlayer(/* SmallM */1, /* Standing */0, /* Left */0)), $$Object.makePlayer(undefined), 100, 224);
+  var match = $$Object.make(/* Left */0, Sprite.makePlayer(/* SmallM */1, /* Standing */0, /* Left */0), $$Object.makePlayer(undefined), 100, 224);
   var player_1 = match[0];
   var player_2 = match[1];
   var player = {

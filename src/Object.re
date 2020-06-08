@@ -85,7 +85,6 @@ let newId = () => {
   idCounter^;
 };
 
-// create a new sprite and object from a spawnable object
 let make = (~dir, spr, params, x, y) => {
   let id = newId();
   let obj = {
@@ -108,7 +107,7 @@ let make = (~dir, spr, params, x, y) => {
     crouch: false,
     score: 0,
   };
-  (spr, obj);
+  (spr->Sprite.makeFromParams, obj);
 };
 
 /*Helper methods for getting sprites and objects from their collidables*/
@@ -228,8 +227,7 @@ let updatePlayer = (player, keys) => {
   | Some(playerTyp) =>
     Some((
       plSize,
-      Sprite.makePlayer(plSize, playerTyp, player.dir)
-      ->Sprite.makeFromParams,
+      Sprite.makePlayer(plSize, playerTyp, player.dir)->Sprite.makeFromParams,
     ))
   | None => None
   };
@@ -297,7 +295,7 @@ let evolveEnemy = (player_dir, typ, spr: Sprite.t, obj) =>
     let (new_spr, new_obj) =
       make(
         ~dir=obj.dir,
-        Sprite.makeEnemy(GKoopaShell, obj.dir)->Sprite.makeFromParams,
+        Sprite.makeEnemy(GKoopaShell, obj.dir),
         makeEnemy(GKoopaShell),
         obj.pos.x,
         obj.pos.y,
@@ -308,7 +306,7 @@ let evolveEnemy = (player_dir, typ, spr: Sprite.t, obj) =>
     let (new_spr, new_obj) =
       make(
         ~dir=obj.dir,
-        Sprite.makeEnemy(RKoopaShell, obj.dir)->Sprite.makeFromParams,
+        Sprite.makeEnemy(RKoopaShell, obj.dir),
         makeEnemy(RKoopaShell),
         obj.pos.x,
         obj.pos.y,
@@ -352,7 +350,7 @@ let evolveBlock = obj => {
   let (new_spr, new_obj) =
     make(
       ~dir=obj.dir,
-      Sprite.makeBlock(QBlockUsed)->Sprite.makeFromParams,
+      Sprite.makeBlock(QBlockUsed),
       makeBlock(QBlockUsed),
       obj.pos.x,
       obj.pos.y,
@@ -366,7 +364,7 @@ let spawnAbove = (player_dir, obj, itemTyp) => {
     let (spr, obj) =
       make(
         ~dir=Left,
-        Sprite.makeItem(itemTyp)->Sprite.makeFromParams,
+        Sprite.makeItem(itemTyp),
         makeItem(itemTyp),
         obj.pos.x,
         obj.pos.y,

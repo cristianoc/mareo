@@ -243,7 +243,7 @@ let generatePanel = (): Object.collidable => {
   let (spr, obj) =
     Object.make(
       ~dir=Left,
-      Sprite.makeBlock(Panel)->Sprite.makeFromParams,
+      Sprite.makeBlock(Panel),
       Object.makeBlock(Panel),
       Config.blockw *. 16. -. 256.,
       Config.blockh *. 16. *. 2. /. 3.,
@@ -281,7 +281,7 @@ let rec convertToBlockObj =
     let (spr, obj) =
       Object.make(
         ~dir=Left,
-        Sprite.makeBlock(blockTyp)->Sprite.makeFromParams,
+        Sprite.makeBlock(blockTyp),
         Object.makeBlock(blockTyp),
         x,
         y,
@@ -301,7 +301,7 @@ let rec convertToEnemyObj =
     let (spr, obj) =
       Object.make(
         ~dir=Left,
-        Sprite.makeEnemy(enemyTyp, Left)->Sprite.makeFromParams,
+        Sprite.makeEnemy(enemyTyp, Left),
         Object.makeEnemy(enemyTyp),
         x,
         y,
@@ -321,7 +321,7 @@ let rec convertToCoinObj =
     let (spr, obj) =
       Object.make(
         ~dir=Left,
-        Sprite.makeItem(Coin)->Sprite.makeFromParams,
+        Sprite.makeItem(Coin),
         Object.makeItem(Coin),
         x,
         y,
@@ -363,7 +363,7 @@ let generate = (): (Object.collidable, list(Object.collidable)) => {
   let (spr, obj) =
     Object.make(
       ~dir=Left,
-      Sprite.makePlayer(SmallM, Standing, Left)->Sprite.makeFromParams,
+      Sprite.makePlayer(SmallM, Standing, Left),
       Object.makePlayer(),
       100.,
       224.,
