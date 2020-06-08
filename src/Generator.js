@@ -615,49 +615,17 @@ function makeToRemove(dirOpt, spawnable, x, y) {
         ];
 }
 
-function spawnToRemove(spawnable, x, y) {
-  var match = makeToRemove(undefined, spawnable, x, y);
-  var obj = match[1];
-  var spr = match[0];
-  switch (spawnable.TAG | 0) {
-    case /* SPlayer */0 :
-        return {
-                TAG: /* Player */0,
-                _0: spawnable._0,
-                _1: spr,
-                _2: obj
-              };
-    case /* SEnemy */1 :
-        $$Object.set_vel_to_speed(obj);
-        return {
-                TAG: /* Enemy */1,
-                _0: spawnable._0,
-                _1: spr,
-                _2: obj
-              };
-    case /* SItem */2 :
-        return {
-                TAG: /* Item */2,
-                _0: spawnable._0,
-                _1: spr,
-                _2: obj
-              };
-    case /* SBlock */3 :
-        return {
-                TAG: /* Block */3,
-                _0: spawnable._0,
-                _1: spr,
-                _2: obj
-              };
-    
-  }
-}
-
 function generatePanel(param) {
-  return spawnToRemove({
-              TAG: /* SBlock */3,
-              _0: /* Panel */4
-            }, Config.blockw * 16 - 256, Config.blockh * 16 * 2 / 3);
+  var match = makeToRemove(undefined, {
+        TAG: /* SBlock */3,
+        _0: /* Panel */4
+      }, Config.blockw * 16 - 256, Config.blockh * 16 * 2 / 3);
+  return {
+          TAG: /* Block */3,
+          _0: /* Panel */4,
+          _1: match[0],
+          _2: match[1]
+        };
 }
 
 function generateGround(_inc, _acc) {
@@ -704,10 +672,19 @@ function convertToBlockObj(lst, context) {
     return /* [] */0;
   }
   var match = lst._0;
-  var ob = spawnToRemove({
+  var blockTyp = match[0];
+  var match$1 = makeToRemove(undefined, {
         TAG: /* SBlock */3,
-        _0: match[0]
+        _0: blockTyp
       }, match[1], match[2]);
+  var ob_1 = match$1[0];
+  var ob_2 = match$1[1];
+  var ob = {
+    TAG: /* Block */3,
+    _0: blockTyp,
+    _1: ob_1,
+    _2: ob_2
+  };
   return Pervasives.$at(/* :: */{
               _0: ob,
               _1: /* [] */0
@@ -719,10 +696,20 @@ function convertToEnemyObj(lst, context) {
     return /* [] */0;
   }
   var match = lst._0;
-  var ob = spawnToRemove({
+  var enemyTyp = match[0];
+  var match$1 = makeToRemove(undefined, {
         TAG: /* SEnemy */1,
-        _0: match[0]
+        _0: enemyTyp
       }, match[1], match[2]);
+  var obj = match$1[1];
+  $$Object.set_vel_to_speed(obj);
+  var ob_1 = match$1[0];
+  var ob = {
+    TAG: /* Enemy */1,
+    _0: enemyTyp,
+    _1: ob_1,
+    _2: obj
+  };
   return Pervasives.$at(/* :: */{
               _0: ob,
               _1: /* [] */0
@@ -734,10 +721,18 @@ function convertToCoinObj(lst, context) {
     return /* [] */0;
   }
   var match = lst._0;
-  var ob = spawnToRemove({
+  var match$1 = makeToRemove(undefined, {
         TAG: /* SItem */2,
         _0: /* Coin */1
       }, match[1], match[2]);
+  var ob_1 = match$1[0];
+  var ob_2 = match$1[1];
+  var ob = {
+    TAG: /* Item */2,
+    _0: /* Coin */1,
+    _1: ob_1,
+    _2: ob_2
+  };
   return Pervasives.$at(/* :: */{
               _0: ob,
               _1: /* [] */0
@@ -769,11 +764,19 @@ function generateHelper(context) {
 function generate(param) {
   var initial = performance.now();
   var collideList = generateHelper(Load.getContext(undefined));
-  var player = spawnToRemove({
+  var match = makeToRemove(undefined, {
         TAG: /* SPlayer */0,
         _0: /* SmallM */1,
         _1: /* Standing */0
       }, 100, 224);
+  var player_1 = match[0];
+  var player_2 = match[1];
+  var player = {
+    TAG: /* Player */0,
+    _0: /* SmallM */1,
+    _1: player_1,
+    _2: player_2
+  };
   var elapsed = performance.now() - initial;
   console.log("generated", Belt_List.length(collideList), "objects in " + (elapsed.toString() + " milliseconds"));
   return [
@@ -808,7 +811,6 @@ export {
   maketoRemove0 ,
   makeTypeToremove$1 as makeTypeToremove,
   makeToRemove ,
-  spawnToRemove ,
   generatePanel ,
   generateGround ,
   convertToBlockObj ,

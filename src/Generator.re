@@ -292,29 +292,16 @@ let makeToRemove = (~dir=Left, spawnable, x, y) => {
   (spr, obj);
 };
 
-/*spawn returns a new collidable*/
-let spawnToRemove = (spawnable, x, y) => {
-  let (spr, obj) = makeToRemove(spawnable, x, y);
-  switch (spawnable) {
-  | SPlayer(typ, _) => Object.Player(typ, spr, obj)
-  | SEnemy(t) =>
-    Object.set_vel_to_speed(obj);
-    Enemy(t, spr, obj);
-  | SItem(t) => Item(t, spr, obj)
-  | SBlock(t) => Block(t, spr, obj)
-  };
-};
-
 // Generate the ending item panel at the end of the level. Games ends upon
 // collision with player.
 let generatePanel = (): Object.collidable => {
-  let ob =
-    spawnToRemove(
+  let (spr, obj) =
+    makeToRemove(
       SBlock(Panel),
       Config.blockw *. 16. -. 256.,
       Config.blockh *. 16. *. 2. /. 3.,
     );
-  ob;
+  Block(Panel, spr, obj);
 };
 
 // Generate the list of brick locations needed to display the ground.
@@ -344,7 +331,8 @@ let rec convertToBlockObj =
   switch (lst) {
   | [] => []
   | [(blockTyp, x, y), ...t] =>
-    let ob = spawnToRemove(SBlock(blockTyp), x, y);
+    let (spr, obj) = makeToRemove(SBlock(blockTyp), x, y);
+    let ob = Object.Block(blockTyp, spr, obj);
     [ob] @ convertToBlockObj(t, context);
   };
 
@@ -356,7 +344,9 @@ let rec convertToEnemyObj =
   switch (lst) {
   | [] => []
   | [(enemyTyp, x, y), ...t] =>
-    let ob = spawnToRemove(SEnemy(enemyTyp), x, y);
+    let (spr, obj) = makeToRemove(SEnemy(enemyTyp), x, y);
+    Object.set_vel_to_speed(obj);
+    let ob = Object.Enemy(enemyTyp, spr, obj);
     [ob] @ convertToEnemyObj(t, context);
   };
 
@@ -367,8 +357,8 @@ let rec convertToCoinObj =
   switch (lst) {
   | [] => []
   | [(_, x, y), ...t] =>
-    let sitemTyp = Coin;
-    let ob = spawnToRemove(SItem(sitemTyp), x, y);
+    let (spr, obj) = makeToRemove(SItem(Coin), x, y);
+    let ob = Object.Item(Coin, spr, obj);
     [ob] @ convertToCoinObj(t, context);
   };
 
@@ -402,7 +392,8 @@ let generateHelper =
 let generate = (): (Object.collidable, list(Object.collidable)) => {
   let initial = Html.performance.now(.);
   let collideList = generateHelper(Load.getContext());
-  let player = spawnToRemove(SPlayer(SmallM, Standing), 100., 224.);
+  let (spr, obj) = makeToRemove(SPlayer(SmallM, Standing), 100., 224.);
+  let player = Object.Player(SmallM, spr, obj);
   let elapsed = Html.performance.now(.) -. initial;
   Js.log3(
     "generated",
