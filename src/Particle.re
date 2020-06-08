@@ -1,7 +1,7 @@
 open Actors;
 
 type part_params = {
-  sprite: Sprite.sprite,
+  sprite: Sprite.t,
   lifetime: int,
 };
 

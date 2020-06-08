@@ -1,9 +1,5 @@
 open Belt;
 
-open Sprite;
-
-open Object;
-
 open Actors;
 
 type status =
@@ -19,7 +15,7 @@ type status =
  * the ground, as in the actual Super Mario), and a game_over bool (which
  * is only true when the game is over). */
 type st = {
-  bgd: sprite,
+  bgd: Sprite.t,
   vpt: Viewport.viewport,
   map: float,
   mutable score: int,
@@ -57,29 +53,29 @@ let update_score = (state, i) => state.score = state.score + i;
 // case that the enemy is a shell. Invulnerability, jumping, and grounded
 // are used for fine tuning the movements.
 let playerAttackEnemy = (o1, typ, s2, o2, state) => {
-  o1.invuln = 10;
+  o1.Object.invuln = 10;
   o1.jumping = false;
   o1.grounded = true;
   switch (typ) {
   | GKoopaShell
   | RKoopaShell =>
-    let r2 = evolve_enemy(o1.dir, typ, s2, o2);
-    o1.vel.y = -. dampen_jump;
+    let r2 = Object.evolve_enemy(o1.dir, typ, s2, o2);
+    o1.vel.y = -. Object.dampen_jump;
     o1.pos.y = o1.pos.y -. 5.;
     (None, r2);
   | _ =>
-    dec_health(o2);
-    o1.vel.y = -. dampen_jump;
+    Object.dec_health(o2);
+    o1.vel.y = -. Object.dampen_jump;
     if (state.multiplier == 8) {
       update_score(state, 800);
       o2.score = 800;
-      (None, evolve_enemy(o1.dir, typ, s2, o2));
+      (None, Object.evolve_enemy(o1.dir, typ, s2, o2));
     } else {
       let score = 100 * state.multiplier;
       update_score(state, score);
       o2.score = score;
       state.multiplier = state.multiplier * 2;
-      (None, evolve_enemy(o1.dir, typ, s2, o2));
+      (None, Object.evolve_enemy(o1.dir, typ, s2, o2));
     };
   };
 };
@@ -91,16 +87,16 @@ let enemyAttackPlayer = (o1: Object.obj, t2, s2, o2: Object.obj) => {
   | RKoopaShell =>
     let r2 =
       if (o2.vel.x == 0.) {
-        evolve_enemy(o1.dir, t2, s2, o2);
+        Object.evolve_enemy(o1.dir, t2, s2, o2);
       } else {
-        dec_health(o1);
-        o1.invuln = invuln;
+        Object.dec_health(o1);
+        o1.invuln = Object.invuln;
         None;
       };
     (None, r2);
   | _ =>
-    dec_health(o1);
-    o1.invuln = invuln;
+    Object.dec_health(o1);
+    o1.invuln = Object.invuln;
     (None, None);
   };
 };
@@ -114,33 +110,33 @@ let col_enemy_enemy = (t1, s1, o1, t2, s2, o2, dir) =>
   | (GKoopaShell, RKoopaShell)
   | (RKoopaShell, RKoopaShell)
   | (RKoopaShell, GKoopaShell) =>
-    dec_health(o1);
-    dec_health(o2);
+    Object.dec_health(o1);
+    Object.dec_health(o2);
     (None, None);
   | (RKoopaShell, _)
   | (GKoopaShell, _) =>
     if (o1.vel.x == 0.) {
-      rev_dir(o2, t2, s2);
+      Object.rev_dir(o2, t2, s2);
       (None, None);
     } else {
-      dec_health(o2);
+      Object.dec_health(o2);
       (None, None);
     }
   | (_, RKoopaShell)
   | (_, GKoopaShell) =>
     if (o2.vel.x == 0.) {
-      rev_dir(o1, t1, s1);
+      Object.rev_dir(o1, t1, s1);
       (None, None);
     } else {
-      dec_health(o1);
+      Object.dec_health(o1);
       (None, None);
     }
   | (_, _) =>
     switch (dir) {
     | West
     | East =>
-      rev_dir(o1, t1, s1);
-      rev_dir(o2, t2, s2);
+      Object.rev_dir(o1, t1, s1);
+      Object.rev_dir(o2, t2, s2);
       (None, None);
     | _ => (None, None)
     }
@@ -170,7 +166,7 @@ let process_collision =
   | (Item(t2, _, o2), Player(_, _, o1), _) =>
     switch (t2) {
     | Mushroom =>
-      dec_health(o2);
+      Object.dec_health(o2);
       if (o1.health == 2) {
         ();
       } else {
@@ -183,7 +179,7 @@ let process_collision =
       (None, None);
     | Coin =>
       state.coins = state.coins + 1;
-      dec_health(o2);
+      Object.dec_health(o2);
       update_score(state, 100);
       (None, None);
     }
@@ -194,48 +190,48 @@ let process_collision =
     switch (t1, t2) {
     | (RKoopaShell, Brick)
     | (GKoopaShell, Brick) =>
-      dec_health(o2);
-      reverse_left_right(o1);
+      Object.dec_health(o2);
+      Object.reverse_left_right(o1);
       (None, None);
     | (RKoopaShell, QBlock(typ))
     | (GKoopaShell, QBlock(typ)) =>
-      let updated_block = evolve_block(o2);
-      let spawned_item = spawn_above(o1.dir, o2, typ);
-      rev_dir(o1, t1, s1);
+      let updated_block = Object.evolve_block(o2);
+      let spawned_item = Object.spawn_above(o1.dir, o2, typ);
+      Object.rev_dir(o1, t1, s1);
       (Some(updated_block), Some(spawned_item));
     | (_, _) =>
-      rev_dir(o1, t1, s1);
+      Object.rev_dir(o1, t1, s1);
       (None, None);
     }
   | (Item(_, _, o1), Block(_, _, _), East)
   | (Item(_, _, o1), Block(_, _, _), West) =>
-    reverse_left_right(o1);
+    Object.reverse_left_right(o1);
     (None, None);
   | (Enemy(_, _, o1), Block(_, _, _), _)
   | (Item(_, _, o1), Block(_, _, _), _) =>
-    collide_block(dir, o1);
+    Object.collide_block(dir, o1);
     (None, None);
   | (Player(t1, _, o1), Block(t, _, o2), North) =>
     switch (t) {
     | QBlock(typ) =>
-      let updated_block = evolve_block(o2);
-      let spawned_item = spawn_above(o1.dir, o2, typ);
-      collide_block(dir, o1);
+      let updated_block = Object.evolve_block(o2);
+      let spawned_item = Object.spawn_above(o1.dir, o2, typ);
+      Object.collide_block(dir, o1);
       (Some(spawned_item), Some(updated_block));
     | Brick =>
       if (t1 == BigM) {
-        collide_block(dir, o1);
-        dec_health(o2);
+        Object.collide_block(dir, o1);
+        Object.dec_health(o2);
         (None, None);
       } else {
-        collide_block(dir, o1);
+        Object.collide_block(dir, o1);
         (None, None);
       }
     | Panel =>
       state.status = Won;
       (None, None);
     | _ =>
-      collide_block(dir, o1);
+      Object.collide_block(dir, o1);
       (None, None);
     }
   | (Player(_, _, o1), Block(t, _, _), _) =>
@@ -247,10 +243,10 @@ let process_collision =
       switch (dir) {
       | South =>
         state.multiplier = 1;
-        collide_block(dir, o1);
+        Object.collide_block(dir, o1);
         (None, None);
       | _ =>
-        collide_block(dir, o1);
+        Object.collide_block(dir, o1);
         (None, None);
       }
     }
@@ -260,10 +256,10 @@ let process_collision =
 
 /* Run the broad phase object filtering */
 let broad_phase = (collid, all_collids, state) => {
-  let obj = get_obj(collid);
+  let obj = Object.get_obj(collid);
   List.keep(all_collids, _c =>
     Viewport.in_viewport(state.vpt, obj.pos)
-    || is_player(collid)
+    || Object.is_player(collid)
     || Viewport.out_of_viewport_below(state.vpt, obj.pos.y)
   );
 };
@@ -276,13 +272,13 @@ let narrow_phase = (c, cs, state) => {
     switch (cs) {
     | [] => acc
     | [h, ...t] =>
-      let c_obj = get_obj(c);
+      let c_obj = Object.get_obj(c);
       let new_objs =
-        if (!equals(c, h)) {
+        if (!Object.equals(c, h)) {
           switch (Object.check_collision(c, h)) {
           | None => (None, None)
           | Some(dir) =>
-            if (get_obj(h).id != c_obj.id) {
+            if (Object.get_obj(h).id != c_obj.id) {
               /*( (if (if is_rkoopa c then
                 begin match c_obj.dir with
                 | Left -> is_block c_obj.dir {x= c_obj.pos.x -. 16.; y= c_obj.pos.y -. 27.} cs
@@ -327,7 +323,7 @@ let narrow_phase = (c, cs, state) => {
  * */
 let check_collisions = (collid, all_collids, state) =>
   switch (collid) {
-  | Block(_, _, _) => []
+  | Object.Block(_, _, _) => []
   | _ =>
     let broad = broad_phase(collid, all_collids, state);
     narrow_phase(collid, broad, state);
@@ -349,7 +345,7 @@ let update_collidable = (state, collid: Object.collidable, all_collids) => {
   /* Prevent position from being updated outside of viewport */
   let viewport_filter =
     Viewport.in_viewport(state.vpt, obj.pos)
-    || is_player(collid)
+    || Object.is_player(collid)
     || Viewport.out_of_viewport_below(state.vpt, obj.pos.y);
   if (!obj.kill && viewport_filter) {
     obj.grounded = false;
@@ -362,7 +358,7 @@ let update_collidable = (state, collid: Object.collidable, all_collids) => {
     if (Keys.check_bbox_enabled()) {
       Draw.renderBbox(spr, vpt_adj_xy.x, vpt_adj_xy.y);
     };
-    if (obj.vel.x != 0. || !is_enemy(collid)) {
+    if (obj.vel.x != 0. || !Object.is_enemy(collid)) {
       Sprite.update_animation(spr);
     };
     evolved;
@@ -377,7 +373,7 @@ let update_collidable = (state, collid: Object.collidable, all_collids) => {
  * such as viewport centering only occur with the player.*/
 let run_update_collid = (state, collid, all_collids) =>
   switch (collid) {
-  | Player(_, s, o) as p =>
+  | Object.Player(_, s, o) as p =>
     let keys = Keys.translate_keys();
     o.crouch = false;
     let player =
@@ -391,7 +387,7 @@ let run_update_collid = (state, collid, all_collids) =>
     collid_objs := collid_objs^ @ evolved;
     player;
   | _ =>
-    let obj = get_obj(collid);
+    let obj = Object.get_obj(collid);
     let evolved = update_collidable(state, collid, all_collids);
     if (!obj.kill) {
       collid_objs := [collid, ...collid_objs^ @ evolved];
@@ -426,7 +422,7 @@ let rec updateLoop = ((player, objs)) => {
   let viewport = Viewport.make((cwidth, cheight), Config.mapDim);
   let state = {
     bgd: Sprite.make_bgd(),
-    vpt: Viewport.update(viewport, get_obj(player).pos),
+    vpt: Viewport.update(viewport, Object.get_obj(player).pos),
     score: 0,
     coins: 0,
     multiplier: 1,
@@ -466,7 +462,7 @@ let rec updateLoop = ((player, objs)) => {
         [@doesNotRaise] float_of_int(vpos_x_int mod bgd_width),
       );
       let player = run_update_collid(state, player, objs);
-      if (get_obj(player).kill == true) {
+      if (Object.get_obj(player).kill == true) {
         switch (state.status) {
         | Lost(_) => ()
         | _ => state.status = Lost(time)
@@ -474,7 +470,7 @@ let rec updateLoop = ((player, objs)) => {
       };
       let state = {
         ...state,
-        vpt: Viewport.update(state.vpt, get_obj(player).pos),
+        vpt: Viewport.update(state.vpt, Object.get_obj(player).pos),
       };
       List.forEach(objs, obj => run_update_collid(state, obj, objs));
       List.forEach(parts, part => run_update_particle(state, part));

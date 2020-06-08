@@ -47,10 +47,10 @@ type obj = {
 };
 
 type collidable =
-  | Player(pl_typ, Sprite.sprite, obj)
-  | Enemy(enemyTyp, Sprite.sprite, obj)
-  | Item(item_typ, Sprite.sprite, obj)
-  | Block(blockTyp, Sprite.sprite, obj);
+  | Player(pl_typ, Sprite.t, obj)
+  | Enemy(enemyTyp, Sprite.t, obj)
+  | Item(item_typ, Sprite.t, obj)
+  | Block(blockTyp, Sprite.t, obj);
 
 /*setup_obj is used to set gravity and speed, with default values true and 1.*/
 let setup_obj = (~g as has_gravity=true, ~spd as speed=1., ()) => {
@@ -193,7 +193,7 @@ let update_player_keys = (player: obj, controls: controls): unit => {
 /*Used for sprite changing. If sprites change to different dimensions as a result
  *of some action, the new sprite must be normalized so that things aren't
  *jumpy*/
-let normalize_pos = (pos, p1: Sprite.sprite_params, p2: Sprite.sprite_params) => {
+let normalize_pos = (pos, p1: Sprite.params, p2: Sprite.params) => {
   let (box1, boy1) = p1.bboxOffset
   and (box2, boy2) = p2.bboxOffset;
   let (bw1, bh1) = p1.bboxSize
@@ -304,7 +304,7 @@ let reverse_left_right = obj => {
 /*Actually creates a new enemy and deletes the previous. The positions must be
  *normalized. This method is typically called when enemies are killed and a
  *new sprite must be used (i.e., koopa to koopa shell). */
-let evolve_enemy = (player_dir, typ, spr: Sprite.sprite, obj) =>
+let evolve_enemy = (player_dir, typ, spr: Sprite.t, obj) =>
   switch (typ) {
   | GKoopa =>
     let (new_spr, new_obj) =
@@ -342,7 +342,7 @@ let evolve_enemy = (player_dir, typ, spr: Sprite.sprite, obj) =>
   };
 
 /*Updates the direction of the sprite. */
-let rev_dir = (o, t, s: Sprite.sprite) => {
+let rev_dir = (o, t, s: Sprite.t) => {
   reverse_left_right(o);
   let old_params = s.params;
   Sprite.transform_enemy(t, s, o.dir);
@@ -377,7 +377,8 @@ let evolve_block = obj => {
 let spawn_above = (player_dir, obj, itemTyp) => {
   let item = {
     let (spr, obj) =
-      make(~dir=Left,
+      make(
+        ~dir=Left,
         Sprite.make_item(itemTyp)->Sprite.make_from_params,
         make_item(itemTyp),
         obj.pos.x,

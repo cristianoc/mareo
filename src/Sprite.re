@@ -2,7 +2,7 @@ open Actors;
 
 type xy = (float, float);
 
-type sprite_params = {
+type params = {
   maxFrames: int,
   maxTicks: int,
   imgSrc: string,
@@ -12,8 +12,8 @@ type sprite_params = {
   bboxSize: xy,
 };
 
-type sprite = {
-  mutable params: sprite_params,
+type t = {
+  mutable params,
   mutable frame: int,
   mutable ticks: int,
   mutable img: Html.imageElement,
@@ -386,7 +386,7 @@ let transform_enemy = (enemy_typ, spr, dir) => {
 };
 
 /*update_animation is the main method to cycle through sprite animations*/
-let update_animation = (spr: sprite) => {
+let update_animation = (spr: t) => {
   /* Only advance frame when ticked */
   let curr_ticks = spr.ticks;
   if (curr_ticks >= spr.params.maxTicks) {
