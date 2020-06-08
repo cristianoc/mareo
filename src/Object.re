@@ -7,15 +7,15 @@ type aabb = {
   half: xy,
 };
 
-type obj_params = {
+type params = {
   has_gravity: bool,
   speed: float,
 };
 
 let id_counter = ref(min_int);
 
-type obj = {
-  params: obj_params,
+type t = {
+  params,
   pos: xy,
   vel: xy,
   id: int,
@@ -30,10 +30,10 @@ type obj = {
 };
 
 type collidable =
-  | Player(pl_typ, Sprite.t, obj)
-  | Enemy(enemyTyp, Sprite.t, obj)
-  | Item(item_typ, Sprite.t, obj)
-  | Block(blockTyp, Sprite.t, obj);
+  | Player(pl_typ, Sprite.t, t)
+  | Enemy(enemyTyp, Sprite.t, t)
+  | Item(item_typ, Sprite.t, t)
+  | Block(blockTyp, Sprite.t, t);
 
 /*setup_obj is used to set gravity and speed, with default values true and 1.*/
 let setup_obj = (~g as has_gravity=true, ~spd as speed=1., ()) => {
@@ -139,7 +139,7 @@ let is_enemy =
 let equals = (col1, col2) => get_obj(col1).id == get_obj(col2).id;
 
 /*Matches the controls being used and updates each of the player's params.*/
-let update_player_keys = (player: obj, controls: controls): unit => {
+let update_player_keys = (player: t, controls: controls): unit => {
   let lr_acc = player.vel.x *. 0.2;
   switch (controls) {
   | CLeft =>

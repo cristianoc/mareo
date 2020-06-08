@@ -81,7 +81,7 @@ let playerAttackEnemy = (o1, typ, s2, o2, state) => {
 };
 
 // enemyAttackPlayer is used when an enemy kills a player.
-let enemyAttackPlayer = (o1: Object.obj, t2, s2, o2: Object.obj) => {
+let enemyAttackPlayer = (o1: Object.t, t2, s2, o2: Object.t) => {
   switch (t2) {
   | GKoopaShell
   | RKoopaShell =>
