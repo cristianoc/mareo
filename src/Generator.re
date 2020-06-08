@@ -339,23 +339,19 @@ let rec convertToCoinObj =
 // block form, not pixels.
 let generateHelper =
     (context: Html.canvasRenderingContext2D): list(collidable) => {
-  let blockLocs = generateBlockLocs(0., 0., []);
-  let convertedBlockLocs = trimEdges(convertList(blockLocs));
-  let objConvertedBlockLocs = convertToBlockObj(convertedBlockLocs, context);
+  let blockLocs = generateBlockLocs(0., 0., [])->convertList->trimEdges;
+  let objConvertedBlockLocs = convertToBlockObj(blockLocs, context);
   let groundBlocks = generateGround(0., []);
   let objConvertedGroundBlocks = convertToBlockObj(groundBlocks, context);
   let blockLocations = blockLocs @ groundBlocks;
   let allBlocks = objConvertedBlockLocs @ objConvertedGroundBlocks;
   let enemyLocs = generateEnemies(0., 0., blockLocations);
   let objConvertedEnemies = convertToEnemyObj(enemyLocs, context);
-  let coinsLocs = generateCoins(convertedBlockLocs);
-  let undupCoinLocs =
-    trimEdges(removeOverlap(coinsLocs, convertedBlockLocs));
-  let enemyBlockLocs = generateBlockEnemies(convertedBlockLocs);
+  let coinsLocs = generateCoins(blockLocs);
+  let undupCoinLocs = trimEdges(removeOverlap(coinsLocs, blockLocs));
+  let enemyBlockLocs = generateBlockEnemies(blockLocs);
   let undupEnemyBlockLocs =
-    enemyBlockLocs
-    ->removeOverlap(convertedBlockLocs)
-    ->removeOverlap(coinsLocs);
+    enemyBlockLocs->removeOverlap(blockLocs)->removeOverlap(coinsLocs);
   let objEnemyBlocks = convertToEnemyObj(undupEnemyBlockLocs, context);
   let coinObjects = convertToCoinObj(undupCoinLocs, context);
   let objPanel = generatePanel();

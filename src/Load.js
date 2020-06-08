@@ -8,7 +8,7 @@ import * as CamlinternalLazy from "bs-platform/lib/es6/camlinternalLazy.js";
 var canvasAndContext = {
   RE_LAZY_DONE: false,
   value: (function () {
-      Random.self_init(undefined);
+      Random.init(34);
       var el = document.getElementById(Config.canvasId);
       if (el !== null) {
         var context = el.getContext("2d");
@@ -24,7 +24,7 @@ var canvasAndContext = {
             RE_EXN_ID: "Assert_failure",
             _1: [
               "Load.re",
-              8,
+              9,
               8
             ],
             Error: new Error()

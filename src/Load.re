@@ -1,7 +1,8 @@
 let canvasAndContext =
   lazy(
     {
-      Random.self_init();
+      //Random.self_init();
+      Random.init(34);
       switch (Html.getElementById(Html.document, Config.canvasId)) {
       | None =>
         print_endline("cant find canvas " ++ Config.canvasId ++ " \n");

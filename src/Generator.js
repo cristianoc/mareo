@@ -731,19 +731,18 @@ function convertToCoinObj(lst, context) {
 }
 
 function generateHelper(context) {
-  var blockLocs = generateBlockLocs(0, 0, /* [] */0);
-  var convertedBlockLocs = trimEdges(convertList(blockLocs));
-  var objConvertedBlockLocs = convertToBlockObj(convertedBlockLocs, context);
+  var blockLocs = trimEdges(convertList(generateBlockLocs(0, 0, /* [] */0)));
+  var objConvertedBlockLocs = convertToBlockObj(blockLocs, context);
   var groundBlocks = generateGround(0, /* [] */0);
   var objConvertedGroundBlocks = convertToBlockObj(groundBlocks, context);
   var blockLocations = Pervasives.$at(blockLocs, groundBlocks);
   var allBlocks = Pervasives.$at(objConvertedBlockLocs, objConvertedGroundBlocks);
   var enemyLocs = generateEnemies(0, 0, blockLocations);
   var objConvertedEnemies = convertToEnemyObj(enemyLocs, context);
-  var coinsLocs = generateCoins(convertedBlockLocs);
-  var undupCoinLocs = trimEdges(removeOverlap(coinsLocs, convertedBlockLocs));
-  var enemyBlockLocs = generateBlockEnemies(convertedBlockLocs);
-  var undupEnemyBlockLocs = removeOverlap(removeOverlap(enemyBlockLocs, convertedBlockLocs), coinsLocs);
+  var coinsLocs = generateCoins(blockLocs);
+  var undupCoinLocs = trimEdges(removeOverlap(coinsLocs, blockLocs));
+  var enemyBlockLocs = generateBlockEnemies(blockLocs);
+  var undupEnemyBlockLocs = removeOverlap(removeOverlap(enemyBlockLocs, blockLocs), coinsLocs);
   var objEnemyBlocks = convertToEnemyObj(undupEnemyBlockLocs, context);
   var coinObjects = convertToCoinObj(undupCoinLocs, context);
   var objPanel = generatePanel(undefined);
