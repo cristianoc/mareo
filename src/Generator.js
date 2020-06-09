@@ -349,7 +349,7 @@ function generateGround(_inc, _acc) {
   };
 }
 
-function convertToBlockObj(lst, context) {
+function convertToBlockObj(lst) {
   if (!lst) {
     return /* [] */0;
   }
@@ -367,7 +367,7 @@ function convertToBlockObj(lst, context) {
   return Pervasives.$at(/* :: */{
               _0: ob,
               _1: /* [] */0
-            }, convertToBlockObj(lst._1, context));
+            }, convertToBlockObj(lst._1));
 }
 
 function convertToEnemyObj(lst, context) {
@@ -419,9 +419,9 @@ function generateHelper(param) {
   };
   generateBlockLocs(0, 0, blockLocs);
   var blockLocs$1 = blockLocs.contents;
-  var objConvertedBlockLocs = convertToBlockObj(blockLocs$1, context);
+  var objConvertedBlockLocs = convertToBlockObj(blockLocs$1);
   var groundBlocks = generateGround(0, /* [] */0);
-  var objConvertedGroundBlocks = convertToBlockObj(groundBlocks, context);
+  var objConvertedGroundBlocks = convertToBlockObj(groundBlocks);
   var blockLocations = Pervasives.$at(blockLocs$1, groundBlocks);
   var allBlocks = Pervasives.$at(objConvertedBlockLocs, objConvertedGroundBlocks);
   var enemyLocs = generateEnemies(0, 0, blockLocations);

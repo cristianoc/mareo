@@ -259,9 +259,7 @@ let rec generateGround = (inc: int, acc: list(blockCoord)): list(blockCoord) =>
 
 // Convert the objCoord list called by generateBlockLocs to a list of objects
 // with the coordinates given from the objCoord list.
-let rec convertToBlockObj =
-        (lst: list(blockCoord), context: Html.canvasRenderingContext2D)
-        : list(Object.collidable) =>
+let rec convertToBlockObj = (lst: list(blockCoord)): list(Object.collidable) =>
   switch (lst) {
   | [] => []
   | [(blockTyp, x, y), ...t] =>
@@ -274,7 +272,7 @@ let rec convertToBlockObj =
         float_of_int(y),
       );
     let ob = Object.Block(blockTyp, spr, obj);
-    [ob] @ convertToBlockObj(t, context);
+    [ob] @ convertToBlockObj(t);
   };
 
 // Convert the objCoord list called by generateEnemies to a list of objects
@@ -325,9 +323,9 @@ let generateHelper = (): list(Object.collidable) => {
   let blockLocs = ref([]);
   generateBlockLocs(0, 0, blockLocs);
   let blockLocs = blockLocs^;
-  let objConvertedBlockLocs = convertToBlockObj(blockLocs, context);
+  let objConvertedBlockLocs = convertToBlockObj(blockLocs);
   let groundBlocks = generateGround(0, []);
-  let objConvertedGroundBlocks = convertToBlockObj(groundBlocks, context);
+  let objConvertedGroundBlocks = convertToBlockObj(groundBlocks);
   let blockLocations = blockLocs @ groundBlocks;
   let allBlocks = objConvertedBlockLocs @ objConvertedGroundBlocks;
   let enemyLocs = generateEnemies(0, 0, blockLocations);
