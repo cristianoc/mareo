@@ -57,14 +57,6 @@ function trimEdges(lst) {
               }));
 }
 
-function convertItem(param) {
-  return [
-          param[0],
-          (param[1] << 4),
-          (param[2] << 4)
-        ];
-}
-
 function addBlock(blocks, blockTyp, x, y) {
   if (!memPos((x << 4), (y << 4), blocks.contents)) {
     blocks.contents = /* :: */{
@@ -474,7 +466,6 @@ export {
   pixy ,
   trimEdge ,
   trimEdges ,
-  convertItem ,
   addBlock ,
   generateGroundStairs ,
   generateAirupStairs ,
