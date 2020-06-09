@@ -58,7 +58,7 @@ function trimEdges(lst) {
 }
 
 function addBlock(blocks, blockTyp, x, y) {
-  if (!memPos((x << 4), (y << 4), blocks.contents)) {
+  if (!memPos((x << 4), (y << 4), blocks.contents) && trimEdge((x << 4), (y << 4))) {
     blocks.contents = /* :: */{
       _0: [
         blockTyp,
@@ -418,7 +418,7 @@ function generateHelper(param) {
     contents: /* [] */0
   };
   generateBlockLocs(0, 0, blockLocs);
-  var blockLocs$1 = trimEdges(blockLocs.contents);
+  var blockLocs$1 = blockLocs.contents;
   var objConvertedBlockLocs = convertToBlockObj(blockLocs$1, context);
   var groundBlocks = generateGround(0, /* [] */0);
   var objConvertedGroundBlocks = convertToBlockObj(groundBlocks, context);

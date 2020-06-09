@@ -42,7 +42,7 @@ let trimEdge = (x, y) => {
 let trimEdges = lst => lst->List.keep(((_, x, y)) => trimEdge(x, y));
 
 let addBlock = (blocks, blockTyp, x, y) =>
-  if (!memPos(x * 16, y * 16, blocks^)) {
+  if (!memPos(x * 16, y * 16, blocks^) && trimEdge(x * 16, y * 16)) {
     blocks := [(blockTyp, x * 16, y * 16), ...blocks^];
   };
 
@@ -324,7 +324,7 @@ let generateHelper = (): list(Object.collidable) => {
   let context = Load.getContext();
   let blockLocs = ref([]);
   generateBlockLocs(0, 0, blockLocs);
-  let blockLocs = (blockLocs^)->trimEdges;
+  let blockLocs = blockLocs^;
   let objConvertedBlockLocs = convertToBlockObj(blockLocs, context);
   let groundBlocks = generateGround(0, []);
   let objConvertedGroundBlocks = convertToBlockObj(groundBlocks, context);
