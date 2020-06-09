@@ -387,18 +387,22 @@ function process_collision(dir, c1, c2, state) {
   }
 }
 
-function broad_phase(collid, all_collids, state) {
+function viewportFilter(state, obj, collid) {
+  if (Viewport.inViewport(state.vpt, obj.pos) || $$Object.isPlayer(collid)) {
+    return true;
+  } else {
+    return Viewport.outOfViewportBelow(state.vpt, obj.pos.y);
+  }
+}
+
+function broadPhase(collid, all_collids, state) {
   var obj = $$Object.getObj(collid);
   return Belt_List.keep(all_collids, (function (_c) {
-                if (Viewport.in_viewport(state.vpt, obj.pos) || $$Object.isPlayer(collid)) {
-                  return true;
-                } else {
-                  return Viewport.out_of_viewport_below(state.vpt, obj.pos.y);
-                }
+                return viewportFilter(state, obj, collid);
               }));
 }
 
-function narrow_phase(c, cs, state) {
+function narrowPhase(c, cs, state) {
   var _cs = cs;
   var _acc = /* [] */0;
   while(true) {
@@ -449,26 +453,25 @@ function narrow_phase(c, cs, state) {
   };
 }
 
-function check_collisions(collid, all_collids, state) {
+function checkCollisions(collid, all_collids, state) {
   if (collid.TAG === /* Block */3) {
     return /* [] */0;
   }
-  var broad = broad_phase(collid, all_collids, state);
-  return narrow_phase(collid, broad, state);
+  var broad = broadPhase(collid, all_collids, state);
+  return narrowPhase(collid, broad, state);
 }
 
-function update_collidable(state, collid, all_collids) {
+function updateCollidable(state, collid, all_collids) {
   var obj = $$Object.getObj(collid);
   var spr = $$Object.getSprite(collid);
   obj.invuln = obj.invuln > 0 ? obj.invuln - 1 | 0 : 0;
-  var viewport_filter = Viewport.in_viewport(state.vpt, obj.pos) || $$Object.isPlayer(collid) || Viewport.out_of_viewport_below(state.vpt, obj.pos.y);
-  if (!(!obj.kill && viewport_filter)) {
+  if (!(!obj.kill && viewportFilter(state, obj, collid))) {
     return /* [] */0;
   }
   obj.grounded = false;
   $$Object.processObj(obj, state.map);
-  var evolved = check_collisions(collid, all_collids, state);
-  var vpt_adj_xy = Viewport.coord_to_viewport(state.vpt, obj.pos);
+  var evolved = checkCollisions(collid, all_collids, state);
+  var vpt_adj_xy = Viewport.fromCoord(state.vpt, obj.pos);
   Draw.render(spr, vpt_adj_xy.x, vpt_adj_xy.y);
   if (Keys.check_bbox_enabled(undefined)) {
     Draw.renderBbox(spr, vpt_adj_xy.x, vpt_adj_xy.y);
@@ -479,10 +482,10 @@ function update_collidable(state, collid, all_collids) {
   return evolved;
 }
 
-function run_update_collid(state, collid, all_collids) {
+function runUpdateCollid(state, collid, all_collids) {
   if (collid.TAG) {
     var obj = $$Object.getObj(collid);
-    var evolved = update_collidable(state, collid, all_collids);
+    var evolved = updateCollidable(state, collid, all_collids);
     if (!obj.kill) {
       collid_objs.contents = /* :: */{
         _0: collid,
@@ -510,12 +513,12 @@ function run_update_collid(state, collid, all_collids) {
   } else {
     player = collid;
   }
-  var evolved$1 = update_collidable(state, player, all_collids);
+  var evolved$1 = updateCollidable(state, player, all_collids);
   collid_objs.contents = Pervasives.$at(collid_objs.contents, evolved$1);
   return player;
 }
 
-function run_update_particle(state, part) {
+function runUpdateParticle(state, part) {
   Particle.$$process(part);
   var x = part.pos.x - Viewport.getPos(state.vpt).x;
   var y = part.pos.y - Viewport.getPos(state.vpt).y;
@@ -575,7 +578,7 @@ function updateLoop(param) {
     var vpos_x_int = Viewport.getPos(state.vpt).x / 5 | 0;
     var bgd_width = state.bgd.params.frameSize[0] | 0;
     Draw.drawBgd(state.bgd, Caml_int32.mod_(vpos_x_int, bgd_width));
-    var player$1 = run_update_collid(state, player, objs);
+    var player$1 = runUpdateCollid(state, player, objs);
     if ($$Object.getObj(player$1).kill === true) {
       var match$1 = state.status;
       if (typeof match$1 === "number") {
@@ -595,10 +598,10 @@ function updateLoop(param) {
       status: state.status
     };
     Belt_List.forEach(objs, (function (obj) {
-            return run_update_collid(state$1, obj, objs);
+            return runUpdateCollid(state$1, obj, objs);
           }));
     Belt_List.forEach(parts, (function (part) {
-            return run_update_particle(state$1, part);
+            return runUpdateParticle(state$1, part);
           }));
     Draw.fps(fps);
     Draw.hud(state$1.score, state$1.coins);
@@ -621,12 +624,13 @@ export {
   enemyAttackPlayer ,
   col_enemy_enemy ,
   process_collision ,
-  broad_phase ,
-  narrow_phase ,
-  check_collisions ,
-  update_collidable ,
-  run_update_collid ,
-  run_update_particle ,
+  viewportFilter ,
+  broadPhase ,
+  narrowPhase ,
+  checkCollisions ,
+  updateCollidable ,
+  runUpdateCollid ,
+  runUpdateParticle ,
   updateLoop ,
   
 }

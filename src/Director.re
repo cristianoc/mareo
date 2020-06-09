@@ -254,20 +254,21 @@ let process_collision =
   };
 };
 
-/* Run the broad phase object filtering */
-let broad_phase = (collid, all_collids, state) => {
+let viewportFilter = (state, obj: Object.t, collid) =>
+  Viewport.inViewport(state.vpt, obj.pos)
+  || Object.isPlayer(collid)
+  || Viewport.outOfViewportBelow(state.vpt, obj.pos.y);
+
+// Run the broad phase object filtering
+let broadPhase = (collid, all_collids, state) => {
   let obj = Object.getObj(collid);
-  List.keep(all_collids, _c =>
-    Viewport.in_viewport(state.vpt, obj.pos)
-    || Object.isPlayer(collid)
-    || Viewport.out_of_viewport_below(state.vpt, obj.pos.y)
-  );
+  List.keep(all_collids, _c => viewportFilter(state, obj, collid));
 };
 
-/*narrow_phase of collision is used in order to continuously loop through
- *each of the collidable objects to constantly check if collisions are
- *occurring.*/
-let narrow_phase = (c, cs, state) => {
+// narrowPhase of collision is used in order to continuously loop through
+// each of the collidable objects to constantly check if collisions are
+// occurring.
+let narrowPhase = (c, cs, state) => {
   let rec narrow_helper = (c, cs, state, acc) =>
     switch (cs) {
     | [] => acc
@@ -299,28 +300,27 @@ let narrow_phase = (c, cs, state) => {
   narrow_helper(c, cs, state, []);
 };
 
-/* This is an optimization setp to determine which objects require narrow phase
- * checking. This excludes static collidables, allowing collision to only be
- * checked with moving objects. This method is called once per collidable.
- * Collision detection proceeds as follows:
-   * 1. Broad phase - filter collidables that cannot possibly collide with
-   *    this object.
-   * 2. Narrow phase - compare against all objects to determine whether there
-   *    is a collision, and process the collision.
- * This method returns a list of objects that are created, which should be
- * added to the list of collidables for the next iteration.
- * */
-let check_collisions = (collid, all_collids, state) =>
+// This is an optimization setp to determine which objects require narrow phase
+// checking. This excludes static collidables, allowing collision to only be
+// checked with moving objects. This method is called once per collidable.
+// Collision detection proceeds as follows:
+//  1. Broad phase - filter collidables that cannot possibly collide with
+//     this object.
+//  2. Narrow phase - compare against all objects to determine whether there
+//     is a collision, and process the collision.
+// This method returns a list of objects that are created, which should be
+// added to the list of collidables for the next iteration.
+let checkCollisions = (collid, all_collids, state) =>
   switch (collid) {
   | Object.Block(_, _, _) => []
   | _ =>
-    let broad = broad_phase(collid, all_collids, state);
-    narrow_phase(collid, broad, state);
+    let broad = broadPhase(collid, all_collids, state);
+    narrowPhase(collid, broad, state);
   };
 
-/* update_collidable is the primary update method for collidable objects,
- * checking the collision, updating the object, and drawing to the canvas.*/
-let update_collidable = (state, collid: Object.collidable, all_collids) => {
+// primary update method for collidable objects,
+// checking the collision, updating the object, and drawing to the canvas
+let updateCollidable = (state, collid: Object.collidable, all_collids) => {
   /* TODO: optimize. Draw static elements only once */
   let obj = Object.getObj(collid);
   let spr = Object.getSprite(collid);
@@ -331,18 +331,13 @@ let update_collidable = (state, collid: Object.collidable, all_collids) => {
       0;
     }
   );
-  /* Prevent position from being updated outside of viewport */
-  let viewport_filter =
-    Viewport.in_viewport(state.vpt, obj.pos)
-    || Object.isPlayer(collid)
-    || Viewport.out_of_viewport_below(state.vpt, obj.pos.y);
-  if (!obj.kill && viewport_filter) {
+  if (!obj.kill && viewportFilter(state, obj, collid)) {
     obj.grounded = false;
     Object.processObj(obj, state.map);
     /* Run collision detection if moving object*/
-    let evolved = check_collisions(collid, all_collids, state);
+    let evolved = checkCollisions(collid, all_collids, state);
     /* Render and update animation */
-    let vpt_adj_xy = Viewport.coord_to_viewport(state.vpt, obj.pos);
+    let vpt_adj_xy = Viewport.fromCoord(state.vpt, obj.pos);
     Draw.render(spr, vpt_adj_xy.x, vpt_adj_xy.y);
     if (Keys.check_bbox_enabled()) {
       Draw.renderBbox(spr, vpt_adj_xy.x, vpt_adj_xy.y);
@@ -356,11 +351,11 @@ let update_collidable = (state, collid: Object.collidable, all_collids) => {
   };
 };
 
-/* run_update is used to update all of the collidables at once. Primarily used
- * as a wrapper method. This method is necessary to differentiate between
- * the player collidable and the remaining collidables, as special operations
- * such as viewport centering only occur with the player.*/
-let run_update_collid = (state, collid, all_collids) =>
+// used to update all of the collidables at once. Primarily used
+// as a wrapper method. This method is necessary to differentiate between
+// the player collidable and the remaining collidables, as special operations
+// such as viewport centering only occur with the player
+let runUpdateCollid = (state, collid, all_collids) =>
   switch (collid) {
   | Object.Player(_, s, o) as p =>
     let keys = Keys.translate_keys();
@@ -372,12 +367,12 @@ let run_update_collid = (state, collid, all_collids) =>
         Object.normalizePos(o.pos, s.params, new_spr.params);
         Player(new_typ, new_spr, o);
       };
-    let evolved = update_collidable(state, player, all_collids);
+    let evolved = updateCollidable(state, player, all_collids);
     collid_objs := collid_objs^ @ evolved;
     player;
   | _ =>
     let obj = Object.getObj(collid);
-    let evolved = update_collidable(state, collid, all_collids);
+    let evolved = updateCollidable(state, collid, all_collids);
     if (!obj.kill) {
       collid_objs := [collid, ...collid_objs^ @ evolved];
     };
@@ -391,8 +386,8 @@ let run_update_collid = (state, collid, all_collids) =>
     collid;
   };
 
-/* Primary update function to update and persist a particle */
-let run_update_particle = (state, part) => {
+// Primary update function to update and persist a particle
+let runUpdateParticle = (state, part) => {
   Particle.process(part);
   let x = part.pos.x -. state.vpt->Viewport.getPos.x
   and y = part.pos.y -. state.vpt->Viewport.getPos.y;
@@ -446,7 +441,7 @@ let rec updateLoop = ((player, objs)) => {
         state.bgd,
         [@doesNotRaise] float_of_int(vpos_x_int mod bgd_width),
       );
-      let player = run_update_collid(state, player, objs);
+      let player = runUpdateCollid(state, player, objs);
       if (Object.getObj(player).kill == true) {
         switch (state.status) {
         | Lost(_) => ()
@@ -457,8 +452,8 @@ let rec updateLoop = ((player, objs)) => {
         ...state,
         vpt: Viewport.update(state.vpt, Object.getObj(player).pos),
       };
-      List.forEach(objs, obj => run_update_collid(state, obj, objs));
-      List.forEach(parts, part => run_update_particle(state, part));
+      List.forEach(objs, obj => runUpdateCollid(state, obj, objs));
+      List.forEach(parts, part => runUpdateParticle(state, part));
       Draw.fps(fps);
       Draw.hud(state.score, state.coins);
       Html.requestAnimationFrame((t: float) =>

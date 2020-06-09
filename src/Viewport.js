@@ -23,12 +23,12 @@ function make(param, param$1) {
         };
 }
 
-function calc_viewport_point(cc, vc, mc) {
+function calcViewportPoint(cc, vc, mc) {
   var vc_half = vc / 2;
   return Caml_primitive.caml_float_min(Caml_primitive.caml_float_max(cc - vc_half, 0), Caml_primitive.caml_float_min(mc - vc, Math.abs(cc - vc_half)));
 }
 
-function in_viewport(v, pos) {
+function inViewport(v, pos) {
   var v_min_x = v.pos.x - 32;
   var v_max_x = v.pos.x + v.v_dim.x;
   var v_min_y = v.pos.y - 32;
@@ -42,12 +42,12 @@ function in_viewport(v, pos) {
   }
 }
 
-function out_of_viewport_below(v, y) {
-  var v_max_y = v.pos.y + v.v_dim.y;
-  return y >= v_max_y;
+function outOfViewportBelow(v, y) {
+  var vMaxY = v.pos.y + v.v_dim.y;
+  return y >= vMaxY;
 }
 
-function coord_to_viewport(viewport, coord) {
+function fromCoord(viewport, coord) {
   return {
           x: coord.x - viewport.pos.x,
           y: coord.y - viewport.pos.y
@@ -55,11 +55,11 @@ function coord_to_viewport(viewport, coord) {
 }
 
 function update(vpt, ctr) {
-  var new_x = calc_viewport_point(ctr.x, vpt.v_dim.x, vpt.m_dim.x);
-  var new_y = calc_viewport_point(ctr.y, vpt.v_dim.y, vpt.m_dim.y);
+  var newX = calcViewportPoint(ctr.x, vpt.v_dim.x, vpt.m_dim.x);
+  var newY = calcViewportPoint(ctr.y, vpt.v_dim.y, vpt.m_dim.y);
   var pos = {
-    x: new_x,
-    y: new_y
+    x: newX,
+    y: newY
   };
   return {
           pos: pos,
@@ -71,10 +71,10 @@ function update(vpt, ctr) {
 export {
   getPos ,
   make ,
-  calc_viewport_point ,
-  in_viewport ,
-  out_of_viewport_below ,
-  coord_to_viewport ,
+  calcViewportPoint ,
+  inViewport ,
+  outOfViewportBelow ,
+  fromCoord ,
   update ,
   
 }
