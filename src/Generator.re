@@ -333,8 +333,8 @@ let rec convertToCoinObj =
 // Procedurally generate a list of collidables given canvas width, height and
 // context. Arguments block width (blockw) and block height (blockh) are in
 // block form, not pixels.
-let generateHelper =
-    (context: Html.canvasRenderingContext2D): list(Object.collidable) => {
+let generateHelper = (): list(Object.collidable) => {
+  let context = Load.getContext();
   let blockLocs = generateBlockLocs(0., 0., [])->convertList->trimEdges;
   let objConvertedBlockLocs = convertToBlockObj(blockLocs, context);
   let groundBlocks = generateGround(0., []);
@@ -359,7 +359,7 @@ let generateHelper =
 // the list of collidables received from generateHelper to display on canvas.
 let generate = (): (Object.collidable, list(Object.collidable)) => {
   let initial = Html.performance.now(.);
-  let collideList = generateHelper(Load.getContext());
+  let collideList = generateHelper();
   let (spr, obj) =
     Object.make(
       ~dir=Left,
@@ -377,6 +377,3 @@ let generate = (): (Object.collidable, list(Object.collidable)) => {
   );
   (player, collideList);
 };
-
-// Makes sure level map is uniquely generated at each call.
-let init = () => Random.self_init();

@@ -658,7 +658,8 @@ function convertToCoinObj(lst, context) {
             }, convertToCoinObj(lst._1, context));
 }
 
-function generateHelper(context) {
+function generateHelper(param) {
+  var context = Load.getContext(undefined);
   var blockLocs = trimEdges(convertList(generateBlockLocs(0, 0, /* [] */0)));
   var objConvertedBlockLocs = convertToBlockObj(blockLocs, context);
   var groundBlocks = generateGround(0, /* [] */0);
@@ -682,7 +683,7 @@ function generateHelper(context) {
 
 function generate(param) {
   var initial = performance.now();
-  var collideList = generateHelper(Load.getContext(undefined));
+  var collideList = generateHelper(undefined);
   var match = $$Object.make(/* Left */0, Sprite.makePlayer(/* SmallM */1, /* Standing */0, /* Left */0), $$Object.makePlayer(undefined), 100, 224);
   var player_1 = match[0];
   var player_2 = match[1];
@@ -698,10 +699,6 @@ function generate(param) {
           player,
           collideList
         ];
-}
-
-function init(param) {
-  return Random.self_init(undefined);
 }
 
 export {
@@ -730,7 +727,6 @@ export {
   convertToCoinObj ,
   generateHelper ,
   generate ,
-  init ,
   
 }
 /* No side effect */

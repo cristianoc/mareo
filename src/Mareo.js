@@ -16,7 +16,6 @@ function preload(param) {
                 img.addEventListener("load", (function (param) {
                         loadCount.contents = loadCount.contents + 1 | 0;
                         if (loadCount.contents === numImages) {
-                          Generator.init(undefined);
                           Director.updateLoop(Generator.generate(undefined));
                         }
                         return true;

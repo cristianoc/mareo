@@ -532,13 +532,7 @@ function run_update_particle(state, part) {
 
 function updateLoop(param) {
   var player = param[0];
-  var canvas = Load.getCanvas(undefined);
-  var cwidth = canvas.width / Config.scale;
-  var cheight = canvas.height / Config.scale;
-  var viewport = Viewport.make([
-        cwidth,
-        cheight
-      ], Config.mapDim);
+  var viewport = Viewport.make(Load.getCanvasSizeScaled(undefined), Config.mapDim);
   var state = {
     bgd: Sprite.makeBgd(undefined),
     vpt: Viewport.update(viewport, $$Object.getObj(player).pos),
@@ -548,7 +542,6 @@ function updateLoop(param) {
     multiplier: 1,
     status: /* Playing */0
   };
-  Load.getContext(undefined).scale(Config.scale, Config.scale);
   var updateHelper = function (time, state, player, objs, parts) {
     var t = state.status;
     if (typeof t === "number") {

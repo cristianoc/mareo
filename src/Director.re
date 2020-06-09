@@ -405,10 +405,7 @@ let run_update_particle = (state, part) => {
 // updateLoop is constantly being called to check for collisions and to
 // update each of the objects in the game.
 let rec updateLoop = ((player, objs)) => {
-  let canvas = Load.getCanvas();
-  let cwidth = float_of_int(canvas.width) /. Config.scale;
-  let cheight = float_of_int(canvas.height) /. Config.scale;
-  let viewport = Viewport.make((cwidth, cheight), Config.mapDim);
+  let viewport = Viewport.make(Load.getCanvasSizeScaled(), Config.mapDim);
   let state = {
     bgd: Sprite.makeBgd(),
     vpt: Viewport.update(viewport, Object.getObj(player).pos),
@@ -418,7 +415,6 @@ let rec updateLoop = ((player, objs)) => {
     map: snd(Config.mapDim),
     status: Playing,
   };
-  Load.getContext().scale(. Config.scale, Config.scale);
 
   let rec updateHelper = (time, state, player, objs, parts) => {
     switch (state.status) {

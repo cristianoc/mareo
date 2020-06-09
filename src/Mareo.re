@@ -14,7 +14,6 @@ let preload = () => {
       _ => {
         loadCount := loadCount^ + 1;
         if (loadCount^ == numImages) {
-          Generator.init();
           Director.updateLoop(Generator.generate());
         };
         true;

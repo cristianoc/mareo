@@ -16,7 +16,7 @@ let restartAfter = 5;
 
 let root_dir = "sprites/";
 
-let scale = 1.;
+let scale = 1.5;
 
 let friction = 0.9;
 

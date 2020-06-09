@@ -1,6 +1,8 @@
 
 
 import * as Load from "./Load.js";
+import * as Config from "./Config.js";
+import * as Belt_List from "bs-platform/lib/es6/belt_List.js";
 
 function renderBbox(sprite, posx, posy) {
   var match = sprite.params.bboxOffset;
@@ -47,25 +49,47 @@ function fps(fps_val) {
   return Load.getContext(undefined).fillText(fps_str, 10, 18);
 }
 
-function gameWon(param) {
+function blackScreen(texts) {
   var ctx = Load.getContext(undefined);
-  ctx.rect(0, 0, 512, 512);
+  var fontSize = 20 / Config.scale;
+  var fontTxt = String(fontSize | 0) + "px";
+  ctx.rect(0, 0, 512 / Config.scale, 512 / Config.scale);
   ctx.fillStyle = "black";
   ctx.fill();
   ctx.fillStyle = "white";
-  ctx.font = "20px 'Press Start 2P'";
-  return ctx.fillText("You win!", 180, 128);
+  ctx.font = fontTxt + "'Press Start 2P'";
+  return Belt_List.forEach(texts, (function (param) {
+                return ctx.fillText(param[0], param[1] / Config.scale, param[2] / Config.scale);
+              }));
+}
+
+function gameWon(param) {
+  return blackScreen(/* :: */{
+              _0: [
+                "You win!",
+                180,
+                128
+              ],
+              _1: /* [] */0
+            });
 }
 
 function gameLost(elapsed) {
-  var ctx = Load.getContext(undefined);
-  ctx.rect(0, 0, 512, 512);
-  ctx.fillStyle = "black";
-  ctx.fill();
-  ctx.fillStyle = "white";
-  ctx.font = "20px 'Press Start 2P'";
-  ctx.fillText("GAME OVER. You lose! ", 60, 100);
-  return ctx.fillText(String(elapsed), 230, 150);
+  return blackScreen(/* :: */{
+              _0: [
+                "GAME OVER. You lose!",
+                60,
+                100
+              ],
+              _1: /* :: */{
+                _0: [
+                  String(elapsed),
+                  230,
+                  150
+                ],
+                _1: /* [] */0
+              }
+            });
 }
 
 export {
@@ -75,6 +99,7 @@ export {
   clearCanvas ,
   hud ,
   fps ,
+  blackScreen ,
   gameWon ,
   gameLost ,
   

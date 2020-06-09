@@ -1,3 +1,4 @@
+open Belt;
 open Sprite;
 
 let renderBbox = (sprite, posx, posy) => {
@@ -56,25 +57,29 @@ let fps = fps_val => {
   Load.getContext().fillText(. fps_str, 10., 18.);
 };
 
-// gameWon displays a black screen when you finish a game.
-let gameWon = () => {
+let blackScreen = texts => {
   let ctx = Load.getContext();
-  ctx.rect(. 0., 0., 512., 512.);
+  let fontSize = 20. /. Config.scale;
+  let fontTxt = fontSize->int_of_float->string_of_int ++ "px";
+  ctx.rect(. 0., 0., 512. /. Config.scale, 512. /. Config.scale);
   ctx.fillStyle = "black";
   ctx.fill(.);
   ctx.fillStyle = "white";
-  ctx.font = "20px 'Press Start 2P'";
-  ctx.fillText(. "You win!", 180., 128.);
+  ctx.font = fontTxt ++ "'Press Start 2P'";
+  texts->List.forEach(((s, x, y)) =>
+    ctx.fillText(. s, x /. Config.scale, y /. Config.scale)
+  );
+};
+
+// gameWon displays a black screen when you finish a game.
+let gameWon = () => {
+  blackScreen([("You win!", 180., 128.)]);
 };
 
 // gameLost displays a black screen stating a loss to finish that level play.
 let gameLost = elapsed => {
-  let ctx = Load.getContext();
-  ctx.rect(. 0., 0., 512., 512.);
-  ctx.fillStyle = "black";
-  ctx.fill(.);
-  ctx.fillStyle = "white";
-  ctx.font = "20px 'Press Start 2P'";
-  ctx.fillText(. "GAME OVER. You lose! ", 60., 100.);
-  ctx.fillText(. string_of_int(elapsed), 230., 150.);
+  blackScreen([
+    ("GAME OVER. You lose!", 60., 100.),
+    (string_of_int(elapsed), 230., 150.),
+  ]);
 };

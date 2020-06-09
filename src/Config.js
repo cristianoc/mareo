@@ -29,7 +29,7 @@ var restartAfter = 5;
 
 var root_dir = "sprites/";
 
-var scale = 1;
+var scale = 1.5;
 
 var friction = 0.9;
 

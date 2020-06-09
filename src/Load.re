@@ -1,24 +1,39 @@
+type canvasData = {
+  canvasElement: Html.canvasElement,
+  sizeScaled: (float, float),
+  context: Html.canvasRenderingContext2D,
+};
+
 let canvasAndContext =
   lazy(
     {
-      //Random.self_init();
       Random.init(34);
+      //Random.self_init();
       switch (Html.getElementById(Html.document, Config.canvasId)) {
       | None =>
         print_endline("cant find canvas " ++ Config.canvasId ++ " \n");
         assert(false);
       | Some(el) =>
-        let canvas = Html.elementToCanvasElement(el);
-        let context = canvas.getContext(. "2d");
+        let canvasElement = Html.elementToCanvasElement(el);
+        let width = float_of_int(canvasElement.width);
+        let height = float_of_int(canvasElement.height);
+        let context = canvasElement.getContext(. "2d");
+        context.scale(. Config.scale, Config.scale);
         Html.addEventListener(Html.document, "keydown", Keys.keydown, true);
         Html.addEventListener(Html.document, "keyup", Keys.keyup, true);
-        (canvas, context);
+        {
+          canvasElement,
+          context,
+          sizeScaled: (width /. Config.scale, height /. Config.scale),
+        };
       };
     }
   );
 
 let getCanvasAndContext = () => Lazy.force(canvasAndContext);
 
-let getCanvas = () => getCanvasAndContext()->fst;
+let getCanvas = () => getCanvasAndContext().canvasElement;
 
-let getContext = () => getCanvasAndContext()->snd;
+let getContext = () => getCanvasAndContext().context;
+
+let getCanvasSizeScaled = () => getCanvasAndContext().sizeScaled;
