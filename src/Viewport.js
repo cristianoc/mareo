@@ -71,6 +71,7 @@ function update(vpt, ctr) {
 export {
   getPos ,
   make ,
+  calc_viewport_point ,
   in_viewport ,
   out_of_viewport_below ,
   coord_to_viewport ,
