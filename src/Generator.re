@@ -44,7 +44,9 @@ let trimEdges = lst => lst->List.keep(((_, x, y)) => trimEdge(x, y));
 let convertItem = ((blockTyp, x, y)) => (blockTyp, x * 16, y * 16);
 
 let addBlock = (blocks, blockTyp, x, y) =>
-  blocks := [(blockTyp, x * 16, y * 16), ...blocks^];
+  if (!memPos(x, y, blocks^)) {
+    blocks := [(blockTyp, x * 16, y * 16), ...blocks^];
+  };
 
 // Generate a stair formation with block typ being dependent on typ. This type
 // of stair formation requires that the first step be on the ground.
@@ -219,10 +221,7 @@ let rec generateBlockLocs =
   } else if (memPos(cbx, cby, blocks^) || cby == 0) {
     generateBlockLocs(cbx, cby + 1, blocks);
   } else if (Random.int(20) == 0) {
-    let newBlocks = ref([]);
-    chooseBlockPattern(cbx, cby, newBlocks);
-    let undupLst = removeOverlap(newBlocks^, blocks^);
-    blocks := undupLst @ blocks^;
+    chooseBlockPattern(cbx, cby, blocks);
     generateBlockLocs(cbx, cby + 1, blocks);
   } else {
     generateBlockLocs(cbx, cby + 1, blocks);

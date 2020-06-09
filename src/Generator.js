@@ -66,14 +66,17 @@ function convertItem(param) {
 }
 
 function addBlock(blocks, blockTyp, x, y) {
-  blocks.contents = /* :: */{
-    _0: [
-      blockTyp,
-      (x << 4),
-      (y << 4)
-    ],
-    _1: blocks.contents
-  };
+  if (!memPos(x, y, blocks.contents)) {
+    blocks.contents = /* :: */{
+      _0: [
+        blockTyp,
+        (x << 4),
+        (y << 4)
+      ],
+      _1: blocks.contents
+    };
+    return ;
+  }
   
 }
 
@@ -296,12 +299,7 @@ function generateBlockLocs(_cbx, _cby, blocks) {
       continue ;
     }
     if (Random.$$int(20) === 0) {
-      var newBlocks = {
-        contents: /* [] */0
-      };
-      chooseBlockPattern(cbx, cby, newBlocks);
-      var undupLst = removeOverlap(newBlocks.contents, blocks.contents);
-      blocks.contents = Pervasives.$at(undupLst, blocks.contents);
+      chooseBlockPattern(cbx, cby, blocks);
       _cby = cby + 1 | 0;
       continue ;
     }
