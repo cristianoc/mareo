@@ -9,19 +9,16 @@ import * as Caml_obj from "bs-platform/lib/es6/caml_obj.js";
 import * as Belt_List from "bs-platform/lib/es6/belt_List.js";
 import * as Pervasives from "bs-platform/lib/es6/pervasives.js";
 
+function convertItem(param) {
+  return [
+          param[0],
+          (param[1] << 4),
+          (param[2] << 4)
+        ];
+}
+
 function convertList(lst) {
-  if (!lst) {
-    return /* [] */0;
-  }
-  var match = lst._0;
-  return Pervasives.$at(/* :: */{
-              _0: [
-                match[0],
-                (match[1] << 4),
-                (match[2] << 4)
-              ],
-              _1: /* [] */0
-            }, convertList(lst._1));
+  return Belt_List.map(lst, convertItem);
 }
 
 function memPos(x, y, _objs) {
@@ -343,9 +340,9 @@ function randomStairTyp(param) {
   }
 }
 
-function chooseBlockPattern(cbx, cby) {
+function chooseBlockPattern(cbx, cby, blocks) {
   if (cbx > Config.blockw || cby > Config.blockh) {
-    return /* [] */0;
+    return ;
   }
   var stairTyp = randomStairTyp(undefined);
   var lifeBlock = Random.$$int(5) === 0;
@@ -355,106 +352,111 @@ function chooseBlockPattern(cbx, cby) {
   var match = Random.$$int(5);
   switch (match) {
     case 0 :
-        return /* :: */{
-                _0: [
-                  stairTyp,
-                  cbx,
+        blocks.contents = /* :: */{
+          _0: convertItem([
+                stairTyp,
+                cbx,
+                cby
+              ]),
+          _1: /* :: */{
+            _0: convertItem([
+                  middleBlock,
+                  cbx + 1 | 0,
                   cby
-                ],
-                _1: /* :: */{
-                  _0: [
-                    middleBlock,
-                    cbx + 1 | 0,
+                ]),
+            _1: /* :: */{
+              _0: convertItem([
+                    stairTyp,
+                    cbx + 2 | 0,
                     cby
-                  ],
-                  _1: /* :: */{
-                    _0: [
-                      stairTyp,
-                      cbx + 2 | 0,
-                      cby
-                    ],
-                    _1: /* [] */0
-                  }
-                }
-              };
+                  ]),
+              _1: blocks.contents
+            }
+          }
+        };
+        return ;
     case 1 :
         var numClouds = Random.$$int(5) + 5 | 0;
         if (cby < 5) {
-          return generateClouds(cbx, cby, /* Cloud */3, numClouds);
+          blocks.contents = Pervasives.$at(Belt_List.map(generateClouds(cbx, cby, /* Cloud */3, numClouds), convertItem), blocks.contents);
+          return ;
         } else {
-          return /* [] */0;
+          return ;
         }
     case 2 :
         if ((Config.blockh - cby | 0) === 1) {
-          return generateGroundStairs(cbx, cby, stairTyp);
+          blocks.contents = Pervasives.$at(Belt_List.map(generateGroundStairs(cbx, cby, stairTyp), convertItem), blocks.contents);
+          return ;
         } else {
-          return /* [] */0;
+          return ;
         }
     case 3 :
         if (stairTyp === /* Brick */1 && (Config.blockh - cby | 0) > 3) {
-          return generateAirdownStairs(cbx, cby, stairTyp);
+          blocks.contents = Pervasives.$at(Belt_List.map(generateAirdownStairs(cbx, cby, stairTyp), convertItem), blocks.contents);
         } else if ((Config.blockh - cby | 0) > 2) {
-          return generateAirupStairs(cbx, cby, stairTyp);
+          blocks.contents = Pervasives.$at(Belt_List.map(generateAirupStairs(cbx, cby, stairTyp), convertItem), blocks.contents);
         } else {
-          return /* :: */{
-                  _0: [
-                    stairTyp,
-                    cbx,
-                    cby
-                  ],
-                  _1: /* [] */0
-                };
+          blocks.contents = /* :: */{
+            _0: convertItem([
+                  stairTyp,
+                  cbx,
+                  cby
+                ]),
+            _1: blocks.contents
+          };
         }
+        return ;
     default:
       if (((cby + 3 | 0) - Config.blockh | 0) === 2) {
-        return /* :: */{
-                _0: [
-                  stairTyp,
-                  cbx,
-                  cby
-                ],
-                _1: /* [] */0
-              };
+        blocks.contents = /* :: */{
+          _0: convertItem([
+                stairTyp,
+                cbx,
+                cby
+              ]),
+          _1: blocks.contents
+        };
       } else if (((cby + 3 | 0) - Config.blockh | 0) === 1) {
-        return /* :: */{
-                _0: [
+        blocks.contents = /* :: */{
+          _0: convertItem([
+                stairTyp,
+                cbx,
+                cby
+              ]),
+          _1: /* :: */{
+            _0: convertItem([
                   stairTyp,
                   cbx,
-                  cby
-                ],
-                _1: /* :: */{
-                  _0: [
-                    stairTyp,
-                    cbx,
-                    cby + 1 | 0
-                  ],
-                  _1: /* [] */0
-                }
-              };
+                  cby + 1 | 0
+                ]),
+            _1: blocks.contents
+          }
+        };
       } else {
-        return /* :: */{
-                _0: [
+        blocks.contents = /* :: */{
+          _0: convertItem([
+                stairTyp,
+                cbx,
+                cby
+              ]),
+          _1: /* :: */{
+            _0: convertItem([
                   stairTyp,
                   cbx,
-                  cby
-                ],
-                _1: /* :: */{
-                  _0: [
+                  cby + 1 | 0
+                ]),
+            _1: /* :: */{
+              _0: convertItem([
                     stairTyp,
                     cbx,
-                    cby + 1 | 0
-                  ],
-                  _1: /* :: */{
-                    _0: [
-                      stairTyp,
-                      cbx,
-                      cby + 2 | 0
-                    ],
-                    _1: /* [] */0
-                  }
-                }
-              };
+                    cby + 2 | 0
+                  ]),
+              _1: blocks.contents
+            }
+          }
+        };
       }
+      return ;
   }
 }
 
@@ -516,28 +518,29 @@ function generateBlockEnemies(_blockCoord) {
   };
 }
 
-function generateBlockLocs(_cbx, _cby, _acc) {
+function generateBlockLocs(_cbx, _cby, blocks) {
   while(true) {
-    var acc = _acc;
     var cby = _cby;
     var cbx = _cbx;
     if ((Config.blockw - cbx | 0) < 33) {
-      return acc;
+      return ;
     }
     if (cby > (Config.blockh - 1 | 0)) {
       _cby = 0;
       _cbx = cbx + 1 | 0;
       continue ;
     }
-    if (memPos(cbx, cby, acc) || cby === 0) {
+    if (memPos(cbx, cby, blocks.contents) || cby === 0) {
       _cby = cby + 1 | 0;
       continue ;
     }
     if (Random.$$int(20) === 0) {
-      var newacc = chooseBlockPattern(cbx, cby);
-      var undupLst = removeOverlap(newacc, acc);
-      var calledAcc = Pervasives.$at(acc, undupLst);
-      _acc = calledAcc;
+      var newBlocks = {
+        contents: /* [] */0
+      };
+      chooseBlockPattern(cbx, cby, newBlocks);
+      var undupLst = removeOverlap(newBlocks.contents, blocks.contents);
+      blocks.contents = Pervasives.$at(undupLst, blocks.contents);
       _cby = cby + 1 | 0;
       continue ;
     }
@@ -660,18 +663,22 @@ function convertToCoinObj(lst, context) {
 
 function generateHelper(param) {
   var context = Load.getContext(undefined);
-  var blockLocs = trimEdges(convertList(generateBlockLocs(0, 0, /* [] */0)));
-  var objConvertedBlockLocs = convertToBlockObj(blockLocs, context);
+  var blockLocs = {
+    contents: /* [] */0
+  };
+  generateBlockLocs(0, 0, blockLocs);
+  var blockLocs$1 = trimEdges(blockLocs.contents);
+  var objConvertedBlockLocs = convertToBlockObj(blockLocs$1, context);
   var groundBlocks = generateGround(0, /* [] */0);
   var objConvertedGroundBlocks = convertToBlockObj(groundBlocks, context);
-  var blockLocations = Pervasives.$at(blockLocs, groundBlocks);
+  var blockLocations = Pervasives.$at(blockLocs$1, groundBlocks);
   var allBlocks = Pervasives.$at(objConvertedBlockLocs, objConvertedGroundBlocks);
   var enemyLocs = generateEnemies(0, 0, blockLocations);
   var objConvertedEnemies = convertToEnemyObj(enemyLocs, context);
-  var coinsLocs = generateCoins(blockLocs);
-  var undupCoinLocs = trimEdges(removeOverlap(coinsLocs, blockLocs));
-  var enemyBlockLocs = generateBlockEnemies(blockLocs);
-  var undupEnemyBlockLocs = removeOverlap(removeOverlap(enemyBlockLocs, blockLocs), coinsLocs);
+  var coinsLocs = generateCoins(blockLocs$1);
+  var undupCoinLocs = trimEdges(removeOverlap(coinsLocs, blockLocs$1));
+  var enemyBlockLocs = generateBlockEnemies(blockLocs$1);
+  var undupEnemyBlockLocs = removeOverlap(removeOverlap(enemyBlockLocs, blockLocs$1), coinsLocs);
   var objEnemyBlocks = convertToEnemyObj(undupEnemyBlockLocs, context);
   var coinObjects = convertToCoinObj(undupCoinLocs, context);
   var objPanel = generatePanel(undefined);
@@ -702,6 +709,7 @@ function generate(param) {
 }
 
 export {
+  convertItem ,
   convertList ,
   memPos ,
   removeOverlap ,

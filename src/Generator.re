@@ -7,13 +7,11 @@ open Belt;
 type blockCoord = (Actors.blockTyp, int, int);
 type enemyCoord = (Actors.enemyTyp, int, int);
 
+let convertItem = ((blockTyp, x, y)) => (blockTyp, x * 16, y * 16);
+
 // Convert list of locations from blocksize to pixelsize by multiplying (x,y) by 16.
-let rec convertList = (lst: list(blockCoord)): list(blockCoord) =>
-  switch (lst) {
-  | [] => []
-  | [(blockTyp, x, y), ...t] =>
-    [(blockTyp, x * 16, y * 16)] @ convertList(t)
-  };
+let convertList = (lst: list(blockCoord)): list(blockCoord) =>
+  lst->List.map(convertItem);
 
 // Check if the given position checkpos is already part of the list of locations
 // in blocks
@@ -127,9 +125,9 @@ let randomStairTyp = () => Random.bool() ? UnBBlock : Brick;
 //    of the level map, prevent any objects from being initialized.
 // 3. Else call helper methods to created block formations and return objCoord
 //    slist.
-let chooseBlockPattern = (cbx: int, cby: int): list(blockCoord) =>
+let chooseBlockPattern = (cbx: int, cby: int, blocks: ref(list(blockCoord))) =>
   if (cbx > Config.blockw || cby > Config.blockh) {
-    [];
+    ();
   } else {
     let stairTyp = randomStairTyp();
     let lifeBlock = Random.int(5) == 0;
@@ -140,43 +138,57 @@ let chooseBlockPattern = (cbx: int, cby: int): list(blockCoord) =>
         stairTyp;
       };
     switch (Random.int(5)) {
-    | 0 => [
-        (stairTyp, cbx, cby),
-        (middleBlock, cbx + 1, cby),
-        (stairTyp, cbx + 2, cby),
-      ]
+    | 0 =>
+      blocks :=
+        [
+          (stairTyp, cbx, cby)->convertItem,
+          (middleBlock, cbx + 1, cby)->convertItem,
+          (stairTyp, cbx + 2, cby)->convertItem,
+          ...blocks^,
+        ]
     | 1 =>
       let numClouds = Random.int(5) + 5;
       if (cby < 5) {
-        generateClouds(cbx, cby, Cloud, numClouds);
+        blocks :=
+          generateClouds(cbx, cby, Cloud, numClouds)->convertList @ blocks^;
       } else {
-        [];
+        ();
       };
     | 2 =>
       if (Config.blockh - cby == 1) {
-        generateGroundStairs(cbx, cby, stairTyp);
+        blocks :=
+          generateGroundStairs(cbx, cby, stairTyp)->convertList @ blocks^;
       } else {
-        [];
+        ();
       }
     | 3 =>
       if (stairTyp == Brick && Config.blockh - cby > 3) {
-        generateAirdownStairs(cbx, cby, stairTyp);
+        blocks :=
+          generateAirdownStairs(cbx, cby, stairTyp)->convertList @ blocks^;
       } else if (Config.blockh - cby > 2) {
-        generateAirupStairs(cbx, cby, stairTyp);
+        blocks :=
+          generateAirupStairs(cbx, cby, stairTyp)->convertList @ blocks^;
       } else {
-        [(stairTyp, cbx, cby)];
+        blocks := [(stairTyp, cbx, cby)->convertItem, ...blocks^];
       }
     | _ =>
       if (cby + 3 - Config.blockh == 2) {
-        [(stairTyp, cbx, cby)];
+        blocks := [(stairTyp, cbx, cby)->convertItem, ...blocks^];
       } else if (cby + 3 - Config.blockh == 1) {
-        [(stairTyp, cbx, cby), (stairTyp, cbx, cby + 1)];
+        blocks :=
+          [
+            (stairTyp, cbx, cby)->convertItem,
+            (stairTyp, cbx, cby + 1)->convertItem,
+            ...blocks^,
+          ];
       } else {
-        [
-          (stairTyp, cbx, cby),
-          (stairTyp, cbx, cby + 1),
-          (stairTyp, cbx, cby + 2),
-        ];
+        blocks :=
+          [
+            (stairTyp, cbx, cby)->convertItem,
+            (stairTyp, cbx, cby + 1)->convertItem,
+            (stairTyp, cbx, cby + 2)->convertItem,
+            ...blocks^,
+          ];
       }
     };
   };
@@ -217,20 +229,22 @@ let rec generateBlockEnemies =
 
 // Generate an objCoord list (typ, coordinates) of blocks to be placed.
 let rec generateBlockLocs =
-        (cbx: int, cby: int, acc: list(blockCoord)): list(blockCoord) =>
+        (cbx: int, cby: int, blocks: ref(list(blockCoord))) =>
   if (Config.blockw - cbx < 33) {
-    acc;
+    ();
   } else if (cby > Config.blockh - 1) {
-    generateBlockLocs(cbx + 1, 0, acc);
-  } else if (memPos(cbx, cby, acc) || cby == 0) {
-    generateBlockLocs(cbx, cby + 1, acc);
+    generateBlockLocs(cbx + 1, 0, blocks);
+  } else if (memPos(cbx, cby, blocks^) || cby == 0) {
+    generateBlockLocs(cbx, cby + 1, blocks);
   } else if (Random.int(20) == 0) {
-    let newacc = chooseBlockPattern(cbx, cby);
-    let undupLst = removeOverlap(newacc, acc);
-    let calledAcc = acc @ undupLst;
-    generateBlockLocs(cbx, cby + 1, calledAcc);
+    let newBlocks = ref([]);
+    chooseBlockPattern(cbx, cby, newBlocks);
+    let newacc = newBlocks^;
+    let undupLst = removeOverlap(newBlocks^, blocks^);
+    blocks := undupLst @ blocks^;
+    generateBlockLocs(cbx, cby + 1, blocks);
   } else {
-    generateBlockLocs(cbx, cby + 1, acc);
+    generateBlockLocs(cbx, cby + 1, blocks);
   };
 
 // Generate the ending item panel at the end of the level. Games ends upon
@@ -330,7 +344,9 @@ let rec convertToCoinObj =
 // block form, not pixels.
 let generateHelper = (): list(Object.collidable) => {
   let context = Load.getContext();
-  let blockLocs = generateBlockLocs(0, 0, [])->convertList->trimEdges;
+  let blockLocs = ref([]);
+  generateBlockLocs(0, 0, blockLocs);
+  let blockLocs = (blockLocs^)->trimEdges;
   let objConvertedBlockLocs = convertToBlockObj(blockLocs, context);
   let groundBlocks = generateGround(0, []);
   let objConvertedGroundBlocks = convertToBlockObj(groundBlocks, context);
