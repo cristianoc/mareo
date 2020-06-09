@@ -303,10 +303,12 @@ function generateBlockLocs(_cbx, _cby, blocks) {
 function generatePanel(param) {
   var match = $$Object.make(/* Left */0, Sprite.makeBlock(/* Panel */4), $$Object.makeBlock(/* Panel */4), Config.blockw * 16 - 256, Config.blockh * 16 * 2 / 3);
   return {
-          TAG: /* Block */3,
-          _0: /* Panel */4,
-          _1: match[0],
-          _2: match[1]
+          objTyp: {
+            TAG: /* Block */3,
+            _0: /* Panel */4
+          },
+          sprite: match[0],
+          obj: match[1]
         };
 }
 
@@ -356,18 +358,17 @@ function convertToBlockObj(lst) {
   var match = lst._0;
   var blockTyp = match[0];
   var match$1 = $$Object.make(/* Left */0, Sprite.makeBlock(blockTyp), $$Object.makeBlock(blockTyp), match[1], match[2]);
-  var ob_1 = match$1[0];
-  var ob_2 = match$1[1];
-  var ob = {
-    TAG: /* Block */3,
-    _0: blockTyp,
-    _1: ob_1,
-    _2: ob_2
-  };
-  return Pervasives.$at(/* :: */{
-              _0: ob,
-              _1: /* [] */0
-            }, convertToBlockObj(lst._1));
+  return /* :: */{
+          _0: {
+            objTyp: {
+              TAG: /* Block */3,
+              _0: blockTyp
+            },
+            sprite: match$1[0],
+            obj: match$1[1]
+          },
+          _1: convertToBlockObj(lst._1)
+        };
 }
 
 function convertToEnemyObj(lst, context) {
@@ -379,15 +380,15 @@ function convertToEnemyObj(lst, context) {
   var match$1 = $$Object.make(/* Left */0, Sprite.makeEnemy(enemyTyp, /* Left */0), $$Object.makeEnemy(enemyTyp), match[1], match[2]);
   var obj = match$1[1];
   $$Object.setVelToSpeed(obj);
-  var ob_1 = match$1[0];
-  var ob = {
-    TAG: /* Enemy */1,
-    _0: enemyTyp,
-    _1: ob_1,
-    _2: obj
-  };
   return /* :: */{
-          _0: ob,
+          _0: {
+            objTyp: {
+              TAG: /* Enemy */1,
+              _0: enemyTyp
+            },
+            sprite: match$1[0],
+            obj: obj
+          },
           _1: convertToEnemyObj(lst._1, context)
         };
 }
@@ -398,18 +399,17 @@ function convertToCoinObj(lst, context) {
   }
   var match = lst._0;
   var match$1 = $$Object.make(/* Left */0, Sprite.makeItem(/* Coin */1), $$Object.makeItem(/* Coin */1), match[1], match[2]);
-  var ob_1 = match$1[0];
-  var ob_2 = match$1[1];
-  var ob = {
-    TAG: /* Item */2,
-    _0: /* Coin */1,
-    _1: ob_1,
-    _2: ob_2
-  };
-  return Pervasives.$at(/* :: */{
-              _0: ob,
-              _1: /* [] */0
-            }, convertToCoinObj(lst._1, context));
+  return /* :: */{
+          _0: {
+            objTyp: {
+              TAG: /* Item */2,
+              _0: /* Coin */1
+            },
+            sprite: match$1[0],
+            obj: match$1[1]
+          },
+          _1: convertToCoinObj(lst._1, context)
+        };
 }
 
 function generateHelper(param) {
@@ -443,13 +443,16 @@ function generate(param) {
   var initial = performance.now();
   var collideList = generateHelper(undefined);
   var match = $$Object.make(/* Left */0, Sprite.makePlayer(/* SmallM */1, /* Standing */0, /* Left */0), $$Object.makePlayer(undefined), 100, 224);
-  var player_1 = match[0];
-  var player_2 = match[1];
-  var player = {
+  var player_objTyp = {
     TAG: /* Player */0,
-    _0: /* SmallM */1,
-    _1: player_1,
-    _2: player_2
+    _0: /* SmallM */1
+  };
+  var player_sprite = match[0];
+  var player_obj = match[1];
+  var player = {
+    objTyp: player_objTyp,
+    sprite: player_sprite,
+    obj: player_obj
   };
   var elapsed = performance.now() - initial;
   console.log("generated", Belt_List.length(collideList), "objects in " + (elapsed.toString() + " milliseconds"));

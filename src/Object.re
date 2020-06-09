@@ -29,11 +29,17 @@ type t = {
   mutable score: int,
 };
 
-type collidable =
-  | Player(plTyp, Sprite.t, t)
-  | Enemy(enemyTyp, Sprite.t, t)
-  | Item(itemTyp, Sprite.t, t)
-  | Block(blockTyp, Sprite.t, t);
+type objTyp =
+  | Player(plTyp)
+  | Enemy(enemyTyp)
+  | Item(itemTyp)
+  | Block(blockTyp);
+
+type collidable = {
+  objTyp,
+  sprite: Sprite.t,
+  obj: t,
+};
 
 // used to set gravity and speed, with default values true and 1
 let setup = (~g as hasGravity=true, ~spd as speed=1., ()) => {
@@ -111,31 +117,21 @@ let make = (~dir, spr, params, x, y) => {
 };
 
 /*Helper methods for getting sprites and objects from their collidables*/
-let getSprite =
-  fun
-  | Player(_, s, _)
-  | Enemy(_, s, _)
-  | Item(_, s, _)
-  | Block(_, s, _) => s;
+let getSprite = ({sprite}) => sprite;
 
-let getObj =
-  fun
-  | Player(_, _, o)
-  | Enemy(_, _, o)
-  | Item(_, _, o)
-  | Block(_, _, o) => o;
+let getObj = ({obj}) => obj;
 
 let isPlayer =
   fun
-  | Player(_, _, _) => true
+  | {objTyp: Player(_)} => true
   | _ => false;
 
 let isEnemy =
   fun
-  | Enemy(_, _, _) => true
+  | {objTyp: Enemy(_)} => true
   | _ => false;
 
-let equals = (col1, col2) => getObj(col1).id == getObj(col2).id;
+let equals = (col1, col2) => col1.obj.id == col2.obj.id;
 
 // Matches the controls being used and updates each of the player's params
 let updatePlayerKeys = (player: t, controls: controls): unit => {
@@ -301,7 +297,7 @@ let evolveEnemy = (player_dir, typ, spr: Sprite.t, obj) =>
         obj.pos.y,
       );
     normalizePos(new_obj.pos, spr.params, new_spr.params);
-    Some(Enemy(GKoopaShell, new_spr, new_obj));
+    Some({objTyp: Enemy(GKoopaShell), sprite: new_spr, obj: new_obj});
   | RKoopa =>
     let (new_spr, new_obj) =
       make(
@@ -311,7 +307,7 @@ let evolveEnemy = (player_dir, typ, spr: Sprite.t, obj) =>
         obj.pos.x,
         obj.pos.y,
       );
-    Some(Enemy(RKoopaShell, new_spr, new_obj));
+    Some({objTyp: Enemy(RKoopaShell), sprite: new_spr, obj: new_obj});
   | GKoopaShell
   | RKoopaShell =>
     obj.dir = player_dir;
@@ -355,7 +351,7 @@ let evolveBlock = obj => {
       obj.pos.x,
       obj.pos.y,
     );
-  Block(QBlockUsed, new_spr, new_obj);
+  {objTyp: Block(QBlockUsed), sprite: new_spr, obj: new_obj};
 };
 
 // Used for spawning items above question mark blocks
@@ -369,7 +365,7 @@ let spawnAbove = (player_dir, obj, itemTyp) => {
         obj.pos.x,
         obj.pos.y,
       );
-    Item(itemTyp, spr, obj);
+    {objTyp: Item(itemTyp), sprite: spr, obj};
   };
   let item_obj = getObj(item);
   item_obj.pos.y = item_obj.pos.y -. snd(getSprite(item).params.frameSize);
@@ -398,22 +394,22 @@ let getAabb = obj => {
 };
 
 let colBypass = (c1, c2) => {
-  let o1 = getObj(c1)
-  and o2 = getObj(c2);
-  let ctypes =
-    switch (c1, c2) {
-    | (Item(_, _, _), Enemy(_, _, _))
-    | (Enemy(_, _, _), Item(_, _, _))
-    | (Item(_, _, _), Item(_, _, _)) => true
-    | (Player(_, _, o1), Enemy(_, _, _)) =>
-      if (o1.invuln > 0) {
+  c1.obj.kill
+  || c2.obj.kill
+  || (
+    switch (c1.objTyp, c2.objTyp) {
+    | (Item(_), Enemy(_))
+    | (Enemy(_), Item(_))
+    | (Item(_), Item(_)) => true
+    | (Player(_), Enemy(_)) =>
+      if (c1.obj.invuln > 0) {
         true;
       } else {
         false;
       }
     | _ => false
-    };
-  o1.kill || o2.kill || ctypes;
+    }
+  );
 };
 
 // Used for checking if collisions occur. Compares half-widths and half-heights
@@ -433,7 +429,8 @@ let checkCollision = (c1, c2) => {
     if (abs_float(vx) < hwidths && abs_float(vy) < hheights) {
       let ox = hwidths -. abs_float(vx);
       let oy = hheights -. abs_float(vy);
-      if (ox +. 0.2 > oy) { // avoid spurious horizontal collisions with floors when oy is tiny
+      if (ox +. 0.2 > oy) {
+        // avoid spurious horizontal collisions with floors when oy is tiny
         if (vy > 0.) {
           o1.pos.y = o1.pos.y +. oy;
           Some(North);
@@ -457,7 +454,7 @@ let checkCollision = (c1, c2) => {
 // "Kills" the matched object by setting certain parameters for each
 let kill = collid =>
   switch (collid) {
-  | Enemy(t, _, o) =>
+  | {objTyp: Enemy(t), obj: o} =>
     let pos = (o.pos.x, o.pos.y);
     let score =
       if (o.score > 0) {
@@ -471,7 +468,7 @@ let kill = collid =>
       | _ => []
       };
     score @ remains;
-  | Block(t, _, o) =>
+  | {objTyp: Block(t), obj: o} =>
     switch (t) {
     | Brick =>
       let pos = (o.pos.x, o.pos.y);
@@ -496,7 +493,7 @@ let kill = collid =>
       [p1, p2, p3, p4];
     | _ => []
     }
-  | Item(t, _, o) =>
+  | {objTyp: Item(t), obj: o} =>
     switch (t) {
     | Mushroom => [Particle.makeScore(o.score, (o.pos.x, o.pos.y))]
     | _ => []

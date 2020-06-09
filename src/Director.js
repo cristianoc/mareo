@@ -166,19 +166,21 @@ function process_collision(dir, c1, c2, state) {
   var o1;
   var t2;
   var o2;
-  switch (c1.TAG | 0) {
+  var t1 = c1.objTyp;
+  switch (t1.TAG | 0) {
     case /* Player */0 :
-        var o1$1 = c1._2;
-        switch (c2.TAG | 0) {
+        var t = c2.objTyp;
+        var o1$1 = c1.obj;
+        switch (t.TAG | 0) {
           case /* Player */0 :
               return [
                       undefined,
                       undefined
                     ];
           case /* Enemy */1 :
-              var o2$1 = c2._2;
-              var s2 = c2._1;
-              var typ = c2._0;
+              var o2$1 = c2.obj;
+              var s2 = c2.sprite;
+              var typ = t._0;
               if (dir !== 1) {
                 return enemyAttackPlayer(o1$1, typ, s2, o2$1);
               } else {
@@ -186,15 +188,15 @@ function process_collision(dir, c1, c2, state) {
               }
           case /* Item */2 :
               o1 = o1$1;
-              t2 = c2._0;
-              o2 = c2._2;
+              t2 = t._0;
+              o2 = c2.obj;
               break;
           case /* Block */3 :
-              var o2$2 = c2._2;
-              var t = c2._0;
+              var o2$2 = c2.obj;
+              var t$1 = t._0;
               if (dir !== 0) {
                 var exit = 0;
-                if (typeof t === "number" && t === 4) {
+                if (typeof t$1 === "number" && t$1 === 4) {
                   state.status = /* Won */1;
                   return [
                           undefined,
@@ -220,9 +222,9 @@ function process_collision(dir, c1, c2, state) {
                 }
                 
               } else {
-                if (typeof t === "number") {
-                  if (t !== 1) {
-                    if (t !== 4) {
+                if (typeof t$1 === "number") {
+                  if (t$1 !== 1) {
+                    if (t$1 !== 4) {
                       $$Object.collideBlock(dir, o1$1);
                       return [
                               undefined,
@@ -235,7 +237,7 @@ function process_collision(dir, c1, c2, state) {
                               undefined
                             ];
                     }
-                  } else if (c1._0 === /* BigM */0) {
+                  } else if (t1._0 === /* BigM */0) {
                     $$Object.collideBlock(dir, o1$1);
                     $$Object.decHealth(o2$2);
                     return [
@@ -251,7 +253,7 @@ function process_collision(dir, c1, c2, state) {
                   }
                 }
                 var updated_block = $$Object.evolveBlock(o2$2);
-                var spawned_item = $$Object.spawnAbove(o1$1.dir, o2$2, t._0);
+                var spawned_item = $$Object.spawnAbove(o1$1.dir, o2$2, t$1._0);
                 $$Object.collideBlock(dir, o1$1);
                 return [
                         spawned_item,
@@ -263,32 +265,33 @@ function process_collision(dir, c1, c2, state) {
         }
         break;
     case /* Enemy */1 :
-        var o1$2 = c1._2;
-        var s1 = c1._1;
-        var t1 = c1._0;
-        switch (c2.TAG | 0) {
+        var t2$1 = c2.objTyp;
+        var o1$2 = c1.obj;
+        var s1 = c1.sprite;
+        var t1$1 = t1._0;
+        switch (t2$1.TAG | 0) {
           case /* Player */0 :
-              var o1$3 = c2._2;
+              var o1$3 = c2.obj;
               if (dir !== 0) {
-                return enemyAttackPlayer(o1$3, t1, s1, o1$2);
+                return enemyAttackPlayer(o1$3, t1$1, s1, o1$2);
               } else {
-                return playerAttackEnemy(o1$3, t1, s1, o1$2, state);
+                return playerAttackEnemy(o1$3, t1$1, s1, o1$2, state);
               }
           case /* Enemy */1 :
-              return col_enemy_enemy(t1, s1, o1$2, c2._0, c2._1, c2._2, dir);
+              return col_enemy_enemy(t1$1, s1, o1$2, t2$1._0, c2.sprite, c2.obj, dir);
           case /* Item */2 :
               return [
                       undefined,
                       undefined
                     ];
           case /* Block */3 :
-              var o2$3 = c2._2;
-              var t2$1 = c2._0;
+              var o2$3 = c2.obj;
+              var t2$2 = t2$1._0;
               if (dir >= 2) {
-                if (t1 >= 3) {
-                  if (typeof t2$1 === "number") {
-                    if (t2$1 !== 1) {
-                      $$Object.revDir(o1$2, t1, s1);
+                if (t1$1 >= 3) {
+                  if (typeof t2$2 === "number") {
+                    if (t2$2 !== 1) {
+                      $$Object.revDir(o1$2, t1$1, s1);
                       return [
                               undefined,
                               undefined
@@ -303,14 +306,14 @@ function process_collision(dir, c1, c2, state) {
                     }
                   }
                   var updated_block$1 = $$Object.evolveBlock(o2$3);
-                  var spawned_item$1 = $$Object.spawnAbove(o1$2.dir, o2$3, t2$1._0);
-                  $$Object.revDir(o1$2, t1, s1);
+                  var spawned_item$1 = $$Object.spawnAbove(o1$2.dir, o2$3, t2$2._0);
+                  $$Object.revDir(o1$2, t1$1, s1);
                   return [
                           updated_block$1,
                           spawned_item$1
                         ];
                 }
-                $$Object.revDir(o1$2, t1, s1);
+                $$Object.revDir(o1$2, t1$1, s1);
                 return [
                         undefined,
                         undefined
@@ -324,11 +327,11 @@ function process_collision(dir, c1, c2, state) {
           
         }
     case /* Item */2 :
-        var o2$4 = c1._2;
-        switch (c2.TAG | 0) {
+        var o2$4 = c1.obj;
+        switch (c2.objTyp.TAG | 0) {
           case /* Player */0 :
-              o1 = c2._2;
-              t2 = c1._0;
+              o1 = c2.obj;
+              t2 = t1._0;
               o2 = o2$4;
               break;
           case /* Enemy */1 :
@@ -454,7 +457,8 @@ function narrowPhase(c, cs, state) {
 }
 
 function checkCollisions(collid, all_collids, state) {
-  if (collid.TAG === /* Block */3) {
+  var match = collid.objTyp;
+  if (match.TAG === /* Block */3) {
     return /* [] */0;
   }
   var broad = broadPhase(collid, all_collids, state);
@@ -483,7 +487,7 @@ function updateCollidable(state, collid, all_collids) {
 }
 
 function runUpdateCollid(state, collid, all_collids) {
-  if (collid.TAG) {
+  if (collid.objTyp.TAG) {
     var obj = $$Object.getObj(collid);
     var evolved = updateCollidable(state, collid, all_collids);
     if (!obj.kill) {
@@ -496,19 +500,21 @@ function runUpdateCollid(state, collid, all_collids) {
     particles.contents = Pervasives.$at(particles.contents, new_parts);
     return collid;
   }
-  var o = collid._2;
+  var o = collid.obj;
   var keys = Keys.translate_keys(undefined);
   o.crouch = false;
   var match = $$Object.updatePlayer(o, keys);
   var player;
   if (match !== undefined) {
     var new_spr = match[1];
-    $$Object.normalizePos(o.pos, collid._1.params, new_spr.params);
+    $$Object.normalizePos(o.pos, collid.sprite.params, new_spr.params);
     player = {
-      TAG: /* Player */0,
-      _0: match[0],
-      _1: new_spr,
-      _2: o
+      objTyp: {
+        TAG: /* Player */0,
+        _0: match[0]
+      },
+      sprite: new_spr,
+      obj: collid.obj
     };
   } else {
     player = collid;

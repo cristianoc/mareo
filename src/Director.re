@@ -156,14 +156,30 @@ let process_collision =
       state: st,
     ) => {
   switch (c1, c2, dir) {
-  | (Player(_, _s1, o1), Enemy(typ, s2, o2), South)
-  | (Enemy(typ, s2, o2), Player(_, _s1, o1), North) =>
+  | (
+      {objTyp: Player(_), obj: o1},
+      {objTyp: Enemy(typ), sprite: s2, obj: o2},
+      South,
+    )
+  | (
+      {objTyp: Enemy(typ), sprite: s2, obj: o2},
+      {objTyp: Player(_), obj: o1},
+      North,
+    ) =>
     playerAttackEnemy(o1, typ, s2, o2, state)
-  | (Player(_, _s1, o1), Enemy(t2, s2, o2), _)
-  | (Enemy(t2, s2, o2), Player(_, _s1, o1), _) =>
+  | (
+      {objTyp: Player(_), obj: o1},
+      {objTyp: Enemy(t2), sprite: s2, obj: o2},
+      _,
+    )
+  | (
+      {objTyp: Enemy(t2), sprite: s2, obj: o2},
+      {objTyp: Player(_), obj: o1},
+      _,
+    ) =>
     enemyAttackPlayer(o1, t2, s2, o2)
-  | (Player(_, _, o1), Item(t2, _, o2), _)
-  | (Item(t2, _, o2), Player(_, _, o1), _) =>
+  | ({objTyp: Player(_), obj: o1}, {objTyp: Item(t2), obj: o2}, _)
+  | ({objTyp: Item(t2), obj: o2}, {objTyp: Player(_), obj: o1}, _) =>
     switch (t2) {
     | Mushroom =>
       Object.decHealth(o2);
@@ -183,10 +199,22 @@ let process_collision =
       update_score(state, 100);
       (None, None);
     }
-  | (Enemy(t1, s1, o1), Enemy(t2, s2, o2), dir) =>
+  | (
+      {objTyp: Enemy(t1), sprite: s1, obj: o1},
+      {objTyp: Enemy(t2), sprite: s2, obj: o2},
+      dir,
+    ) =>
     col_enemy_enemy(t1, s1, o1, t2, s2, o2, dir)
-  | (Enemy(t1, s1, o1), Block(t2, _, o2), East)
-  | (Enemy(t1, s1, o1), Block(t2, _, o2), West) =>
+  | (
+      {objTyp: Enemy(t1), sprite: s1, obj: o1},
+      {objTyp: Block(t2), obj: o2},
+      East,
+    )
+  | (
+      {objTyp: Enemy(t1), sprite: s1, obj: o1},
+      {objTyp: Block(t2), obj: o2},
+      West,
+    ) =>
     switch (t1, t2) {
     | (RKoopaShell, Brick)
     | (GKoopaShell, Brick) =>
@@ -203,15 +231,15 @@ let process_collision =
       Object.revDir(o1, t1, s1);
       (None, None);
     }
-  | (Item(_, _, o1), Block(_, _, _), East)
-  | (Item(_, _, o1), Block(_, _, _), West) =>
+  | ({objTyp: Item(_), obj: o1}, {objTyp: Block(_)}, East)
+  | ({objTyp: Item(_), obj: o1}, {objTyp: Block(_)}, West) =>
     Object.reverseLeftRight(o1);
     (None, None);
-  | (Enemy(_, _, o1), Block(_, _, _), _)
-  | (Item(_, _, o1), Block(_, _, _), _) =>
+  | ({objTyp: Enemy(_), obj: o1}, {objTyp: Block(_)}, _)
+  | ({objTyp: Item(_), obj: o1}, {objTyp: Block(_)}, _) =>
     Object.collideBlock(dir, o1);
     (None, None);
-  | (Player(t1, _, o1), Block(t, _, o2), North) =>
+  | ({objTyp: Player(t1), obj: o1}, {objTyp: Block(t), obj: o2}, North) =>
     switch (t) {
     | QBlock(typ) =>
       let updated_block = Object.evolveBlock(o2);
@@ -234,7 +262,7 @@ let process_collision =
       Object.collideBlock(dir, o1);
       (None, None);
     }
-  | (Player(_, _, o1), Block(t, _, _), _) =>
+  | ({objTyp: Player(_), obj: o1}, {objTyp: Block(t)}, _) =>
     switch (t) {
     | Panel =>
       state.status = Won;
@@ -311,8 +339,8 @@ let narrowPhase = (c, cs, state) => {
 // This method returns a list of objects that are created, which should be
 // added to the list of collidables for the next iteration.
 let checkCollisions = (collid, all_collids, state) =>
-  switch (collid) {
-  | Object.Block(_, _, _) => []
+  switch (collid.Object.objTyp) {
+  | Block(_) => []
   | _ =>
     let broad = broadPhase(collid, all_collids, state);
     narrowPhase(collid, broad, state);
@@ -355,9 +383,9 @@ let updateCollidable = (state, collid: Object.collidable, all_collids) => {
 // as a wrapper method. This method is necessary to differentiate between
 // the player collidable and the remaining collidables, as special operations
 // such as viewport centering only occur with the player
-let runUpdateCollid = (state, collid, all_collids) =>
+let runUpdateCollid = (state, collid: Object.collidable, all_collids) =>
   switch (collid) {
-  | Object.Player(_, s, o) as p =>
+  | {objTyp: Player(_), sprite: s, obj: o} as p =>
     let keys = Keys.translate_keys();
     o.crouch = false;
     let player =
@@ -365,7 +393,7 @@ let runUpdateCollid = (state, collid, all_collids) =>
       | None => p
       | Some((new_typ, new_spr)) =>
         Object.normalizePos(o.pos, s.params, new_spr.params);
-        Player(new_typ, new_spr, o);
+        {...p, objTyp: Player(new_typ), sprite: new_spr};
       };
     let evolved = updateCollidable(state, player, all_collids);
     collid_objs := collid_objs^ @ evolved;

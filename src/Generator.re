@@ -228,7 +228,7 @@ let rec generateBlockLocs =
 // Generate the ending item panel at the end of the level. Games ends upon
 // collision with player.
 let generatePanel = (): Object.collidable => {
-  let (spr, obj) =
+  let (sprite, obj) =
     Object.make(
       ~dir=Left,
       Sprite.makeBlock(Panel),
@@ -236,7 +236,7 @@ let generatePanel = (): Object.collidable => {
       float_of_int(Config.blockw) *. 16. -. 256.,
       float_of_int(Config.blockh) *. 16. *. 2. /. 3.,
     );
-  Block(Panel, spr, obj);
+  {objTyp: Block(Panel), sprite, obj};
 };
 
 // Generate the list of brick locations needed to display the ground.
@@ -263,7 +263,7 @@ let rec convertToBlockObj = (lst: list(blockCoord)): list(Object.collidable) =>
   switch (lst) {
   | [] => []
   | [(blockTyp, x, y), ...t] =>
-    let (spr, obj) =
+    let (sprite, obj) =
       Object.make(
         ~dir=Left,
         Sprite.makeBlock(blockTyp),
@@ -271,8 +271,7 @@ let rec convertToBlockObj = (lst: list(blockCoord)): list(Object.collidable) =>
         float_of_int(x),
         float_of_int(y),
       );
-    let ob = Object.Block(blockTyp, spr, obj);
-    [ob] @ convertToBlockObj(t);
+    [{objTyp: Block(blockTyp), sprite, obj}, ...convertToBlockObj(t)];
   };
 
 // Convert the objCoord list called by generateEnemies to a list of objects
@@ -283,7 +282,7 @@ let rec convertToEnemyObj =
   switch (lst) {
   | [] => []
   | [(enemyTyp, x, y), ...t] =>
-    let (spr, obj) =
+    let (sprite, obj) =
       Object.make(
         ~dir=Left,
         Sprite.makeEnemy(enemyTyp, Left),
@@ -292,8 +291,10 @@ let rec convertToEnemyObj =
         float_of_int(y),
       );
     Object.setVelToSpeed(obj);
-    let ob = Object.Enemy(enemyTyp, spr, obj);
-    [ob, ...convertToEnemyObj(t, context)];
+    [
+      {objTyp: Enemy(enemyTyp), sprite, obj},
+      ...convertToEnemyObj(t, context),
+    ];
   };
 
 // Convert the list of coordinates into a list of Coin objects
@@ -303,7 +304,7 @@ let rec convertToCoinObj =
   switch (lst) {
   | [] => []
   | [(_, x, y), ...t] =>
-    let (spr, obj) =
+    let (sprite, obj) =
       Object.make(
         ~dir=Left,
         Sprite.makeItem(Coin),
@@ -311,8 +312,7 @@ let rec convertToCoinObj =
         float_of_int(x),
         float_of_int(y),
       );
-    let ob = Object.Item(Coin, spr, obj);
-    [ob] @ convertToCoinObj(t, context);
+    [{objTyp: Item(Coin), sprite, obj}, ...convertToCoinObj(t, context)];
   };
 
 // Procedurally generate a list of collidables given canvas width, height and
@@ -347,7 +347,7 @@ let generateHelper = (): list(Object.collidable) => {
 let generate = (): (Object.collidable, list(Object.collidable)) => {
   let initial = Html.performance.now(.);
   let collideList = generateHelper();
-  let (spr, obj) =
+  let (sprite, obj) =
     Object.make(
       ~dir=Left,
       Sprite.makePlayer(SmallM, Standing, Left),
@@ -355,7 +355,7 @@ let generate = (): (Object.collidable, list(Object.collidable)) => {
       100.,
       224.,
     );
-  let player = Object.Player(SmallM, spr, obj);
+  let player = {Object.objTyp: Player(SmallM), sprite, obj};
   let elapsed = Html.performance.now(.) -. initial;
   Js.log3(
     "generated",

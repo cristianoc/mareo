@@ -89,15 +89,15 @@ function make(dir, spr, params, x, y) {
 }
 
 function getSprite(param) {
-  return param._1;
+  return param.sprite;
 }
 
 function getObj(param) {
-  return param._2;
+  return param.obj;
 }
 
 function isPlayer(param) {
-  if (param.TAG) {
+  if (param.objTyp.TAG) {
     return false;
   } else {
     return true;
@@ -105,7 +105,7 @@ function isPlayer(param) {
 }
 
 function isEnemy(param) {
-  if (param.TAG === /* Enemy */1) {
+  if (param.objTyp.TAG === /* Enemy */1) {
     return true;
   } else {
     return false;
@@ -113,7 +113,7 @@ function isEnemy(param) {
 }
 
 function equals(col1, col2) {
-  return col1._2.id === col2._2.id;
+  return col1.obj.id === col2.obj.id;
 }
 
 function updatePlayerKeys(player, controls) {
@@ -269,18 +269,22 @@ function evolveEnemy(player_dir, typ, spr, obj) {
         var new_spr = match[0];
         normalizePos(new_obj.pos, spr.params, new_spr.params);
         return {
-                TAG: /* Enemy */1,
-                _0: /* GKoopaShell */3,
-                _1: new_spr,
-                _2: new_obj
+                objTyp: {
+                  TAG: /* Enemy */1,
+                  _0: /* GKoopaShell */3
+                },
+                sprite: new_spr,
+                obj: new_obj
               };
     case /* RKoopa */2 :
         var match$1 = make(obj.dir, Sprite.makeEnemy(/* RKoopaShell */4, obj.dir), makeEnemy(/* RKoopaShell */4), obj.pos.x, obj.pos.y);
         return {
-                TAG: /* Enemy */1,
-                _0: /* RKoopaShell */4,
-                _1: match$1[0],
-                _2: match$1[1]
+                objTyp: {
+                  TAG: /* Enemy */1,
+                  _0: /* RKoopaShell */4
+                },
+                sprite: match$1[0],
+                obj: match$1[1]
               };
     case /* GKoopaShell */3 :
     case /* RKoopaShell */4 :
@@ -320,32 +324,38 @@ function evolveBlock(obj) {
   decHealth(obj);
   var match = make(obj.dir, Sprite.makeBlock(/* QBlockUsed */0), makeBlock(/* QBlockUsed */0), obj.pos.x, obj.pos.y);
   return {
-          TAG: /* Block */3,
-          _0: /* QBlockUsed */0,
-          _1: match[0],
-          _2: match[1]
+          objTyp: {
+            TAG: /* Block */3,
+            _0: /* QBlockUsed */0
+          },
+          sprite: match[0],
+          obj: match[1]
         };
 }
 
 function spawnAbove(player_dir, obj, itemTyp) {
   var match = make(/* Left */0, Sprite.makeItem(itemTyp), makeItem(itemTyp), obj.pos.x, obj.pos.y);
-  var obj$1 = match[1];
-  var spr = match[0];
-  var item = {
+  var item_objTyp = {
     TAG: /* Item */2,
-    _0: itemTyp,
-    _1: spr,
-    _2: obj$1
+    _0: itemTyp
   };
-  obj$1.pos.y = obj$1.pos.y - spr.params.frameSize[1];
-  obj$1.dir = player_dir ? /* Left */0 : /* Right */1;
-  setVelToSpeed(obj$1);
+  var item_sprite = match[0];
+  var item_obj = match[1];
+  var item = {
+    objTyp: item_objTyp,
+    sprite: item_sprite,
+    obj: item_obj
+  };
+  var item_obj$1 = getObj(item);
+  item_obj$1.pos.y = item_obj$1.pos.y - getSprite(item).params.frameSize[1];
+  item_obj$1.dir = player_dir ? /* Left */0 : /* Right */1;
+  setVelToSpeed(item_obj$1);
   return item;
 }
 
 function getAabb(obj) {
-  var spr = obj._1.params;
-  var obj$1 = obj._2;
+  var spr = getSprite(obj).params;
+  var obj$1 = getObj(obj);
   var match = spr.bboxOffset;
   var box = obj$1.pos.x + match[0];
   var boy = obj$1.pos.y + match[1];
@@ -365,45 +375,47 @@ function getAabb(obj) {
 }
 
 function colBypass(c1, c2) {
-  var o1 = c1._2;
-  var o2 = c2._2;
-  var ctypes;
-  switch (c1.TAG | 0) {
+  if (c1.obj.kill) {
+    return true;
+  }
+  if (c2.obj.kill) {
+    return true;
+  }
+  var match = c1.objTyp;
+  var match$1 = c2.objTyp;
+  switch (match.TAG | 0) {
     case /* Player */0 :
-        ctypes = c2.TAG === /* Enemy */1 ? c1._2.invuln > 0 : false;
-        break;
+        if (match$1.TAG === /* Enemy */1) {
+          return c1.obj.invuln > 0;
+        } else {
+          return false;
+        }
     case /* Enemy */1 :
-        ctypes = c2.TAG === /* Item */2 ? true : false;
-        break;
+        if (match$1.TAG === /* Item */2) {
+          return true;
+        } else {
+          return false;
+        }
     case /* Item */2 :
-        switch (c2.TAG | 0) {
+        switch (match$1.TAG | 0) {
           case /* Enemy */1 :
           case /* Item */2 :
-              ctypes = true;
-              break;
+              return true;
           case /* Player */0 :
           case /* Block */3 :
-              ctypes = false;
-              break;
+              return false;
           
         }
-        break;
     case /* Block */3 :
-        ctypes = false;
-        break;
+        return false;
     
-  }
-  if (o1.kill || o2.kill) {
-    return true;
-  } else {
-    return ctypes;
   }
 }
 
 function checkCollision(c1, c2) {
   var b1 = getAabb(c1);
   var b2 = getAabb(c2);
-  var o1 = c1._2;
+  var o1 = getObj(c1);
   if (colBypass(c1, c2)) {
     return ;
   }
@@ -434,11 +446,12 @@ function checkCollision(c1, c2) {
 }
 
 function kill(collid) {
-  switch (collid.TAG | 0) {
+  var t = collid.objTyp;
+  switch (t.TAG | 0) {
     case /* Player */0 :
         return /* [] */0;
     case /* Enemy */1 :
-        var o = collid._2;
+        var o = collid.obj;
         var pos_0 = o.pos.x;
         var pos_1 = o.pos.y;
         var pos = [
@@ -449,14 +462,14 @@ function kill(collid) {
               _0: Particle.makeScore(o.score, pos),
               _1: /* [] */0
             }) : /* [] */0;
-        var remains = collid._0 !== 0 ? /* [] */0 : /* :: */({
+        var remains = t._0 !== 0 ? /* [] */0 : /* :: */({
               _0: Particle.make(undefined, undefined, /* GoombaSquish */0, pos),
               _1: /* [] */0
             });
         return Pervasives.$at(score, remains);
     case /* Item */2 :
-        var o$1 = collid._2;
-        if (collid._0) {
+        var o$1 = collid.obj;
+        if (t._0) {
           return /* [] */0;
         } else {
           return /* :: */{
@@ -468,12 +481,12 @@ function kill(collid) {
                 };
         }
     case /* Block */3 :
-        var o$2 = collid._2;
-        var t = collid._0;
-        if (typeof t !== "number") {
+        var o$2 = collid.obj;
+        var t$1 = t._0;
+        if (typeof t$1 !== "number") {
           return /* [] */0;
         }
-        if (t !== 1) {
+        if (t$1 !== 1) {
           return /* [] */0;
         }
         var pos_0$1 = o$2.pos.x;
