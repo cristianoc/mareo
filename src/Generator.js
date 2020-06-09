@@ -66,7 +66,7 @@ function convertItem(param) {
 }
 
 function addBlock(blocks, blockTyp, x, y) {
-  if (!memPos(x, y, blocks.contents)) {
+  if (!memPos((x << 4), (y << 4), blocks.contents)) {
     blocks.contents = /* :: */{
       _0: [
         blockTyp,

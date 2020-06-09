@@ -44,7 +44,7 @@ let trimEdges = lst => lst->List.keep(((_, x, y)) => trimEdge(x, y));
 let convertItem = ((blockTyp, x, y)) => (blockTyp, x * 16, y * 16);
 
 let addBlock = (blocks, blockTyp, x, y) =>
-  if (!memPos(x, y, blocks^)) {
+  if (!memPos(x * 16, y * 16, blocks^)) {
     blocks := [(blockTyp, x * 16, y * 16), ...blocks^];
   };
 
