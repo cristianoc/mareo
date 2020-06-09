@@ -9,14 +9,6 @@ import * as Caml_obj from "bs-platform/lib/es6/caml_obj.js";
 import * as Belt_List from "bs-platform/lib/es6/belt_List.js";
 import * as Pervasives from "bs-platform/lib/es6/pervasives.js";
 
-function convertItem(param) {
-  return [
-          param[0],
-          (param[1] << 4),
-          (param[2] << 4)
-        ];
-}
-
 function memPos(x, y, _objs) {
   while(true) {
     var objs = _objs;
@@ -65,194 +57,57 @@ function trimEdges(lst) {
               }));
 }
 
-function generateGroundStairs(cbx, cby, typ, blocks) {
+function convertItem(param) {
+  return [
+          param[0],
+          (param[1] << 4),
+          (param[2] << 4)
+        ];
+}
+
+function addBlock(blocks, blockTyp, x, y) {
   blocks.contents = /* :: */{
-    _0: convertItem([
-          typ,
-          cbx,
-          cby
-        ]),
-    _1: /* :: */{
-      _0: convertItem([
-            typ,
-            cbx + 1 | 0,
-            cby
-          ]),
-      _1: /* :: */{
-        _0: convertItem([
-              typ,
-              cbx + 2 | 0,
-              cby
-            ]),
-        _1: /* :: */{
-          _0: convertItem([
-                typ,
-                cbx + 3 | 0,
-                cby
-              ]),
-          _1: blocks.contents
-        }
-      }
-    }
-  };
-  blocks.contents = /* :: */{
-    _0: convertItem([
-          typ,
-          cbx + 1 | 0,
-          cby - 1 | 0
-        ]),
-    _1: /* :: */{
-      _0: convertItem([
-            typ,
-            cbx + 2 | 0,
-            cby - 1 | 0
-          ]),
-      _1: /* :: */{
-        _0: convertItem([
-              typ,
-              cbx + 3 | 0,
-              cby - 1 | 0
-            ]),
-        _1: blocks.contents
-      }
-    }
-  };
-  blocks.contents = /* :: */{
-    _0: convertItem([
-          typ,
-          cbx + 2 | 0,
-          cby - 2 | 0
-        ]),
-    _1: /* :: */{
-      _0: convertItem([
-            typ,
-            cbx + 3 | 0,
-            cby - 2 | 0
-          ]),
-      _1: blocks.contents
-    }
-  };
-  blocks.contents = /* :: */{
-    _0: convertItem([
-          typ,
-          cbx + 3 | 0,
-          cby - 3 | 0
-        ]),
+    _0: [
+      blockTyp,
+      (x << 4),
+      (y << 4)
+    ],
     _1: blocks.contents
   };
   
 }
 
+function generateGroundStairs(cbx, cby, typ, blocks) {
+  addBlock(blocks, typ, cbx, cby);
+  addBlock(blocks, typ, cbx + 1 | 0, cby);
+  addBlock(blocks, typ, cbx + 2 | 0, cby);
+  addBlock(blocks, typ, cbx + 3 | 0, cby);
+  addBlock(blocks, typ, cbx + 1 | 0, cby - 1 | 0);
+  addBlock(blocks, typ, cbx + 2 | 0, cby - 1 | 0);
+  addBlock(blocks, typ, cbx + 3 | 0, cby - 1 | 0);
+  addBlock(blocks, typ, cbx + 2 | 0, cby - 2 | 0);
+  addBlock(blocks, typ, cbx + 3 | 0, cby - 2 | 0);
+  return addBlock(blocks, typ, cbx + 3 | 0, cby - 3 | 0);
+}
+
 function generateAirupStairs(cbx, cby, typ, blocks) {
-  blocks.contents = /* :: */{
-    _0: convertItem([
-          typ,
-          cbx,
-          cby
-        ]),
-    _1: /* :: */{
-      _0: convertItem([
-            typ,
-            cbx + 1 | 0,
-            cby
-          ]),
-      _1: blocks.contents
-    }
-  };
-  blocks.contents = /* :: */{
-    _0: convertItem([
-          typ,
-          cbx + 3 | 0,
-          cby - 1 | 0
-        ]),
-    _1: /* :: */{
-      _0: convertItem([
-            typ,
-            cbx + 4 | 0,
-            cby - 1 | 0
-          ]),
-      _1: blocks.contents
-    }
-  };
-  blocks.contents = /* :: */{
-    _0: convertItem([
-          typ,
-          cbx + 4 | 0,
-          cby - 2 | 0
-        ]),
-    _1: /* :: */{
-      _0: convertItem([
-            typ,
-            cbx + 5 | 0,
-            cby - 2 | 0
-          ]),
-      _1: /* :: */{
-        _0: convertItem([
-              typ,
-              cbx + 6 | 0,
-              cby - 2 | 0
-            ]),
-        _1: blocks.contents
-      }
-    }
-  };
-  
+  addBlock(blocks, typ, cbx, cby);
+  addBlock(blocks, typ, cbx + 1 | 0, cby);
+  addBlock(blocks, typ, cbx + 3 | 0, cby - 1 | 0);
+  addBlock(blocks, typ, cbx + 4 | 0, cby - 1 | 0);
+  addBlock(blocks, typ, cbx + 4 | 0, cby - 2 | 0);
+  addBlock(blocks, typ, cbx + 5 | 0, cby - 2 | 0);
+  return addBlock(blocks, typ, cbx + 6 | 0, cby - 2 | 0);
 }
 
 function generateAirdownStairs(cbx, cby, typ, blocks) {
-  blocks.contents = /* :: */{
-    _0: convertItem([
-          typ,
-          cbx,
-          cby
-        ]),
-    _1: /* :: */{
-      _0: convertItem([
-            typ,
-            cbx + 1 | 0,
-            cby
-          ]),
-      _1: /* :: */{
-        _0: convertItem([
-              typ,
-              cbx + 2 | 0,
-              cby
-            ]),
-        _1: blocks.contents
-      }
-    }
-  };
-  blocks.contents = /* :: */{
-    _0: convertItem([
-          typ,
-          cbx + 2 | 0,
-          cby + 1 | 0
-        ]),
-    _1: /* :: */{
-      _0: convertItem([
-            typ,
-            cbx + 3 | 0,
-            cby + 1 | 0
-          ]),
-      _1: blocks.contents
-    }
-  };
-  blocks.contents = /* :: */{
-    _0: convertItem([
-          typ,
-          cbx + 5 | 0,
-          cby + 2 | 0
-        ]),
-    _1: /* :: */{
-      _0: convertItem([
-            typ,
-            cbx + 6 | 0,
-            cby + 2 | 0
-          ]),
-      _1: blocks.contents
-    }
-  };
-  
+  addBlock(blocks, typ, cbx, cby);
+  addBlock(blocks, typ, cbx + 1 | 0, cby);
+  addBlock(blocks, typ, cbx + 2 | 0, cby);
+  addBlock(blocks, typ, cbx + 2 | 0, cby + 1 | 0);
+  addBlock(blocks, typ, cbx + 3 | 0, cby + 1 | 0);
+  addBlock(blocks, typ, cbx + 5 | 0, cby + 2 | 0);
+  return addBlock(blocks, typ, cbx + 6 | 0, cby + 2 | 0);
 }
 
 function generateClouds(_cbx, cby, typ, _num, blocks) {
@@ -262,14 +117,7 @@ function generateClouds(_cbx, cby, typ, _num, blocks) {
     if (num === 0) {
       return ;
     }
-    blocks.contents = /* :: */{
-      _0: convertItem([
-            typ,
-            cbx,
-            cby
-          ]),
-      _1: blocks.contents
-    };
+    addBlock(blocks, typ, cbx, cby);
     _num = num - 1 | 0;
     _cbx = cbx + 1 | 0;
     continue ;
@@ -335,29 +183,9 @@ function chooseBlockPattern(cbx, cby, blocks) {
   var match = Random.$$int(5);
   switch (match) {
     case 0 :
-        blocks.contents = /* :: */{
-          _0: convertItem([
-                stairTyp,
-                cbx,
-                cby
-              ]),
-          _1: /* :: */{
-            _0: convertItem([
-                  middleBlock,
-                  cbx + 1 | 0,
-                  cby
-                ]),
-            _1: /* :: */{
-              _0: convertItem([
-                    stairTyp,
-                    cbx + 2 | 0,
-                    cby
-                  ]),
-              _1: blocks.contents
-            }
-          }
-        };
-        return ;
+        addBlock(blocks, stairTyp, cbx, cby);
+        addBlock(blocks, middleBlock, cbx + 1 | 0, cby);
+        return addBlock(blocks, stairTyp, cbx + 2 | 0, cby);
     case 1 :
         var numClouds = Random.$$int(5) + 5 | 0;
         if (cby < 5) {
@@ -377,67 +205,19 @@ function chooseBlockPattern(cbx, cby, blocks) {
         } else if ((Config.blockh - cby | 0) > 2) {
           return generateAirupStairs(cbx, cby, stairTyp, blocks);
         } else {
-          blocks.contents = /* :: */{
-            _0: convertItem([
-                  stairTyp,
-                  cbx,
-                  cby
-                ]),
-            _1: blocks.contents
-          };
-          return ;
+          return addBlock(blocks, stairTyp, cbx, cby);
         }
     default:
       if (((cby + 3 | 0) - Config.blockh | 0) === 2) {
-        blocks.contents = /* :: */{
-          _0: convertItem([
-                stairTyp,
-                cbx,
-                cby
-              ]),
-          _1: blocks.contents
-        };
+        return addBlock(blocks, stairTyp, cbx, cby);
       } else if (((cby + 3 | 0) - Config.blockh | 0) === 1) {
-        blocks.contents = /* :: */{
-          _0: convertItem([
-                stairTyp,
-                cbx,
-                cby
-              ]),
-          _1: /* :: */{
-            _0: convertItem([
-                  stairTyp,
-                  cbx,
-                  cby + 1 | 0
-                ]),
-            _1: blocks.contents
-          }
-        };
+        addBlock(blocks, stairTyp, cbx, cby);
+        return addBlock(blocks, stairTyp, cbx, cby + 1 | 0);
       } else {
-        blocks.contents = /* :: */{
-          _0: convertItem([
-                stairTyp,
-                cbx,
-                cby
-              ]),
-          _1: /* :: */{
-            _0: convertItem([
-                  stairTyp,
-                  cbx,
-                  cby + 1 | 0
-                ]),
-            _1: /* :: */{
-              _0: convertItem([
-                    stairTyp,
-                    cbx,
-                    cby + 2 | 0
-                  ]),
-              _1: blocks.contents
-            }
-          }
-        };
+        addBlock(blocks, stairTyp, cbx, cby);
+        addBlock(blocks, stairTyp, cbx, cby + 1 | 0);
+        return addBlock(blocks, stairTyp, cbx, cby + 2 | 0);
       }
-      return ;
   }
 }
 
@@ -690,13 +470,14 @@ function generate(param) {
 }
 
 export {
-  convertItem ,
   memPos ,
   removeOverlap ,
   pixx ,
   pixy ,
   trimEdge ,
   trimEdges ,
+  convertItem ,
+  addBlock ,
   generateGroundStairs ,
   generateAirupStairs ,
   generateAirdownStairs ,

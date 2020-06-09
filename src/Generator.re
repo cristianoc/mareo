@@ -7,8 +7,6 @@ open Belt;
 type blockCoord = (Actors.blockTyp, int, int);
 type enemyCoord = (Actors.enemyTyp, int, int);
 
-let convertItem = ((blockTyp, x, y)) => (blockTyp, x * 16, y * 16);
-
 // Check if the given position checkpos is already part of the list of locations
 // in blocks
 let rec memPos = (x: int, y, objs: list(_)): bool =>
@@ -43,77 +41,46 @@ let trimEdge = (x, y) => {
 };
 let trimEdges = lst => lst->List.keep(((_, x, y)) => trimEdge(x, y));
 
+let convertItem = ((blockTyp, x, y)) => (blockTyp, x * 16, y * 16);
+
+let addBlock = (blocks, blockTyp, x, y) =>
+  blocks := [(blockTyp, x * 16, y * 16), ...blocks^];
+
 // Generate a stair formation with block typ being dependent on typ. This type
 // of stair formation requires that the first step be on the ground.
 let generateGroundStairs = (cbx, cby, typ, blocks) => {
-  blocks :=
-    [
-      (typ, cbx, cby)->convertItem,
-      (typ, cbx + 1, cby)->convertItem,
-      (typ, cbx + 2, cby)->convertItem,
-      (typ, cbx + 3, cby)->convertItem,
-      ...blocks^,
-    ];
-  blocks :=
-    [
-      (typ, cbx + 1, cby - 1)->convertItem,
-      (typ, cbx + 2, cby - 1)->convertItem,
-      (typ, cbx + 3, cby - 1)->convertItem,
-      ...blocks^,
-    ];
-  blocks :=
-    [
-      (typ, cbx + 2, cby - 2)->convertItem,
-      (typ, cbx + 3, cby - 2)->convertItem,
-      ...blocks^,
-    ];
-  blocks := [(typ, cbx + 3, cby - 3)->convertItem, ...blocks^];
+  blocks->addBlock(typ, cbx, cby);
+  blocks->addBlock(typ, cbx + 1, cby);
+  blocks->addBlock(typ, cbx + 2, cby);
+  blocks->addBlock(typ, cbx + 3, cby);
+  blocks->addBlock(typ, cbx + 1, cby - 1);
+  blocks->addBlock(typ, cbx + 2, cby - 1);
+  blocks->addBlock(typ, cbx + 3, cby - 1);
+  blocks->addBlock(typ, cbx + 2, cby - 2);
+  blocks->addBlock(typ, cbx + 3, cby - 2);
+  blocks->addBlock(typ, cbx + 3, cby - 3);
 };
 
 // Generate a stair formation going upwards.
 let generateAirupStairs = (cbx, cby, typ, blocks) => {
-  blocks :=
-    [
-      (typ, cbx, cby)->convertItem,
-      (typ, cbx + 1, cby)->convertItem,
-      ...blocks^,
-    ];
-  blocks :=
-    [
-      (typ, cbx + 3, cby - 1)->convertItem,
-      (typ, cbx + 4, cby - 1)->convertItem,
-      ...blocks^,
-    ];
-  blocks :=
-    [
-      (typ, cbx + 4, cby - 2)->convertItem,
-      (typ, cbx + 5, cby - 2)->convertItem,
-      (typ, cbx + 6, cby - 2)->convertItem,
-      ...blocks^,
-    ];
+  blocks->addBlock(typ, cbx, cby);
+  blocks->addBlock(typ, cbx + 1, cby);
+  blocks->addBlock(typ, cbx + 3, cby - 1);
+  blocks->addBlock(typ, cbx + 4, cby - 1);
+  blocks->addBlock(typ, cbx + 4, cby - 2);
+  blocks->addBlock(typ, cbx + 5, cby - 2);
+  blocks->addBlock(typ, cbx + 6, cby - 2);
 };
 
 // Generate a stair formation going downwards
 let generateAirdownStairs = (cbx, cby, typ, blocks) => {
-  blocks :=
-    [
-      (typ, cbx, cby)->convertItem,
-      (typ, cbx + 1, cby)->convertItem,
-      (typ, cbx + 2, cby)->convertItem,
-      ...blocks^,
-    ];
-  blocks :=
-    [
-      (typ, cbx + 2, cby + 1)->convertItem,
-      (typ, cbx + 3, cby + 1)->convertItem,
-      ...blocks^,
-    ];
-  blocks :=
-    [
-      (typ, cbx + 5, cby + 2)->convertItem,
-      (typ, cbx + 6, cby + 2)->convertItem,
-      ...blocks^,
-    ];
+  blocks->addBlock(typ, cbx, cby);
+  blocks->addBlock(typ, cbx + 1, cby);
+  blocks->addBlock(typ, cbx + 2, cby);
+  blocks->addBlock(typ, cbx + 2, cby + 1);
+  blocks->addBlock(typ, cbx + 3, cby + 1);
+  blocks->addBlock(typ, cbx + 5, cby + 2);
+  blocks->addBlock(typ, cbx + 6, cby + 2);
 };
 
 // Generate a cloud block platform with some length num.
@@ -121,7 +88,7 @@ let rec generateClouds = (cbx, cby, typ, num, blocks) =>
   if (num == 0) {
     ();
   } else {
-    blocks := [(typ, cbx, cby)->convertItem, ...blocks^];
+    blocks->addBlock(typ, cbx, cby);
     generateClouds(cbx + 1, cby, typ, num - 1, blocks);
   };
 
@@ -170,13 +137,9 @@ let chooseBlockPattern = (cbx: int, cby: int, blocks: ref(list(blockCoord))) =>
       };
     switch (Random.int(5)) {
     | 0 =>
-      blocks :=
-        [
-          (stairTyp, cbx, cby)->convertItem,
-          (middleBlock, cbx + 1, cby)->convertItem,
-          (stairTyp, cbx + 2, cby)->convertItem,
-          ...blocks^,
-        ]
+      blocks->addBlock(stairTyp, cbx, cby);
+      blocks->addBlock(middleBlock, cbx + 1, cby);
+      blocks->addBlock(stairTyp, cbx + 2, cby);
     | 1 =>
       let numClouds = Random.int(5) + 5;
       if (cby < 5) {
@@ -196,26 +159,18 @@ let chooseBlockPattern = (cbx: int, cby: int, blocks: ref(list(blockCoord))) =>
       } else if (Config.blockh - cby > 2) {
         generateAirupStairs(cbx, cby, stairTyp, blocks);
       } else {
-        blocks := [(stairTyp, cbx, cby)->convertItem, ...blocks^];
+        blocks->addBlock(stairTyp, cbx, cby);
       }
     | _ =>
       if (cby + 3 - Config.blockh == 2) {
-        blocks := [(stairTyp, cbx, cby)->convertItem, ...blocks^];
+        blocks->addBlock(stairTyp, cbx, cby);
       } else if (cby + 3 - Config.blockh == 1) {
-        blocks :=
-          [
-            (stairTyp, cbx, cby)->convertItem,
-            (stairTyp, cbx, cby + 1)->convertItem,
-            ...blocks^,
-          ];
+        blocks->addBlock(stairTyp, cbx, cby);
+        blocks->addBlock(stairTyp, cbx, cby + 1);
       } else {
-        blocks :=
-          [
-            (stairTyp, cbx, cby)->convertItem,
-            (stairTyp, cbx, cby + 1)->convertItem,
-            (stairTyp, cbx, cby + 2)->convertItem,
-            ...blocks^,
-          ];
+        blocks->addBlock(stairTyp, cbx, cby);
+        blocks->addBlock(stairTyp, cbx, cby + 1);
+        blocks->addBlock(stairTyp, cbx, cby + 2);
       }
     };
   };
