@@ -122,7 +122,7 @@ function updatePlayerKeys(player, controls) {
     case /* CLeft */0 :
         if (!player.crouch) {
           if (player.vel.x > -player.params.speed) {
-            player.vel.x = player.vel.x - (0.4 - lr_acc);
+            player.vel.x = player.vel.x - (0.4 + Math.abs(lr_acc));
           }
           player.dir = /* Left */0;
           return ;
@@ -132,7 +132,7 @@ function updatePlayerKeys(player, controls) {
     case /* CRight */1 :
         if (!player.crouch) {
           if (player.vel.x < player.params.speed) {
-            player.vel.x = player.vel.x + (0.4 + lr_acc);
+            player.vel.x = player.vel.x + (0.4 + Math.abs(lr_acc));
           }
           player.dir = /* Right */1;
           return ;
@@ -416,7 +416,7 @@ function checkCollision(c1, c2) {
   }
   var ox = hwidths - Math.abs(vx);
   var oy = hheights - Math.abs(vy);
-  if (ox >= oy) {
+  if (ox + 0.2 > oy) {
     if (vy > 0) {
       o1.pos.y = o1.pos.y + oy;
       return /* North */0;

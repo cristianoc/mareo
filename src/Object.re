@@ -144,14 +144,14 @@ let updatePlayerKeys = (player: t, controls: controls): unit => {
   | CLeft =>
     if (!player.crouch) {
       if (player.vel.x > -. player.params.speed) {
-        player.vel.x = player.vel.x -. (0.4 -. lr_acc);
+        player.vel.x = player.vel.x -. (0.4 +. abs_float(lr_acc));
       };
       player.dir = Left;
     }
   | CRight =>
     if (!player.crouch) {
       if (player.vel.x < player.params.speed) {
-        player.vel.x = player.vel.x +. (0.4 +. lr_acc);
+        player.vel.x = player.vel.x +. (0.4 +. abs_float(lr_acc));
       };
       player.dir = Right;
     }
@@ -433,7 +433,7 @@ let checkCollision = (c1, c2) => {
     if (abs_float(vx) < hwidths && abs_float(vy) < hheights) {
       let ox = hwidths -. abs_float(vx);
       let oy = hheights -. abs_float(vy);
-      if (ox >= oy) {
+      if (ox +. 0.2 > oy) { // avoid spurious horizontal collisions with floors when oy is tiny
         if (vy > 0.) {
           o1.pos.y = o1.pos.y +. oy;
           Some(North);
