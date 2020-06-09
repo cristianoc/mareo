@@ -17,10 +17,6 @@ function convertItem(param) {
         ];
 }
 
-function convertList(lst) {
-  return Belt_List.map(lst, convertItem);
-}
-
 function memPos(x, y, _objs) {
   while(true) {
     var objs = _objs;
@@ -69,228 +65,215 @@ function trimEdges(lst) {
               }));
 }
 
-function generateGroundStairs(cbx, cby, typ) {
-  var four_0 = [
-    typ,
-    cbx,
-    cby
-  ];
-  var four_1 = /* :: */{
-    _0: [
-      typ,
-      cbx + 1 | 0,
-      cby
-    ],
-    _1: /* :: */{
-      _0: [
-        typ,
-        cbx + 2 | 0,
-        cby
-      ],
-      _1: /* :: */{
-        _0: [
+function generateGroundStairs(cbx, cby, typ, blocks) {
+  blocks.contents = /* :: */{
+    _0: convertItem([
           typ,
-          cbx + 3 | 0,
+          cbx,
           cby
-        ],
-        _1: /* [] */0
+        ]),
+    _1: /* :: */{
+      _0: convertItem([
+            typ,
+            cbx + 1 | 0,
+            cby
+          ]),
+      _1: /* :: */{
+        _0: convertItem([
+              typ,
+              cbx + 2 | 0,
+              cby
+            ]),
+        _1: /* :: */{
+          _0: convertItem([
+                typ,
+                cbx + 3 | 0,
+                cby
+              ]),
+          _1: blocks.contents
+        }
       }
     }
   };
-  var four = /* :: */{
-    _0: four_0,
-    _1: four_1
-  };
-  var three_0 = [
-    typ,
-    cbx + 1 | 0,
-    cby - 1 | 0
-  ];
-  var three_1 = /* :: */{
-    _0: [
-      typ,
-      cbx + 2 | 0,
-      cby - 1 | 0
-    ],
+  blocks.contents = /* :: */{
+    _0: convertItem([
+          typ,
+          cbx + 1 | 0,
+          cby - 1 | 0
+        ]),
     _1: /* :: */{
-      _0: [
-        typ,
-        cbx + 3 | 0,
-        cby - 1 | 0
-      ],
-      _1: /* [] */0
+      _0: convertItem([
+            typ,
+            cbx + 2 | 0,
+            cby - 1 | 0
+          ]),
+      _1: /* :: */{
+        _0: convertItem([
+              typ,
+              cbx + 3 | 0,
+              cby - 1 | 0
+            ]),
+        _1: blocks.contents
+      }
     }
   };
-  var three = /* :: */{
-    _0: three_0,
-    _1: three_1
-  };
-  var two_0 = [
-    typ,
-    cbx + 2 | 0,
-    cby - 2 | 0
-  ];
-  var two_1 = /* :: */{
-    _0: [
-      typ,
-      cbx + 3 | 0,
-      cby - 2 | 0
-    ],
-    _1: /* [] */0
-  };
-  var two = /* :: */{
-    _0: two_0,
-    _1: two_1
-  };
-  var one_0 = [
-    typ,
-    cbx + 3 | 0,
-    cby - 3 | 0
-  ];
-  var one = /* :: */{
-    _0: one_0,
-    _1: /* [] */0
-  };
-  return Pervasives.$at(four, Pervasives.$at(three, Pervasives.$at(two, one)));
-}
-
-function generateAirupStairs(cbx, cby, typ) {
-  var one_0 = [
-    typ,
-    cbx,
-    cby
-  ];
-  var one_1 = /* :: */{
-    _0: [
-      typ,
-      cbx + 1 | 0,
-      cby
-    ],
-    _1: /* [] */0
-  };
-  var one = /* :: */{
-    _0: one_0,
-    _1: one_1
-  };
-  var two_0 = [
-    typ,
-    cbx + 3 | 0,
-    cby - 1 | 0
-  ];
-  var two_1 = /* :: */{
-    _0: [
-      typ,
-      cbx + 4 | 0,
-      cby - 1 | 0
-    ],
-    _1: /* [] */0
-  };
-  var two = /* :: */{
-    _0: two_0,
-    _1: two_1
-  };
-  var three_0 = [
-    typ,
-    cbx + 4 | 0,
-    cby - 2 | 0
-  ];
-  var three_1 = /* :: */{
-    _0: [
-      typ,
-      cbx + 5 | 0,
-      cby - 2 | 0
-    ],
+  blocks.contents = /* :: */{
+    _0: convertItem([
+          typ,
+          cbx + 2 | 0,
+          cby - 2 | 0
+        ]),
     _1: /* :: */{
-      _0: [
-        typ,
-        cbx + 6 | 0,
-        cby - 2 | 0
-      ],
-      _1: /* [] */0
+      _0: convertItem([
+            typ,
+            cbx + 3 | 0,
+            cby - 2 | 0
+          ]),
+      _1: blocks.contents
     }
   };
-  var three = /* :: */{
-    _0: three_0,
-    _1: three_1
+  blocks.contents = /* :: */{
+    _0: convertItem([
+          typ,
+          cbx + 3 | 0,
+          cby - 3 | 0
+        ]),
+    _1: blocks.contents
   };
-  return Pervasives.$at(one, Pervasives.$at(two, three));
+  
 }
 
-function generateAirdownStairs(cbx, cby, typ) {
-  var three_0 = [
-    typ,
-    cbx,
-    cby
-  ];
-  var three_1 = /* :: */{
-    _0: [
-      typ,
-      cbx + 1 | 0,
-      cby
-    ],
+function generateAirupStairs(cbx, cby, typ, blocks) {
+  blocks.contents = /* :: */{
+    _0: convertItem([
+          typ,
+          cbx,
+          cby
+        ]),
     _1: /* :: */{
-      _0: [
-        typ,
-        cbx + 2 | 0,
-        cby
-      ],
-      _1: /* [] */0
+      _0: convertItem([
+            typ,
+            cbx + 1 | 0,
+            cby
+          ]),
+      _1: blocks.contents
     }
   };
-  var three = /* :: */{
-    _0: three_0,
-    _1: three_1
+  blocks.contents = /* :: */{
+    _0: convertItem([
+          typ,
+          cbx + 3 | 0,
+          cby - 1 | 0
+        ]),
+    _1: /* :: */{
+      _0: convertItem([
+            typ,
+            cbx + 4 | 0,
+            cby - 1 | 0
+          ]),
+      _1: blocks.contents
+    }
   };
-  var two_0 = [
-    typ,
-    cbx + 2 | 0,
-    cby + 1 | 0
-  ];
-  var two_1 = /* :: */{
-    _0: [
-      typ,
-      cbx + 3 | 0,
-      cby + 1 | 0
-    ],
-    _1: /* [] */0
+  blocks.contents = /* :: */{
+    _0: convertItem([
+          typ,
+          cbx + 4 | 0,
+          cby - 2 | 0
+        ]),
+    _1: /* :: */{
+      _0: convertItem([
+            typ,
+            cbx + 5 | 0,
+            cby - 2 | 0
+          ]),
+      _1: /* :: */{
+        _0: convertItem([
+              typ,
+              cbx + 6 | 0,
+              cby - 2 | 0
+            ]),
+        _1: blocks.contents
+      }
+    }
   };
-  var two = /* :: */{
-    _0: two_0,
-    _1: two_1
-  };
-  var one_0 = [
-    typ,
-    cbx + 5 | 0,
-    cby + 2 | 0
-  ];
-  var one_1 = /* :: */{
-    _0: [
-      typ,
-      cbx + 6 | 0,
-      cby + 2 | 0
-    ],
-    _1: /* [] */0
-  };
-  var one = /* :: */{
-    _0: one_0,
-    _1: one_1
-  };
-  return Pervasives.$at(three, Pervasives.$at(two, one));
+  
 }
 
-function generateClouds(cbx, cby, typ, num) {
-  if (num === 0) {
-    return /* [] */0;
-  } else {
-    return Pervasives.$at(/* :: */{
-                _0: [
-                  typ,
-                  cbx,
-                  cby
-                ],
-                _1: /* [] */0
-              }, generateClouds(cbx + 1 | 0, cby, typ, num - 1 | 0));
-  }
+function generateAirdownStairs(cbx, cby, typ, blocks) {
+  blocks.contents = /* :: */{
+    _0: convertItem([
+          typ,
+          cbx,
+          cby
+        ]),
+    _1: /* :: */{
+      _0: convertItem([
+            typ,
+            cbx + 1 | 0,
+            cby
+          ]),
+      _1: /* :: */{
+        _0: convertItem([
+              typ,
+              cbx + 2 | 0,
+              cby
+            ]),
+        _1: blocks.contents
+      }
+    }
+  };
+  blocks.contents = /* :: */{
+    _0: convertItem([
+          typ,
+          cbx + 2 | 0,
+          cby + 1 | 0
+        ]),
+    _1: /* :: */{
+      _0: convertItem([
+            typ,
+            cbx + 3 | 0,
+            cby + 1 | 0
+          ]),
+      _1: blocks.contents
+    }
+  };
+  blocks.contents = /* :: */{
+    _0: convertItem([
+          typ,
+          cbx + 5 | 0,
+          cby + 2 | 0
+        ]),
+    _1: /* :: */{
+      _0: convertItem([
+            typ,
+            cbx + 6 | 0,
+            cby + 2 | 0
+          ]),
+      _1: blocks.contents
+    }
+  };
+  
+}
+
+function generateClouds(_cbx, cby, typ, _num, blocks) {
+  while(true) {
+    var num = _num;
+    var cbx = _cbx;
+    if (num === 0) {
+      return ;
+    }
+    blocks.contents = /* :: */{
+      _0: convertItem([
+            typ,
+            cbx,
+            cby
+          ]),
+      _1: blocks.contents
+    };
+    _num = num - 1 | 0;
+    _cbx = cbx + 1 | 0;
+    continue ;
+  };
 }
 
 function generateCoins(_blocks) {
@@ -378,23 +361,21 @@ function chooseBlockPattern(cbx, cby, blocks) {
     case 1 :
         var numClouds = Random.$$int(5) + 5 | 0;
         if (cby < 5) {
-          blocks.contents = Pervasives.$at(Belt_List.map(generateClouds(cbx, cby, /* Cloud */3, numClouds), convertItem), blocks.contents);
-          return ;
+          return generateClouds(cbx, cby, /* Cloud */3, numClouds, blocks);
         } else {
           return ;
         }
     case 2 :
         if ((Config.blockh - cby | 0) === 1) {
-          blocks.contents = Pervasives.$at(Belt_List.map(generateGroundStairs(cbx, cby, stairTyp), convertItem), blocks.contents);
-          return ;
+          return generateGroundStairs(cbx, cby, stairTyp, blocks);
         } else {
           return ;
         }
     case 3 :
         if (stairTyp === /* Brick */1 && (Config.blockh - cby | 0) > 3) {
-          blocks.contents = Pervasives.$at(Belt_List.map(generateAirdownStairs(cbx, cby, stairTyp), convertItem), blocks.contents);
+          return generateAirdownStairs(cbx, cby, stairTyp, blocks);
         } else if ((Config.blockh - cby | 0) > 2) {
-          blocks.contents = Pervasives.$at(Belt_List.map(generateAirupStairs(cbx, cby, stairTyp), convertItem), blocks.contents);
+          return generateAirupStairs(cbx, cby, stairTyp, blocks);
         } else {
           blocks.contents = /* :: */{
             _0: convertItem([
@@ -404,8 +385,8 @@ function chooseBlockPattern(cbx, cby, blocks) {
                 ]),
             _1: blocks.contents
           };
+          return ;
         }
-        return ;
     default:
       if (((cby + 3 | 0) - Config.blockh | 0) === 2) {
         blocks.contents = /* :: */{
@@ -710,7 +691,6 @@ function generate(param) {
 
 export {
   convertItem ,
-  convertList ,
   memPos ,
   removeOverlap ,
   pixx ,
