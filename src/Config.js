@@ -8,9 +8,9 @@ var images = [
   "mario-small.png"
 ];
 
-var blockw = 2400 / 16;
+var blockw = 150;
 
-var blockh = 256 / 16 - 1;
+var blockh = 15;
 
 var mapDim = [
   2400,

@@ -4,20 +4,20 @@ open Belt;
 
 // Note: Canvas is 512 by 256 (w*h) -> 32 by 16 blocks
 // Holds obj typ and its coordinates. (int, (x-coord, y-coord))
-type blockCoord = (Actors.blockTyp, float, float);
-type enemyCoord = (Actors.enemyTyp, float, float);
+type blockCoord = (Actors.blockTyp, int, int);
+type enemyCoord = (Actors.enemyTyp, int, int);
 
 // Convert list of locations from blocksize to pixelsize by multiplying (x,y) by 16.
 let rec convertList = (lst: list(blockCoord)): list(blockCoord) =>
   switch (lst) {
   | [] => []
   | [(blockTyp, x, y), ...t] =>
-    [(blockTyp, x *. 16., y *. 16.)] @ convertList(t)
+    [(blockTyp, x * 16, y * 16)] @ convertList(t)
   };
 
 // Check if the given position checkpos is already part of the list of locations
 // in blocks
-let rec memPos = (x, y, objs: list(_)): bool =>
+let rec memPos = (x: int, y, objs: list(_)): bool =>
   switch (objs) {
   | [] => false
   | [(_, px, py), ...t] =>
@@ -39,13 +39,13 @@ let rec removeOverlap = (lst, currentObjs) =>
     }
   };
 
-let pixx = Config.blockw *. 16.;
-let pixy = Config.blockh *. 16.;
+let pixx = Config.blockw * 16;
+let pixy = Config.blockh * 16;
 
 // Get rid of objects with coordinates in the ending frame, within 128 pixels of
 // the start, at the very top, and two blocks from the ground.
 let trimEdge = (x, y) => {
-  !(x < 128. || pixx -. x < 528. || y == 0. || pixy -. y < 48.);
+  !(x < 128 || pixx - x < 528 || y == 0 || pixy - y < 48);
 };
 let trimEdges = lst => lst->List.keep(((_, x, y)) => trimEdge(x, y));
 
@@ -54,41 +54,37 @@ let trimEdges = lst => lst->List.keep(((_, x, y)) => trimEdge(x, y));
 let generateGroundStairs = (cbx, cby, typ) => {
   let four = [
     (typ, cbx, cby),
-    (typ, cbx +. 1., cby),
-    (typ, cbx +. 2., cby),
-    (typ, cbx +. 3., cby),
+    (typ, cbx + 1, cby),
+    (typ, cbx + 2, cby),
+    (typ, cbx + 3, cby),
   ];
   let three = [
-    (typ, cbx +. 1., cby -. 1.),
-    (typ, cbx +. 2., cby -. 1.),
-    (typ, cbx +. 3., cby -. 1.),
+    (typ, cbx + 1, cby - 1),
+    (typ, cbx + 2, cby - 1),
+    (typ, cbx + 3, cby - 1),
   ];
-  let two = [(typ, cbx +. 2., cby -. 2.), (typ, cbx +. 3., cby -. 2.)];
-  let one = [(typ, cbx +. 3., cby -. 3.)];
+  let two = [(typ, cbx + 2, cby - 2), (typ, cbx + 3, cby - 2)];
+  let one = [(typ, cbx + 3, cby - 3)];
   four @ three @ two @ one;
 };
 
 // Generate a stair formation going upwards.
 let generateAirupStairs = (cbx, cby, typ) => {
-  let one = [(typ, cbx, cby), (typ, cbx +. 1., cby)];
-  let two = [(typ, cbx +. 3., cby -. 1.), (typ, cbx +. 4., cby -. 1.)];
+  let one = [(typ, cbx, cby), (typ, cbx + 1, cby)];
+  let two = [(typ, cbx + 3, cby - 1), (typ, cbx + 4, cby - 1)];
   let three = [
-    (typ, cbx +. 4., cby -. 2.),
-    (typ, cbx +. 5., cby -. 2.),
-    (typ, cbx +. 6., cby -. 2.),
+    (typ, cbx + 4, cby - 2),
+    (typ, cbx + 5, cby - 2),
+    (typ, cbx + 6, cby - 2),
   ];
   one @ two @ three;
 };
 
 // Generate a stair formation going downwards
 let generateAirdownStairs = (cbx, cby, typ) => {
-  let three = [
-    (typ, cbx, cby),
-    (typ, cbx +. 1., cby),
-    (typ, cbx +. 2., cby),
-  ];
-  let two = [(typ, cbx +. 2., cby +. 1.), (typ, cbx +. 3., cby +. 1.)];
-  let one = [(typ, cbx +. 5., cby +. 2.), (typ, cbx +. 6., cby +. 2.)];
+  let three = [(typ, cbx, cby), (typ, cbx + 1, cby), (typ, cbx + 2, cby)];
+  let two = [(typ, cbx + 2, cby + 1), (typ, cbx + 3, cby + 1)];
+  let one = [(typ, cbx + 5, cby + 2), (typ, cbx + 6, cby + 2)];
   three @ two @ one;
 };
 
@@ -97,7 +93,7 @@ let rec generateClouds = (cbx, cby, typ, num) =>
   if (num == 0) {
     [];
   } else {
-    [(typ, cbx, cby)] @ generateClouds(cbx +. 1., cby, typ, num - 1);
+    [(typ, cbx, cby)] @ generateClouds(cbx + 1, cby, typ, num - 1);
   };
 
 // Generate an objCoord list (typ, coordinates) of coins to be placed.
@@ -107,7 +103,7 @@ let rec generateCoins = (blocks: list(blockCoord)): list(blockCoord) => {
   | [] => []
   | [(_, x, y), ...t] =>
     if (placeCoin == 0) {
-      [(QBlock(Coin), x, y -. 16.)] @ generateCoins(t);
+      [(QBlock(Coin), x, y - 16)] @ generateCoins(t);
     } else {
       generateCoins(t);
     }
@@ -131,7 +127,7 @@ let randomStairTyp = () => Random.bool() ? UnBBlock : Brick;
 //    of the level map, prevent any objects from being initialized.
 // 3. Else call helper methods to created block formations and return objCoord
 //    slist.
-let chooseBlockPattern = (cbx: float, cby: float): list(blockCoord) =>
+let chooseBlockPattern = (cbx: int, cby: int): list(blockCoord) =>
   if (cbx > Config.blockw || cby > Config.blockh) {
     [];
   } else {
@@ -146,40 +142,40 @@ let chooseBlockPattern = (cbx: float, cby: float): list(blockCoord) =>
     switch (Random.int(5)) {
     | 0 => [
         (stairTyp, cbx, cby),
-        (middleBlock, cbx +. 1., cby),
-        (stairTyp, cbx +. 2., cby),
+        (middleBlock, cbx + 1, cby),
+        (stairTyp, cbx + 2, cby),
       ]
     | 1 =>
       let numClouds = Random.int(5) + 5;
-      if (cby < 5.) {
+      if (cby < 5) {
         generateClouds(cbx, cby, Cloud, numClouds);
       } else {
         [];
       };
     | 2 =>
-      if (Config.blockh -. cby == 1.) {
+      if (Config.blockh - cby == 1) {
         generateGroundStairs(cbx, cby, stairTyp);
       } else {
         [];
       }
     | 3 =>
-      if (stairTyp == Brick && Config.blockh -. cby > 3.) {
+      if (stairTyp == Brick && Config.blockh - cby > 3) {
         generateAirdownStairs(cbx, cby, stairTyp);
-      } else if (Config.blockh -. cby > 2.) {
+      } else if (Config.blockh - cby > 2) {
         generateAirupStairs(cbx, cby, stairTyp);
       } else {
         [(stairTyp, cbx, cby)];
       }
     | _ =>
-      if (cby +. 3. -. Config.blockh == 2.) {
+      if (cby + 3 - Config.blockh == 2) {
         [(stairTyp, cbx, cby)];
-      } else if (cby +. 3. -. Config.blockh == 1.) {
-        [(stairTyp, cbx, cby), (stairTyp, cbx, cby +. 1.)];
+      } else if (cby + 3 - Config.blockh == 1) {
+        [(stairTyp, cbx, cby), (stairTyp, cbx, cby + 1)];
       } else {
         [
           (stairTyp, cbx, cby),
-          (stairTyp, cbx, cby +. 1.),
-          (stairTyp, cbx, cby +. 2.),
+          (stairTyp, cbx, cby + 1),
+          (stairTyp, cbx, cby + 2),
         ];
       }
     };
@@ -187,20 +183,20 @@ let chooseBlockPattern = (cbx: float, cby: float): list(blockCoord) =>
 
 // Generates a list of enemies to be placed on the ground.
 let rec generateEnemies =
-        (cbx: float, cby: float, blocks: list(blockCoord)): list(enemyCoord) =>
-  if (cbx > Config.blockw -. 32.) {
+        (cbx: int, cby: int, blocks: list(blockCoord)): list(enemyCoord) =>
+  if (cbx > Config.blockw - 32) {
     [];
-  } else if (cby > Config.blockh -. 1. || cbx < 15.) {
-    generateEnemies(cbx +. 1., 0., blocks);
-  } else if (memPos(cbx, cby, blocks) || cby == 0.) {
-    generateEnemies(cbx, cby +. 1., blocks);
+  } else if (cby > Config.blockh - 1 || cbx < 15) {
+    generateEnemies(cbx + 1, 0, blocks);
+  } else if (memPos(cbx, cby, blocks) || cby == 0) {
+    generateEnemies(cbx, cby + 1, blocks);
   } else {
     let isEnemy = Random.int(10) == 0;
-    if (isEnemy && Config.blockh -. 1. == cby) {
-      let enemy = [(randomEnemyTyp(), cbx *. 16., cby *. 16.)];
-      enemy @ generateEnemies(cbx, cby +. 1., blocks);
+    if (isEnemy && Config.blockh - 1 == cby) {
+      let enemy = [(randomEnemyTyp(), cbx * 16, cby * 16)];
+      enemy @ generateEnemies(cbx, cby + 1, blocks);
     } else {
-      generateEnemies(cbx, cby +. 1., blocks);
+      generateEnemies(cbx, cby + 1, blocks);
     };
   };
 
@@ -212,7 +208,7 @@ let rec generateBlockEnemies =
   | [] => []
   | [(_, x, y), ...t] =>
     if (placeEnemy == 0) {
-      [(randomEnemyTyp(), x, y -. 16.)] @ generateBlockEnemies(t);
+      [(randomEnemyTyp(), x, y - 16)] @ generateBlockEnemies(t);
     } else {
       generateBlockEnemies(t);
     }
@@ -221,20 +217,20 @@ let rec generateBlockEnemies =
 
 // Generate an objCoord list (typ, coordinates) of blocks to be placed.
 let rec generateBlockLocs =
-        (cbx: float, cby: float, acc: list(blockCoord)): list(blockCoord) =>
-  if (Config.blockw -. cbx < 33.) {
+        (cbx: int, cby: int, acc: list(blockCoord)): list(blockCoord) =>
+  if (Config.blockw - cbx < 33) {
     acc;
-  } else if (cby > Config.blockh -. 1.) {
-    generateBlockLocs(cbx +. 1., 0., acc);
-  } else if (memPos(cbx, cby, acc) || cby == 0.) {
-    generateBlockLocs(cbx, cby +. 1., acc);
+  } else if (cby > Config.blockh - 1) {
+    generateBlockLocs(cbx + 1, 0, acc);
+  } else if (memPos(cbx, cby, acc) || cby == 0) {
+    generateBlockLocs(cbx, cby + 1, acc);
   } else if (Random.int(20) == 0) {
     let newacc = chooseBlockPattern(cbx, cby);
     let undupLst = removeOverlap(newacc, acc);
     let calledAcc = acc @ undupLst;
-    generateBlockLocs(cbx, cby +. 1., calledAcc);
+    generateBlockLocs(cbx, cby + 1, calledAcc);
   } else {
-    generateBlockLocs(cbx, cby +. 1., acc);
+    generateBlockLocs(cbx, cby + 1, acc);
   };
 
 // Generate the ending item panel at the end of the level. Games ends upon
@@ -245,29 +241,28 @@ let generatePanel = (): Object.collidable => {
       ~dir=Left,
       Sprite.makeBlock(Panel),
       Object.makeBlock(Panel),
-      Config.blockw *. 16. -. 256.,
-      Config.blockh *. 16. *. 2. /. 3.,
+      float_of_int(Config.blockw) *. 16. -. 256.,
+      float_of_int(Config.blockh) *. 16. *. 2. /. 3.,
     );
   Block(Panel, spr, obj);
 };
 
 // Generate the list of brick locations needed to display the ground.
 // 1/10 chance that a ground block is skipped each call to create holes.
-let rec generateGround =
-        (inc: float, acc: list(blockCoord)): list(blockCoord) =>
+let rec generateGround = (inc: int, acc: list(blockCoord)): list(blockCoord) =>
   if (inc > Config.blockw) {
     acc;
-  } else if (inc > 10.) {
+  } else if (inc > 10) {
     let skip = Random.int(10);
-    let newacc = acc @ [(Ground, inc *. 16., Config.blockh *. 16.)];
-    if (skip == 7 && Config.blockw -. inc > 32.) {
-      generateGround(inc +. 1., acc);
+    let newacc = acc @ [(Ground, inc * 16, Config.blockh * 16)];
+    if (skip == 7 && Config.blockw - inc > 32) {
+      generateGround(inc + 1, acc);
     } else {
-      generateGround(inc +. 1., newacc);
+      generateGround(inc + 1, newacc);
     };
   } else {
-    let newacc = acc @ [(Ground, inc *. 16., Config.blockh *. 16.)];
-    generateGround(inc +. 1., newacc);
+    let newacc = acc @ [(Ground, inc * 16, Config.blockh * 16)];
+    generateGround(inc + 1, newacc);
   };
 
 // Convert the objCoord list called by generateBlockLocs to a list of objects
@@ -283,8 +278,8 @@ let rec convertToBlockObj =
         ~dir=Left,
         Sprite.makeBlock(blockTyp),
         Object.makeBlock(blockTyp),
-        x,
-        y,
+        float_of_int(x),
+        float_of_int(y),
       );
     let ob = Object.Block(blockTyp, spr, obj);
     [ob] @ convertToBlockObj(t, context);
@@ -303,8 +298,8 @@ let rec convertToEnemyObj =
         ~dir=Left,
         Sprite.makeEnemy(enemyTyp, Left),
         Object.makeEnemy(enemyTyp),
-        x,
-        y,
+        float_of_int(x),
+        float_of_int(y),
       );
     Object.setVelToSpeed(obj);
     let ob = Object.Enemy(enemyTyp, spr, obj);
@@ -323,8 +318,8 @@ let rec convertToCoinObj =
         ~dir=Left,
         Sprite.makeItem(Coin),
         Object.makeItem(Coin),
-        x,
-        y,
+        float_of_int(x),
+        float_of_int(y),
       );
     let ob = Object.Item(Coin, spr, obj);
     [ob] @ convertToCoinObj(t, context);
@@ -335,13 +330,13 @@ let rec convertToCoinObj =
 // block form, not pixels.
 let generateHelper = (): list(Object.collidable) => {
   let context = Load.getContext();
-  let blockLocs = generateBlockLocs(0., 0., [])->convertList->trimEdges;
+  let blockLocs = generateBlockLocs(0, 0, [])->convertList->trimEdges;
   let objConvertedBlockLocs = convertToBlockObj(blockLocs, context);
-  let groundBlocks = generateGround(0., []);
+  let groundBlocks = generateGround(0, []);
   let objConvertedGroundBlocks = convertToBlockObj(groundBlocks, context);
   let blockLocations = blockLocs @ groundBlocks;
   let allBlocks = objConvertedBlockLocs @ objConvertedGroundBlocks;
-  let enemyLocs = generateEnemies(0., 0., blockLocations);
+  let enemyLocs = generateEnemies(0, 0, blockLocations);
   let objConvertedEnemies = convertToEnemyObj(enemyLocs, context);
   let coinsLocs = generateCoins(blockLocs);
   let undupCoinLocs = trimEdges(removeOverlap(coinsLocs, blockLocs));
