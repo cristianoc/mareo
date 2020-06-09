@@ -10,7 +10,7 @@ let levelHeight = 256;
 let blockw = levelWidth / 16;
 let blockh = levelHeight / 16 - 1;
 
-let mapDim = (levelWidth, levelHeight);
+let mapDim = (levelWidth->float_of_int, levelHeight->float_of_int);
 
 let restartAfter = 5;
 
