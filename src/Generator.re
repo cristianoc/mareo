@@ -222,10 +222,25 @@ let chooseBlockPattern =
     };
   };
 
+let convertEnemyToObj = ((enemyTyp, x, y)) => {
+  let (sprite, obj) =
+    Object.make(
+      ~dir=Left,
+      Sprite.makeEnemy(enemyTyp, Left),
+      Object.makeEnemy(enemyTyp),
+      x,
+      y,
+    );
+  Object.setVelToSpeed(obj);
+  {Object.objTyp: Enemy(enemyTyp), sprite, obj};
+};
+
+let convertToEnemiesToObj = lst => lst->List.map(convertEnemyToObj);
+
 // Generates a list of enemies to be placed on the ground.
 let rec generateEnemies =
         (cbx: float, cby: float, blocks: list(Object.collidable))
-        : list(enemyCoord) =>
+        : list(Object.collidable) =>
   if (cbx > Config.blockw -. 32.) {
     [];
   } else if (cby > Config.blockh -. 1. || cbx < 15.) {
@@ -236,7 +251,7 @@ let rec generateEnemies =
     let isEnemy = Random.int(10) == 0;
     if (isEnemy && Config.blockh -. 1. == cby) {
       [
-        (randomEnemyTyp(), cbx *. 16., cby *. 16.),
+        (randomEnemyTyp(), cbx *. 16., cby *. 16.)->convertEnemyToObj,
         ...generateEnemies(cbx, cby +. 1., blocks),
       ];
     } else {
@@ -246,15 +261,21 @@ let rec generateEnemies =
 
 // Generates a list of enemies to be placed upon the block objects.
 let rec generateBlockEnemies =
-        (blockCoord: list(Object.collidable)): list(enemyCoord) => {
+        (blocks: list(Object.collidable), ~coinBlocks)
+        : list(Object.collidable) => {
   let placeEnemy = Random.int(20);
-  switch (blockCoord) {
+  switch (blocks) {
   | [] => []
   | [{obj: {pos: {x, y}}}, ...t] =>
-    if (placeEnemy == 0) {
-      [(randomEnemyTyp(), x, y -. 16.)] @ generateBlockEnemies(t);
+    if (placeEnemy == 0
+        && !memPos2(x, y, blocks)
+        && !memPos2(x, y, coinBlocks)) {
+      [
+        (randomEnemyTyp(), x, y -. 16.)->convertEnemyToObj,
+        ...t->generateBlockEnemies(~coinBlocks),
+      ];
     } else {
-      generateBlockEnemies(t);
+      t->generateBlockEnemies(~coinBlocks);
     }
   };
 };
@@ -335,21 +356,6 @@ let rec generateGround =
     );
   };
 
-let convertEnemyToObj = ((enemyTyp, x, y)) => {
-  let (sprite, obj) =
-    Object.make(
-      ~dir=Left,
-      Sprite.makeEnemy(enemyTyp, Left),
-      Object.makeEnemy(enemyTyp),
-      x,
-      y,
-    );
-  Object.setVelToSpeed(obj);
-  {Object.objTyp: Enemy(enemyTyp), sprite, obj};
-};
-
-let convertToEnemiesToObj = lst => lst->List.map(convertEnemyToObj);
-
 // Procedurally generate a list of collidables given canvas width, height and
 // context. Arguments block width (blockw) and block height (blockh) are in
 // block form, not pixels.
@@ -364,16 +370,11 @@ let generateHelper = (): list(Object.collidable) => {
 
   let allBlocks = blocks @ groundBlocks;
 
-  let objConvertedEnemies =
-    generateEnemies(0., 0., allBlocks)->convertToEnemiesToObj;
+  let objConvertedEnemies = generateEnemies(0., 0., allBlocks);
 
   let coinBlocks = generateCoins(groundBlocks);
 
-  let objEnemyBlocks =
-    generateBlockEnemies(groundBlocks)
-    ->removeOverlap2(groundBlocks)
-    ->removeOverlap2(coinBlocks)
-    ->convertToEnemiesToObj;
+  let objEnemyBlocks = groundBlocks->generateBlockEnemies(~coinBlocks);
 
   let objPanel = generatePanel();
 

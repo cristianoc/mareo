@@ -273,6 +273,25 @@ function chooseBlockPattern(cbx, cby, blocks) {
   }
 }
 
+function convertEnemyToObj(param) {
+  var enemyTyp = param[0];
+  var match = $$Object.make(/* Left */0, Sprite.makeEnemy(enemyTyp, /* Left */0), $$Object.makeEnemy(enemyTyp), param[1], param[2]);
+  var obj = match[1];
+  $$Object.setVelToSpeed(obj);
+  return {
+          objTyp: {
+            TAG: /* Enemy */1,
+            _0: enemyTyp
+          },
+          sprite: match[0],
+          obj: obj
+        };
+}
+
+function convertToEnemiesToObj(lst) {
+  return Belt_List.map(lst, convertEnemyToObj);
+}
+
 function generateEnemies(_cbx, _cby, blocks) {
   while(true) {
     var cby = _cby;
@@ -292,11 +311,11 @@ function generateEnemies(_cbx, _cby, blocks) {
     var isEnemy = Random.$$int(10) === 0;
     if (isEnemy && Config.blockh - 1 === cby) {
       return /* :: */{
-              _0: [
-                randomEnemyTyp(undefined),
-                cbx * 16,
-                cby * 16
-              ],
+              _0: convertEnemyToObj([
+                    randomEnemyTyp(undefined),
+                    cbx * 16,
+                    cby * 16
+                  ]),
               _1: generateEnemies(cbx, cby + 1, blocks)
             };
     }
@@ -305,28 +324,28 @@ function generateEnemies(_cbx, _cby, blocks) {
   };
 }
 
-function generateBlockEnemies(_blockCoord) {
+function generateBlockEnemies(_blocks, coinBlocks) {
   while(true) {
-    var blockCoord = _blockCoord;
+    var blocks = _blocks;
     var placeEnemy = Random.$$int(20);
-    if (!blockCoord) {
+    if (!blocks) {
       return /* [] */0;
     }
-    var match = blockCoord._0.obj.pos;
+    var match = blocks._0.obj.pos;
     var x = match.x;
     var y = match.y;
-    var t = blockCoord._1;
-    if (placeEnemy === 0) {
-      return Pervasives.$at(/* :: */{
-                  _0: [
+    var t = blocks._1;
+    if (placeEnemy === 0 && !memPos2(x, y, blocks) && !memPos2(x, y, coinBlocks)) {
+      return /* :: */{
+              _0: convertEnemyToObj([
                     randomEnemyTyp(undefined),
                     x,
                     y - 16
-                  ],
-                  _1: /* [] */0
-                }, generateBlockEnemies(t));
+                  ]),
+              _1: generateBlockEnemies(t, coinBlocks)
+            };
     }
-    _blockCoord = t;
+    _blocks = t;
     continue ;
   };
 }
@@ -423,25 +442,6 @@ function generateGround(_inc, _acc) {
   };
 }
 
-function convertEnemyToObj(param) {
-  var enemyTyp = param[0];
-  var match = $$Object.make(/* Left */0, Sprite.makeEnemy(enemyTyp, /* Left */0), $$Object.makeEnemy(enemyTyp), param[1], param[2]);
-  var obj = match[1];
-  $$Object.setVelToSpeed(obj);
-  return {
-          objTyp: {
-            TAG: /* Enemy */1,
-            _0: enemyTyp
-          },
-          sprite: match[0],
-          obj: obj
-        };
-}
-
-function convertToEnemiesToObj(lst) {
-  return Belt_List.map(lst, convertEnemyToObj);
-}
-
 function generateHelper(param) {
   var blockLocs = {
     contents: /* [] */0
@@ -450,9 +450,9 @@ function generateHelper(param) {
   var blocks = blockLocs.contents;
   var groundBlocks = generateGround(0, /* [] */0);
   var allBlocks = Pervasives.$at(blocks, groundBlocks);
-  var objConvertedEnemies = Belt_List.map(generateEnemies(0, 0, allBlocks), convertEnemyToObj);
+  var objConvertedEnemies = generateEnemies(0, 0, allBlocks);
   var coinBlocks = generateCoins(groundBlocks);
-  var objEnemyBlocks = Belt_List.map(removeOverlap2(removeOverlap2(generateBlockEnemies(groundBlocks), groundBlocks), coinBlocks), convertEnemyToObj);
+  var objEnemyBlocks = generateBlockEnemies(groundBlocks, coinBlocks);
   var objPanel = generatePanel(undefined);
   return Pervasives.$at(allBlocks, Pervasives.$at(objConvertedEnemies, Pervasives.$at(coinBlocks, Pervasives.$at(objEnemyBlocks, /* :: */{
                           _0: objPanel,
@@ -503,6 +503,8 @@ export {
   randomEnemyTyp ,
   randomStairTyp ,
   chooseBlockPattern ,
+  convertEnemyToObj ,
+  convertToEnemiesToObj ,
   generateEnemies ,
   generateBlockEnemies ,
   generateBlockLocs ,
@@ -510,8 +512,6 @@ export {
   convertBlockToObj ,
   convertBlocksToObj ,
   generateGround ,
-  convertEnemyToObj ,
-  convertToEnemiesToObj ,
   generateHelper ,
   generate ,
   
