@@ -221,8 +221,8 @@ let rec generateEnemiesOnBlocks =
   | [] => []
   | [{obj: {pos: {x, y}}}, ...t] =>
     if (placeEnemy == 0
-        && !memPos(x, y, blocks)
-        && !memPos(x, y, notOverlappingWith)) {
+        && !memPos(x, y -. 16., blocks)
+        && !memPos(x, y -. 16., notOverlappingWith)) {
       [
         (randomEnemyTyp(), x, y -. 16.)->convertEnemyToObj,
         ...t->generateEnemiesOnBlocks(~notOverlappingWith),
@@ -321,7 +321,7 @@ let generateHelper = (): list(Object.collidable) => {
   let coins = generateCoins(blocks);
 
   let enemiesOnBlocks =
-    groundBlocks->generateEnemiesOnBlocks(~notOverlappingWith=coins);
+    blocks->generateEnemiesOnBlocks(~notOverlappingWith=coins);
 
   let objPanel = generatePanel();
 

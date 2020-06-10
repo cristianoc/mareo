@@ -262,7 +262,7 @@ function generateEnemiesOnBlocks(_blocks, notOverlappingWith) {
     var x = match.x;
     var y = match.y;
     var t = blocks._1;
-    if (placeEnemy === 0 && !memPos(x, y, blocks) && !memPos(x, y, notOverlappingWith)) {
+    if (placeEnemy === 0 && !memPos(x, y - 16, blocks) && !memPos(x, y - 16, notOverlappingWith)) {
       return /* :: */{
               _0: convertEnemyToObj([
                     randomEnemyTyp(undefined),
@@ -374,7 +374,7 @@ function generateHelper(param) {
   var groundBlocks = generateGround(0, /* [] */0);
   var enemiesOnGround = generateEnemiesOnGround(0, 0);
   var coins = generateCoins(blocks);
-  var enemiesOnBlocks = generateEnemiesOnBlocks(groundBlocks, coins);
+  var enemiesOnBlocks = generateEnemiesOnBlocks(blocks, coins);
   var objPanel = generatePanel(undefined);
   return Pervasives.$at(blocks, Pervasives.$at(groundBlocks, Pervasives.$at(enemiesOnGround, Pervasives.$at(coins, Pervasives.$at(enemiesOnBlocks, /* :: */{
                               _0: objPanel,
