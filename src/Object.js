@@ -575,4 +575,4 @@ export {
   kill ,
   
 }
-/* No side effect */
+/* Sprite Not a pure module */

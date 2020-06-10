@@ -384,47 +384,61 @@ function makeItem(param) {
   }
 }
 
+var brickParams = setupSprite(undefined, undefined, undefined, 10, 5, [
+      0,
+      0
+    ], "blocks.png");
+
+var qBlockParams = setupSprite(undefined, undefined, undefined, 15, 4, [
+      0,
+      16
+    ], "blocks.png");
+
+var qBlockUsedParams = setupSprite(undefined, undefined, undefined, undefined, undefined, [
+      0,
+      32
+    ], "blocks.png");
+
+var unBBlockParams = setupSprite(undefined, undefined, undefined, undefined, undefined, [
+      0,
+      48
+    ], "blocks.png");
+
+var cloudParams = setupSprite(undefined, undefined, undefined, undefined, undefined, [
+      0,
+      64
+    ], "blocks.png");
+
+var panelParams = setupSprite(undefined, undefined, [
+      26,
+      26
+    ], 15, 3, [
+      0,
+      0
+    ], "panel.png");
+
+var groundParams = setupSprite(undefined, undefined, undefined, undefined, undefined, [
+      0,
+      32
+    ], "ground.png");
+
 function makeParams(param) {
   if (typeof param !== "number") {
-    return setupSprite(undefined, undefined, undefined, 15, 4, [
-                0,
-                16
-              ], "blocks.png");
+    return qBlockParams;
   }
   switch (param) {
     case /* QBlockUsed */0 :
-        return setupSprite(undefined, undefined, undefined, undefined, undefined, [
-                    0,
-                    32
-                  ], "blocks.png");
+        return qBlockUsedParams;
     case /* Brick */1 :
-        return setupSprite(undefined, undefined, undefined, 10, 5, [
-                    0,
-                    0
-                  ], "blocks.png");
+        return brickParams;
     case /* UnBBlock */2 :
-        return setupSprite(undefined, undefined, undefined, undefined, undefined, [
-                    0,
-                    48
-                  ], "blocks.png");
+        return unBBlockParams;
     case /* Cloud */3 :
-        return setupSprite(undefined, undefined, undefined, undefined, undefined, [
-                    0,
-                    64
-                  ], "blocks.png");
+        return cloudParams;
     case /* Panel */4 :
-        return setupSprite(undefined, undefined, [
-                    26,
-                    26
-                  ], 15, 3, [
-                    0,
-                    0
-                  ], "panel.png");
+        return panelParams;
     case /* Ground */5 :
-        return setupSprite(undefined, undefined, undefined, undefined, undefined, [
-                    0,
-                    32
-                  ], "ground.png");
+        return groundParams;
     
   }
 }
@@ -579,6 +593,13 @@ export {
   makeBigPlayer ,
   makeEnemy ,
   makeItem ,
+  brickParams ,
+  qBlockParams ,
+  qBlockUsedParams ,
+  unBBlockParams ,
+  cloudParams ,
+  panelParams ,
+  groundParams ,
   makeParams ,
   makePlayer ,
   makeFromParams ,
@@ -588,4 +609,4 @@ export {
   updateAnimation ,
   
 }
-/* No side effect */
+/* brickParams Not a pure module */

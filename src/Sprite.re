@@ -291,37 +291,46 @@ let makeItem =
       ~srcOffset=(0., 0.),
     );
 
+let brickParams =
+  setupSprite("blocks.png", ~maxFrames=5, ~maxTicks=10, ~srcOffset=(0., 0.));
+
+let qBlockParams =
+  setupSprite(
+    "blocks.png",
+    ~maxFrames=4,
+    ~maxTicks=15,
+    ~srcOffset=(0., 16.),
+  );
+
+let qBlockUsedParams = setupSprite("blocks.png", ~srcOffset=(0., 32.));
+
+let unBBlockParams = setupSprite("blocks.png", ~srcOffset=(0., 48.));
+
+let cloudParams = setupSprite("blocks.png", ~srcOffset=(0., 64.));
+
+let panelParams =
+  setupSprite(
+    "panel.png",
+    ~maxFrames=3,
+    ~maxTicks=15,
+    ~frameSize=(26., 26.),
+    ~srcOffset=(0., 0.),
+  );
+
+let groundParams = setupSprite("ground.png", ~srcOffset=(0., 32.));
+
 // Set sprites for blocks: brick, question block, unbreakable block, cloud block
 // panel block, ground block.*/
 let makeParams =
   fun
   /* 16x16 grid with 0x0 offset */
-  | Brick =>
-    setupSprite(
-      "blocks.png",
-      ~maxFrames=5,
-      ~maxTicks=10,
-      ~srcOffset=(0., 0.),
-    )
-  | QBlock(_) =>
-    setupSprite(
-      "blocks.png",
-      ~maxFrames=4,
-      ~maxTicks=15,
-      ~srcOffset=(0., 16.),
-    )
-  | QBlockUsed => setupSprite("blocks.png", ~srcOffset=(0., 32.))
-  | UnBBlock => setupSprite("blocks.png", ~srcOffset=(0., 48.))
-  | Cloud => setupSprite("blocks.png", ~srcOffset=(0., 64.))
-  | Panel =>
-    setupSprite(
-      "panel.png",
-      ~maxFrames=3,
-      ~maxTicks=15,
-      ~frameSize=(26., 26.),
-      ~srcOffset=(0., 0.),
-    )
-  | Ground => setupSprite("ground.png", ~srcOffset=(0., 32.));
+  | Brick => brickParams
+  | QBlock(_) => qBlockParams
+  | QBlockUsed => qBlockUsedParams
+  | UnBBlock => unBBlockParams
+  | Cloud => cloudParams
+  | Panel => panelParams
+  | Ground => groundParams;
 
 // Set sprites for particles, squished goomba, brick chunks (upon destruction
 // of brick), score text.

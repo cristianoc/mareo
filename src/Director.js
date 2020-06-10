@@ -640,4 +640,4 @@ export {
   updateLoop ,
   
 }
-/* No side effect */
+/* Object Not a pure module */

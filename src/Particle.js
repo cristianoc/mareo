@@ -104,4 +104,4 @@ export {
   $$process ,
   
 }
-/* No side effect */
+/* Sprite Not a pure module */
