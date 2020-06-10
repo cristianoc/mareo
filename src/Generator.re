@@ -238,7 +238,7 @@ let convertEnemyToObj = ((enemyTyp, x, y)) => {
 let convertToEnemiesToObj = lst => lst->List.map(convertEnemyToObj);
 
 // Generates a list of enemies to be placed on the ground.
-let rec generateEnemies =
+let rec generateEnemiesOnGround =
         (
           cbx: float,
           cby: float,
@@ -248,23 +248,22 @@ let rec generateEnemies =
   if (cbx > Config.blockw -. 32.) {
     [];
   } else if (cby > Config.blockh -. 1. || cbx < 15.) {
-    generateEnemies(cbx +. 1., 0., ~notOverlappingWith);
-  } else if (memPos2(cbx, cby, notOverlappingWith) || cby == 0.) {
-    generateEnemies(cbx, cby +. 1., ~notOverlappingWith);
+    generateEnemiesOnGround(cbx +. 1., 0., ~notOverlappingWith);
+  } else if (cby == 0.
+             || Config.blockh
+             -. 1. != cby
+             || Random.int(10) != 0
+             || memPos2(cbx, cby, notOverlappingWith)) {
+    generateEnemiesOnGround(cbx, cby +. 1., ~notOverlappingWith);
   } else {
-    let isEnemy = Random.int(10) == 0;
-    if (isEnemy && Config.blockh -. 1. == cby) {
-      [
-        (randomEnemyTyp(), cbx *. 16., cby *. 16.)->convertEnemyToObj,
-        ...generateEnemies(cbx, cby +. 1., ~notOverlappingWith),
-      ];
-    } else {
-      generateEnemies(cbx, cby +. 1., ~notOverlappingWith);
-    };
+    [
+      (randomEnemyTyp(), cbx *. 16., cby *. 16.)->convertEnemyToObj,
+      ...generateEnemiesOnGround(cbx, cby +. 1., ~notOverlappingWith),
+    ];
   };
 
 // Generates a list of enemies to be placed upon the block objects.
-let rec generateBlockEnemies =
+let rec generateEnemiesOnBlocks =
         (blocks: list(Object.collidable), ~notOverlappingWith)
         : list(Object.collidable) => {
   let placeEnemy = Random.int(20);
@@ -276,10 +275,10 @@ let rec generateBlockEnemies =
         && !memPos2(x, y, notOverlappingWith)) {
       [
         (randomEnemyTyp(), x, y -. 16.)->convertEnemyToObj,
-        ...t->generateBlockEnemies(~notOverlappingWith),
+        ...t->generateEnemiesOnBlocks(~notOverlappingWith),
       ];
     } else {
-      t->generateBlockEnemies(~notOverlappingWith);
+      t->generateEnemiesOnBlocks(~notOverlappingWith);
     }
   };
 };
@@ -372,19 +371,22 @@ let generateHelper = (): list(Object.collidable) => {
 
   let groundBlocks = generateGround(0., []);
 
-  let allBlocks = blocks @ groundBlocks;
+  let enemiesOnGround =
+    generateEnemiesOnGround(0., 0., ~notOverlappingWith=[]);
 
-  let objConvertedEnemies =
-    generateEnemies(0., 0., ~notOverlappingWith=blocks);
+  let coins = generateCoins(blocks);
 
-  let coinBlocks = generateCoins(blocks);
-
-  let objEnemyBlocks =
-    groundBlocks->generateBlockEnemies(~notOverlappingWith=coinBlocks);
+  let enemiesOnBlocks =
+    groundBlocks->generateEnemiesOnBlocks(~notOverlappingWith=coins);
 
   let objPanel = generatePanel();
 
-  allBlocks @ objConvertedEnemies @ coinBlocks @ objEnemyBlocks @ [objPanel];
+  blocks
+  @ groundBlocks
+  @ enemiesOnGround
+  @ coins
+  @ enemiesOnBlocks
+  @ [objPanel];
 };
 
 // Main function called to procedurally generate the level map. w and h args
