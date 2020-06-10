@@ -443,7 +443,7 @@ function convertCoinToObj(param) {
         };
 }
 
-function convertToCoinObj(lst) {
+function convertCoinsToObj(lst) {
   return Belt_List.map(lst, convertCoinToObj);
 }
 
@@ -515,7 +515,7 @@ export {
   convertEnemyToObj ,
   convertToEnemiesToObj ,
   convertCoinToObj ,
-  convertToCoinObj ,
+  convertCoinsToObj ,
   generateHelper ,
   generate ,
   

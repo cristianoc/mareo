@@ -337,7 +337,7 @@ let convertCoinToObj = ((_, x, y)) => {
 };
 
 // Convert the list of coordinates into a list of Coin objects
-let convertToCoinObj = lst => lst->List.map(convertCoinToObj);
+let convertCoinsToObj = lst => lst->List.map(convertCoinToObj);
 
 // Procedurally generate a list of collidables given canvas width, height and
 // context. Arguments block width (blockw) and block height (blockh) are in
@@ -360,7 +360,7 @@ let generateHelper = (): list(Object.collidable) => {
     generateCoins(groundBlocks)
     ->removeOverlap2(groundBlocks)
     ->trimEdges
-    ->convertToCoinObj;
+    ->convertCoinsToObj;
 
   let objEnemyBlocks =
     generateBlockEnemies(groundBlocks)
