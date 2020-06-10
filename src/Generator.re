@@ -140,15 +140,15 @@ let convertCoinsToObj = lst => lst->List.map(convertCoinToObj);
 // Generate an objCoord list (typ, coordinates) of coins to be placed.
 let rec generateCoins =
         (blocks: list(Object.collidable)): list(Object.collidable) => {
-  let placeCoin = Random.int(2);
   switch (blocks) {
   | [] => []
   | [{obj: {pos: {x, y}}}, ...t] =>
-    if (placeCoin == 0 && !memPos2(x, y, blocks) && trimEdge(x, y)) {
-      [(QBlock(Coin), x, y -. 16.)->convertCoinToObj] @ generateCoins(t);
+    let y = y -. 16.;
+    if (Random.bool() && trimEdge(x, y) && !memPos2(x, y, blocks)) {
+      [(QBlock(Coin), x, y)->convertCoinToObj, ...generateCoins(t)];
     } else {
       generateCoins(t);
-    }
+    };
   };
 };
 
@@ -239,23 +239,27 @@ let convertToEnemiesToObj = lst => lst->List.map(convertEnemyToObj);
 
 // Generates a list of enemies to be placed on the ground.
 let rec generateEnemies =
-        (cbx: float, cby: float, blocks: list(Object.collidable))
+        (
+          cbx: float,
+          cby: float,
+          ~notOverlappingWith: list(Object.collidable),
+        )
         : list(Object.collidable) =>
   if (cbx > Config.blockw -. 32.) {
     [];
   } else if (cby > Config.blockh -. 1. || cbx < 15.) {
-    generateEnemies(cbx +. 1., 0., blocks);
-  } else if (memPos2(cbx, cby, blocks) || cby == 0.) {
-    generateEnemies(cbx, cby +. 1., blocks);
+    generateEnemies(cbx +. 1., 0., ~notOverlappingWith);
+  } else if (memPos2(cbx, cby, notOverlappingWith) || cby == 0.) {
+    generateEnemies(cbx, cby +. 1., ~notOverlappingWith);
   } else {
     let isEnemy = Random.int(10) == 0;
     if (isEnemy && Config.blockh -. 1. == cby) {
       [
         (randomEnemyTyp(), cbx *. 16., cby *. 16.)->convertEnemyToObj,
-        ...generateEnemies(cbx, cby +. 1., blocks),
+        ...generateEnemies(cbx, cby +. 1., ~notOverlappingWith),
       ];
     } else {
-      generateEnemies(cbx, cby +. 1., blocks);
+      generateEnemies(cbx, cby +. 1., ~notOverlappingWith);
     };
   };
 
@@ -370,9 +374,10 @@ let generateHelper = (): list(Object.collidable) => {
 
   let allBlocks = blocks @ groundBlocks;
 
-  let objConvertedEnemies = generateEnemies(0., 0., allBlocks);
+  let objConvertedEnemies =
+    generateEnemies(0., 0., ~notOverlappingWith=allBlocks);
 
-  let coinBlocks = generateCoins(groundBlocks);
+  let coinBlocks = generateCoins(blocks);
 
   let objEnemyBlocks = groundBlocks->generateBlockEnemies(~coinBlocks);
 

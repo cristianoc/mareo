@@ -177,7 +177,6 @@ function convertCoinsToObj(lst) {
 function generateCoins(_blocks) {
   while(true) {
     var blocks = _blocks;
-    var placeCoin = Random.$$int(2);
     if (!blocks) {
       return /* [] */0;
     }
@@ -185,17 +184,18 @@ function generateCoins(_blocks) {
     var x = match.x;
     var y = match.y;
     var t = blocks._1;
-    if (placeCoin === 0 && !memPos2(x, y, blocks) && trimEdge(x, y)) {
-      return Pervasives.$at(/* :: */{
-                  _0: convertCoinToObj([
-                        /* QBlock */{
-                          _0: /* Coin */1
-                        },
-                        x,
-                        y - 16
-                      ]),
-                  _1: /* [] */0
-                }, generateCoins(t));
+    var y$1 = y - 16;
+    if (Random.bool(undefined) && trimEdge(x, y$1) && !memPos2(x, y$1, blocks)) {
+      return /* :: */{
+              _0: convertCoinToObj([
+                    /* QBlock */{
+                      _0: /* Coin */1
+                    },
+                    x,
+                    y$1
+                  ]),
+              _1: generateCoins(t)
+            };
     }
     _blocks = t;
     continue ;
@@ -292,7 +292,7 @@ function convertToEnemiesToObj(lst) {
   return Belt_List.map(lst, convertEnemyToObj);
 }
 
-function generateEnemies(_cbx, _cby, blocks) {
+function generateEnemies(_cbx, _cby, notOverlappingWith) {
   while(true) {
     var cby = _cby;
     var cbx = _cbx;
@@ -304,7 +304,7 @@ function generateEnemies(_cbx, _cby, blocks) {
       _cbx = cbx + 1;
       continue ;
     }
-    if (memPos2(cbx, cby, blocks) || cby === 0) {
+    if (memPos2(cbx, cby, notOverlappingWith) || cby === 0) {
       _cby = cby + 1;
       continue ;
     }
@@ -316,7 +316,7 @@ function generateEnemies(_cbx, _cby, blocks) {
                     cbx * 16,
                     cby * 16
                   ]),
-              _1: generateEnemies(cbx, cby + 1, blocks)
+              _1: generateEnemies(cbx, cby + 1, notOverlappingWith)
             };
     }
     _cby = cby + 1;
@@ -451,7 +451,7 @@ function generateHelper(param) {
   var groundBlocks = generateGround(0, /* [] */0);
   var allBlocks = Pervasives.$at(blocks, groundBlocks);
   var objConvertedEnemies = generateEnemies(0, 0, allBlocks);
-  var coinBlocks = generateCoins(groundBlocks);
+  var coinBlocks = generateCoins(blocks);
   var objEnemyBlocks = generateBlockEnemies(groundBlocks, coinBlocks);
   var objPanel = generatePanel(undefined);
   return Pervasives.$at(allBlocks, Pervasives.$at(objConvertedEnemies, Pervasives.$at(coinBlocks, Pervasives.$at(objEnemyBlocks, /* :: */{
