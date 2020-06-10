@@ -292,7 +292,7 @@ function convertToEnemiesToObj(lst) {
   return Belt_List.map(lst, convertEnemyToObj);
 }
 
-function generateEnemiesOnGround(_cbx, _cby, notOverlappingWith) {
+function generateEnemiesOnGround(_cbx, _cby) {
   while(true) {
     var cby = _cby;
     var cbx = _cbx;
@@ -304,14 +304,14 @@ function generateEnemiesOnGround(_cbx, _cby, notOverlappingWith) {
       _cbx = cbx + 1;
       continue ;
     }
-    if (!(cby === 0 || Config.blockh - 1 !== cby || Random.$$int(10) !== 0 || memPos2(cbx, cby, notOverlappingWith))) {
+    if (!(cby === 0 || Config.blockh - 1 !== cby || Random.$$int(10) !== 0)) {
       return /* :: */{
               _0: convertEnemyToObj([
                     randomEnemyTyp(undefined),
                     cbx * 16,
                     cby * 16
                   ]),
-              _1: generateEnemiesOnGround(cbx, cby + 1, notOverlappingWith)
+              _1: generateEnemiesOnGround(cbx, cby + 1)
             };
     }
     _cby = cby + 1;
@@ -444,7 +444,7 @@ function generateHelper(param) {
   generateBlockLocs(0, 0, blockLocs);
   var blocks = blockLocs.contents;
   var groundBlocks = generateGround(0, /* [] */0);
-  var enemiesOnGround = generateEnemiesOnGround(0, 0, /* [] */0);
+  var enemiesOnGround = generateEnemiesOnGround(0, 0);
   var coins = generateCoins(blocks);
   var enemiesOnBlocks = generateEnemiesOnBlocks(groundBlocks, coins);
   var objPanel = generatePanel(undefined);

@@ -239,26 +239,17 @@ let convertToEnemiesToObj = lst => lst->List.map(convertEnemyToObj);
 
 // Generates a list of enemies to be placed on the ground.
 let rec generateEnemiesOnGround =
-        (
-          cbx: float,
-          cby: float,
-          ~notOverlappingWith: list(Object.collidable),
-        )
-        : list(Object.collidable) =>
+        (cbx: float, cby: float): list(Object.collidable) =>
   if (cbx > Config.blockw -. 32.) {
     [];
   } else if (cby > Config.blockh -. 1. || cbx < 15.) {
-    generateEnemiesOnGround(cbx +. 1., 0., ~notOverlappingWith);
-  } else if (cby == 0.
-             || Config.blockh
-             -. 1. != cby
-             || Random.int(10) != 0
-             || memPos2(cbx, cby, notOverlappingWith)) {
-    generateEnemiesOnGround(cbx, cby +. 1., ~notOverlappingWith);
+    generateEnemiesOnGround(cbx +. 1., 0.);
+  } else if (cby == 0. || Config.blockh -. 1. != cby || Random.int(10) != 0) {
+    generateEnemiesOnGround(cbx, cby +. 1.);
   } else {
     [
       (randomEnemyTyp(), cbx *. 16., cby *. 16.)->convertEnemyToObj,
-      ...generateEnemiesOnGround(cbx, cby +. 1., ~notOverlappingWith),
+      ...generateEnemiesOnGround(cbx, cby +. 1.),
     ];
   };
 
@@ -371,8 +362,7 @@ let generateHelper = (): list(Object.collidable) => {
 
   let groundBlocks = generateGround(0., []);
 
-  let enemiesOnGround =
-    generateEnemiesOnGround(0., 0., ~notOverlappingWith=[]);
+  let enemiesOnGround = generateEnemiesOnGround(0., 0.);
 
   let coins = generateCoins(blocks);
 
