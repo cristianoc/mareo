@@ -27,18 +27,41 @@ let trimEdge = (x, y) => {
   !(x < 128. || pixx -. x < 528. || y == 0. || pixy -. y < 48.);
 };
 
-let addBlock = (blocks, blockTyp, x, y) =>
-  if (!memPos(x *. 16., y *. 16., blocks^) && trimEdge(x *. 16., y *. 16.)) {
+let convertCoinToObj = ((_, x, y)) => {
+  let (sprite, obj) =
+    Object.make(
+      ~dir=Left,
+      Sprite.makeItem(Coin),
+      Object.makeItem(Coin),
+      x,
+      y,
+    );
+  {Object.objTyp: Item(Coin), sprite, obj};
+};
+
+let addCoins = (x, y0, blocks) => {
+  let y = y0 -. 16.;
+  if (Random.bool() && trimEdge(x, y) && !memPos(x, y, blocks^)) {
+    blocks := [(QBlock(Coin), x, y)->convertCoinToObj, ...blocks^];
+  };
+};
+
+let addBlock = (blocks, blockTyp, xBlock, yBlock) => {
+  let x = xBlock *. 16.;
+  let y = yBlock *. 16.;
+  if (!memPos(x, y, blocks^) && trimEdge(x, y)) {
     let (sprite, obj) =
       Object.make(
         ~dir=Left,
         Sprite.makeParams(blockTyp),
         Object.makeBlock(blockTyp),
-        x *. 16.,
-        y *. 16.,
+        x,
+        y,
       );
     blocks := [{Object.objTyp: Block(blockTyp), sprite, obj}, ...blocks^];
+    addCoins(x, y, blocks);
   };
+};
 
 // Generate a stair formation with block typ being dependent on typ. This type
 // of stair formation requires that the first step be on the ground.
@@ -85,33 +108,6 @@ let rec generateClouds = (cbx, cby, typ, num, blocks) =>
     blocks->addBlock(typ, cbx, cby);
     generateClouds(cbx +. 1., cby, typ, num - 1, blocks);
   };
-
-let convertCoinToObj = ((_, x, y)) => {
-  let (sprite, obj) =
-    Object.make(
-      ~dir=Left,
-      Sprite.makeItem(Coin),
-      Object.makeItem(Coin),
-      x,
-      y,
-    );
-  {Object.objTyp: Item(Coin), sprite, obj};
-};
-
-// Generate an objCoord list (typ, coordinates) of coins to be placed.
-let rec generateCoins =
-        (blocks: list(Object.collidable)): list(Object.collidable) => {
-  switch (blocks) {
-  | [] => []
-  | [{obj: {pos: {x, y}}}, ...t] =>
-    let y = y -. 16.;
-    if (Random.bool() && trimEdge(x, y) && !memPos(x, y, blocks)) {
-      [(QBlock(Coin), x, y)->convertCoinToObj, ...generateCoins(t)];
-    } else {
-      generateCoins(t);
-    };
-  };
-};
 
 let randomEnemyTyp = () =>
   switch (Random.int(3)) {
@@ -214,21 +210,18 @@ let rec generateEnemiesOnGround =
 
 // Generates a list of enemies to be placed upon the block objects.
 let rec generateEnemiesOnBlocks =
-        (blocks: list(Object.collidable), ~notOverlappingWith)
-        : list(Object.collidable) => {
+        (blocks: list(Object.collidable)): list(Object.collidable) => {
   let placeEnemy = Random.int(20);
   switch (blocks) {
   | [] => []
   | [{obj: {pos: {x, y}}}, ...t] =>
-    if (placeEnemy == 0
-        && !memPos(x, y -. 16., blocks)
-        && !memPos(x, y -. 16., notOverlappingWith)) {
+    if (placeEnemy == 0 && !memPos(x, y -. 16., blocks)) {
       [
         (randomEnemyTyp(), x, y -. 16.)->convertEnemyToObj,
-        ...t->generateEnemiesOnBlocks(~notOverlappingWith),
+        ...generateEnemiesOnBlocks(t),
       ];
     } else {
-      t->generateEnemiesOnBlocks(~notOverlappingWith);
+      generateEnemiesOnBlocks(t);
     }
   };
 };
@@ -309,28 +302,20 @@ let rec generateGround =
 // block form, not pixels.
 let generateHelper = (): list(Object.collidable) => {
   let blocks = {
-    let blockLocs = ref([]);
-    generateBlocks(0., 0., blockLocs);
-    blockLocs^;
+    let blocksRef = ref([]);
+    generateBlocks(0., 0., blocksRef);
+    blocksRef^;
   };
 
   let groundBlocks = generateGround(0., []);
 
   let enemiesOnGround = generateEnemiesOnGround(0., 0.);
 
-  let coins = generateCoins(blocks);
-
-  let enemiesOnBlocks =
-    blocks->generateEnemiesOnBlocks(~notOverlappingWith=coins);
+  let enemiesOnBlocks = blocks->generateEnemiesOnBlocks;
 
   let objPanel = generatePanel();
 
-  blocks
-  @ groundBlocks
-  @ enemiesOnGround
-  @ coins
-  @ enemiesOnBlocks
-  @ [objPanel];
+  blocks @ groundBlocks @ enemiesOnGround @ enemiesOnBlocks @ [objPanel];
 };
 
 // Main function called to procedurally generate the level map. w and h args
