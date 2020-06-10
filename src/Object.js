@@ -322,7 +322,7 @@ function decHealth(obj) {
 
 function evolveBlock(obj) {
   decHealth(obj);
-  var match = make(obj.dir, Sprite.makeBlock(/* QBlockUsed */0), makeBlock(/* QBlockUsed */0), obj.pos.x, obj.pos.y);
+  var match = make(obj.dir, Sprite.makeParams(/* QBlockUsed */0), makeBlock(/* QBlockUsed */0), obj.pos.x, obj.pos.y);
   return {
           objTyp: {
             TAG: /* Block */3,

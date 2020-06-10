@@ -96,7 +96,7 @@ function addBlock(blocks, blockTyp, x, y) {
   if (!(!memPos2(x * 16, y * 16, blocks.contents) && trimEdge(x * 16, y * 16))) {
     return ;
   }
-  var match = $$Object.make(/* Left */0, Sprite.makeBlock(blockTyp), $$Object.makeBlock(blockTyp), x * 16, y * 16);
+  var match = $$Object.make(/* Left */0, Sprite.makeParams(blockTyp), $$Object.makeBlock(blockTyp), x * 16, y * 16);
   blocks.contents = /* :: */{
     _0: {
       objTyp: {
@@ -358,7 +358,7 @@ function generateBlockLocs(_cbx, _cby, blocks) {
 }
 
 function generatePanel(param) {
-  var match = $$Object.make(/* Left */0, Sprite.makeBlock(/* Panel */4), $$Object.makeBlock(/* Panel */4), Config.blockw * 16 - 256, Config.blockh * 16 * 2 / 3);
+  var match = $$Object.make(/* Left */0, Sprite.makeParams(/* Panel */4), $$Object.makeBlock(/* Panel */4), Config.blockw * 16 - 256, Config.blockh * 16 * 2 / 3);
   return {
           objTyp: {
             TAG: /* Block */3,
@@ -371,7 +371,7 @@ function generatePanel(param) {
 
 function convertBlockToObj(param) {
   var blockTyp = param[0];
-  var match = $$Object.make(/* Left */0, Sprite.makeBlock(blockTyp), $$Object.makeBlock(blockTyp), param[1], param[2]);
+  var match = $$Object.make(/* Left */0, Sprite.makeParams(blockTyp), $$Object.makeBlock(blockTyp), param[1], param[2]);
   return {
           objTyp: {
             TAG: /* Block */3,

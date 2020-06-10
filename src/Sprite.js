@@ -384,7 +384,7 @@ function makeItem(param) {
   }
 }
 
-function makeBlock(param) {
+function makeParams(param) {
   if (typeof param !== "number") {
     return setupSprite(undefined, undefined, undefined, 15, 4, [
                 0,
@@ -579,7 +579,7 @@ export {
   makeBigPlayer ,
   makeEnemy ,
   makeItem ,
-  makeBlock ,
+  makeParams ,
   makePlayer ,
   makeFromParams ,
   makeBgd ,

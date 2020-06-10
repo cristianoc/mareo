@@ -68,7 +68,7 @@ let addBlock = (blocks, blockTyp, x, y) =>
     let (sprite, obj) =
       Object.make(
         ~dir=Left,
-        Sprite.makeBlock(blockTyp),
+        Sprite.makeParams(blockTyp),
         Object.makeBlock(blockTyp),
         x *. 16.,
         y *. 16.,
@@ -281,7 +281,7 @@ let generatePanel = (): Object.collidable => {
   let (sprite, obj) =
     Object.make(
       ~dir=Left,
-      Sprite.makeBlock(Panel),
+      Sprite.makeParams(Panel),
       Object.makeBlock(Panel),
       Config.blockw *. 16. -. 256.,
       Config.blockh *. 16. *. 2. /. 3.,
@@ -293,7 +293,7 @@ let convertBlockToObj = ((blockTyp, x, y)) => {
   let (sprite, obj) =
     Object.make(
       ~dir=Left,
-      Sprite.makeBlock(blockTyp),
+      Sprite.makeParams(blockTyp),
       Object.makeBlock(blockTyp),
       x,
       y,

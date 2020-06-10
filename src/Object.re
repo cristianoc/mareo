@@ -42,10 +42,7 @@ type collidable = {
 };
 
 // used to set gravity and speed, with default values true and 1
-let setup = (~g as hasGravity=true, ~spd as speed=1., ()) => {
-  hasGravity,
-  speed,
-};
+let setup = (~g as hasGravity=true, ~speed=1., ()) => {hasGravity, speed};
 
 /* Sets an object's x velocity to the speed specified in its params based on
  * its direction */
@@ -60,7 +57,7 @@ let setVelToSpeed = obj => {
 /* The following make functions all set the objects' has_gravity and speed,
  * returning an [obj_params] that can be directly plugged into the [obj]
  * during creation. */
-let makePlayer = () => setup(~spd=Config.player_speed, ());
+let makePlayer = () => setup(~speed=Config.player_speed, ());
 
 let makeItem =
   fun
@@ -72,8 +69,8 @@ let makeEnemy =
   | Goomba => setup()
   | GKoopa => setup()
   | RKoopa => setup()
-  | GKoopaShell => setup(~spd=3., ())
-  | RKoopaShell => setup(~spd=3., ());
+  | GKoopaShell => setup(~speed=3., ())
+  | RKoopaShell => setup(~speed=3., ());
 
 let makeBlock =
   fun
@@ -346,7 +343,7 @@ let evolveBlock = obj => {
   let (new_spr, new_obj) =
     make(
       ~dir=obj.dir,
-      Sprite.makeBlock(QBlockUsed),
+      Sprite.makeParams(QBlockUsed),
       makeBlock(QBlockUsed),
       obj.pos.x,
       obj.pos.y,

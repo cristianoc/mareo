@@ -293,7 +293,7 @@ let makeItem =
 
 // Set sprites for blocks: brick, question block, unbreakable block, cloud block
 // panel block, ground block.*/
-let makeBlock =
+let makeParams =
   fun
   /* 16x16 grid with 0x0 offset */
   | Brick =>
