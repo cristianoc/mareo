@@ -5,9 +5,8 @@ import * as $$Object from "./Object.js";
 import * as Random from "bs-platform/lib/es6/random.js";
 import * as Sprite from "./Sprite.js";
 import * as Belt_List from "bs-platform/lib/es6/belt_List.js";
-import * as Pervasives from "bs-platform/lib/es6/pervasives.js";
 
-function memPos(x, y, _objs) {
+function memPos(_objs, x, y) {
   while(true) {
     var objs = _objs;
     if (!objs) {
@@ -44,10 +43,10 @@ function convertCoinToObj(param) {
         };
 }
 
-function addCoins(x, y0, blocks) {
+function addCoins(objects, x, y0) {
   var y = y0 - 16;
-  if (Random.bool(undefined) && trimEdge(x, y) && !memPos(x, y, blocks.contents)) {
-    blocks.contents = /* :: */{
+  if (Random.bool(undefined) && trimEdge(x, y) && !memPos(objects.contents, x, y)) {
+    objects.contents = /* :: */{
       _0: convertCoinToObj([
             /* QBlock */{
               _0: /* Coin */1
@@ -55,7 +54,7 @@ function addCoins(x, y0, blocks) {
             x,
             y
           ]),
-      _1: blocks.contents
+      _1: objects.contents
     };
     return ;
   }
@@ -90,30 +89,30 @@ function randomEnemyTyp(param) {
   }
 }
 
-function addEnemyOnBlock(x, y, blocks) {
+function addEnemyOnBlock(objects, x, y) {
   var placeEnemy = Random.$$int(20);
-  if (placeEnemy === 0 && !memPos(x, y - 16, blocks.contents)) {
-    blocks.contents = /* :: */{
+  if (placeEnemy === 0 && !memPos(objects.contents, x, y - 16)) {
+    objects.contents = /* :: */{
       _0: convertEnemyToObj([
             randomEnemyTyp(undefined),
             x,
             y - 16
           ]),
-      _1: blocks.contents
+      _1: objects.contents
     };
     return ;
   }
   
 }
 
-function addBlock(blocks, blockTyp, xBlock, yBlock) {
+function addBlock(objects, blockTyp, xBlock, yBlock) {
   var x = xBlock * 16;
   var y = yBlock * 16;
-  if (!(!memPos(x, y, blocks.contents) && trimEdge(x, y))) {
+  if (!(!memPos(objects.contents, x, y) && trimEdge(x, y))) {
     return ;
   }
   var match = $$Object.make(/* Left */0, Sprite.makeParams(blockTyp), $$Object.makeBlock(blockTyp), x, y);
-  blocks.contents = /* :: */{
+  objects.contents = /* :: */{
     _0: {
       objTyp: {
         TAG: /* Block */3,
@@ -122,10 +121,10 @@ function addBlock(blocks, blockTyp, xBlock, yBlock) {
       sprite: match[0],
       obj: match[1]
     },
-    _1: blocks.contents
+    _1: objects.contents
   };
-  addCoins(x, y, blocks);
-  return addEnemyOnBlock(x, y, blocks);
+  addCoins(objects, x, y);
+  return addEnemyOnBlock(objects, x, y);
 }
 
 function generateGroundStairs(cbx, cby, typ, blocks) {
@@ -233,34 +232,36 @@ function chooseBlockPattern(cbx, cby, blocks) {
   }
 }
 
-function generateEnemiesOnGround(_cbx, _cby) {
+function generateEnemiesOnGround(objects, _cbx, _cby) {
   while(true) {
     var cby = _cby;
     var cbx = _cbx;
     if (cbx > Config.blockw - 32) {
-      return /* [] */0;
+      return ;
     }
     if (cby > Config.blockh - 1 || cbx < 15) {
       _cby = 0;
       _cbx = cbx + 1;
       continue ;
     }
-    if (!(cby === 0 || Config.blockh - 1 !== cby || Random.$$int(10) !== 0)) {
-      return /* :: */{
-              _0: convertEnemyToObj([
-                    randomEnemyTyp(undefined),
-                    cbx * 16,
-                    cby * 16
-                  ]),
-              _1: generateEnemiesOnGround(cbx, cby + 1)
-            };
+    if (cby === 0 || Config.blockh - 1 !== cby || Random.$$int(10) !== 0) {
+      _cby = cby + 1;
+      continue ;
     }
+    objects.contents = /* :: */{
+      _0: convertEnemyToObj([
+            randomEnemyTyp(undefined),
+            cbx * 16,
+            cby * 16
+          ]),
+      _1: objects.contents
+    };
     _cby = cby + 1;
     continue ;
   };
 }
 
-function generateBlocks(_cbx, _cby, blocks) {
+function generateBlocks(objects, _cbx, _cby) {
   while(true) {
     var cby = _cby;
     var cbx = _cbx;
@@ -272,12 +273,12 @@ function generateBlocks(_cbx, _cby, blocks) {
       _cbx = cbx + 1;
       continue ;
     }
-    if (memPos(cbx, cby, blocks.contents) || cby === 0) {
+    if (memPos(objects.contents, cbx, cby) || cby === 0) {
       _cby = cby + 1;
       continue ;
     }
     if (Random.$$int(20) === 0) {
-      chooseBlockPattern(cbx, cby, blocks);
+      chooseBlockPattern(cbx, cby, objects);
       _cby = cby + 1;
       continue ;
     }
@@ -311,7 +312,7 @@ function convertBlockToObj(param) {
         };
 }
 
-function generateGround(_inc, blocks) {
+function generateGround(objects, _inc) {
   while(true) {
     var inc = _inc;
     if (inc > Config.blockw) {
@@ -323,24 +324,24 @@ function generateGround(_inc, blocks) {
         _inc = inc + 1;
         continue ;
       }
-      blocks.contents = /* :: */{
+      objects.contents = /* :: */{
         _0: convertBlockToObj([
               /* Ground */5,
               inc * 16,
               Config.blockh * 16
             ]),
-        _1: blocks.contents
+        _1: objects.contents
       };
       _inc = inc + 1;
       continue ;
     }
-    blocks.contents = /* :: */{
+    objects.contents = /* :: */{
       _0: convertBlockToObj([
             /* Ground */5,
             inc * 16,
             Config.blockh * 16
           ]),
-      _1: blocks.contents
+      _1: objects.contents
     };
     _inc = inc + 1;
     continue ;
@@ -348,17 +349,17 @@ function generateGround(_inc, blocks) {
 }
 
 function generateHelper(param) {
-  var blocks = {
+  var objects = {
     contents: /* [] */0
   };
-  generateBlocks(0, 0, blocks);
-  generateGround(0, blocks);
-  var enemiesOnGround = generateEnemiesOnGround(0, 0);
-  var objPanel = generatePanel(undefined);
-  return Pervasives.$at(blocks.contents, Pervasives.$at(enemiesOnGround, /* :: */{
-                  _0: objPanel,
-                  _1: /* [] */0
-                }));
+  generateBlocks(objects, 0, 0);
+  generateGround(objects, 0);
+  generateEnemiesOnGround(objects, 0, 0);
+  var panel = generatePanel(undefined);
+  return /* :: */{
+          _0: panel,
+          _1: objects.contents
+        };
 }
 
 function generate(param) {

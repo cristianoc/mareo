@@ -7,14 +7,14 @@ open Belt;
 type blockCoord = (Actors.blockTyp, float, float);
 type enemyCoord = (Actors.enemyTyp, float, float);
 
-let rec memPos = (x, y, objs: list(_)): bool =>
+let rec memPos = (objs: list(_), x, y): bool =>
   switch (objs) {
   | [] => false
   | [{Object.obj: {pos: {x: px, y: py}}}, ...t] =>
     if (x == px && y == py) {
       true;
     } else {
-      memPos(x, y, t);
+      memPos(t, x, y);
     }
   };
 
@@ -39,10 +39,10 @@ let convertCoinToObj = ((_, x, y)) => {
   {Object.objTyp: Item(Coin), sprite, obj};
 };
 
-let addCoins = (x, y0, blocks) => {
+let addCoins = (objects, x, y0) => {
   let y = y0 -. 16.;
-  if (Random.bool() && trimEdge(x, y) && !memPos(x, y, blocks^)) {
-    blocks := [(QBlock(Coin), x, y)->convertCoinToObj, ...blocks^];
+  if (Random.bool() && trimEdge(x, y) && !(objects^)->memPos(x, y)) {
+    objects := [(QBlock(Coin), x, y)->convertCoinToObj, ...objects^];
   };
 };
 
@@ -66,18 +66,18 @@ let randomEnemyTyp = () =>
   | _ => Goomba
   };
 
-let addEnemyOnBlock = (x, y, blocks) => {
+let addEnemyOnBlock = (objects, x, y) => {
   let placeEnemy = Random.int(20);
-  if (placeEnemy == 0 && !memPos(x, y -. 16., blocks^)) {
-    blocks :=
-      [(randomEnemyTyp(), x, y -. 16.)->convertEnemyToObj, ...blocks^];
+  if (placeEnemy == 0 && !(objects^)->memPos(x, y -. 16.)) {
+    objects :=
+      [(randomEnemyTyp(), x, y -. 16.)->convertEnemyToObj, ...objects^];
   };
 };
 
-let addBlock = (blocks, blockTyp, xBlock, yBlock) => {
+let addBlock = (objects, blockTyp, xBlock, yBlock) => {
   let x = xBlock *. 16.;
   let y = yBlock *. 16.;
-  if (!memPos(x, y, blocks^) && trimEdge(x, y)) {
+  if (!(objects^)->memPos(x, y) && trimEdge(x, y)) {
     let (sprite, obj) =
       Object.make(
         ~dir=Left,
@@ -86,9 +86,9 @@ let addBlock = (blocks, blockTyp, xBlock, yBlock) => {
         x,
         y,
       );
-    blocks := [{Object.objTyp: Block(blockTyp), sprite, obj}, ...blocks^];
-    addCoins(x, y, blocks);
-    addEnemyOnBlock(x, y, blocks);
+    objects := [{Object.objTyp: Block(blockTyp), sprite, obj}, ...objects^];
+    objects->addCoins(x, y);
+    objects->addEnemyOnBlock(x, y);
   };
 };
 
@@ -202,35 +202,35 @@ let chooseBlockPattern =
   };
 
 // Generates a list of enemies to be placed on the ground.
-let rec generateEnemiesOnGround =
-        (cbx: float, cby: float): list(Object.collidable) =>
+let rec generateEnemiesOnGround = (objects, cbx: float, cby: float) =>
   if (cbx > Config.blockw -. 32.) {
-    [];
+    ();
   } else if (cby > Config.blockh -. 1. || cbx < 15.) {
-    generateEnemiesOnGround(cbx +. 1., 0.);
+    generateEnemiesOnGround(objects, cbx +. 1., 0.);
   } else if (cby == 0. || Config.blockh -. 1. != cby || Random.int(10) != 0) {
-    generateEnemiesOnGround(cbx, cby +. 1.);
+    generateEnemiesOnGround(objects, cbx, cby +. 1.);
   } else {
-    [
-      (randomEnemyTyp(), cbx *. 16., cby *. 16.)->convertEnemyToObj,
-      ...generateEnemiesOnGround(cbx, cby +. 1.),
-    ];
+    objects :=
+      [
+        (randomEnemyTyp(), cbx *. 16., cby *. 16.)->convertEnemyToObj,
+        ...objects^,
+      ];
+    generateEnemiesOnGround(objects, cbx, cby +. 1.);
   };
 
 // Generate an objCoord list (typ, coordinates) of blocks to be placed.
-let rec generateBlocks =
-        (cbx: float, cby: float, blocks: ref(list(Object.collidable))) =>
+let rec generateBlocks = (objects, cbx: float, cby: float) =>
   if (Config.blockw -. cbx < 33.) {
     ();
   } else if (cby > Config.blockh -. 1.) {
-    generateBlocks(cbx +. 1., 0., blocks);
-  } else if (memPos(cbx, cby, blocks^) || cby == 0.) {
-    generateBlocks(cbx, cby +. 1., blocks);
+    generateBlocks(objects, cbx +. 1., 0.);
+  } else if ((objects^)->memPos(cbx, cby) || cby == 0.) {
+    generateBlocks(objects, cbx, cby +. 1.);
   } else if (Random.int(20) == 0) {
-    chooseBlockPattern(cbx, cby, blocks);
-    generateBlocks(cbx, cby +. 1., blocks);
+    chooseBlockPattern(cbx, cby, objects);
+    generateBlocks(objects, cbx, cby +. 1.);
   } else {
-    generateBlocks(cbx, cby +. 1., blocks);
+    generateBlocks(objects, cbx, cby +. 1.);
   };
 
 // Generate the ending item panel at the end of the level. Games ends upon
@@ -261,44 +261,40 @@ let convertBlockToObj = ((blockTyp, x, y)) => {
 
 // Generate the list of brick locations needed to display the ground.
 // 1/10 chance that a ground block is skipped each call to create holes.
-let rec generateGround = (inc: float, blocks) =>
+let rec generateGround = (objects, inc: float) =>
   if (inc > Config.blockw) {
     ();
   } else if (inc > 10.) {
     let skip = Random.int(10);
     if (skip == 7 && Config.blockw -. inc > 32.) {
-      generateGround(inc +. 1., blocks);
+      generateGround(objects, inc +. 1.);
     } else {
-      blocks :=
+      objects :=
         [
           (Ground, inc *. 16., Config.blockh *. 16.)->convertBlockToObj,
-          ...blocks^,
+          ...objects^,
         ];
-      generateGround(inc +. 1., blocks);
+      generateGround(objects, inc +. 1.);
     };
   } else {
-    blocks :=
+    objects :=
       [
         (Ground, inc *. 16., Config.blockh *. 16.)->convertBlockToObj,
-        ...blocks^,
+        ...objects^,
       ];
-    generateGround(inc +. 1., blocks);
+    generateGround(objects, inc +. 1.);
   };
 
 // Procedurally generate a list of collidables given canvas width, height and
 // context. Arguments block width (blockw) and block height (blockh) are in
 // block form, not pixels.
 let generateHelper = (): list(Object.collidable) => {
-  let blocks = ref([]);
-  generateBlocks(0., 0., blocks);
-
-  generateGround(0., blocks);
-
-  let enemiesOnGround = generateEnemiesOnGround(0., 0.);
-
-  let objPanel = generatePanel();
-
-  blocks^ @ enemiesOnGround @ [objPanel];
+  let objects = ref([]);
+  objects->generateBlocks(0., 0.);
+  objects->generateGround(0.);
+  objects->generateEnemiesOnGround(0., 0.);
+  let panel = generatePanel();
+  [panel, ...objects^];
 };
 
 // Main function called to procedurally generate the level map. w and h args
