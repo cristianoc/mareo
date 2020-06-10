@@ -7,49 +7,14 @@ open Belt;
 type blockCoord = (Actors.blockTyp, float, float);
 type enemyCoord = (Actors.enemyTyp, float, float);
 
-// Check if the given position checkpos is already part of the list of locations
-// in blocks
-let rec memPos = (x: float, y, objs: list(_)): bool =>
-  switch (objs) {
-  | [] => false
-  | [(_, px, py), ...t] =>
-    if (x == px && y == py) {
-      true;
-    } else {
-      memPos(x, y, t);
-    }
-  };
-
-let rec removeOverlap = (lst, currentObjs) =>
-  switch (lst) {
-  | [] => []
-  | [(_, x, y) as h, ...t] =>
-    if (memPos(x, y, currentObjs)) {
-      removeOverlap(t, currentObjs);
-    } else {
-      [h, ...removeOverlap(t, currentObjs)];
-    }
-  };
-
-let rec memPos2 = (x, y, objs: list(_)): bool =>
+let rec memPos = (x, y, objs: list(_)): bool =>
   switch (objs) {
   | [] => false
   | [{Object.obj: {pos: {x: px, y: py}}}, ...t] =>
     if (x == px && y == py) {
       true;
     } else {
-      memPos2(x, y, t);
-    }
-  };
-
-let rec removeOverlap2 = (lst, currentObjs) =>
-  switch (lst) {
-  | [] => []
-  | [(_, x, y) as h, ...t] =>
-    if (memPos2(x, y, currentObjs)) {
-      removeOverlap2(t, currentObjs);
-    } else {
-      [h, ...removeOverlap2(t, currentObjs)];
+      memPos(x, y, t);
     }
   };
 
@@ -61,10 +26,9 @@ let pixy = Config.blockh *. 16.;
 let trimEdge = (x, y) => {
   !(x < 128. || pixx -. x < 528. || y == 0. || pixy -. y < 48.);
 };
-let trimEdges = lst => lst->List.keep(((_, x, y)) => trimEdge(x, y));
 
 let addBlock = (blocks, blockTyp, x, y) =>
-  if (!memPos2(x *. 16., y *. 16., blocks^) && trimEdge(x *. 16., y *. 16.)) {
+  if (!memPos(x *. 16., y *. 16., blocks^) && trimEdge(x *. 16., y *. 16.)) {
     let (sprite, obj) =
       Object.make(
         ~dir=Left,
@@ -134,9 +98,6 @@ let convertCoinToObj = ((_, x, y)) => {
   {Object.objTyp: Item(Coin), sprite, obj};
 };
 
-// Convert the list of coordinates into a list of Coin objects
-let convertCoinsToObj = lst => lst->List.map(convertCoinToObj);
-
 // Generate an objCoord list (typ, coordinates) of coins to be placed.
 let rec generateCoins =
         (blocks: list(Object.collidable)): list(Object.collidable) => {
@@ -144,7 +105,7 @@ let rec generateCoins =
   | [] => []
   | [{obj: {pos: {x, y}}}, ...t] =>
     let y = y -. 16.;
-    if (Random.bool() && trimEdge(x, y) && !memPos2(x, y, blocks)) {
+    if (Random.bool() && trimEdge(x, y) && !memPos(x, y, blocks)) {
       [(QBlock(Coin), x, y)->convertCoinToObj, ...generateCoins(t)];
     } else {
       generateCoins(t);
@@ -235,8 +196,6 @@ let convertEnemyToObj = ((enemyTyp, x, y)) => {
   {Object.objTyp: Enemy(enemyTyp), sprite, obj};
 };
 
-let convertToEnemiesToObj = lst => lst->List.map(convertEnemyToObj);
-
 // Generates a list of enemies to be placed on the ground.
 let rec generateEnemiesOnGround =
         (cbx: float, cby: float): list(Object.collidable) =>
@@ -262,8 +221,8 @@ let rec generateEnemiesOnBlocks =
   | [] => []
   | [{obj: {pos: {x, y}}}, ...t] =>
     if (placeEnemy == 0
-        && !memPos2(x, y, blocks)
-        && !memPos2(x, y, notOverlappingWith)) {
+        && !memPos(x, y, blocks)
+        && !memPos(x, y, notOverlappingWith)) {
       [
         (randomEnemyTyp(), x, y -. 16.)->convertEnemyToObj,
         ...t->generateEnemiesOnBlocks(~notOverlappingWith),
@@ -281,7 +240,7 @@ let rec generateBlocks =
     ();
   } else if (cby > Config.blockh -. 1.) {
     generateBlocks(cbx +. 1., 0., blocks);
-  } else if (memPos2(cbx, cby, blocks^) || cby == 0.) {
+  } else if (memPos(cbx, cby, blocks^) || cby == 0.) {
     generateBlocks(cbx, cby +. 1., blocks);
   } else if (Random.int(20) == 0) {
     chooseBlockPattern(cbx, cby, blocks);
@@ -315,11 +274,6 @@ let convertBlockToObj = ((blockTyp, x, y)) => {
     );
   {Object.objTyp: Block(blockTyp), sprite, obj};
 };
-
-// Convert the objCoord list called by generateBlocks to a list of objects
-// with the coordinates given from the objCoord list.
-let convertBlocksToObj = (lst: list(blockCoord)): list(Object.collidable) =>
-  lst->List.map(convertBlockToObj);
 
 // Generate the list of brick locations needed to display the ground.
 // 1/10 chance that a ground block is skipped each call to create holes.

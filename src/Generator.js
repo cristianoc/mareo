@@ -4,45 +4,10 @@ import * as Config from "./Config.js";
 import * as $$Object from "./Object.js";
 import * as Random from "bs-platform/lib/es6/random.js";
 import * as Sprite from "./Sprite.js";
-import * as Caml_obj from "bs-platform/lib/es6/caml_obj.js";
 import * as Belt_List from "bs-platform/lib/es6/belt_List.js";
 import * as Pervasives from "bs-platform/lib/es6/pervasives.js";
 
 function memPos(x, y, _objs) {
-  while(true) {
-    var objs = _objs;
-    if (!objs) {
-      return false;
-    }
-    var match = objs._0;
-    if (x === match[1] && Caml_obj.caml_equal(y, match[2])) {
-      return true;
-    }
-    _objs = objs._1;
-    continue ;
-  };
-}
-
-function removeOverlap(_lst, currentObjs) {
-  while(true) {
-    var lst = _lst;
-    if (!lst) {
-      return /* [] */0;
-    }
-    var t = lst._1;
-    var h = lst._0;
-    if (!memPos(h[1], h[2], currentObjs)) {
-      return /* :: */{
-              _0: h,
-              _1: removeOverlap(t, currentObjs)
-            };
-    }
-    _lst = t;
-    continue ;
-  };
-}
-
-function memPos2(x, y, _objs) {
   while(true) {
     var objs = _objs;
     if (!objs) {
@@ -59,25 +24,6 @@ function memPos2(x, y, _objs) {
   };
 }
 
-function removeOverlap2(_lst, currentObjs) {
-  while(true) {
-    var lst = _lst;
-    if (!lst) {
-      return /* [] */0;
-    }
-    var t = lst._1;
-    var h = lst._0;
-    if (!memPos2(h[1], h[2], currentObjs)) {
-      return /* :: */{
-              _0: h,
-              _1: removeOverlap2(t, currentObjs)
-            };
-    }
-    _lst = t;
-    continue ;
-  };
-}
-
 var pixx = Config.blockw * 16;
 
 var pixy = Config.blockh * 16;
@@ -86,14 +32,8 @@ function trimEdge(x, y) {
   return !(x < 128 || pixx - x < 528 || y === 0 || pixy - y < 48);
 }
 
-function trimEdges(lst) {
-  return Belt_List.keep(lst, (function (param) {
-                return trimEdge(param[1], param[2]);
-              }));
-}
-
 function addBlock(blocks, blockTyp, x, y) {
-  if (!(!memPos2(x * 16, y * 16, blocks.contents) && trimEdge(x * 16, y * 16))) {
+  if (!(!memPos(x * 16, y * 16, blocks.contents) && trimEdge(x * 16, y * 16))) {
     return ;
   }
   var match = $$Object.make(/* Left */0, Sprite.makeParams(blockTyp), $$Object.makeBlock(blockTyp), x * 16, y * 16);
@@ -170,10 +110,6 @@ function convertCoinToObj(param) {
         };
 }
 
-function convertCoinsToObj(lst) {
-  return Belt_List.map(lst, convertCoinToObj);
-}
-
 function generateCoins(_blocks) {
   while(true) {
     var blocks = _blocks;
@@ -185,7 +121,7 @@ function generateCoins(_blocks) {
     var y = match.y;
     var t = blocks._1;
     var y$1 = y - 16;
-    if (Random.bool(undefined) && trimEdge(x, y$1) && !memPos2(x, y$1, blocks)) {
+    if (Random.bool(undefined) && trimEdge(x, y$1) && !memPos(x, y$1, blocks)) {
       return /* :: */{
               _0: convertCoinToObj([
                     /* QBlock */{
@@ -288,10 +224,6 @@ function convertEnemyToObj(param) {
         };
 }
 
-function convertToEnemiesToObj(lst) {
-  return Belt_List.map(lst, convertEnemyToObj);
-}
-
 function generateEnemiesOnGround(_cbx, _cby) {
   while(true) {
     var cby = _cby;
@@ -330,7 +262,7 @@ function generateEnemiesOnBlocks(_blocks, notOverlappingWith) {
     var x = match.x;
     var y = match.y;
     var t = blocks._1;
-    if (placeEnemy === 0 && !memPos2(x, y, blocks) && !memPos2(x, y, notOverlappingWith)) {
+    if (placeEnemy === 0 && !memPos(x, y, blocks) && !memPos(x, y, notOverlappingWith)) {
       return /* :: */{
               _0: convertEnemyToObj([
                     randomEnemyTyp(undefined),
@@ -357,7 +289,7 @@ function generateBlocks(_cbx, _cby, blocks) {
       _cbx = cbx + 1;
       continue ;
     }
-    if (memPos2(cbx, cby, blocks.contents) || cby === 0) {
+    if (memPos(cbx, cby, blocks.contents) || cby === 0) {
       _cby = cby + 1;
       continue ;
     }
@@ -394,10 +326,6 @@ function convertBlockToObj(param) {
           sprite: match[0],
           obj: match[1]
         };
-}
-
-function convertBlocksToObj(lst) {
-  return Belt_List.map(lst, convertBlockToObj);
 }
 
 function generateGround(_inc, _acc) {
@@ -479,32 +407,25 @@ function generate(param) {
 
 export {
   memPos ,
-  removeOverlap ,
-  memPos2 ,
-  removeOverlap2 ,
   pixx ,
   pixy ,
   trimEdge ,
-  trimEdges ,
   addBlock ,
   generateGroundStairs ,
   generateAirupStairs ,
   generateAirdownStairs ,
   generateClouds ,
   convertCoinToObj ,
-  convertCoinsToObj ,
   generateCoins ,
   randomEnemyTyp ,
   randomStairTyp ,
   chooseBlockPattern ,
   convertEnemyToObj ,
-  convertToEnemiesToObj ,
   generateEnemiesOnGround ,
   generateEnemiesOnBlocks ,
   generateBlocks ,
   generatePanel ,
   convertBlockToObj ,
-  convertBlocksToObj ,
   generateGround ,
   generateHelper ,
   generate ,
