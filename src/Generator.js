@@ -324,7 +324,7 @@ function generateEnemies(_cbx, _cby, notOverlappingWith) {
   };
 }
 
-function generateBlockEnemies(_blocks, coinBlocks) {
+function generateBlockEnemies(_blocks, notOverlappingWith) {
   while(true) {
     var blocks = _blocks;
     var placeEnemy = Random.$$int(20);
@@ -335,14 +335,14 @@ function generateBlockEnemies(_blocks, coinBlocks) {
     var x = match.x;
     var y = match.y;
     var t = blocks._1;
-    if (placeEnemy === 0 && !memPos2(x, y, blocks) && !memPos2(x, y, coinBlocks)) {
+    if (placeEnemy === 0 && !memPos2(x, y, blocks) && !memPos2(x, y, notOverlappingWith)) {
       return /* :: */{
               _0: convertEnemyToObj([
                     randomEnemyTyp(undefined),
                     x,
                     y - 16
                   ]),
-              _1: generateBlockEnemies(t, coinBlocks)
+              _1: generateBlockEnemies(t, notOverlappingWith)
             };
     }
     _blocks = t;
