@@ -450,7 +450,7 @@ function generateHelper(param) {
   var blocks = blockLocs.contents;
   var groundBlocks = generateGround(0, /* [] */0);
   var allBlocks = Pervasives.$at(blocks, groundBlocks);
-  var objConvertedEnemies = generateEnemies(0, 0, allBlocks);
+  var objConvertedEnemies = generateEnemies(0, 0, blocks);
   var coinBlocks = generateCoins(blocks);
   var objEnemyBlocks = generateBlockEnemies(groundBlocks, coinBlocks);
   var objPanel = generatePanel(undefined);

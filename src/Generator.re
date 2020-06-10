@@ -375,7 +375,7 @@ let generateHelper = (): list(Object.collidable) => {
   let allBlocks = blocks @ groundBlocks;
 
   let objConvertedEnemies =
-    generateEnemies(0., 0., ~notOverlappingWith=allBlocks);
+    generateEnemies(0., 0., ~notOverlappingWith=blocks);
 
   let coinBlocks = generateCoins(blocks);
 
