@@ -275,19 +275,19 @@ let rec generateEnemiesOnBlocks =
 };
 
 // Generate an objCoord list (typ, coordinates) of blocks to be placed.
-let rec generateBlockLocs =
+let rec generateBlocks =
         (cbx: float, cby: float, blocks: ref(list(Object.collidable))) =>
   if (Config.blockw -. cbx < 33.) {
     ();
   } else if (cby > Config.blockh -. 1.) {
-    generateBlockLocs(cbx +. 1., 0., blocks);
+    generateBlocks(cbx +. 1., 0., blocks);
   } else if (memPos2(cbx, cby, blocks^) || cby == 0.) {
-    generateBlockLocs(cbx, cby +. 1., blocks);
+    generateBlocks(cbx, cby +. 1., blocks);
   } else if (Random.int(20) == 0) {
     chooseBlockPattern(cbx, cby, blocks);
-    generateBlockLocs(cbx, cby +. 1., blocks);
+    generateBlocks(cbx, cby +. 1., blocks);
   } else {
-    generateBlockLocs(cbx, cby +. 1., blocks);
+    generateBlocks(cbx, cby +. 1., blocks);
   };
 
 // Generate the ending item panel at the end of the level. Games ends upon
@@ -316,7 +316,7 @@ let convertBlockToObj = ((blockTyp, x, y)) => {
   {Object.objTyp: Block(blockTyp), sprite, obj};
 };
 
-// Convert the objCoord list called by generateBlockLocs to a list of objects
+// Convert the objCoord list called by generateBlocks to a list of objects
 // with the coordinates given from the objCoord list.
 let convertBlocksToObj = (lst: list(blockCoord)): list(Object.collidable) =>
   lst->List.map(convertBlockToObj);
@@ -356,7 +356,7 @@ let rec generateGround =
 let generateHelper = (): list(Object.collidable) => {
   let blocks = {
     let blockLocs = ref([]);
-    generateBlockLocs(0., 0., blockLocs);
+    generateBlocks(0., 0., blockLocs);
     blockLocs^;
   };
 

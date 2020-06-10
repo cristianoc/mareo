@@ -345,7 +345,7 @@ function generateEnemiesOnBlocks(_blocks, notOverlappingWith) {
   };
 }
 
-function generateBlockLocs(_cbx, _cby, blocks) {
+function generateBlocks(_cbx, _cby, blocks) {
   while(true) {
     var cby = _cby;
     var cbx = _cbx;
@@ -441,7 +441,7 @@ function generateHelper(param) {
   var blockLocs = {
     contents: /* [] */0
   };
-  generateBlockLocs(0, 0, blockLocs);
+  generateBlocks(0, 0, blockLocs);
   var blocks = blockLocs.contents;
   var groundBlocks = generateGround(0, /* [] */0);
   var enemiesOnGround = generateEnemiesOnGround(0, 0);
@@ -501,7 +501,7 @@ export {
   convertToEnemiesToObj ,
   generateEnemiesOnGround ,
   generateEnemiesOnBlocks ,
-  generateBlockLocs ,
+  generateBlocks ,
   generatePanel ,
   convertBlockToObj ,
   convertBlocksToObj ,
