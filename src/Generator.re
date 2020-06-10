@@ -46,6 +46,34 @@ let addCoins = (x, y0, blocks) => {
   };
 };
 
+let convertEnemyToObj = ((enemyTyp, x, y)) => {
+  let (sprite, obj) =
+    Object.make(
+      ~dir=Left,
+      Sprite.makeEnemy(enemyTyp, Left),
+      Object.makeEnemy(enemyTyp),
+      x,
+      y,
+    );
+  Object.setVelToSpeed(obj);
+  {Object.objTyp: Enemy(enemyTyp), sprite, obj};
+};
+
+let randomEnemyTyp = () =>
+  switch (Random.int(3)) {
+  | 0 => RKoopa
+  | 1 => GKoopa
+  | _ => Goomba
+  };
+
+let addEnemyOnBlock = (x, y, blocks) => {
+  let placeEnemy = Random.int(20);
+  if (placeEnemy == 0 && !memPos(x, y -. 16., blocks^)) {
+    blocks :=
+      [(randomEnemyTyp(), x, y -. 16.)->convertEnemyToObj, ...blocks^];
+  };
+};
+
 let addBlock = (blocks, blockTyp, xBlock, yBlock) => {
   let x = xBlock *. 16.;
   let y = yBlock *. 16.;
@@ -60,6 +88,7 @@ let addBlock = (blocks, blockTyp, xBlock, yBlock) => {
       );
     blocks := [{Object.objTyp: Block(blockTyp), sprite, obj}, ...blocks^];
     addCoins(x, y, blocks);
+    addEnemyOnBlock(x, y, blocks);
   };
 };
 
@@ -107,13 +136,6 @@ let rec generateClouds = (cbx, cby, typ, num, blocks) =>
   } else {
     blocks->addBlock(typ, cbx, cby);
     generateClouds(cbx +. 1., cby, typ, num - 1, blocks);
-  };
-
-let randomEnemyTyp = () =>
-  switch (Random.int(3)) {
-  | 0 => RKoopa
-  | 1 => GKoopa
-  | _ => Goomba
   };
 
 let randomStairTyp = () => Random.bool() ? UnBBlock : Brick;
@@ -179,19 +201,6 @@ let chooseBlockPattern =
     };
   };
 
-let convertEnemyToObj = ((enemyTyp, x, y)) => {
-  let (sprite, obj) =
-    Object.make(
-      ~dir=Left,
-      Sprite.makeEnemy(enemyTyp, Left),
-      Object.makeEnemy(enemyTyp),
-      x,
-      y,
-    );
-  Object.setVelToSpeed(obj);
-  {Object.objTyp: Enemy(enemyTyp), sprite, obj};
-};
-
 // Generates a list of enemies to be placed on the ground.
 let rec generateEnemiesOnGround =
         (cbx: float, cby: float): list(Object.collidable) =>
@@ -207,24 +216,6 @@ let rec generateEnemiesOnGround =
       ...generateEnemiesOnGround(cbx, cby +. 1.),
     ];
   };
-
-// Generates a list of enemies to be placed upon the block objects.
-let rec generateEnemiesOnBlocks =
-        (blocks: list(Object.collidable)): list(Object.collidable) => {
-  let placeEnemy = Random.int(20);
-  switch (blocks) {
-  | [] => []
-  | [{obj: {pos: {x, y}}}, ...t] =>
-    if (placeEnemy == 0 && !memPos(x, y -. 16., blocks)) {
-      [
-        (randomEnemyTyp(), x, y -. 16.)->convertEnemyToObj,
-        ...generateEnemiesOnBlocks(t),
-      ];
-    } else {
-      generateEnemiesOnBlocks(t);
-    }
-  };
-};
 
 // Generate an objCoord list (typ, coordinates) of blocks to be placed.
 let rec generateBlocks =
@@ -270,52 +261,44 @@ let convertBlockToObj = ((blockTyp, x, y)) => {
 
 // Generate the list of brick locations needed to display the ground.
 // 1/10 chance that a ground block is skipped each call to create holes.
-let rec generateGround =
-        (inc: float, acc: list(Object.collidable)): list(Object.collidable) =>
+let rec generateGround = (inc: float, blocks) =>
   if (inc > Config.blockw) {
-    acc;
+    ();
   } else if (inc > 10.) {
     let skip = Random.int(10);
     if (skip == 7 && Config.blockw -. inc > 32.) {
-      generateGround(inc +. 1., acc);
+      generateGround(inc +. 1., blocks);
     } else {
-      generateGround(
-        inc +. 1.,
+      blocks :=
         [
           (Ground, inc *. 16., Config.blockh *. 16.)->convertBlockToObj,
-          ...acc,
-        ],
-      );
+          ...blocks^,
+        ];
+      generateGround(inc +. 1., blocks);
     };
   } else {
-    generateGround(
-      inc +. 1.,
+    blocks :=
       [
         (Ground, inc *. 16., Config.blockh *. 16.)->convertBlockToObj,
-        ...acc,
-      ],
-    );
+        ...blocks^,
+      ];
+    generateGround(inc +. 1., blocks);
   };
 
 // Procedurally generate a list of collidables given canvas width, height and
 // context. Arguments block width (blockw) and block height (blockh) are in
 // block form, not pixels.
 let generateHelper = (): list(Object.collidable) => {
-  let blocks = {
-    let blocksRef = ref([]);
-    generateBlocks(0., 0., blocksRef);
-    blocksRef^;
-  };
+  let blocks = ref([]);
+  generateBlocks(0., 0., blocks);
 
-  let groundBlocks = generateGround(0., []);
+  generateGround(0., blocks);
 
   let enemiesOnGround = generateEnemiesOnGround(0., 0.);
 
-  let enemiesOnBlocks = blocks->generateEnemiesOnBlocks;
-
   let objPanel = generatePanel();
 
-  blocks @ groundBlocks @ enemiesOnGround @ enemiesOnBlocks @ [objPanel];
+  blocks^ @ enemiesOnGround @ [objPanel];
 };
 
 // Main function called to procedurally generate the level map. w and h args
