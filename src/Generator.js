@@ -452,20 +452,14 @@ function generateHelper(param) {
     contents: /* [] */0
   };
   generateBlockLocs(0, 0, blockLocs);
-  var objConvertedBlockLocs = blockLocs.contents;
-  var groundBlocks = generateGround(0, /* [] */0);
-  var objConvertedGroundBlocks = convertToBlockObj(groundBlocks);
-  var allBlocks = Pervasives.$at(objConvertedBlockLocs, objConvertedGroundBlocks);
-  var enemyLocs = generateEnemies(0, 0, allBlocks);
-  var objConvertedEnemies = Belt_List.map(enemyLocs, convertEnemyToObj);
-  var coinsLocs = generateCoins(objConvertedBlockLocs);
-  var undupCoinLocs = trimEdges(removeOverlap2(coinsLocs, objConvertedBlockLocs));
-  var enemyBlockLocs = generateBlockEnemies(objConvertedBlockLocs);
-  var undupEnemyBlockLocs = removeOverlap(removeOverlap2(enemyBlockLocs, objConvertedBlockLocs), coinsLocs);
-  var objEnemyBlocks = Belt_List.map(undupEnemyBlockLocs, convertEnemyToObj);
-  var coinObjects = Belt_List.map(undupCoinLocs, convertCoinToObj);
+  var blocks = blockLocs.contents;
+  var groundBlocks = convertToBlockObj(generateGround(0, /* [] */0));
+  var allBlocks = Pervasives.$at(blocks, groundBlocks);
+  var objConvertedEnemies = Belt_List.map(generateEnemies(0, 0, allBlocks), convertEnemyToObj);
+  var coinBlocks = Belt_List.map(trimEdges(removeOverlap2(generateCoins(groundBlocks), groundBlocks)), convertCoinToObj);
+  var objEnemyBlocks = Belt_List.map(removeOverlap2(removeOverlap2(generateBlockEnemies(groundBlocks), groundBlocks), coinBlocks), convertEnemyToObj);
   var objPanel = generatePanel(undefined);
-  return Pervasives.$at(allBlocks, Pervasives.$at(objConvertedEnemies, Pervasives.$at(coinObjects, Pervasives.$at(objEnemyBlocks, /* :: */{
+  return Pervasives.$at(allBlocks, Pervasives.$at(objConvertedEnemies, Pervasives.$at(coinBlocks, Pervasives.$at(objEnemyBlocks, /* :: */{
                           _0: objPanel,
                           _1: /* [] */0
                         }))));

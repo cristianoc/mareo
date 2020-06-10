@@ -343,26 +343,34 @@ let convertToCoinObj = lst => lst->List.map(convertCoinToObj);
 // context. Arguments block width (blockw) and block height (blockh) are in
 // block form, not pixels.
 let generateHelper = (): list(Object.collidable) => {
-  let blockLocs = ref([]);
-  generateBlockLocs(0., 0., blockLocs);
-  let objConvertedBlockLocs = blockLocs^;
-  let groundBlocks = generateGround(0., []);
-  let objConvertedGroundBlocks = convertToBlockObj(groundBlocks);
-  let allBlocks = objConvertedBlockLocs @ objConvertedGroundBlocks;
-  let enemyLocs = generateEnemies(0., 0., allBlocks);
-  let objConvertedEnemies = convertToEnemiesToObj(enemyLocs);
-  let coinsLocs = generateCoins(objConvertedBlockLocs);
-  let undupCoinLocs =
-    trimEdges(removeOverlap2(coinsLocs, objConvertedBlockLocs));
-  let enemyBlockLocs = generateBlockEnemies(objConvertedBlockLocs);
-  let undupEnemyBlockLocs =
-    enemyBlockLocs
-    ->removeOverlap2(objConvertedBlockLocs)
-    ->removeOverlap(coinsLocs);
-  let objEnemyBlocks = convertToEnemiesToObj(undupEnemyBlockLocs);
-  let coinObjects = convertToCoinObj(undupCoinLocs);
+  let blocks = {
+    let blockLocs = ref([]);
+    generateBlockLocs(0., 0., blockLocs);
+    blockLocs^;
+  };
+
+  let groundBlocks = generateGround(0., [])->convertToBlockObj;
+
+  let allBlocks = blocks @ groundBlocks;
+
+  let objConvertedEnemies =
+    generateEnemies(0., 0., allBlocks)->convertToEnemiesToObj;
+
+  let coinBlocks =
+    generateCoins(groundBlocks)
+    ->removeOverlap2(groundBlocks)
+    ->trimEdges
+    ->convertToCoinObj;
+
+  let objEnemyBlocks =
+    generateBlockEnemies(groundBlocks)
+    ->removeOverlap2(groundBlocks)
+    ->removeOverlap2(coinBlocks)
+    ->convertToEnemiesToObj;
+
   let objPanel = generatePanel();
-  allBlocks @ objConvertedEnemies @ coinObjects @ objEnemyBlocks @ [objPanel];
+
+  allBlocks @ objConvertedEnemies @ coinBlocks @ objEnemyBlocks @ [objPanel];
 };
 
 // Main function called to procedurally generate the level map. w and h args
