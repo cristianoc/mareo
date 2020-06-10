@@ -396,13 +396,13 @@ let runUpdateCollid = (state, collid: Object.collidable, all_collids) =>
         {...p, objTyp: Player(new_typ), sprite: new_spr};
       };
     let evolved = updateCollidable(state, player, all_collids);
-    collid_objs := collid_objs^ @ evolved;
+    collid_objs := evolved @ collid_objs^;
     player;
   | _ =>
     let obj = Object.getObj(collid);
     let evolved = updateCollidable(state, collid, all_collids);
     if (!obj.kill) {
-      collid_objs := [collid, ...collid_objs^ @ evolved];
+      collid_objs := [collid, ...evolved @ collid_objs^];
     };
     let new_parts =
       if (obj.kill) {
@@ -410,7 +410,7 @@ let runUpdateCollid = (state, collid: Object.collidable, all_collids) =>
       } else {
         [];
       };
-    particles := particles^ @ new_parts;
+    particles := new_parts @ particles^;
     collid;
   };
 

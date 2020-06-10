@@ -493,11 +493,11 @@ function runUpdateCollid(state, collid, all_collids) {
     if (!obj.kill) {
       collid_objs.contents = /* :: */{
         _0: collid,
-        _1: Pervasives.$at(collid_objs.contents, evolved)
+        _1: Pervasives.$at(evolved, collid_objs.contents)
       };
     }
     var new_parts = obj.kill ? $$Object.kill(collid) : /* [] */0;
-    particles.contents = Pervasives.$at(particles.contents, new_parts);
+    particles.contents = Pervasives.$at(new_parts, particles.contents);
     return collid;
   }
   var o = collid.obj;
@@ -520,7 +520,7 @@ function runUpdateCollid(state, collid, all_collids) {
     player = collid;
   }
   var evolved$1 = updateCollidable(state, player, all_collids);
-  collid_objs.contents = Pervasives.$at(collid_objs.contents, evolved$1);
+  collid_objs.contents = Pervasives.$at(evolved$1, collid_objs.contents);
   return player;
 }
 
