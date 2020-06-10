@@ -1,6 +1,5 @@
 
 
-import * as Load from "./Load.js";
 import * as Config from "./Config.js";
 import * as $$Object from "./Object.js";
 import * as Random from "bs-platform/lib/es6/random.js";
@@ -276,16 +275,14 @@ function generateEnemies(_cbx, _cby, blocks) {
     }
     var isEnemy = Random.$$int(10) === 0;
     if (isEnemy && Config.blockh - 1 === cby) {
-      var enemy_0 = [
-        randomEnemyTyp(undefined),
-        cbx * 16,
-        cby * 16
-      ];
-      var enemy = /* :: */{
-        _0: enemy_0,
-        _1: /* [] */0
-      };
-      return Pervasives.$at(enemy, generateEnemies(cbx, cby + 1, blocks));
+      return /* :: */{
+              _0: [
+                randomEnemyTyp(undefined),
+                cbx * 16,
+                cby * 16
+              ],
+              _1: generateEnemies(cbx, cby + 1, blocks)
+            };
     }
     _cby = cby + 1;
     continue ;
@@ -415,49 +412,42 @@ function convertToBlockObj(lst) {
         };
 }
 
-function convertToEnemyObj(lst, context) {
-  if (!lst) {
-    return /* [] */0;
-  }
-  var match = lst._0;
-  var enemyTyp = match[0];
-  var match$1 = $$Object.make(/* Left */0, Sprite.makeEnemy(enemyTyp, /* Left */0), $$Object.makeEnemy(enemyTyp), match[1], match[2]);
-  var obj = match$1[1];
+function convertEnemyToObj(param) {
+  var enemyTyp = param[0];
+  var match = $$Object.make(/* Left */0, Sprite.makeEnemy(enemyTyp, /* Left */0), $$Object.makeEnemy(enemyTyp), param[1], param[2]);
+  var obj = match[1];
   $$Object.setVelToSpeed(obj);
-  return /* :: */{
-          _0: {
-            objTyp: {
-              TAG: /* Enemy */1,
-              _0: enemyTyp
-            },
-            sprite: match$1[0],
-            obj: obj
+  return {
+          objTyp: {
+            TAG: /* Enemy */1,
+            _0: enemyTyp
           },
-          _1: convertToEnemyObj(lst._1, context)
+          sprite: match[0],
+          obj: obj
         };
 }
 
-function convertToCoinObj(lst, context) {
-  if (!lst) {
-    return /* [] */0;
-  }
-  var match = lst._0;
-  var match$1 = $$Object.make(/* Left */0, Sprite.makeItem(/* Coin */1), $$Object.makeItem(/* Coin */1), match[1], match[2]);
-  return /* :: */{
-          _0: {
-            objTyp: {
-              TAG: /* Item */2,
-              _0: /* Coin */1
-            },
-            sprite: match$1[0],
-            obj: match$1[1]
+function convertToEnemiesToObj(lst) {
+  return Belt_List.map(lst, convertEnemyToObj);
+}
+
+function convertCoinToObj(param) {
+  var match = $$Object.make(/* Left */0, Sprite.makeItem(/* Coin */1), $$Object.makeItem(/* Coin */1), param[1], param[2]);
+  return {
+          objTyp: {
+            TAG: /* Item */2,
+            _0: /* Coin */1
           },
-          _1: convertToCoinObj(lst._1, context)
+          sprite: match[0],
+          obj: match[1]
         };
+}
+
+function convertToCoinObj(lst) {
+  return Belt_List.map(lst, convertCoinToObj);
 }
 
 function generateHelper(param) {
-  var context = Load.getContext(undefined);
   var blockLocs = {
     contents: /* [] */0
   };
@@ -467,13 +457,13 @@ function generateHelper(param) {
   var objConvertedGroundBlocks = convertToBlockObj(groundBlocks);
   var allBlocks = Pervasives.$at(objConvertedBlockLocs, objConvertedGroundBlocks);
   var enemyLocs = generateEnemies(0, 0, allBlocks);
-  var objConvertedEnemies = convertToEnemyObj(enemyLocs, context);
+  var objConvertedEnemies = Belt_List.map(enemyLocs, convertEnemyToObj);
   var coinsLocs = generateCoins(objConvertedBlockLocs);
   var undupCoinLocs = trimEdges(removeOverlap2(coinsLocs, objConvertedBlockLocs));
   var enemyBlockLocs = generateBlockEnemies(objConvertedBlockLocs);
   var undupEnemyBlockLocs = removeOverlap(removeOverlap2(enemyBlockLocs, objConvertedBlockLocs), coinsLocs);
-  var objEnemyBlocks = convertToEnemyObj(undupEnemyBlockLocs, context);
-  var coinObjects = convertToCoinObj(undupCoinLocs, context);
+  var objEnemyBlocks = Belt_List.map(undupEnemyBlockLocs, convertEnemyToObj);
+  var coinObjects = Belt_List.map(undupCoinLocs, convertCoinToObj);
   var objPanel = generatePanel(undefined);
   return Pervasives.$at(allBlocks, Pervasives.$at(objConvertedEnemies, Pervasives.$at(coinObjects, Pervasives.$at(objEnemyBlocks, /* :: */{
                           _0: objPanel,
@@ -528,7 +518,9 @@ export {
   generatePanel ,
   generateGround ,
   convertToBlockObj ,
-  convertToEnemyObj ,
+  convertEnemyToObj ,
+  convertToEnemiesToObj ,
+  convertCoinToObj ,
   convertToCoinObj ,
   generateHelper ,
   generate ,

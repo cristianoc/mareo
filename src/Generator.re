@@ -219,8 +219,10 @@ let rec generateEnemies =
   } else {
     let isEnemy = Random.int(10) == 0;
     if (isEnemy && Config.blockh -. 1. == cby) {
-      let enemy = [(randomEnemyTyp(), cbx *. 16., cby *. 16.)];
-      enemy @ generateEnemies(cbx, cby +. 1., blocks);
+      [
+        (randomEnemyTyp(), cbx *. 16., cby *. 16.),
+        ...generateEnemies(cbx, cby +. 1., blocks),
+      ];
     } else {
       generateEnemies(cbx, cby +. 1., blocks);
     };
@@ -307,69 +309,58 @@ let rec convertToBlockObj = (lst: list(blockCoord)): list(Object.collidable) =>
     [{objTyp: Block(blockTyp), sprite, obj}, ...convertToBlockObj(t)];
   };
 
-// Convert the objCoord list called by generateEnemies to a list of objects
-// with the coordinates given from the objCoord list.
-let rec convertToEnemyObj =
-        (lst: list(enemyCoord), context: Html.canvasRenderingContext2D)
-        : list(Object.collidable) =>
-  switch (lst) {
-  | [] => []
-  | [(enemyTyp, x, y), ...t] =>
-    let (sprite, obj) =
-      Object.make(
-        ~dir=Left,
-        Sprite.makeEnemy(enemyTyp, Left),
-        Object.makeEnemy(enemyTyp),
-        x,
-        y,
-      );
-    Object.setVelToSpeed(obj);
-    [
-      {objTyp: Enemy(enemyTyp), sprite, obj},
-      ...convertToEnemyObj(t, context),
-    ];
-  };
+let convertEnemyToObj = ((enemyTyp, x, y)) => {
+  let (sprite, obj) =
+    Object.make(
+      ~dir=Left,
+      Sprite.makeEnemy(enemyTyp, Left),
+      Object.makeEnemy(enemyTyp),
+      x,
+      y,
+    );
+  Object.setVelToSpeed(obj);
+  {Object.objTyp: Enemy(enemyTyp), sprite, obj};
+};
+
+let convertToEnemiesToObj = lst => lst->List.map(convertEnemyToObj);
+
+let convertCoinToObj = ((_, x, y)) => {
+  let (sprite, obj) =
+    Object.make(
+      ~dir=Left,
+      Sprite.makeItem(Coin),
+      Object.makeItem(Coin),
+      x,
+      y,
+    );
+  {Object.objTyp: Item(Coin), sprite, obj};
+};
 
 // Convert the list of coordinates into a list of Coin objects
-let rec convertToCoinObj =
-        (lst: list(blockCoord), context: Html.canvasRenderingContext2D)
-        : list(Object.collidable) =>
-  switch (lst) {
-  | [] => []
-  | [(_, x, y), ...t] =>
-    let (sprite, obj) =
-      Object.make(
-        ~dir=Left,
-        Sprite.makeItem(Coin),
-        Object.makeItem(Coin),
-        x,
-        y,
-      );
-    [{objTyp: Item(Coin), sprite, obj}, ...convertToCoinObj(t, context)];
-  };
+let convertToCoinObj = lst => lst->List.map(convertCoinToObj);
 
 // Procedurally generate a list of collidables given canvas width, height and
 // context. Arguments block width (blockw) and block height (blockh) are in
 // block form, not pixels.
 let generateHelper = (): list(Object.collidable) => {
-  let context = Load.getContext();
   let blockLocs = ref([]);
   generateBlockLocs(0., 0., blockLocs);
   let objConvertedBlockLocs = blockLocs^;
   let groundBlocks = generateGround(0., []);
   let objConvertedGroundBlocks = convertToBlockObj(groundBlocks);
-  // let blockLocations = blockLocs @ groundBlocks;
   let allBlocks = objConvertedBlockLocs @ objConvertedGroundBlocks;
   let enemyLocs = generateEnemies(0., 0., allBlocks);
-  let objConvertedEnemies = convertToEnemyObj(enemyLocs, context);
+  let objConvertedEnemies = convertToEnemiesToObj(enemyLocs);
   let coinsLocs = generateCoins(objConvertedBlockLocs);
   let undupCoinLocs =
     trimEdges(removeOverlap2(coinsLocs, objConvertedBlockLocs));
   let enemyBlockLocs = generateBlockEnemies(objConvertedBlockLocs);
   let undupEnemyBlockLocs =
-    enemyBlockLocs->removeOverlap2(objConvertedBlockLocs)->removeOverlap(coinsLocs);
-  let objEnemyBlocks = convertToEnemyObj(undupEnemyBlockLocs, context);
-  let coinObjects = convertToCoinObj(undupCoinLocs, context);
+    enemyBlockLocs
+    ->removeOverlap2(objConvertedBlockLocs)
+    ->removeOverlap(coinsLocs);
+  let objEnemyBlocks = convertToEnemiesToObj(undupEnemyBlockLocs);
+  let coinObjects = convertToCoinObj(undupCoinLocs);
   let objPanel = generatePanel();
   allBlocks @ objConvertedEnemies @ coinObjects @ objEnemyBlocks @ [objPanel];
 };
