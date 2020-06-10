@@ -158,6 +158,22 @@ function generateClouds(_cbx, cby, typ, _num, blocks) {
   };
 }
 
+function convertCoinToObj(param) {
+  var match = $$Object.make(/* Left */0, Sprite.makeItem(/* Coin */1), $$Object.makeItem(/* Coin */1), param[1], param[2]);
+  return {
+          objTyp: {
+            TAG: /* Item */2,
+            _0: /* Coin */1
+          },
+          sprite: match[0],
+          obj: match[1]
+        };
+}
+
+function convertCoinsToObj(lst) {
+  return Belt_List.map(lst, convertCoinToObj);
+}
+
 function generateCoins(_blocks) {
   while(true) {
     var blocks = _blocks;
@@ -169,15 +185,15 @@ function generateCoins(_blocks) {
     var x = match.x;
     var y = match.y;
     var t = blocks._1;
-    if (placeCoin === 0) {
+    if (placeCoin === 0 && !memPos2(x, y, blocks) && trimEdge(x, y)) {
       return Pervasives.$at(/* :: */{
-                  _0: [
-                    /* QBlock */{
-                      _0: /* Coin */1
-                    },
-                    x,
-                    y - 16
-                  ],
+                  _0: convertCoinToObj([
+                        /* QBlock */{
+                          _0: /* Coin */1
+                        },
+                        x,
+                        y - 16
+                      ]),
                   _1: /* [] */0
                 }, generateCoins(t));
     }
@@ -431,22 +447,6 @@ function convertToEnemiesToObj(lst) {
   return Belt_List.map(lst, convertEnemyToObj);
 }
 
-function convertCoinToObj(param) {
-  var match = $$Object.make(/* Left */0, Sprite.makeItem(/* Coin */1), $$Object.makeItem(/* Coin */1), param[1], param[2]);
-  return {
-          objTyp: {
-            TAG: /* Item */2,
-            _0: /* Coin */1
-          },
-          sprite: match[0],
-          obj: match[1]
-        };
-}
-
-function convertCoinsToObj(lst) {
-  return Belt_List.map(lst, convertCoinToObj);
-}
-
 function generateHelper(param) {
   var blockLocs = {
     contents: /* [] */0
@@ -456,7 +456,7 @@ function generateHelper(param) {
   var groundBlocks = convertToBlockObj(generateGround(0, /* [] */0));
   var allBlocks = Pervasives.$at(blocks, groundBlocks);
   var objConvertedEnemies = Belt_List.map(generateEnemies(0, 0, allBlocks), convertEnemyToObj);
-  var coinBlocks = Belt_List.map(trimEdges(removeOverlap2(generateCoins(groundBlocks), groundBlocks)), convertCoinToObj);
+  var coinBlocks = generateCoins(groundBlocks);
   var objEnemyBlocks = Belt_List.map(removeOverlap2(removeOverlap2(generateBlockEnemies(groundBlocks), groundBlocks), coinBlocks), convertEnemyToObj);
   var objPanel = generatePanel(undefined);
   return Pervasives.$at(allBlocks, Pervasives.$at(objConvertedEnemies, Pervasives.$at(coinBlocks, Pervasives.$at(objEnemyBlocks, /* :: */{
@@ -502,6 +502,8 @@ export {
   generateAirupStairs ,
   generateAirdownStairs ,
   generateClouds ,
+  convertCoinToObj ,
+  convertCoinsToObj ,
   generateCoins ,
   randomEnemyTyp ,
   randomStairTyp ,
@@ -514,8 +516,6 @@ export {
   convertToBlockObj ,
   convertEnemyToObj ,
   convertToEnemiesToObj ,
-  convertCoinToObj ,
-  convertCoinsToObj ,
   generateHelper ,
   generate ,
   

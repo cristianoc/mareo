@@ -122,14 +122,30 @@ let rec generateClouds = (cbx, cby, typ, num, blocks) =>
     generateClouds(cbx +. 1., cby, typ, num - 1, blocks);
   };
 
+let convertCoinToObj = ((_, x, y)) => {
+  let (sprite, obj) =
+    Object.make(
+      ~dir=Left,
+      Sprite.makeItem(Coin),
+      Object.makeItem(Coin),
+      x,
+      y,
+    );
+  {Object.objTyp: Item(Coin), sprite, obj};
+};
+
+// Convert the list of coordinates into a list of Coin objects
+let convertCoinsToObj = lst => lst->List.map(convertCoinToObj);
+
 // Generate an objCoord list (typ, coordinates) of coins to be placed.
-let rec generateCoins = (blocks: list(Object.collidable)): list(blockCoord) => {
+let rec generateCoins =
+        (blocks: list(Object.collidable)): list(Object.collidable) => {
   let placeCoin = Random.int(2);
   switch (blocks) {
   | [] => []
   | [{obj: {pos: {x, y}}}, ...t] =>
-    if (placeCoin == 0) {
-      [(QBlock(Coin), x, y -. 16.)] @ generateCoins(t);
+    if (placeCoin == 0 && !memPos2(x, y, blocks) && trimEdge(x, y)) {
+      [(QBlock(Coin), x, y -. 16.)->convertCoinToObj] @ generateCoins(t);
     } else {
       generateCoins(t);
     }
@@ -324,21 +340,6 @@ let convertEnemyToObj = ((enemyTyp, x, y)) => {
 
 let convertToEnemiesToObj = lst => lst->List.map(convertEnemyToObj);
 
-let convertCoinToObj = ((_, x, y)) => {
-  let (sprite, obj) =
-    Object.make(
-      ~dir=Left,
-      Sprite.makeItem(Coin),
-      Object.makeItem(Coin),
-      x,
-      y,
-    );
-  {Object.objTyp: Item(Coin), sprite, obj};
-};
-
-// Convert the list of coordinates into a list of Coin objects
-let convertCoinsToObj = lst => lst->List.map(convertCoinToObj);
-
 // Procedurally generate a list of collidables given canvas width, height and
 // context. Arguments block width (blockw) and block height (blockh) are in
 // block form, not pixels.
@@ -356,11 +357,7 @@ let generateHelper = (): list(Object.collidable) => {
   let objConvertedEnemies =
     generateEnemies(0., 0., allBlocks)->convertToEnemiesToObj;
 
-  let coinBlocks =
-    generateCoins(groundBlocks)
-    ->removeOverlap2(groundBlocks)
-    ->trimEdges
-    ->convertCoinsToObj;
+  let coinBlocks = generateCoins(groundBlocks);
 
   let objEnemyBlocks =
     generateBlockEnemies(groundBlocks)
