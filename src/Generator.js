@@ -43,12 +43,48 @@ function removeOverlap(_lst, currentObjs) {
   };
 }
 
-var pixx = (Config.blockw << 4);
+function memPos2(x, y, _objs) {
+  while(true) {
+    var objs = _objs;
+    if (!objs) {
+      return false;
+    }
+    var match = objs._0.obj.pos;
+    var px = match.x;
+    var py = match.y;
+    if (x === px && y === py) {
+      return true;
+    }
+    _objs = objs._1;
+    continue ;
+  };
+}
 
-var pixy = (Config.blockh << 4);
+function removeOverlap2(_lst, currentObjs) {
+  while(true) {
+    var lst = _lst;
+    if (!lst) {
+      return /* [] */0;
+    }
+    var t = lst._1;
+    var h = lst._0;
+    if (!memPos2(h[1], h[2], currentObjs)) {
+      return /* :: */{
+              _0: h,
+              _1: removeOverlap2(t, currentObjs)
+            };
+    }
+    _lst = t;
+    continue ;
+  };
+}
+
+var pixx = Config.blockw * 16;
+
+var pixy = Config.blockh * 16;
 
 function trimEdge(x, y) {
-  return !(x < 128 || (pixx - x | 0) < 528 || y === 0 || (pixy - y | 0) < 48);
+  return !(x < 128 || pixx - x < 528 || y === 0 || pixy - y < 48);
 }
 
 function trimEdges(lst) {
@@ -58,51 +94,55 @@ function trimEdges(lst) {
 }
 
 function addBlock(blocks, blockTyp, x, y) {
-  if (!memPos((x << 4), (y << 4), blocks.contents) && trimEdge((x << 4), (y << 4))) {
-    blocks.contents = /* :: */{
-      _0: [
-        blockTyp,
-        (x << 4),
-        (y << 4)
-      ],
-      _1: blocks.contents
-    };
+  if (!(!memPos2(x * 16, y * 16, blocks.contents) && trimEdge(x * 16, y * 16))) {
     return ;
   }
+  var match = $$Object.make(/* Left */0, Sprite.makeBlock(blockTyp), $$Object.makeBlock(blockTyp), x * 16, y * 16);
+  blocks.contents = /* :: */{
+    _0: {
+      objTyp: {
+        TAG: /* Block */3,
+        _0: blockTyp
+      },
+      sprite: match[0],
+      obj: match[1]
+    },
+    _1: blocks.contents
+  };
   
 }
 
 function generateGroundStairs(cbx, cby, typ, blocks) {
   addBlock(blocks, typ, cbx, cby);
-  addBlock(blocks, typ, cbx + 1 | 0, cby);
-  addBlock(blocks, typ, cbx + 2 | 0, cby);
-  addBlock(blocks, typ, cbx + 3 | 0, cby);
-  addBlock(blocks, typ, cbx + 1 | 0, cby - 1 | 0);
-  addBlock(blocks, typ, cbx + 2 | 0, cby - 1 | 0);
-  addBlock(blocks, typ, cbx + 3 | 0, cby - 1 | 0);
-  addBlock(blocks, typ, cbx + 2 | 0, cby - 2 | 0);
-  addBlock(blocks, typ, cbx + 3 | 0, cby - 2 | 0);
-  return addBlock(blocks, typ, cbx + 3 | 0, cby - 3 | 0);
+  addBlock(blocks, typ, cbx + 1, cby);
+  addBlock(blocks, typ, cbx + 2, cby);
+  addBlock(blocks, typ, cbx + 3, cby);
+  addBlock(blocks, typ, cbx + 1, cby - 1);
+  addBlock(blocks, typ, cbx + 2, cby - 1);
+  addBlock(blocks, typ, cbx + 3, cby - 1);
+  addBlock(blocks, typ, cbx + 2, cby - 2);
+  addBlock(blocks, typ, cbx + 3, cby - 2);
+  return addBlock(blocks, typ, cbx + 3, cby - 3);
 }
 
 function generateAirupStairs(cbx, cby, typ, blocks) {
   addBlock(blocks, typ, cbx, cby);
-  addBlock(blocks, typ, cbx + 1 | 0, cby);
-  addBlock(blocks, typ, cbx + 3 | 0, cby - 1 | 0);
-  addBlock(blocks, typ, cbx + 4 | 0, cby - 1 | 0);
-  addBlock(blocks, typ, cbx + 4 | 0, cby - 2 | 0);
-  addBlock(blocks, typ, cbx + 5 | 0, cby - 2 | 0);
-  return addBlock(blocks, typ, cbx + 6 | 0, cby - 2 | 0);
+  addBlock(blocks, typ, cbx + 1, cby);
+  addBlock(blocks, typ, cbx + 3, cby - 1);
+  addBlock(blocks, typ, cbx + 4, cby - 1);
+  addBlock(blocks, typ, cbx + 4, cby - 2);
+  addBlock(blocks, typ, cbx + 5, cby - 2);
+  return addBlock(blocks, typ, cbx + 6, cby - 2);
 }
 
 function generateAirdownStairs(cbx, cby, typ, blocks) {
   addBlock(blocks, typ, cbx, cby);
-  addBlock(blocks, typ, cbx + 1 | 0, cby);
-  addBlock(blocks, typ, cbx + 2 | 0, cby);
-  addBlock(blocks, typ, cbx + 2 | 0, cby + 1 | 0);
-  addBlock(blocks, typ, cbx + 3 | 0, cby + 1 | 0);
-  addBlock(blocks, typ, cbx + 5 | 0, cby + 2 | 0);
-  return addBlock(blocks, typ, cbx + 6 | 0, cby + 2 | 0);
+  addBlock(blocks, typ, cbx + 1, cby);
+  addBlock(blocks, typ, cbx + 2, cby);
+  addBlock(blocks, typ, cbx + 2, cby + 1);
+  addBlock(blocks, typ, cbx + 3, cby + 1);
+  addBlock(blocks, typ, cbx + 5, cby + 2);
+  return addBlock(blocks, typ, cbx + 6, cby + 2);
 }
 
 function generateClouds(_cbx, cby, typ, _num, blocks) {
@@ -114,7 +154,7 @@ function generateClouds(_cbx, cby, typ, _num, blocks) {
     }
     addBlock(blocks, typ, cbx, cby);
     _num = num - 1 | 0;
-    _cbx = cbx + 1 | 0;
+    _cbx = cbx + 1;
     continue ;
   };
 }
@@ -126,16 +166,18 @@ function generateCoins(_blocks) {
     if (!blocks) {
       return /* [] */0;
     }
+    var match = blocks._0.obj.pos;
+    var x = match.x;
+    var y = match.y;
     var t = blocks._1;
-    var match = blocks._0;
     if (placeCoin === 0) {
       return Pervasives.$at(/* :: */{
                   _0: [
                     /* QBlock */{
                       _0: /* Coin */1
                     },
-                    match[1],
-                    match[2] - 16 | 0
+                    x,
+                    y - 16
                   ],
                   _1: /* [] */0
                 }, generateCoins(t));
@@ -179,8 +221,8 @@ function chooseBlockPattern(cbx, cby, blocks) {
   switch (match) {
     case 0 :
         addBlock(blocks, stairTyp, cbx, cby);
-        addBlock(blocks, middleBlock, cbx + 1 | 0, cby);
-        return addBlock(blocks, stairTyp, cbx + 2 | 0, cby);
+        addBlock(blocks, middleBlock, cbx + 1, cby);
+        return addBlock(blocks, stairTyp, cbx + 2, cby);
     case 1 :
         var numClouds = Random.$$int(5) + 5 | 0;
         if (cby < 5) {
@@ -189,29 +231,29 @@ function chooseBlockPattern(cbx, cby, blocks) {
           return ;
         }
     case 2 :
-        if ((Config.blockh - cby | 0) === 1) {
+        if (Config.blockh - cby === 1) {
           return generateGroundStairs(cbx, cby, stairTyp, blocks);
         } else {
           return ;
         }
     case 3 :
-        if (stairTyp === /* Brick */1 && (Config.blockh - cby | 0) > 3) {
+        if (stairTyp === /* Brick */1 && Config.blockh - cby > 3) {
           return generateAirdownStairs(cbx, cby, stairTyp, blocks);
-        } else if ((Config.blockh - cby | 0) > 2) {
+        } else if (Config.blockh - cby > 2) {
           return generateAirupStairs(cbx, cby, stairTyp, blocks);
         } else {
           return addBlock(blocks, stairTyp, cbx, cby);
         }
     default:
-      if (((cby + 3 | 0) - Config.blockh | 0) === 2) {
+      if (cby + 3 - Config.blockh === 2) {
         return addBlock(blocks, stairTyp, cbx, cby);
-      } else if (((cby + 3 | 0) - Config.blockh | 0) === 1) {
+      } else if (cby + 3 - Config.blockh === 1) {
         addBlock(blocks, stairTyp, cbx, cby);
-        return addBlock(blocks, stairTyp, cbx, cby + 1 | 0);
+        return addBlock(blocks, stairTyp, cbx, cby + 1);
       } else {
         addBlock(blocks, stairTyp, cbx, cby);
-        addBlock(blocks, stairTyp, cbx, cby + 1 | 0);
-        return addBlock(blocks, stairTyp, cbx, cby + 2 | 0);
+        addBlock(blocks, stairTyp, cbx, cby + 1);
+        return addBlock(blocks, stairTyp, cbx, cby + 2);
       }
   }
 }
@@ -220,32 +262,32 @@ function generateEnemies(_cbx, _cby, blocks) {
   while(true) {
     var cby = _cby;
     var cbx = _cbx;
-    if (cbx > (Config.blockw - 32 | 0)) {
+    if (cbx > Config.blockw - 32) {
       return /* [] */0;
     }
-    if (cby > (Config.blockh - 1 | 0) || cbx < 15) {
+    if (cby > Config.blockh - 1 || cbx < 15) {
       _cby = 0;
-      _cbx = cbx + 1 | 0;
+      _cbx = cbx + 1;
       continue ;
     }
-    if (memPos(cbx, cby, blocks) || cby === 0) {
-      _cby = cby + 1 | 0;
+    if (memPos2(cbx, cby, blocks) || cby === 0) {
+      _cby = cby + 1;
       continue ;
     }
     var isEnemy = Random.$$int(10) === 0;
-    if (isEnemy && (Config.blockh - 1 | 0) === cby) {
+    if (isEnemy && Config.blockh - 1 === cby) {
       var enemy_0 = [
         randomEnemyTyp(undefined),
-        (cbx << 4),
-        (cby << 4)
+        cbx * 16,
+        cby * 16
       ];
       var enemy = /* :: */{
         _0: enemy_0,
         _1: /* [] */0
       };
-      return Pervasives.$at(enemy, generateEnemies(cbx, cby + 1 | 0, blocks));
+      return Pervasives.$at(enemy, generateEnemies(cbx, cby + 1, blocks));
     }
-    _cby = cby + 1 | 0;
+    _cby = cby + 1;
     continue ;
   };
 }
@@ -257,14 +299,16 @@ function generateBlockEnemies(_blockCoord) {
     if (!blockCoord) {
       return /* [] */0;
     }
+    var match = blockCoord._0.obj.pos;
+    var x = match.x;
+    var y = match.y;
     var t = blockCoord._1;
-    var match = blockCoord._0;
     if (placeEnemy === 0) {
       return Pervasives.$at(/* :: */{
                   _0: [
                     randomEnemyTyp(undefined),
-                    match[1],
-                    match[2] - 16 | 0
+                    x,
+                    y - 16
                   ],
                   _1: /* [] */0
                 }, generateBlockEnemies(t));
@@ -278,24 +322,24 @@ function generateBlockLocs(_cbx, _cby, blocks) {
   while(true) {
     var cby = _cby;
     var cbx = _cbx;
-    if ((Config.blockw - cbx | 0) < 33) {
+    if (Config.blockw - cbx < 33) {
       return ;
     }
-    if (cby > (Config.blockh - 1 | 0)) {
+    if (cby > Config.blockh - 1) {
       _cby = 0;
-      _cbx = cbx + 1 | 0;
+      _cbx = cbx + 1;
       continue ;
     }
-    if (memPos(cbx, cby, blocks.contents) || cby === 0) {
-      _cby = cby + 1 | 0;
+    if (memPos2(cbx, cby, blocks.contents) || cby === 0) {
+      _cby = cby + 1;
       continue ;
     }
     if (Random.$$int(20) === 0) {
       chooseBlockPattern(cbx, cby, blocks);
-      _cby = cby + 1 | 0;
+      _cby = cby + 1;
       continue ;
     }
-    _cby = cby + 1 | 0;
+    _cby = cby + 1;
     continue ;
   };
 }
@@ -324,29 +368,29 @@ function generateGround(_inc, _acc) {
       var newacc = Pervasives.$at(acc, /* :: */{
             _0: [
               /* Ground */5,
-              (inc << 4),
-              (Config.blockh << 4)
+              inc * 16,
+              Config.blockh * 16
             ],
             _1: /* [] */0
           });
-      if (skip === 7 && (Config.blockw - inc | 0) > 32) {
-        _inc = inc + 1 | 0;
+      if (skip === 7 && Config.blockw - inc > 32) {
+        _inc = inc + 1;
         continue ;
       }
       _acc = newacc;
-      _inc = inc + 1 | 0;
+      _inc = inc + 1;
       continue ;
     }
     var newacc$1 = Pervasives.$at(acc, /* :: */{
           _0: [
             /* Ground */5,
-            (inc << 4),
-            (Config.blockh << 4)
+            inc * 16,
+            Config.blockh * 16
           ],
           _1: /* [] */0
         });
     _acc = newacc$1;
-    _inc = inc + 1 | 0;
+    _inc = inc + 1;
     continue ;
   };
 }
@@ -418,18 +462,16 @@ function generateHelper(param) {
     contents: /* [] */0
   };
   generateBlockLocs(0, 0, blockLocs);
-  var blockLocs$1 = blockLocs.contents;
-  var objConvertedBlockLocs = convertToBlockObj(blockLocs$1);
+  var objConvertedBlockLocs = blockLocs.contents;
   var groundBlocks = generateGround(0, /* [] */0);
   var objConvertedGroundBlocks = convertToBlockObj(groundBlocks);
-  var blockLocations = Pervasives.$at(blockLocs$1, groundBlocks);
   var allBlocks = Pervasives.$at(objConvertedBlockLocs, objConvertedGroundBlocks);
-  var enemyLocs = generateEnemies(0, 0, blockLocations);
+  var enemyLocs = generateEnemies(0, 0, allBlocks);
   var objConvertedEnemies = convertToEnemyObj(enemyLocs, context);
-  var coinsLocs = generateCoins(blockLocs$1);
-  var undupCoinLocs = trimEdges(removeOverlap(coinsLocs, blockLocs$1));
-  var enemyBlockLocs = generateBlockEnemies(blockLocs$1);
-  var undupEnemyBlockLocs = removeOverlap(removeOverlap(enemyBlockLocs, blockLocs$1), coinsLocs);
+  var coinsLocs = generateCoins(objConvertedBlockLocs);
+  var undupCoinLocs = trimEdges(removeOverlap2(coinsLocs, objConvertedBlockLocs));
+  var enemyBlockLocs = generateBlockEnemies(objConvertedBlockLocs);
+  var undupEnemyBlockLocs = removeOverlap(removeOverlap2(enemyBlockLocs, objConvertedBlockLocs), coinsLocs);
   var objEnemyBlocks = convertToEnemyObj(undupEnemyBlockLocs, context);
   var coinObjects = convertToCoinObj(undupCoinLocs, context);
   var objPanel = generatePanel(undefined);
@@ -465,6 +507,8 @@ function generate(param) {
 export {
   memPos ,
   removeOverlap ,
+  memPos2 ,
+  removeOverlap2 ,
   pixx ,
   pixy ,
   trimEdge ,

@@ -4,13 +4,13 @@ let delayWhenLost = 300.;
 
 let images = [|"blocks.png", "items.png", "enemies.png", "mario-small.png"|];
 
-let levelWidth = 2400;
+let levelWidth = 2400.;
 
-let levelHeight = 256;
-let blockw = levelWidth / 16;
-let blockh = levelHeight / 16 - 1;
+let levelHeight = 256.;
+let blockw = levelWidth /. 16.;
+let blockh = levelHeight /. 16. -. 1.;
 
-let mapDim = (levelWidth->float_of_int, levelHeight->float_of_int);
+let mapDim = (levelWidth, levelHeight);
 
 let restartAfter = 5;
 
