@@ -369,6 +369,23 @@ function generatePanel(param) {
         };
 }
 
+function convertBlockToObj(param) {
+  var blockTyp = param[0];
+  var match = $$Object.make(/* Left */0, Sprite.makeBlock(blockTyp), $$Object.makeBlock(blockTyp), param[1], param[2]);
+  return {
+          objTyp: {
+            TAG: /* Block */3,
+            _0: blockTyp
+          },
+          sprite: match[0],
+          obj: match[1]
+        };
+}
+
+function convertBlocksToObj(lst) {
+  return Belt_List.map(lst, convertBlockToObj);
+}
+
 function generateGround(_inc, _acc) {
   while(true) {
     var acc = _acc;
@@ -378,54 +395,32 @@ function generateGround(_inc, _acc) {
     }
     if (inc > 10) {
       var skip = Random.$$int(10);
-      var newacc = Pervasives.$at(acc, /* :: */{
-            _0: [
-              /* Ground */5,
-              inc * 16,
-              Config.blockh * 16
-            ],
-            _1: /* [] */0
-          });
       if (skip === 7 && Config.blockw - inc > 32) {
         _inc = inc + 1;
         continue ;
       }
-      _acc = newacc;
+      _acc = /* :: */{
+        _0: convertBlockToObj([
+              /* Ground */5,
+              inc * 16,
+              Config.blockh * 16
+            ]),
+        _1: acc
+      };
       _inc = inc + 1;
       continue ;
     }
-    var newacc$1 = Pervasives.$at(acc, /* :: */{
-          _0: [
+    _acc = /* :: */{
+      _0: convertBlockToObj([
             /* Ground */5,
             inc * 16,
             Config.blockh * 16
-          ],
-          _1: /* [] */0
-        });
-    _acc = newacc$1;
+          ]),
+      _1: acc
+    };
     _inc = inc + 1;
     continue ;
   };
-}
-
-function convertToBlockObj(lst) {
-  if (!lst) {
-    return /* [] */0;
-  }
-  var match = lst._0;
-  var blockTyp = match[0];
-  var match$1 = $$Object.make(/* Left */0, Sprite.makeBlock(blockTyp), $$Object.makeBlock(blockTyp), match[1], match[2]);
-  return /* :: */{
-          _0: {
-            objTyp: {
-              TAG: /* Block */3,
-              _0: blockTyp
-            },
-            sprite: match$1[0],
-            obj: match$1[1]
-          },
-          _1: convertToBlockObj(lst._1)
-        };
 }
 
 function convertEnemyToObj(param) {
@@ -453,7 +448,7 @@ function generateHelper(param) {
   };
   generateBlockLocs(0, 0, blockLocs);
   var blocks = blockLocs.contents;
-  var groundBlocks = convertToBlockObj(generateGround(0, /* [] */0));
+  var groundBlocks = generateGround(0, /* [] */0);
   var allBlocks = Pervasives.$at(blocks, groundBlocks);
   var objConvertedEnemies = Belt_List.map(generateEnemies(0, 0, allBlocks), convertEnemyToObj);
   var coinBlocks = generateCoins(groundBlocks);
@@ -512,8 +507,9 @@ export {
   generateBlockEnemies ,
   generateBlockLocs ,
   generatePanel ,
+  convertBlockToObj ,
+  convertBlocksToObj ,
   generateGround ,
-  convertToBlockObj ,
   convertEnemyToObj ,
   convertToEnemiesToObj ,
   generateHelper ,

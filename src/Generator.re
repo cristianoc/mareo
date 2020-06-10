@@ -289,40 +289,50 @@ let generatePanel = (): Object.collidable => {
   {objTyp: Block(Panel), sprite, obj};
 };
 
+let convertBlockToObj = ((blockTyp, x, y)) => {
+  let (sprite, obj) =
+    Object.make(
+      ~dir=Left,
+      Sprite.makeBlock(blockTyp),
+      Object.makeBlock(blockTyp),
+      x,
+      y,
+    );
+  {Object.objTyp: Block(blockTyp), sprite, obj};
+};
+
+// Convert the objCoord list called by generateBlockLocs to a list of objects
+// with the coordinates given from the objCoord list.
+let convertBlocksToObj = (lst: list(blockCoord)): list(Object.collidable) =>
+  lst->List.map(convertBlockToObj);
+
 // Generate the list of brick locations needed to display the ground.
 // 1/10 chance that a ground block is skipped each call to create holes.
 let rec generateGround =
-        (inc: float, acc: list(blockCoord)): list(blockCoord) =>
+        (inc: float, acc: list(Object.collidable)): list(Object.collidable) =>
   if (inc > Config.blockw) {
     acc;
   } else if (inc > 10.) {
     let skip = Random.int(10);
-    let newacc = acc @ [(Ground, inc *. 16., Config.blockh *. 16.)];
     if (skip == 7 && Config.blockw -. inc > 32.) {
       generateGround(inc +. 1., acc);
     } else {
-      generateGround(inc +. 1., newacc);
+      generateGround(
+        inc +. 1.,
+        [
+          (Ground, inc *. 16., Config.blockh *. 16.)->convertBlockToObj,
+          ...acc,
+        ],
+      );
     };
   } else {
-    let newacc = acc @ [(Ground, inc *. 16., Config.blockh *. 16.)];
-    generateGround(inc +. 1., newacc);
-  };
-
-// Convert the objCoord list called by generateBlockLocs to a list of objects
-// with the coordinates given from the objCoord list.
-let rec convertToBlockObj = (lst: list(blockCoord)): list(Object.collidable) =>
-  switch (lst) {
-  | [] => []
-  | [(blockTyp, x, y), ...t] =>
-    let (sprite, obj) =
-      Object.make(
-        ~dir=Left,
-        Sprite.makeBlock(blockTyp),
-        Object.makeBlock(blockTyp),
-        x,
-        y,
-      );
-    [{objTyp: Block(blockTyp), sprite, obj}, ...convertToBlockObj(t)];
+    generateGround(
+      inc +. 1.,
+      [
+        (Ground, inc *. 16., Config.blockh *. 16.)->convertBlockToObj,
+        ...acc,
+      ],
+    );
   };
 
 let convertEnemyToObj = ((enemyTyp, x, y)) => {
@@ -350,7 +360,7 @@ let generateHelper = (): list(Object.collidable) => {
     blockLocs^;
   };
 
-  let groundBlocks = generateGround(0., [])->convertToBlockObj;
+  let groundBlocks = generateGround(0., []);
 
   let allBlocks = blocks @ groundBlocks;
 
