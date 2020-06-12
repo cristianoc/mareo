@@ -28,14 +28,17 @@ let trimEdge = (x, y) => {
 };
 
 let convertCoinToObj = ((_, x, y)) => {
-  Object.make(
-    ~dir=Left,
-    Item(Coin),
-    Sprite.makeItem(Coin),
-    Object.makeItem(Coin),
-    x,
-    y,
-  );
+  let obj =
+    Object.make(
+      ~hasGravity=false,
+      ~dir=Left,
+      Item(Coin),
+      Sprite.makeItem(Coin),
+      x,
+      y,
+    );
+  obj->Object.makeItem(Coin);
+  obj;
 };
 
 let addCoins = (objects, x, y0) => {
@@ -51,10 +54,10 @@ let convertEnemyToObj = ((enemyTyp, x, y)) => {
       ~dir=Left,
       Enemy(enemyTyp),
       Sprite.makeEnemy(enemyTyp, Left),
-      Object.makeEnemy(enemyTyp),
       x,
       y,
     );
+  obj->Object.makeEnemy(enemyTyp);
   obj->Object.setVelToSpeed;
   obj;
 };
@@ -83,10 +86,10 @@ let addBlock = (objects, blockTyp, xBlock, yBlock) => {
         ~dir=Left,
         Block(blockTyp),
         Sprite.makeParams(blockTyp),
-        Object.makeBlock(blockTyp),
         x,
         y,
       );
+    obj->Object.makeBlock(blockTyp);
     objects := [obj, ...objects^];
     objects->addCoins(x, y);
     objects->addEnemyOnBlock(x, y);
@@ -237,25 +240,29 @@ let rec generateBlocks = (objects, cbx: float, cby: float) =>
 // Generate the ending item panel at the end of the level. Games ends upon
 // collision with player.
 let generatePanel = (): Object.t => {
-  Object.make(
-    ~dir=Left,
-    Block(Panel),
-    Sprite.makeParams(Panel),
-    Object.makeBlock(Panel),
-    Config.blockw *. 16. -. 256.,
-    Config.blockh *. 16. *. 2. /. 3.,
-  );
+  let obj =
+    Object.make(
+      ~dir=Left,
+      Block(Panel),
+      Sprite.makeParams(Panel),
+      Config.blockw *. 16. -. 256.,
+      Config.blockh *. 16. *. 2. /. 3.,
+    );
+  obj->Object.makeBlock(Panel);
+  obj;
 };
 
 let convertBlockToObj = ((blockTyp, x, y)) => {
-  Object.make(
-    ~dir=Left,
-    Block(blockTyp),
-    Sprite.makeParams(blockTyp),
-    Object.makeBlock(blockTyp),
-    x,
-    y,
-  );
+  let obj =
+    Object.make(
+      ~dir=Left,
+      Block(blockTyp),
+      Sprite.makeParams(blockTyp),
+      x,
+      y,
+    );
+  obj->Object.makeBlock(blockTyp);
+  obj;
 };
 
 // Generate the list of brick locations needed to display the ground.
@@ -307,19 +314,19 @@ let generate = (): (Object.t, Object.t, list(Object.t)) => {
       ~dir=Left,
       Player(SmallM, One),
       Sprite.makePlayer(SmallM, Standing, Left),
-      Object.makePlayer(),
       100.,
       224.,
     );
+  player1->Object.makePlayer;
   let player2 =
     Object.make(
       ~dir=Left,
       Player(SmallM, Two),
       Sprite.makePlayer(SmallM, Standing, Left),
-      Object.makePlayer(),
       120.,
       224.,
     );
+  player2->Object.makePlayer;
   let elapsed = Html.performance.now(.) -. initial;
   Js.log3(
     "generated",

@@ -499,7 +499,8 @@ function runUpdateCollid(state, obj, allCollids) {
         _1: n
       },
       sprite: newSpr,
-      params: obj.params,
+      hasGravity: obj.hasGravity,
+      speed: obj.speed,
       id: obj.id,
       px: obj.px,
       py: obj.py,

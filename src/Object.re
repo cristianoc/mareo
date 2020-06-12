@@ -7,11 +7,6 @@ type aabb = {
   half: xy,
 };
 
-type params = {
-  hasGravity: bool,
-  speed: float,
-};
-
 let idCounter = ref(min_int);
 
 type playerNum =
@@ -27,7 +22,8 @@ type objTyp =
 type t = {
   objTyp,
   sprite: Sprite.t,
-  params,
+  mutable hasGravity: bool,
+  mutable speed: float,
   id: int,
   mutable px: float, // x position
   mutable py: float, // y position
@@ -43,13 +39,10 @@ type t = {
   mutable score: int,
 };
 
-// used to set gravity and speed, with default values true and 1
-let setup = (~g as hasGravity=true, ~speed=1., ()) => {hasGravity, speed};
-
 /* Sets an object's x velocity to the speed specified in its params based on
  * its direction */
 let setVelToSpeed = obj => {
-  let speed = obj.params.speed;
+  let speed = obj.speed;
   switch (obj.dir) {
   | Left => obj.vx = -. speed
   | Right => obj.vx = speed
@@ -59,30 +52,33 @@ let setVelToSpeed = obj => {
 /* The following make functions all set the objects' has_gravity and speed,
  * returning an [obj_params] that can be directly plugged into the [obj]
  * during creation. */
-let makePlayer = () => setup(~speed=Config.playerSpeed, ());
+let makePlayer = o => o.speed = Config.playerSpeed;
 
-let makeItem =
-  fun
-  | Mushroom => setup()
-  | Coin => setup(~g=false, ());
+let makeItem = (o, t) =>
+  switch (t) {
+  | Mushroom => ()
+  | Coin => o.hasGravity = false
+  };
 
-let makeEnemy =
-  fun
-  | Goomba => setup()
-  | GKoopa => setup()
-  | RKoopa => setup()
-  | GKoopaShell => setup(~speed=3., ())
-  | RKoopaShell => setup(~speed=3., ());
+let makeEnemy = (o, t) =>
+  switch (t) {
+  | Goomba => ()
+  | GKoopa => ()
+  | RKoopa => ()
+  | GKoopaShell => o.speed = 3.
+  | RKoopaShell => o.speed = 3.
+  };
 
-let makeBlock =
-  fun
-  | QBlock(_) => setup(~g=false, ())
-  | QBlockUsed => setup(~g=false, ())
-  | Brick => setup(~g=false, ())
-  | UnBBlock => setup(~g=false, ())
-  | Cloud => setup(~g=false, ())
-  | Panel => setup(~g=false, ())
-  | Ground => setup(~g=false, ());
+let makeBlock = (o, t) =>
+  switch (t) {
+  | QBlock(_)
+  | QBlockUsed
+  | Brick
+  | UnBBlock
+  | Cloud
+  | Panel
+  | Ground => o.hasGravity = false
+  };
 
 /*Used in object creation and to compare two objects.*/
 let newId = () => {
@@ -90,17 +86,17 @@ let newId = () => {
   idCounter^;
 };
 
-let make = (~dir, objTyp, spriteParams, params, px, py) => {
-  let id = newId();
+let make = (~hasGravity=true, ~speed=1.0, ~dir, objTyp, spriteParams, px, py) => {
   {
     objTyp,
     sprite: spriteParams->Sprite.makeFromParams,
-    params,
+    hasGravity,
+    speed,
     px,
     py,
     vx: 0.0,
     vy: 0.0,
-    id,
+    id: newId(),
     jumping: false,
     grounded: false,
     dir,
@@ -130,14 +126,14 @@ let updatePlayerKeys = (player: t, controls: controls): unit => {
   switch (controls) {
   | CLeft =>
     if (!player.crouch) {
-      if (player.vx > -. player.params.speed) {
+      if (player.vx > -. player.speed) {
         player.vx = player.vx -. (0.4 +. abs_float(lr_acc));
       };
       player.dir = Left;
     }
   | CRight =>
     if (!player.crouch) {
-      if (player.vx < player.params.speed) {
+      if (player.vx < player.speed) {
         player.vx = player.vx +. (0.4 +. abs_float(lr_acc));
       };
       player.dir = Right;
@@ -148,8 +144,7 @@ let updatePlayerKeys = (player: t, controls: controls): unit => {
       player.grounded = false;
       player.vy =
         max(
-          player.vy
-          -. (Config.playerJump +. abs_float(player.vx) *. 0.25),
+          player.vy -. (Config.playerJump +. abs_float(player.vx) *. 0.25),
           Config.playerMaxJump,
         );
     }
@@ -224,7 +219,7 @@ let updatePlayer = (player, keys) => {
 let updateVel = obj =>
   if (obj.grounded) {
     obj.vy = 0.;
-  } else if (obj.params.hasGravity) {
+  } else if (obj.hasGravity) {
     obj.vy =
       min(
         obj.vy +. Config.gravity +. abs_float(obj.vy) *. 0.01,
@@ -234,7 +229,7 @@ let updateVel = obj =>
 
 let updatePos = obj => {
   obj.px = obj.vx +. obj.px;
-  if (obj.params.hasGravity) {
+  if (obj.hasGravity) {
     obj.py = obj.vy +. obj.py;
   };
 };
@@ -281,25 +276,28 @@ let evolveEnemy = (player_dir, typ, spr: Sprite.t, obj) =>
   | GKoopa =>
     let newObj =
       make(
+        ~speed=3.,
         ~dir=obj.dir,
         Enemy(GKoopaShell),
         Sprite.makeEnemy(GKoopaShell, obj.dir),
-        makeEnemy(GKoopaShell),
         obj.px,
         obj.py,
       );
+    newObj->makeEnemy(GKoopaShell);
     normalizePos(newObj, spr.params, newObj.sprite.params);
     Some(newObj);
   | RKoopa =>
-    make(
-      ~dir=obj.dir,
-      Enemy(RKoopaShell),
-      Sprite.makeEnemy(RKoopaShell, obj.dir),
-      makeEnemy(RKoopaShell),
-      obj.px,
-      obj.py,
-    )
-    ->Some
+    let newObj =
+      make(
+        ~speed=3.,
+        ~dir=obj.dir,
+        Enemy(RKoopaShell),
+        Sprite.makeEnemy(RKoopaShell, obj.dir),
+        obj.px,
+        obj.py,
+      );
+    newObj->makeEnemy(RKoopaShell);
+    Some(newObj);
   | GKoopaShell
   | RKoopaShell =>
     obj.dir = player_dir;
@@ -335,29 +333,31 @@ let decHealth = obj => {
 // Used for deleting a block and replacing it with a used block
 let evolveBlock = obj => {
   decHealth(obj);
-
-  make(
-    ~dir=obj.dir,
-    Block(QBlockUsed),
-    Sprite.makeParams(QBlockUsed),
-    makeBlock(QBlockUsed),
-    obj.px,
-    obj.py,
-  );
+  let newObj =
+    make(
+      ~hasGravity=false,
+      ~dir=obj.dir,
+      Block(QBlockUsed),
+      Sprite.makeParams(QBlockUsed),
+      obj.px,
+      obj.py,
+    );
+  newObj->makeBlock(QBlockUsed);
+  newObj;
 };
 
 // Used for spawning items above question mark blocks
 let spawnAbove = (player_dir, obj, itemTyp) => {
-  let item = {
+  let item =
     make(
+      ~hasGravity=itemTyp != Coin,
       ~dir=Left,
       Item(itemTyp),
       Sprite.makeItem(itemTyp),
-      makeItem(itemTyp),
       obj.px,
       obj.py,
     );
-  };
+  item->makeItem(itemTyp);
   item.py = item.py -. snd(item.sprite.params.frameSize);
   item.dir = oppositeDir(player_dir);
   setVelToSpeed(item);
