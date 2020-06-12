@@ -12,7 +12,7 @@ function memPos(_objs, x, y) {
     if (!objs) {
       return false;
     }
-    var match = objs._0.obj.pos;
+    var match = objs._0.pos;
     var px = match.x;
     var py = match.y;
     if (x === px && y === py) {
@@ -32,15 +32,10 @@ function trimEdge(x, y) {
 }
 
 function convertCoinToObj(param) {
-  var match = $$Object.make(/* Left */0, Sprite.makeItem(/* Coin */1), $$Object.makeItem(/* Coin */1), param[1], param[2]);
-  return {
-          objTyp: {
-            TAG: /* Item */2,
-            _0: /* Coin */1
-          },
-          sprite: match[0],
-          obj: match[1]
-        };
+  return $$Object.make(/* Left */0, {
+              TAG: /* Item */2,
+              _0: /* Coin */1
+            }, Sprite.makeItem(/* Coin */1), $$Object.makeItem(/* Coin */1), param[1], param[2]);
 }
 
 function addCoins(objects, x, y0) {
@@ -63,17 +58,12 @@ function addCoins(objects, x, y0) {
 
 function convertEnemyToObj(param) {
   var enemyTyp = param[0];
-  var match = $$Object.make(/* Left */0, Sprite.makeEnemy(enemyTyp, /* Left */0), $$Object.makeEnemy(enemyTyp), param[1], param[2]);
-  var obj = match[1];
+  var obj = $$Object.make(/* Left */0, {
+        TAG: /* Enemy */1,
+        _0: enemyTyp
+      }, Sprite.makeEnemy(enemyTyp, /* Left */0), $$Object.makeEnemy(enemyTyp), param[1], param[2]);
   $$Object.setVelToSpeed(obj);
-  return {
-          objTyp: {
-            TAG: /* Enemy */1,
-            _0: enemyTyp
-          },
-          sprite: match[0],
-          obj: obj
-        };
+  return obj;
 }
 
 function randomEnemyTyp(param) {
@@ -111,16 +101,12 @@ function addBlock(objects, blockTyp, xBlock, yBlock) {
   if (!(!memPos(objects.contents, x, y) && trimEdge(x, y))) {
     return ;
   }
-  var match = $$Object.make(/* Left */0, Sprite.makeParams(blockTyp), $$Object.makeBlock(blockTyp), x, y);
-  objects.contents = /* :: */{
-    _0: {
-      objTyp: {
+  var obj = $$Object.make(/* Left */0, {
         TAG: /* Block */3,
         _0: blockTyp
-      },
-      sprite: match[0],
-      obj: match[1]
-    },
+      }, Sprite.makeParams(blockTyp), $$Object.makeBlock(blockTyp), x, y);
+  objects.contents = /* :: */{
+    _0: obj,
     _1: objects.contents
   };
   addCoins(objects, x, y);
@@ -288,28 +274,18 @@ function generateBlocks(objects, _cbx, _cby) {
 }
 
 function generatePanel(param) {
-  var match = $$Object.make(/* Left */0, Sprite.makeParams(/* Panel */4), $$Object.makeBlock(/* Panel */4), Config.blockw * 16 - 256, Config.blockh * 16 * 2 / 3);
-  return {
-          objTyp: {
-            TAG: /* Block */3,
-            _0: /* Panel */4
-          },
-          sprite: match[0],
-          obj: match[1]
-        };
+  return $$Object.make(/* Left */0, {
+              TAG: /* Block */3,
+              _0: /* Panel */4
+            }, Sprite.makeParams(/* Panel */4), $$Object.makeBlock(/* Panel */4), Config.blockw * 16 - 256, Config.blockh * 16 * 2 / 3);
 }
 
 function convertBlockToObj(param) {
   var blockTyp = param[0];
-  var match = $$Object.make(/* Left */0, Sprite.makeParams(blockTyp), $$Object.makeBlock(blockTyp), param[1], param[2]);
-  return {
-          objTyp: {
-            TAG: /* Block */3,
-            _0: blockTyp
-          },
-          sprite: match[0],
-          obj: match[1]
-        };
+  return $$Object.make(/* Left */0, {
+              TAG: /* Block */3,
+              _0: blockTyp
+            }, Sprite.makeParams(blockTyp), $$Object.makeBlock(blockTyp), param[1], param[2]);
 }
 
 function generateGround(objects, _inc) {
@@ -365,32 +341,16 @@ function generateHelper(param) {
 function generate(param) {
   var initial = performance.now();
   var collideList = generateHelper(undefined);
-  var match = $$Object.make(/* Left */0, Sprite.makePlayer(/* SmallM */1, /* Standing */0, /* Left */0), $$Object.makePlayer(undefined), 100, 224);
-  var match$1 = $$Object.make(/* Left */0, Sprite.makePlayer(/* SmallM */1, /* Standing */0, /* Left */0), $$Object.makePlayer(undefined), 120, 224);
-  var player1_objTyp = {
-    TAG: /* Player */0,
-    _0: /* SmallM */1,
-    _1: /* One */0
-  };
-  var player1_sprite = match[0];
-  var player1_obj = match[1];
-  var player1 = {
-    objTyp: player1_objTyp,
-    sprite: player1_sprite,
-    obj: player1_obj
-  };
-  var player2_objTyp = {
-    TAG: /* Player */0,
-    _0: /* SmallM */1,
-    _1: /* Two */1
-  };
-  var player2_sprite = match$1[0];
-  var player2_obj = match$1[1];
-  var player2 = {
-    objTyp: player2_objTyp,
-    sprite: player2_sprite,
-    obj: player2_obj
-  };
+  var player1 = $$Object.make(/* Left */0, {
+        TAG: /* Player */0,
+        _0: /* SmallM */1,
+        _1: /* One */0
+      }, Sprite.makePlayer(/* SmallM */1, /* Standing */0, /* Left */0), $$Object.makePlayer(undefined), 100, 224);
+  var player2 = $$Object.make(/* Left */0, {
+        TAG: /* Player */0,
+        _0: /* SmallM */1,
+        _1: /* Two */1
+      }, Sprite.makePlayer(/* SmallM */1, /* Standing */0, /* Left */0), $$Object.makePlayer(undefined), 120, 224);
   var elapsed = performance.now() - initial;
   console.log("generated", Belt_List.length(collideList), "objects in " + (elapsed.toString() + " milliseconds"));
   return [

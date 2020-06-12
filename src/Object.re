@@ -14,7 +14,19 @@ type params = {
 
 let idCounter = ref(min_int);
 
+type playerNum =
+  | One
+  | Two;
+
+type objTyp =
+  | Player(plTyp, playerNum)
+  | Enemy(enemyTyp)
+  | Item(itemTyp)
+  | Block(blockTyp);
+
 type t = {
+  objTyp,
+  sprite: Sprite.t,
   params,
   pos: xy,
   vel: xy,
@@ -27,22 +39,6 @@ type t = {
   mutable health: int,
   mutable crouch: bool,
   mutable score: int,
-};
-
-type playerNum =
-  | One
-  | Two;
-
-type objTyp =
-  | Player(plTyp, playerNum)
-  | Enemy(enemyTyp)
-  | Item(itemTyp)
-  | Block(blockTyp);
-
-type collidable = {
-  objTyp,
-  sprite: Sprite.t,
-  obj: t,
 };
 
 // used to set gravity and speed, with default values true and 1
@@ -92,9 +88,11 @@ let newId = () => {
   idCounter^;
 };
 
-let make = (~dir, spr, params, x, y) => {
+let make = (~dir, objTyp, spriteParams, params, x, y) => {
   let id = newId();
-  let obj = {
+  {
+    objTyp,
+    sprite: spriteParams->Sprite.makeFromParams,
     params,
     pos: {
       x,
@@ -114,13 +112,10 @@ let make = (~dir, spr, params, x, y) => {
     crouch: false,
     score: 0,
   };
-  (spr->Sprite.makeFromParams, obj);
 };
 
 /*Helper methods for getting sprites and objects from their collidables*/
 let getSprite = ({sprite}) => sprite;
-
-let getObj = ({obj}) => obj;
 
 let isPlayer =
   fun
@@ -132,7 +127,7 @@ let isEnemy =
   | {objTyp: Enemy(_)} => true
   | _ => false;
 
-let equals = (col1, col2) => col1.obj.id == col2.obj.id;
+let equals = (col1, col2) => col1.id == col2.id;
 
 // Matches the controls being used and updates each of the player's params
 let updatePlayerKeys = (player: t, controls: controls): unit => {
@@ -289,26 +284,27 @@ let reverseLeftRight = obj => {
 let evolveEnemy = (player_dir, typ, spr: Sprite.t, obj) =>
   switch (typ) {
   | GKoopa =>
-    let (new_spr, new_obj) =
+    let newObj =
       make(
         ~dir=obj.dir,
+        Enemy(GKoopaShell),
         Sprite.makeEnemy(GKoopaShell, obj.dir),
         makeEnemy(GKoopaShell),
         obj.pos.x,
         obj.pos.y,
       );
-    normalizePos(new_obj.pos, spr.params, new_spr.params);
-    Some({objTyp: Enemy(GKoopaShell), sprite: new_spr, obj: new_obj});
+    normalizePos(newObj.pos, spr.params, newObj.sprite.params);
+    Some(newObj);
   | RKoopa =>
-    let (new_spr, new_obj) =
-      make(
-        ~dir=obj.dir,
-        Sprite.makeEnemy(RKoopaShell, obj.dir),
-        makeEnemy(RKoopaShell),
-        obj.pos.x,
-        obj.pos.y,
-      );
-    Some({objTyp: Enemy(RKoopaShell), sprite: new_spr, obj: new_obj});
+    make(
+      ~dir=obj.dir,
+      Enemy(RKoopaShell),
+      Sprite.makeEnemy(RKoopaShell, obj.dir),
+      makeEnemy(RKoopaShell),
+      obj.pos.x,
+      obj.pos.y,
+    )
+    ->Some
   | GKoopaShell
   | RKoopaShell =>
     obj.dir = player_dir;
@@ -344,40 +340,38 @@ let decHealth = obj => {
 // Used for deleting a block and replacing it with a used block
 let evolveBlock = obj => {
   decHealth(obj);
-  let (new_spr, new_obj) =
-    make(
-      ~dir=obj.dir,
-      Sprite.makeParams(QBlockUsed),
-      makeBlock(QBlockUsed),
-      obj.pos.x,
-      obj.pos.y,
-    );
-  {objTyp: Block(QBlockUsed), sprite: new_spr, obj: new_obj};
+
+  make(
+    ~dir=obj.dir,
+    Block(QBlockUsed),
+    Sprite.makeParams(QBlockUsed),
+    makeBlock(QBlockUsed),
+    obj.pos.x,
+    obj.pos.y,
+  );
 };
 
 // Used for spawning items above question mark blocks
 let spawnAbove = (player_dir, obj, itemTyp) => {
   let item = {
-    let (spr, obj) =
-      make(
-        ~dir=Left,
-        Sprite.makeItem(itemTyp),
-        makeItem(itemTyp),
-        obj.pos.x,
-        obj.pos.y,
-      );
-    {objTyp: Item(itemTyp), sprite: spr, obj};
+    make(
+      ~dir=Left,
+      Item(itemTyp),
+      Sprite.makeItem(itemTyp),
+      makeItem(itemTyp),
+      obj.pos.x,
+      obj.pos.y,
+    );
   };
-  item.obj.pos.y = item.obj.pos.y -. snd(getSprite(item).params.frameSize);
-  item.obj.dir = oppositeDir(player_dir);
-  setVelToSpeed(item.obj);
+  item.pos.y = item.pos.y -. snd(getSprite(item).params.frameSize);
+  item.dir = oppositeDir(player_dir);
+  setVelToSpeed(item);
   item;
 };
 
 // Used to get the bounding box
 let getAabb = obj => {
   let spr = getSprite(obj).params;
-  let obj = obj.obj;
   let (offx, offy) = spr.bboxOffset;
   let (box, boy) = (obj.pos.x +. offx, obj.pos.y +. offy);
   let (sx, sy) = spr.bboxSize;
@@ -394,15 +388,15 @@ let getAabb = obj => {
 };
 
 let colBypass = (c1, c2) => {
-  c1.obj.kill
-  || c2.obj.kill
+  c1.kill
+  || c2.kill
   || (
     switch (c1.objTyp, c2.objTyp) {
     | (Item(_), Enemy(_))
     | (Enemy(_), Item(_))
     | (Item(_), Item(_)) => true
     | (Player(_), Enemy(_)) =>
-      if (c1.obj.invuln > 0) {
+      if (c1.invuln > 0) {
         true;
       } else {
         false;
@@ -415,11 +409,10 @@ let colBypass = (c1, c2) => {
 // Used for checking if collisions occur. Compares half-widths and half-heights
 // and adjusts for when collisions do occur, by changing position so that
 // a second collision does not occur again immediately. This causes snapping
-let checkCollision = (c1, c2) => {
-  let b1 = getAabb(c1)
-  and b2 = getAabb(c2);
-  let o1 = c1.obj;
-  if (colBypass(c1, c2)) {
+let checkCollision = (o1, o2) => {
+  let b1 = getAabb(o1)
+  and b2 = getAabb(o2);
+  if (colBypass(o1, o2)) {
     None;
   } else {
     let vx = b1.center.x -. b2.center.x;
@@ -452,13 +445,13 @@ let checkCollision = (c1, c2) => {
 };
 
 // "Kills" the matched object by setting certain parameters for each
-let kill = collid =>
-  switch (collid) {
-  | {objTyp: Enemy(t), obj: o} =>
-    let pos = (o.pos.x, o.pos.y);
+let kill = obj =>
+  switch (obj.objTyp) {
+  | Enemy(t) =>
+    let pos = (obj.pos.x, obj.pos.y);
     let score =
-      if (o.score > 0) {
-        [Particle.makeScore(o.score, pos)];
+      if (obj.score > 0) {
+        [Particle.makeScore(obj.score, pos)];
       } else {
         [];
       };
@@ -468,10 +461,10 @@ let kill = collid =>
       | _ => []
       };
     score @ remains;
-  | {objTyp: Block(t), obj: o} =>
+  | Block(t) =>
     switch (t) {
     | Brick =>
-      let pos = (o.pos.x, o.pos.y);
+      let pos = (obj.pos.x, obj.pos.y);
       let p1 =
         Particle.make(
           ~vel=((-5.), (-5.)),
@@ -493,9 +486,9 @@ let kill = collid =>
       [p1, p2, p3, p4];
     | _ => []
     }
-  | {objTyp: Item(t), obj: o} =>
+  | Item(t) =>
     switch (t) {
-    | Mushroom => [Particle.makeScore(o.score, (o.pos.x, o.pos.y))]
+    | Mushroom => [Particle.makeScore(obj.score, (obj.pos.x, obj.pos.y))]
     | _ => []
     }
   | _ => []

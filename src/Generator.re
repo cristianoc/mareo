@@ -10,7 +10,7 @@ type enemyCoord = (Actors.enemyTyp, float, float);
 let rec memPos = (objs: list(_), x, y): bool =>
   switch (objs) {
   | [] => false
-  | [{Object.obj: {pos: {x: px, y: py}}}, ...t] =>
+  | [{Object.pos: {x: px, y: py}}, ...t] =>
     if (x == px && y == py) {
       true;
     } else {
@@ -28,15 +28,14 @@ let trimEdge = (x, y) => {
 };
 
 let convertCoinToObj = ((_, x, y)) => {
-  let (sprite, obj) =
-    Object.make(
-      ~dir=Left,
-      Sprite.makeItem(Coin),
-      Object.makeItem(Coin),
-      x,
-      y,
-    );
-  {Object.objTyp: Item(Coin), sprite, obj};
+  Object.make(
+    ~dir=Left,
+    Item(Coin),
+    Sprite.makeItem(Coin),
+    Object.makeItem(Coin),
+    x,
+    y,
+  );
 };
 
 let addCoins = (objects, x, y0) => {
@@ -47,16 +46,17 @@ let addCoins = (objects, x, y0) => {
 };
 
 let convertEnemyToObj = ((enemyTyp, x, y)) => {
-  let (sprite, obj) =
+  let obj =
     Object.make(
       ~dir=Left,
+      Enemy(enemyTyp),
       Sprite.makeEnemy(enemyTyp, Left),
       Object.makeEnemy(enemyTyp),
       x,
       y,
     );
-  Object.setVelToSpeed(obj);
-  {Object.objTyp: Enemy(enemyTyp), sprite, obj};
+  obj->Object.setVelToSpeed;
+  obj;
 };
 
 let randomEnemyTyp = () =>
@@ -78,15 +78,16 @@ let addBlock = (objects, blockTyp, xBlock, yBlock) => {
   let x = xBlock *. 16.;
   let y = yBlock *. 16.;
   if (!(objects^)->memPos(x, y) && trimEdge(x, y)) {
-    let (sprite, obj) =
+    let obj =
       Object.make(
         ~dir=Left,
+        Block(blockTyp),
         Sprite.makeParams(blockTyp),
         Object.makeBlock(blockTyp),
         x,
         y,
       );
-    objects := [{Object.objTyp: Block(blockTyp), sprite, obj}, ...objects^];
+    objects := [obj, ...objects^];
     objects->addCoins(x, y);
     objects->addEnemyOnBlock(x, y);
   };
@@ -149,7 +150,7 @@ let randomStairTyp = () => Random.bool() ? UnBBlock : Brick;
 // 3. Else call helper methods to created block formations and return objCoord
 //    slist.
 let chooseBlockPattern =
-    (cbx: float, cby: float, blocks: ref(list(Object.collidable))) =>
+    (cbx: float, cby: float, blocks: ref(list(Object.t))) =>
   if (cbx > Config.blockw || cby > Config.blockh) {
     ();
   } else {
@@ -235,28 +236,26 @@ let rec generateBlocks = (objects, cbx: float, cby: float) =>
 
 // Generate the ending item panel at the end of the level. Games ends upon
 // collision with player.
-let generatePanel = (): Object.collidable => {
-  let (sprite, obj) =
-    Object.make(
-      ~dir=Left,
-      Sprite.makeParams(Panel),
-      Object.makeBlock(Panel),
-      Config.blockw *. 16. -. 256.,
-      Config.blockh *. 16. *. 2. /. 3.,
-    );
-  {objTyp: Block(Panel), sprite, obj};
+let generatePanel = (): Object.t => {
+  Object.make(
+    ~dir=Left,
+    Block(Panel),
+    Sprite.makeParams(Panel),
+    Object.makeBlock(Panel),
+    Config.blockw *. 16. -. 256.,
+    Config.blockh *. 16. *. 2. /. 3.,
+  );
 };
 
 let convertBlockToObj = ((blockTyp, x, y)) => {
-  let (sprite, obj) =
-    Object.make(
-      ~dir=Left,
-      Sprite.makeParams(blockTyp),
-      Object.makeBlock(blockTyp),
-      x,
-      y,
-    );
-  {Object.objTyp: Block(blockTyp), sprite, obj};
+  Object.make(
+    ~dir=Left,
+    Block(blockTyp),
+    Sprite.makeParams(blockTyp),
+    Object.makeBlock(blockTyp),
+    x,
+    y,
+  );
 };
 
 // Generate the list of brick locations needed to display the ground.
@@ -288,7 +287,7 @@ let rec generateGround = (objects, inc: float) =>
 // Procedurally generate a list of collidables given canvas width, height and
 // context. Arguments block width (blockw) and block height (blockh) are in
 // block form, not pixels.
-let generateHelper = (): list(Object.collidable) => {
+let generateHelper = (): list(Object.t) => {
   let objects = ref([]);
   objects->generateBlocks(0., 0.);
   objects->generateGround(0.);
@@ -300,28 +299,27 @@ let generateHelper = (): list(Object.collidable) => {
 // Main function called to procedurally generate the level map. w and h args
 // are in pixel form. Converts to block form to call generateHelper. Spawns
 // the list of collidables received from generateHelper to display on canvas.
-let generate =
-    (): (Object.collidable, Object.collidable, list(Object.collidable)) => {
+let generate = (): (Object.t, Object.t, list(Object.t)) => {
   let initial = Html.performance.now(.);
   let collideList = generateHelper();
-  let (sprite1, obj1) =
+  let player1 =
     Object.make(
       ~dir=Left,
+      Player(SmallM, One),
       Sprite.makePlayer(SmallM, Standing, Left),
       Object.makePlayer(),
       100.,
       224.,
     );
-  let (sprite2, obj2) =
+  let player2 =
     Object.make(
       ~dir=Left,
+      Player(SmallM, Two),
       Sprite.makePlayer(SmallM, Standing, Left),
       Object.makePlayer(),
       120.,
       224.,
     );
-  let player1 = {Object.objTyp: Player(SmallM, One), sprite:sprite1, obj:obj1};
-  let player2 = {Object.objTyp: Player(SmallM, Two), sprite:sprite2, obj:obj2};
   let elapsed = Html.performance.now(.) -. initial;
   Js.log3(
     "generated",
