@@ -347,7 +347,7 @@ let updateCollidable = (state, obj: Object.t, allCollids) => {
 // as a wrapper method. This method is necessary to differentiate between
 // the player collidable and the remaining collidables, as special operations
 // such as viewport centering only occur with the player
-let updateObject = (state, obj: Object.t, allCollids) =>
+let updateObject = (obj: Object.t, state, allCollids) =>
   switch (obj.objTyp) {
   | Player(_, n) =>
     let keys = Keys.translateKeys(n);
@@ -424,8 +424,8 @@ let rec updateLoop = (player1: Object.t, player2, objs) => {
         state.bgd,
         [@doesNotRaise] float_of_int(vposXInt mod bgdWidth),
       );
-      updateObject(state, player1, [player2, ...objs]);
-      updateObject(state, player2, [player1, ...objs]);
+      player1->updateObject(state, [player2, ...objs]);
+      player1->updateObject(state, [player1, ...objs]);
       if (player1.kill == true) {
         switch (state.status) {
         | Lost(_) => ()
@@ -436,7 +436,7 @@ let rec updateLoop = (player1: Object.t, player2, objs) => {
         ...state,
         vpt: Viewport.update(state.vpt, player1.px, player1.py),
       };
-      objs->List.forEach(obj => updateObject(state, obj, objs));
+      objs->List.forEach(obj => obj->updateObject(state, objs));
       parts->List.forEach(part => updateParticle(state, part));
       Draw.fps(fps);
       Draw.hud(state.score, state.coins);
