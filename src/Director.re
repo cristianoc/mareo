@@ -60,12 +60,12 @@ let playerAttackEnemy = (o1, typ, s2, o2, state) => {
   | GKoopaShell
   | RKoopaShell =>
     let r2 = Object.evolveEnemy(o1.dir, typ, s2, o2);
-    o1.vel.y = -. Config.dampenJump;
+    o1.vy = -. Config.dampenJump;
     o1.py = o1.py -. 5.;
     (None, r2);
   | _ =>
     Object.decHealth(o2);
-    o1.vel.y = -. Config.dampenJump;
+    o1.vy = -. Config.dampenJump;
     if (state.multiplier == 8) {
       updateScore(state, 800);
       o2.score = 800;
@@ -86,7 +86,7 @@ let enemyAttackPlayer = (o1: Object.t, t2, s2, o2: Object.t) => {
   | GKoopaShell
   | RKoopaShell =>
     let r2 =
-      if (o2.vel.x == 0.) {
+      if (o2.vx == 0.) {
         Object.evolveEnemy(o1.dir, t2, s2, o2);
       } else {
         Object.decHealth(o1);
@@ -115,7 +115,7 @@ let collEnemyEnemy = (t1, s1, o1, t2, s2, o2, dir) =>
     (None, None);
   | (RKoopaShell, _)
   | (GKoopaShell, _) =>
-    if (o1.vel.x == 0.) {
+    if (o1.vx == 0.) {
       Object.revDir(o2, t2, s2);
       (None, None);
     } else {
@@ -124,7 +124,7 @@ let collEnemyEnemy = (t1, s1, o1, t2, s2, o2, dir) =>
     }
   | (_, RKoopaShell)
   | (_, GKoopaShell) =>
-    if (o2.vel.x == 0.) {
+    if (o2.vx == 0.) {
       Object.revDir(o1, t1, s1);
       (None, None);
     } else {
@@ -167,8 +167,8 @@ let processCollision =
       } else {
         c1.health = c1.health + 1;
       };
-      c1.vel.x = 0.;
-      c1.vel.y = 0.;
+      c1.vx = 0.;
+      c1.vy = 0.;
       updateScore(state, 1000);
       c2.score = 1000;
       (None, None);
@@ -334,7 +334,7 @@ let updateCollidable = (state, obj: Object.t, allCollids) => {
     if (Keys.checkBboxEnabled()) {
       Draw.renderBbox(spr, vptAdjXy.x, vptAdjXy.y);
     };
-    if (obj.vel.x != 0. || !Object.isEnemy(obj)) {
+    if (obj.vx != 0. || !Object.isEnemy(obj)) {
       Sprite.updateAnimation(spr);
     };
     evolved;

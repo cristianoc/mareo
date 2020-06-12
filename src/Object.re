@@ -28,10 +28,11 @@ type t = {
   objTyp,
   sprite: Sprite.t,
   params,
-  vel: xy,
   id: int,
-  mutable px: float,
-  mutable py: float,
+  mutable px: float, // x position
+  mutable py: float, // y position
+  mutable vx: float, // x velocity
+  mutable vy: float, // y velocity
   mutable jumping: bool,
   mutable grounded: bool,
   mutable dir: Actors.dir1d,
@@ -50,8 +51,8 @@ let setup = (~g as hasGravity=true, ~speed=1., ()) => {hasGravity, speed};
 let setVelToSpeed = obj => {
   let speed = obj.params.speed;
   switch (obj.dir) {
-  | Left => obj.vel.x = -. speed
-  | Right => obj.vel.x = speed
+  | Left => obj.vx = -. speed
+  | Right => obj.vx = speed
   };
 };
 
@@ -97,10 +98,8 @@ let make = (~dir, objTyp, spriteParams, params, px, py) => {
     params,
     px,
     py,
-    vel: {
-      x: 0.0,
-      y: 0.0,
-    },
+    vx: 0.0,
+    vy: 0.0,
     id,
     jumping: false,
     grounded: false,
@@ -127,19 +126,19 @@ let equals = (col1, col2) => col1.id == col2.id;
 
 // Matches the controls being used and updates each of the player's params
 let updatePlayerKeys = (player: t, controls: controls): unit => {
-  let lr_acc = player.vel.x *. 0.2;
+  let lr_acc = player.vx *. 0.2;
   switch (controls) {
   | CLeft =>
     if (!player.crouch) {
-      if (player.vel.x > -. player.params.speed) {
-        player.vel.x = player.vel.x -. (0.4 +. abs_float(lr_acc));
+      if (player.vx > -. player.params.speed) {
+        player.vx = player.vx -. (0.4 +. abs_float(lr_acc));
       };
       player.dir = Left;
     }
   | CRight =>
     if (!player.crouch) {
-      if (player.vel.x < player.params.speed) {
-        player.vel.x = player.vel.x +. (0.4 +. abs_float(lr_acc));
+      if (player.vx < player.params.speed) {
+        player.vx = player.vx +. (0.4 +. abs_float(lr_acc));
       };
       player.dir = Right;
     }
@@ -147,10 +146,10 @@ let updatePlayerKeys = (player: t, controls: controls): unit => {
     if (!player.jumping && player.grounded) {
       player.jumping = true;
       player.grounded = false;
-      player.vel.y =
+      player.vy =
         max(
-          player.vel.y
-          -. (Config.playerJump +. abs_float(player.vel.x) *. 0.25),
+          player.vy
+          -. (Config.playerJump +. abs_float(player.vx) *. 0.25),
           Config.playerMaxJump,
         );
     }
@@ -178,16 +177,16 @@ let normalizePos = (o, p1: Sprite.params, p2: Sprite.params) => {
 let updatePlayer = (player, keys) => {
   let prev_jumping = player.jumping;
   let prev_dir = player.dir
-  and prev_vx = abs_float(player.vel.x);
+  and prev_vx = abs_float(player.vx);
   List.forEach(keys, updatePlayerKeys(player));
-  let v = player.vel.x *. Config.friction;
+  let v = player.vx *. Config.friction;
   let vel_damped =
     if (abs_float(v) < 0.1) {
       0.;
     } else {
       v;
     };
-  player.vel.x = vel_damped;
+  player.vx = vel_damped;
   let plSize =
     if (player.health <= 1) {
       SmallM;
@@ -199,14 +198,14 @@ let updatePlayer = (player, keys) => {
     if (!prev_jumping && player.jumping) {
       Some(Jumping);
     } else if (prev_dir != player.dir
-               || (prev_vx == 0. && abs_float(player.vel.x) > 0.)
+               || (prev_vx == 0. && abs_float(player.vx) > 0.)
                && !player.jumping) {
       Some(Running);
     } else if (prev_dir != player.dir && player.jumping && prev_jumping) {
       Some(Jumping);
-    } else if (player.vel.y == 0. && player.crouch) {
+    } else if (player.vy == 0. && player.crouch) {
       Some(Crouching);
-    } else if (player.vel.y == 0. && player.vel.x == 0.) {
+    } else if (player.vy == 0. && player.vx == 0.) {
       Some(Standing);
     } else {
       None;
@@ -224,19 +223,19 @@ let updatePlayer = (player, keys) => {
 // The following two helper methods update velocity and position of the player
 let updateVel = obj =>
   if (obj.grounded) {
-    obj.vel.y = 0.;
+    obj.vy = 0.;
   } else if (obj.params.hasGravity) {
-    obj.vel.y =
+    obj.vy =
       min(
-        obj.vel.y +. Config.gravity +. abs_float(obj.vel.y) *. 0.01,
+        obj.vy +. Config.gravity +. abs_float(obj.vy) *. 0.01,
         Config.maxYVel,
       );
   };
 
 let updatePos = obj => {
-  obj.px = obj.vel.x +. obj.px;
+  obj.px = obj.vx +. obj.px;
   if (obj.params.hasGravity) {
-    obj.py = obj.vel.y +. obj.py;
+    obj.py = obj.vy +. obj.py;
   };
 };
 
@@ -252,13 +251,13 @@ let processObj = (obj, mapy) => {
 // Check upon collision of block and updates the values of the object
 let collideBlock = (dir, obj) =>
   switch (dir) {
-  | North => obj.vel.y = (-0.001)
+  | North => obj.vy = (-0.001)
   | South =>
-    obj.vel.y = 0.;
+    obj.vy = 0.;
     obj.grounded = true;
     obj.jumping = false;
   | East
-  | West => obj.vel.x = 0.
+  | West => obj.vx = 0.
   };
 
 // Simple helper method that reverses the direction in question
@@ -270,7 +269,7 @@ let oppositeDir = dir =>
 
 // Used for enemy-enemy collisions
 let reverseLeftRight = obj => {
-  obj.vel.x = -. obj.vel.x;
+  obj.vx = -. obj.vx;
   obj.dir = oppositeDir(obj.dir);
 };
 
@@ -304,8 +303,8 @@ let evolveEnemy = (player_dir, typ, spr: Sprite.t, obj) =>
   | GKoopaShell
   | RKoopaShell =>
     obj.dir = player_dir;
-    if (obj.vel.x != 0.) {
-      obj.vel.x = 0.;
+    if (obj.vx != 0.) {
+      obj.vx = 0.;
     } else {
       setVelToSpeed(obj);
     };

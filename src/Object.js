@@ -24,9 +24,9 @@ function setVelToSpeed(obj) {
   var speed = obj.params.speed;
   var match = obj.dir;
   if (match) {
-    obj.vel.x = speed;
+    obj.vx = speed;
   } else {
-    obj.vel.x = -speed;
+    obj.vx = -speed;
   }
   
 }
@@ -66,13 +66,11 @@ function make(dir, objTyp, spriteParams, params, px, py) {
           objTyp: objTyp,
           sprite: Sprite.makeFromParams(spriteParams),
           params: params,
-          vel: {
-            x: 0.0,
-            y: 0.0
-          },
           id: id,
           px: px,
           py: py,
+          vx: 0.0,
+          vy: 0.0,
           jumping: false,
           grounded: false,
           dir: dir,
@@ -105,12 +103,12 @@ function equals(col1, col2) {
 }
 
 function updatePlayerKeys(player, controls) {
-  var lr_acc = player.vel.x * 0.2;
+  var lr_acc = player.vx * 0.2;
   switch (controls) {
     case /* CLeft */0 :
         if (!player.crouch) {
-          if (player.vel.x > -player.params.speed) {
-            player.vel.x = player.vel.x - (0.4 + Math.abs(lr_acc));
+          if (player.vx > -player.params.speed) {
+            player.vx = player.vx - (0.4 + Math.abs(lr_acc));
           }
           player.dir = /* Left */0;
           return ;
@@ -119,8 +117,8 @@ function updatePlayerKeys(player, controls) {
         }
     case /* CRight */1 :
         if (!player.crouch) {
-          if (player.vel.x < player.params.speed) {
-            player.vel.x = player.vel.x + (0.4 + Math.abs(lr_acc));
+          if (player.vx < player.params.speed) {
+            player.vx = player.vx + (0.4 + Math.abs(lr_acc));
           }
           player.dir = /* Right */1;
           return ;
@@ -131,7 +129,7 @@ function updatePlayerKeys(player, controls) {
         if (!player.jumping && player.grounded) {
           player.jumping = true;
           player.grounded = false;
-          player.vel.y = Caml_primitive.caml_float_max(player.vel.y - (Config.playerJump + Math.abs(player.vel.x) * 0.25), Config.playerMaxJump);
+          player.vy = Caml_primitive.caml_float_max(player.vy - (Config.playerJump + Math.abs(player.vx) * 0.25), Config.playerMaxJump);
           return ;
         } else {
           return ;
@@ -160,19 +158,19 @@ function normalizePos(o, p1, p2) {
 function updatePlayer(player, keys) {
   var prev_jumping = player.jumping;
   var prev_dir = player.dir;
-  var prev_vx = Math.abs(player.vel.x);
+  var prev_vx = Math.abs(player.vx);
   Belt_List.forEach(keys, (function (param) {
           return updatePlayerKeys(player, param);
         }));
-  var v = player.vel.x * Config.friction;
+  var v = player.vx * Config.friction;
   var vel_damped = Math.abs(v) < 0.1 ? 0 : v;
-  player.vel.x = vel_damped;
+  player.vx = vel_damped;
   var plSize = player.health <= 1 ? /* SmallM */1 : /* BigM */0;
   var playerTyp = !prev_jumping && player.jumping ? /* Jumping */1 : (
-      prev_dir !== player.dir || prev_vx === 0 && Math.abs(player.vel.x) > 0 && !player.jumping ? /* Running */2 : (
+      prev_dir !== player.dir || prev_vx === 0 && Math.abs(player.vx) > 0 && !player.jumping ? /* Running */2 : (
           prev_dir !== player.dir && player.jumping && prev_jumping ? /* Jumping */1 : (
-              player.vel.y === 0 && player.crouch ? /* Crouching */3 : (
-                  player.vel.y === 0 && player.vel.x === 0 ? /* Standing */0 : undefined
+              player.vy === 0 && player.crouch ? /* Crouching */3 : (
+                  player.vy === 0 && player.vx === 0 ? /* Standing */0 : undefined
                 )
             )
         )
@@ -188,10 +186,10 @@ function updatePlayer(player, keys) {
 
 function updateVel(obj) {
   if (obj.grounded) {
-    obj.vel.y = 0;
+    obj.vy = 0;
     return ;
   } else if (obj.params.hasGravity) {
-    obj.vel.y = Caml_primitive.caml_float_min(obj.vel.y + Config.gravity + Math.abs(obj.vel.y) * 0.01, Config.maxYVel);
+    obj.vy = Caml_primitive.caml_float_min(obj.vy + Config.gravity + Math.abs(obj.vy) * 0.01, Config.maxYVel);
     return ;
   } else {
     return ;
@@ -199,9 +197,9 @@ function updateVel(obj) {
 }
 
 function updatePos(obj) {
-  obj.px = obj.vel.x + obj.px;
+  obj.px = obj.vx + obj.px;
   if (obj.params.hasGravity) {
-    obj.py = obj.vel.y + obj.py;
+    obj.py = obj.vy + obj.py;
     return ;
   }
   
@@ -220,12 +218,12 @@ function processObj(obj, mapy) {
 function collideBlock(dir, obj) {
   if (dir !== 1) {
     if (dir !== 0) {
-      obj.vel.x = 0;
+      obj.vx = 0;
     } else {
-      obj.vel.y = -0.001;
+      obj.vy = -0.001;
     }
   } else {
-    obj.vel.y = 0;
+    obj.vy = 0;
     obj.grounded = true;
     obj.jumping = false;
   }
@@ -241,7 +239,7 @@ function oppositeDir(dir) {
 }
 
 function reverseLeftRight(obj) {
-  obj.vel.x = -obj.vel.x;
+  obj.vx = -obj.vx;
   obj.dir = obj.dir ? /* Left */0 : /* Right */1;
   
 }
@@ -269,8 +267,8 @@ function evolveEnemy(player_dir, typ, spr, obj) {
     
   }
   obj.dir = player_dir;
-  if (obj.vel.x !== 0) {
-    obj.vel.x = 0;
+  if (obj.vx !== 0) {
+    obj.vx = 0;
   } else {
     setVelToSpeed(obj);
   }

@@ -56,7 +56,7 @@ function playerAttackEnemy(o1, typ, s2, o2, state) {
   o1.grounded = true;
   if (typ >= 3) {
     var r2 = $$Object.evolveEnemy(o1.dir, typ, s2, o2);
-    o1.vel.y = -Config.dampenJump;
+    o1.vy = -Config.dampenJump;
     o1.py = o1.py - 5;
     return [
             undefined,
@@ -64,7 +64,7 @@ function playerAttackEnemy(o1, typ, s2, o2, state) {
           ];
   }
   $$Object.decHealth(o2);
-  o1.vel.y = -Config.dampenJump;
+  o1.vy = -Config.dampenJump;
   if (state.multiplier === 8) {
     updateScore(state, 800);
     o2.score = 800;
@@ -85,7 +85,7 @@ function playerAttackEnemy(o1, typ, s2, o2, state) {
 
 function enemyAttackPlayer(o1, t2, s2, o2) {
   if (t2 >= 3) {
-    var r2 = o2.vel.x === 0 ? $$Object.evolveEnemy(o1.dir, t2, s2, o2) : ($$Object.decHealth(o1), o1.invuln = Config.invuln, undefined);
+    var r2 = o2.vx === 0 ? $$Object.evolveEnemy(o1.dir, t2, s2, o2) : ($$Object.decHealth(o1), o1.invuln = Config.invuln, undefined);
     return [
             undefined,
             r2
@@ -103,7 +103,7 @@ function collEnemyEnemy(t1, s1, o1, t2, s2, o2, dir) {
   if (t1 !== 3) {
     if (t1 < 4) {
       if (t2 >= 3) {
-        if (o2.vel.x === 0) {
+        if (o2.vx === 0) {
           $$Object.revDir(o1, t1, s1);
           return [
                   undefined,
@@ -147,7 +147,7 @@ function collEnemyEnemy(t1, s1, o1, t2, s2, o2, dir) {
             undefined
           ];
   }
-  if (o1.vel.x === 0) {
+  if (o1.vx === 0) {
     $$Object.revDir(o2, t2, s2);
     return [
             undefined,
@@ -366,8 +366,8 @@ function processCollision(dir, c1, c2, state) {
     } else {
       c1.health = c1.health + 1 | 0;
     }
-    c1.vel.x = 0;
-    c1.vel.y = 0;
+    c1.vx = 0;
+    c1.vy = 0;
     updateScore(state, 1000);
     c2.score = 1000;
     return [
@@ -464,7 +464,7 @@ function updateCollidable(state, obj, allCollids) {
   if (Keys.checkBboxEnabled(undefined)) {
     Draw.renderBbox(spr, vptAdjXy.x, vptAdjXy.y);
   }
-  if (obj.vel.x !== 0 || !$$Object.isEnemy(obj)) {
+  if (obj.vx !== 0 || !$$Object.isEnemy(obj)) {
     Sprite.updateAnimation(spr);
   }
   return evolved;
@@ -500,10 +500,11 @@ function runUpdateCollid(state, obj, allCollids) {
       },
       sprite: newSpr,
       params: obj.params,
-      vel: obj.vel,
       id: obj.id,
       px: obj.px,
       py: obj.py,
+      vx: obj.vx,
+      vy: obj.vy,
       jumping: obj.jumping,
       grounded: obj.grounded,
       dir: obj.dir,
