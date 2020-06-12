@@ -441,8 +441,8 @@ let rec updateLoop = (player1: Object.t, player2, objs) => {
         };
       };
       let state = {...state, vpt: Viewport.update(state.vpt, player1.pos)};
-      List.forEach(objs, obj => runUpdateCollid(state, obj, objs));
-      List.forEach(parts, part => runUpdateParticle(state, part));
+      objs->List.forEach(obj => runUpdateCollid(state, obj, objs));
+      parts->List.forEach(part => runUpdateParticle(state, part));
       Draw.fps(fps);
       Draw.hud(state.score, state.coins);
       Html.requestAnimationFrame((t: float) =>
