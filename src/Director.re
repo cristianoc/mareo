@@ -61,7 +61,7 @@ let playerAttackEnemy = (o1, typ, s2, o2, state) => {
   | RKoopaShell =>
     let r2 = Object.evolveEnemy(o1.dir, typ, s2, o2);
     o1.vel.y = -. Config.dampenJump;
-    o1.pos.y = o1.pos.y -. 5.;
+    o1.py = o1.py -. 5.;
     (None, r2);
   | _ =>
     Object.decHealth(o2);
@@ -250,9 +250,9 @@ let processCollision =
 };
 
 let viewportFilter = (obj: Object.t, state) =>
-  Viewport.inViewport(state.vpt, obj.pos)
+  Viewport.inViewport(state.vpt, obj.px, obj.py)
   || Object.isPlayer(obj)
-  || Viewport.outOfViewportBelow(state.vpt, obj.pos.y);
+  || Viewport.outOfViewportBelow(state.vpt, obj.py);
 
 // Run the broad phase object filtering
 let broadPhase = (obj: Object.t, allCollids, state) => {
@@ -329,7 +329,7 @@ let updateCollidable = (state, obj: Object.t, allCollids) => {
     // Run collision detection if moving object
     let evolved = checkCollisions(obj, allCollids, state);
     // Render and update animation
-    let vptAdjXy = Viewport.fromCoord(state.vpt, obj.pos);
+    let vptAdjXy = Viewport.fromCoord(state.vpt, obj.px, obj.py);
     Draw.render(spr, vptAdjXy.x, vptAdjXy.y);
     if (Keys.checkBboxEnabled()) {
       Draw.renderBbox(spr, vptAdjXy.x, vptAdjXy.y);
@@ -356,7 +356,7 @@ let runUpdateCollid = (state, obj: Object.t, allCollids) =>
       switch (Object.updatePlayer(obj, keys)) {
       | None => p
       | Some((newTyp, newSpr)) =>
-        Object.normalizePos(obj.pos, s.params, newSpr.params);
+        Object.normalizePos(obj, s.params, newSpr.params);
         {...p, objTyp: Player(newTyp, n), sprite: newSpr};
       };
     let evolved = updateCollidable(state, player, allCollids);
@@ -380,8 +380,8 @@ let runUpdateCollid = (state, obj: Object.t, allCollids) =>
 // Primary update function to update and persist a particle
 let runUpdateParticle = (state, part) => {
   Particle.process(part);
-  let x = part.pos.x -. state.vpt->Viewport.getPos.x
-  and y = part.pos.y -. state.vpt->Viewport.getPos.y;
+  let x = part.px -. state.vpt->Viewport.getPos.x
+  and y = part.py -. state.vpt->Viewport.getPos.y;
   Draw.render(part.params.sprite, x, y);
   if (!part.kill) {
     particles := [part, ...particles^];
@@ -394,7 +394,7 @@ let rec updateLoop = (player1: Object.t, player2, objs) => {
   let viewport = Viewport.make(Load.getCanvasSizeScaled(), Config.mapDim);
   let state = {
     bgd: Sprite.makeBgd(),
-    vpt: Viewport.update(viewport, player1.pos),
+    vpt: Viewport.update(viewport, player1.px, player1.py),
     score: 0,
     coins: 0,
     multiplier: 1,
@@ -440,7 +440,7 @@ let rec updateLoop = (player1: Object.t, player2, objs) => {
         | _ => state.status = Lost(time)
         };
       };
-      let state = {...state, vpt: Viewport.update(state.vpt, player1.pos)};
+      let state = {...state, vpt: Viewport.update(state.vpt, player1.px, player1.py)};
       objs->List.forEach(obj => runUpdateCollid(state, obj, objs));
       parts->List.forEach(part => runUpdateParticle(state, part));
       Draw.fps(fps);

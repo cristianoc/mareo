@@ -57,7 +57,7 @@ function playerAttackEnemy(o1, typ, s2, o2, state) {
   if (typ >= 3) {
     var r2 = $$Object.evolveEnemy(o1.dir, typ, s2, o2);
     o1.vel.y = -Config.dampenJump;
-    o1.pos.y = o1.pos.y - 5;
+    o1.py = o1.py - 5;
     return [
             undefined,
             r2
@@ -378,10 +378,10 @@ function processCollision(dir, c1, c2, state) {
 }
 
 function viewportFilter(obj, state) {
-  if (Viewport.inViewport(state.vpt, obj.pos) || $$Object.isPlayer(obj)) {
+  if (Viewport.inViewport(state.vpt, obj.px, obj.py) || $$Object.isPlayer(obj)) {
     return true;
   } else {
-    return Viewport.outOfViewportBelow(state.vpt, obj.pos.y);
+    return Viewport.outOfViewportBelow(state.vpt, obj.py);
   }
 }
 
@@ -459,7 +459,7 @@ function updateCollidable(state, obj, allCollids) {
   obj.grounded = false;
   $$Object.processObj(obj, state.map);
   var evolved = checkCollisions(obj, allCollids, state);
-  var vptAdjXy = Viewport.fromCoord(state.vpt, obj.pos);
+  var vptAdjXy = Viewport.fromCoord(state.vpt, obj.px, obj.py);
   Draw.render(spr, vptAdjXy.x, vptAdjXy.y);
   if (Keys.checkBboxEnabled(undefined)) {
     Draw.renderBbox(spr, vptAdjXy.x, vptAdjXy.y);
@@ -491,7 +491,7 @@ function runUpdateCollid(state, obj, allCollids) {
   var player;
   if (match$1 !== undefined) {
     var newSpr = match$1[1];
-    $$Object.normalizePos(obj.pos, obj.sprite.params, newSpr.params);
+    $$Object.normalizePos(obj, obj.sprite.params, newSpr.params);
     player = {
       objTyp: {
         TAG: /* Player */0,
@@ -500,9 +500,10 @@ function runUpdateCollid(state, obj, allCollids) {
       },
       sprite: newSpr,
       params: obj.params,
-      pos: obj.pos,
       vel: obj.vel,
       id: obj.id,
+      px: obj.px,
+      py: obj.py,
       jumping: obj.jumping,
       grounded: obj.grounded,
       dir: obj.dir,
@@ -522,8 +523,8 @@ function runUpdateCollid(state, obj, allCollids) {
 
 function runUpdateParticle(state, part) {
   Particle.$$process(part);
-  var x = part.pos.x - Viewport.getPos(state.vpt).x;
-  var y = part.pos.y - Viewport.getPos(state.vpt).y;
+  var x = part.px - Viewport.getPos(state.vpt).x;
+  var y = part.py - Viewport.getPos(state.vpt).y;
   Draw.render(part.params.sprite, x, y);
   if (!part.kill) {
     particles.contents = /* :: */{
@@ -539,7 +540,7 @@ function updateLoop(player1, player2, objs) {
   var viewport = Viewport.make(Load.getCanvasSizeScaled(undefined), Config.mapDim);
   var state = {
     bgd: Sprite.makeBgd(undefined),
-    vpt: Viewport.update(viewport, player1.pos),
+    vpt: Viewport.update(viewport, player1.px, player1.py),
     map: Config.mapDim[1],
     score: 0,
     coins: 0,
@@ -595,7 +596,7 @@ function updateLoop(player1, player2, objs) {
     }
     var state$1 = {
       bgd: state.bgd,
-      vpt: Viewport.update(state.vpt, player1$1.pos),
+      vpt: Viewport.update(state.vpt, player1$1.px, player1$1.py),
       map: state.map,
       score: state.score,
       coins: state.coins,

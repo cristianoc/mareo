@@ -23,7 +23,7 @@ function makeType(typ) {
         };
 }
 
-function make(velOpt, accOpt, partType, pos) {
+function make(velOpt, accOpt, partType, px, py) {
   var vel = velOpt !== undefined ? velOpt : [
       0,
       0
@@ -33,12 +33,12 @@ function make(velOpt, accOpt, partType, pos) {
       0
     ];
   var params = makeType(partType);
-  var pos$1 = pairToXy(pos);
   var vel$1 = pairToXy(vel);
   var acc$1 = pairToXy(acc);
   return {
           params: params,
-          pos: pos$1,
+          px: px,
+          py: py,
           vel: vel$1,
           acc: acc$1,
           kill: false,
@@ -66,10 +66,13 @@ function makeScore(score, pos) {
           score !== 100 && score >= 200 ? /* Score200 */4 : /* Score100 */3
         )
     );
-  return make([
-              0.5,
-              -0.7
-            ], undefined, t, pos);
+  var partial_arg = [
+    0.5,
+    -0.7
+  ];
+  return function (param) {
+    return make(partial_arg, undefined, t, pos, param);
+  };
 }
 
 function updateVel(part) {
@@ -79,8 +82,8 @@ function updateVel(part) {
 }
 
 function updatePos(part) {
-  part.pos.x = part.vel.x + part.pos.x;
-  part.pos.y = part.vel.y + part.pos.y;
+  part.px = part.vel.x + part.px;
+  part.py = part.vel.y + part.py;
   
 }
 

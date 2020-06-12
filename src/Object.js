@@ -60,21 +60,19 @@ function newId(param) {
   return idCounter.contents;
 }
 
-function make(dir, objTyp, spriteParams, params, x, y) {
+function make(dir, objTyp, spriteParams, params, px, py) {
   var id = newId(undefined);
   return {
           objTyp: objTyp,
           sprite: Sprite.makeFromParams(spriteParams),
           params: params,
-          pos: {
-            x: x,
-            y: y
-          },
           vel: {
             x: 0.0,
             y: 0.0
           },
           id: id,
+          px: px,
+          py: py,
           jumping: false,
           grounded: false,
           dir: dir,
@@ -149,13 +147,13 @@ function updatePlayerKeys(player, controls) {
   }
 }
 
-function normalizePos(pos, p1, p2) {
+function normalizePos(o, p1, p2) {
   var match = p1.bboxOffset;
   var match$1 = p2.bboxOffset;
   var match$2 = p1.bboxSize;
   var match$3 = p2.bboxSize;
-  pos.x = pos.x - (match$3[0] + match$1[0]) + (match$2[0] + match[0]);
-  pos.y = pos.y - (match$3[1] + match$1[1]) + (match$2[1] + match[1]);
+  o.px = o.px - (match$3[0] + match$1[0]) + (match$2[0] + match[0]);
+  o.py = o.py - (match$3[1] + match$1[1]) + (match$2[1] + match[1]);
   
 }
 
@@ -201,9 +199,9 @@ function updateVel(obj) {
 }
 
 function updatePos(obj) {
-  obj.pos.x = obj.vel.x + obj.pos.x;
+  obj.px = obj.vel.x + obj.px;
   if (obj.params.hasGravity) {
-    obj.pos.y = obj.vel.y + obj.pos.y;
+    obj.py = obj.vel.y + obj.py;
     return ;
   }
   
@@ -212,7 +210,7 @@ function updatePos(obj) {
 function processObj(obj, mapy) {
   updateVel(obj);
   updatePos(obj);
-  if (obj.pos.y > mapy) {
+  if (obj.py > mapy) {
     obj.kill = true;
     return ;
   }
@@ -257,14 +255,14 @@ function evolveEnemy(player_dir, typ, spr, obj) {
         var newObj = make(obj.dir, {
               TAG: /* Enemy */1,
               _0: /* GKoopaShell */3
-            }, Sprite.makeEnemy(/* GKoopaShell */3, obj.dir), makeEnemy(/* GKoopaShell */3), obj.pos.x, obj.pos.y);
-        normalizePos(newObj.pos, spr.params, newObj.sprite.params);
+            }, Sprite.makeEnemy(/* GKoopaShell */3, obj.dir), makeEnemy(/* GKoopaShell */3), obj.px, obj.py);
+        normalizePos(newObj, spr.params, newObj.sprite.params);
         return newObj;
     case /* RKoopa */2 :
         return make(obj.dir, {
                     TAG: /* Enemy */1,
                     _0: /* RKoopaShell */4
-                  }, Sprite.makeEnemy(/* RKoopaShell */4, obj.dir), makeEnemy(/* RKoopaShell */4), obj.pos.x, obj.pos.y);
+                  }, Sprite.makeEnemy(/* RKoopaShell */4, obj.dir), makeEnemy(/* RKoopaShell */4), obj.px, obj.py);
     case /* GKoopaShell */3 :
     case /* RKoopaShell */4 :
         break;
@@ -283,7 +281,7 @@ function revDir(o, t, s) {
   reverseLeftRight(o);
   var old_params = s.params;
   Sprite.transformEnemy(t, s, o.dir);
-  return normalizePos(o.pos, old_params, s.params);
+  return normalizePos(o, old_params, s.params);
 }
 
 function decHealth(obj) {
@@ -304,15 +302,15 @@ function evolveBlock(obj) {
   return make(obj.dir, {
               TAG: /* Block */3,
               _0: /* QBlockUsed */0
-            }, Sprite.makeParams(/* QBlockUsed */0), makeBlock(/* QBlockUsed */0), obj.pos.x, obj.pos.y);
+            }, Sprite.makeParams(/* QBlockUsed */0), makeBlock(/* QBlockUsed */0), obj.px, obj.py);
 }
 
 function spawnAbove(player_dir, obj, itemTyp) {
   var item = make(/* Left */0, {
         TAG: /* Item */2,
         _0: itemTyp
-      }, Sprite.makeItem(itemTyp), makeItem(itemTyp), obj.pos.x, obj.pos.y);
-  item.pos.y = item.pos.y - item.sprite.params.frameSize[1];
+      }, Sprite.makeItem(itemTyp), makeItem(itemTyp), obj.px, obj.py);
+  item.py = item.py - item.sprite.params.frameSize[1];
   item.dir = player_dir ? /* Left */0 : /* Right */1;
   setVelToSpeed(item);
   return item;
@@ -321,8 +319,8 @@ function spawnAbove(player_dir, obj, itemTyp) {
 function getAabb(obj) {
   var sprParams = obj.sprite.params;
   var match = sprParams.bboxOffset;
-  var box = obj.pos.x + match[0];
-  var boy = obj.pos.y + match[1];
+  var box = obj.px + match[0];
+  var boy = obj.py + match[1];
   var match$1 = sprParams.bboxSize;
   var sy = match$1[1];
   var sx = match$1[0];
@@ -393,17 +391,17 @@ function checkCollision(o1, o2) {
   var oy = hheights - Math.abs(vy);
   if (ox + 0.2 > oy) {
     if (vy > 0) {
-      o1.pos.y = o1.pos.y + oy;
+      o1.py = o1.py + oy;
       return /* North */0;
     } else {
-      o1.pos.y = o1.pos.y - oy;
+      o1.py = o1.py - oy;
       return /* South */1;
     }
   } else if (vx > 0) {
-    o1.pos.x = o1.pos.x + ox;
+    o1.px = o1.px + ox;
     return /* West */3;
   } else {
-    o1.pos.x = o1.pos.x - ox;
+    o1.px = o1.px - ox;
     return /* East */2;
   }
 }
@@ -414,18 +412,12 @@ function kill(obj) {
     case /* Player */0 :
         return /* [] */0;
     case /* Enemy */1 :
-        var pos_0 = obj.pos.x;
-        var pos_1 = obj.pos.y;
-        var pos = [
-          pos_0,
-          pos_1
-        ];
         var score = obj.score > 0 ? /* :: */({
-              _0: Particle.makeScore(obj.score, pos),
+              _0: Particle.makeScore(obj.score, obj.px)(obj.py),
               _1: /* [] */0
             }) : /* [] */0;
         var remains = t._0 !== 0 ? /* [] */0 : /* :: */({
-              _0: Particle.make(undefined, undefined, /* GoombaSquish */0, pos),
+              _0: Particle.make(undefined, undefined, /* GoombaSquish */0, obj.px, obj.py),
               _1: /* [] */0
             });
         return Pervasives.$at(score, remains);
@@ -434,10 +426,7 @@ function kill(obj) {
           return /* [] */0;
         } else {
           return /* :: */{
-                  _0: Particle.makeScore(obj.score, [
-                        obj.pos.x,
-                        obj.pos.y
-                      ]),
+                  _0: Particle.makeScore(obj.score, obj.px)(obj.py),
                   _1: /* [] */0
                 };
         }
@@ -449,40 +438,34 @@ function kill(obj) {
         if (t$1 !== 1) {
           return /* [] */0;
         }
-        var pos_0$1 = obj.pos.x;
-        var pos_1$1 = obj.pos.y;
-        var pos$1 = [
-          pos_0$1,
-          pos_1$1
-        ];
         var p1 = Particle.make([
               -5,
               -5
             ], [
               0,
               0.2
-            ], /* BrickChunkL */1, pos$1);
+            ], /* BrickChunkL */1, obj.px, obj.py);
         var p2 = Particle.make([
               -3,
               -4
             ], [
               0,
               0.2
-            ], /* BrickChunkL */1, pos$1);
+            ], /* BrickChunkL */1, obj.px, obj.py);
         var p3 = Particle.make([
               3,
               -4
             ], [
               0,
               0.2
-            ], /* BrickChunkR */2, pos$1);
+            ], /* BrickChunkR */2, obj.px, obj.py);
         var p4 = Particle.make([
               5,
               -5
             ], [
               0,
               0.2
-            ], /* BrickChunkR */2, pos$1);
+            ], /* BrickChunkR */2, obj.px, obj.py);
         return /* :: */{
                 _0: p1,
                 _1: /* :: */{

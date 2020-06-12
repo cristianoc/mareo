@@ -28,9 +28,10 @@ type t = {
   objTyp,
   sprite: Sprite.t,
   params,
-  pos: xy,
   vel: xy,
   id: int,
+  mutable px: float,
+  mutable py: float,
   mutable jumping: bool,
   mutable grounded: bool,
   mutable dir: Actors.dir1d,
@@ -88,16 +89,14 @@ let newId = () => {
   idCounter^;
 };
 
-let make = (~dir, objTyp, spriteParams, params, x, y) => {
+let make = (~dir, objTyp, spriteParams, params, px, py) => {
   let id = newId();
   {
     objTyp,
     sprite: spriteParams->Sprite.makeFromParams,
     params,
-    pos: {
-      x,
-      y,
-    },
+    px,
+    py,
     vel: {
       x: 0.0,
       y: 0.0,
@@ -165,13 +164,13 @@ let updatePlayerKeys = (player: t, controls: controls): unit => {
 // Used for sprite changing. If sprites change to different dimensions as a result
 // of some action, the new sprite must be normalized so that things aren't
 // jumpy
-let normalizePos = (pos, p1: Sprite.params, p2: Sprite.params) => {
+let normalizePos = (o, p1: Sprite.params, p2: Sprite.params) => {
   let (box1, boy1) = p1.bboxOffset
   and (box2, boy2) = p2.bboxOffset;
   let (bw1, bh1) = p1.bboxSize
   and (bw2, bh2) = p2.bboxSize;
-  pos.x = pos.x -. (bw2 +. box2) +. (bw1 +. box1);
-  pos.y = pos.y -. (bh2 +. boy2) +. (bh1 +. boy1);
+  o.px = o.px -. (bw2 +. box2) +. (bw1 +. box1);
+  o.py = o.py -. (bh2 +. boy2) +. (bh1 +. boy1);
 };
 
 // Update player is constantly being called to check for if big or small
@@ -235,9 +234,9 @@ let updateVel = obj =>
   };
 
 let updatePos = obj => {
-  obj.pos.x = obj.vel.x +. obj.pos.x;
+  obj.px = obj.vel.x +. obj.px;
   if (obj.params.hasGravity) {
-    obj.pos.y = obj.vel.y +. obj.pos.y;
+    obj.py = obj.vel.y +. obj.py;
   };
 };
 
@@ -245,7 +244,7 @@ let updatePos = obj => {
 let processObj = (obj, mapy) => {
   updateVel(obj);
   updatePos(obj);
-  if (obj.pos.y > mapy) {
+  if (obj.py > mapy) {
     obj.kill = true;
   };
 };
@@ -287,10 +286,10 @@ let evolveEnemy = (player_dir, typ, spr: Sprite.t, obj) =>
         Enemy(GKoopaShell),
         Sprite.makeEnemy(GKoopaShell, obj.dir),
         makeEnemy(GKoopaShell),
-        obj.pos.x,
-        obj.pos.y,
+        obj.px,
+        obj.py,
       );
-    normalizePos(newObj.pos, spr.params, newObj.sprite.params);
+    normalizePos(newObj, spr.params, newObj.sprite.params);
     Some(newObj);
   | RKoopa =>
     make(
@@ -298,8 +297,8 @@ let evolveEnemy = (player_dir, typ, spr: Sprite.t, obj) =>
       Enemy(RKoopaShell),
       Sprite.makeEnemy(RKoopaShell, obj.dir),
       makeEnemy(RKoopaShell),
-      obj.pos.x,
-      obj.pos.y,
+      obj.px,
+      obj.py,
     )
     ->Some
   | GKoopaShell
@@ -321,7 +320,7 @@ let revDir = (o, t, s: Sprite.t) => {
   reverseLeftRight(o);
   let old_params = s.params;
   Sprite.transformEnemy(t, s, o.dir);
-  normalizePos(o.pos, old_params, s.params);
+  normalizePos(o, old_params, s.params);
 };
 
 // Used for killing enemies, or to make big Mario into small Mario
@@ -343,8 +342,8 @@ let evolveBlock = obj => {
     Block(QBlockUsed),
     Sprite.makeParams(QBlockUsed),
     makeBlock(QBlockUsed),
-    obj.pos.x,
-    obj.pos.y,
+    obj.px,
+    obj.py,
   );
 };
 
@@ -356,11 +355,11 @@ let spawnAbove = (player_dir, obj, itemTyp) => {
       Item(itemTyp),
       Sprite.makeItem(itemTyp),
       makeItem(itemTyp),
-      obj.pos.x,
-      obj.pos.y,
+      obj.px,
+      obj.py,
     );
   };
-  item.pos.y = item.pos.y -. snd(item.sprite.params.frameSize);
+  item.py = item.py -. snd(item.sprite.params.frameSize);
   item.dir = oppositeDir(player_dir);
   setVelToSpeed(item);
   item;
@@ -370,7 +369,7 @@ let spawnAbove = (player_dir, obj, itemTyp) => {
 let getAabb = obj => {
   let sprParams = obj.sprite.params;
   let (offx, offy) = sprParams.bboxOffset;
-  let (box, boy) = (obj.pos.x +. offx, obj.pos.y +. offy);
+  let (box, boy) = (obj.px +. offx, obj.py +. offy);
   let (sx, sy) = sprParams.bboxSize;
   {
     center: {
@@ -422,17 +421,17 @@ let checkCollision = (o1, o2) => {
       if (ox +. 0.2 > oy) {
         // avoid spurious horizontal collisions with floors when oy is tiny
         if (vy > 0.) {
-          o1.pos.y = o1.pos.y +. oy;
+          o1.py = o1.py +. oy;
           Some(North);
         } else {
-          o1.pos.y = o1.pos.y -. oy;
+          o1.py = o1.py -. oy;
           Some(South);
         };
       } else if (vx > 0.) {
-        o1.pos.x = o1.pos.x +. ox;
+        o1.px = o1.px +. ox;
         Some(West);
       } else {
-        o1.pos.x = o1.pos.x -. ox;
+        o1.px = o1.px -. ox;
         Some(East);
       };
     } else {
@@ -445,47 +444,59 @@ let checkCollision = (o1, o2) => {
 let kill = obj =>
   switch (obj.objTyp) {
   | Enemy(t) =>
-    let pos = (obj.pos.x, obj.pos.y);
     let score =
       if (obj.score > 0) {
-        [Particle.makeScore(obj.score, pos)];
+        [Particle.makeScore(obj.score, obj.px, obj.py)];
       } else {
         [];
       };
     let remains =
       switch (t) {
-      | Goomba => [Particle.make(GoombaSquish, pos)]
+      | Goomba => [Particle.make(GoombaSquish, obj.px, obj.py)]
       | _ => []
       };
     score @ remains;
   | Block(t) =>
     switch (t) {
     | Brick =>
-      let pos = (obj.pos.x, obj.pos.y);
       let p1 =
         Particle.make(
           ~vel=((-5.), (-5.)),
           ~acc=(0., 0.2),
           BrickChunkL,
-          pos,
+          obj.px,
+          obj.py,
         );
       let p2 =
         Particle.make(
           ~vel=((-3.), (-4.)),
           ~acc=(0., 0.2),
           BrickChunkL,
-          pos,
+          obj.px,
+          obj.py,
         );
       let p3 =
-        Particle.make(~vel=(3., (-4.)), ~acc=(0., 0.2), BrickChunkR, pos);
+        Particle.make(
+          ~vel=(3., (-4.)),
+          ~acc=(0., 0.2),
+          BrickChunkR,
+          obj.px,
+          obj.py,
+        );
       let p4 =
-        Particle.make(~vel=(5., (-5.)), ~acc=(0., 0.2), BrickChunkR, pos);
+        Particle.make(
+          ~vel=(5., (-5.)),
+          ~acc=(0., 0.2),
+          BrickChunkR,
+          obj.px,
+          obj.py,
+        );
       [p1, p2, p3, p4];
     | _ => []
     }
   | Item(t) =>
     switch (t) {
-    | Mushroom => [Particle.makeScore(obj.score, (obj.pos.x, obj.pos.y))]
+    | Mushroom => [Particle.makeScore(obj.score, obj.px, obj.py)]
     | _ => []
     }
   | _ => []

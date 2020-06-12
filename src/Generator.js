@@ -12,9 +12,9 @@ function memPos(_objs, x, y) {
     if (!objs) {
       return false;
     }
-    var match = objs._0.pos;
-    var px = match.x;
-    var py = match.y;
+    var match = objs._0;
+    var px = match.px;
+    var py = match.py;
     if (x === px && y === py) {
       return true;
     }

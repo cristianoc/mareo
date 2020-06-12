@@ -7,7 +7,8 @@ type params = {
 
 type t = {
   params: params,
-  pos: Actors.xy,
+  mutable px: float,
+  mutable py:float,
   vel: Actors.xy,
   acc: Actors.xy,
   mutable kill: bool,
@@ -40,12 +41,11 @@ let makeType = typ =>
     },
   );
 
-let make = (~vel=(0., 0.), ~acc=(0., 0.), partType, pos) => {
+let make = (~vel=(0., 0.), ~acc=(0., 0.), partType, px,py) => {
   let params = makeType(partType);
-  let pos = pairToXy(pos)
-  and vel = pairToXy(vel)
+  let vel = pairToXy(vel)
   and acc = pairToXy(acc);
-  {params, pos, vel, acc, kill: false, life: params.lifetime};
+  {params, px, py, vel, acc, kill: false, life: params.lifetime};
 };
 
 let makeScore = (score, pos) => {
@@ -72,8 +72,8 @@ let updateVel = part => {
 
 // Mutably update the position of a particle
 let updatePos = part => {
-  part.pos.x = part.vel.x +. part.pos.x;
-  part.pos.y = part.vel.y +. part.pos.y;
+  part.px = part.vel.x +. part.px;
+  part.py = part.vel.y +. part.py;
 };
 
 let process = part => {

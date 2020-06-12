@@ -10,7 +10,7 @@ type enemyCoord = (Actors.enemyTyp, float, float);
 let rec memPos = (objs: list(_), x, y): bool =>
   switch (objs) {
   | [] => false
-  | [{Object.pos: {x: px, y: py}}, ...t] =>
+  | [{Object.px, py}, ...t] =>
     if (x == px && y == py) {
       true;
     } else {
