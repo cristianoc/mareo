@@ -90,7 +90,7 @@ function randomEnemyTyp(param) {
 }
 
 function addEnemyOnBlock(objects, x, y) {
-  var placeEnemy = Random.$$int(20);
+  var placeEnemy = Random.$$int(Config.enemyDensity);
   if (placeEnemy === 0 && !memPos(objects.contents, x, y - 16)) {
     objects.contents = /* :: */{
       _0: convertEnemyToObj([

@@ -67,7 +67,7 @@ let randomEnemyTyp = () =>
   };
 
 let addEnemyOnBlock = (objects, x, y) => {
-  let placeEnemy = Random.int(20);
+  let placeEnemy = Random.int(Config.enemyDensity);
   if (placeEnemy == 0 && !(objects^)->memPos(x, y -. 16.)) {
     objects :=
       [(randomEnemyTyp(), x, y -. 16.)->convertEnemyToObj, ...objects^];

@@ -25,6 +25,8 @@ var levelWidth = 2400;
 
 var levelHeight = 256;
 
+var enemyDensity = 20;
+
 var restartAfter = 5;
 
 var root_dir = "sprites/";
@@ -53,6 +55,7 @@ export {
   images ,
   levelWidth ,
   levelHeight ,
+  enemyDensity ,
   blockw ,
   blockh ,
   mapDim ,
