@@ -556,7 +556,7 @@ function updateLoop(player1, player2, objs) {
           _0: player2,
           _1: objs
         });
-    updateObject(player1, state, /* :: */{
+    updateObject(player2, state, /* :: */{
           _0: player1,
           _1: objs
         });

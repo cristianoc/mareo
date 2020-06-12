@@ -426,7 +426,7 @@ let rec updateLoop = (player1: Object.t, player2, objs) => {
         [@doesNotRaise] float_of_int(vposXInt mod bgdWidth),
       );
       player1->updateObject(state, [player2, ...objs]);
-      player1->updateObject(state, [player1, ...objs]);
+      player2->updateObject(state, [player1, ...objs]);
       if (player1.kill == true) {
         switch (state.status) {
         | Lost(_) => ()
