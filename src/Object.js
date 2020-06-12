@@ -86,10 +86,6 @@ function make(dir, objTyp, spriteParams, params, x, y) {
         };
 }
 
-function getSprite(param) {
-  return param.sprite;
-}
-
 function isPlayer(param) {
   if (param.objTyp.TAG) {
     return false;
@@ -316,18 +312,18 @@ function spawnAbove(player_dir, obj, itemTyp) {
         TAG: /* Item */2,
         _0: itemTyp
       }, Sprite.makeItem(itemTyp), makeItem(itemTyp), obj.pos.x, obj.pos.y);
-  item.pos.y = item.pos.y - getSprite(item).params.frameSize[1];
+  item.pos.y = item.pos.y - item.sprite.params.frameSize[1];
   item.dir = player_dir ? /* Left */0 : /* Right */1;
   setVelToSpeed(item);
   return item;
 }
 
 function getAabb(obj) {
-  var spr = getSprite(obj).params;
-  var match = spr.bboxOffset;
+  var sprParams = obj.sprite.params;
+  var match = sprParams.bboxOffset;
   var box = obj.pos.x + match[0];
   var boy = obj.pos.y + match[1];
-  var match$1 = spr.bboxSize;
+  var match$1 = sprParams.bboxSize;
   var sy = match$1[1];
   var sx = match$1[0];
   return {
@@ -514,7 +510,6 @@ export {
   makeBlock ,
   newId ,
   make ,
-  getSprite ,
   isPlayer ,
   isEnemy ,
   equals ,

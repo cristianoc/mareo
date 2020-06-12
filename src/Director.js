@@ -535,8 +535,7 @@ function runUpdateParticle(state, part) {
   
 }
 
-function updateLoop(param) {
-  var player1 = param[0];
+function updateLoop(player1, player2, objs) {
   var viewport = Viewport.make(Load.getCanvasSizeScaled(undefined), Config.mapDim);
   var state = {
     bgd: Sprite.makeBgd(undefined),
@@ -566,11 +565,7 @@ function updateLoop(param) {
           return ;
         }
         var match = Generator.generate(undefined);
-        return updateLoop([
-                    match[0],
-                    match[1],
-                    match[2]
-                  ]);
+        return updateLoop(match[0], match[1], match[2]);
       }
       
     }
@@ -620,7 +615,7 @@ function updateLoop(param) {
         });
     
   };
-  return updateHelper(0, state, player1, param[1], param[2], /* [] */0);
+  return updateHelper(0, state, player1, player2, objs, /* [] */0);
 }
 
 export {

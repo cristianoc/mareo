@@ -340,7 +340,7 @@ function generateHelper(param) {
 
 function generate(param) {
   var initial = performance.now();
-  var collideList = generateHelper(undefined);
+  var objects = generateHelper(undefined);
   var player1 = $$Object.make(/* Left */0, {
         TAG: /* Player */0,
         _0: /* SmallM */1,
@@ -352,11 +352,11 @@ function generate(param) {
         _1: /* Two */1
       }, Sprite.makePlayer(/* SmallM */1, /* Standing */0, /* Left */0), $$Object.makePlayer(undefined), 120, 224);
   var elapsed = performance.now() - initial;
-  console.log("generated", Belt_List.length(collideList), "objects in " + (elapsed.toString() + " milliseconds"));
+  console.log("generated", Belt_List.length(objects), "objects in " + (elapsed.toString() + " milliseconds"));
   return [
           player1,
           player2,
-          collideList
+          objects
         ];
 }
 

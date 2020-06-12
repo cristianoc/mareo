@@ -284,7 +284,7 @@ let rec generateGround = (objects, inc: float) =>
     generateGround(objects, inc +. 1.);
   };
 
-// Procedurally generate a list of collidables given canvas width, height and
+// Procedurally generate a list of objects given canvas width, height and
 // context. Arguments block width (blockw) and block height (blockh) are in
 // block form, not pixels.
 let generateHelper = (): list(Object.t) => {
@@ -298,10 +298,10 @@ let generateHelper = (): list(Object.t) => {
 
 // Main function called to procedurally generate the level map. w and h args
 // are in pixel form. Converts to block form to call generateHelper. Spawns
-// the list of collidables received from generateHelper to display on canvas.
+// the list of objects received from generateHelper to display on canvas.
 let generate = (): (Object.t, Object.t, list(Object.t)) => {
   let initial = Html.performance.now(.);
-  let collideList = generateHelper();
+  let objects = generateHelper();
   let player1 =
     Object.make(
       ~dir=Left,
@@ -323,8 +323,8 @@ let generate = (): (Object.t, Object.t, list(Object.t)) => {
   let elapsed = Html.performance.now(.) -. initial;
   Js.log3(
     "generated",
-    collideList |> List.length,
+    objects |> List.length,
     "objects in " ++ Js.Float.toString(elapsed) ++ " milliseconds",
   );
-  (player1, player2, collideList);
+  (player1, player2, objects);
 };

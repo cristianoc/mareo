@@ -114,9 +114,6 @@ let make = (~dir, objTyp, spriteParams, params, x, y) => {
   };
 };
 
-/*Helper methods for getting sprites and objects from their collidables*/
-let getSprite = ({sprite}) => sprite;
-
 let isPlayer =
   fun
   | {objTyp: Player(_)} => true
@@ -178,7 +175,7 @@ let normalizePos = (pos, p1: Sprite.params, p2: Sprite.params) => {
 };
 
 // Update player is constantly being called to check for if big or small
-// Mario sprites/collidables should be used
+// Mario sprites should be used
 let updatePlayer = (player, keys) => {
   let prev_jumping = player.jumping;
   let prev_dir = player.dir
@@ -363,7 +360,7 @@ let spawnAbove = (player_dir, obj, itemTyp) => {
       obj.pos.y,
     );
   };
-  item.pos.y = item.pos.y -. snd(getSprite(item).params.frameSize);
+  item.pos.y = item.pos.y -. snd(item.sprite.params.frameSize);
   item.dir = oppositeDir(player_dir);
   setVelToSpeed(item);
   item;
@@ -371,10 +368,10 @@ let spawnAbove = (player_dir, obj, itemTyp) => {
 
 // Used to get the bounding box
 let getAabb = obj => {
-  let spr = getSprite(obj).params;
-  let (offx, offy) = spr.bboxOffset;
+  let sprParams = obj.sprite.params;
+  let (offx, offy) = sprParams.bboxOffset;
   let (box, boy) = (obj.pos.x +. offx, obj.pos.y +. offy);
-  let (sx, sy) = spr.bboxSize;
+  let (sx, sy) = sprParams.bboxSize;
   {
     center: {
       x: box +. sx /. 2.,

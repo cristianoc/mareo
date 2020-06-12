@@ -390,7 +390,7 @@ let runUpdateParticle = (state, part) => {
 
 // updateLoop is constantly being called to check for collisions and to
 // update each of the objects in the game.
-let rec updateLoop = ((player1: Object.t, player2, objs)) => {
+let rec updateLoop = (player1: Object.t, player2, objs) => {
   let viewport = Viewport.make(Load.getCanvasSizeScaled(), Config.mapDim);
   let state = {
     bgd: Sprite.makeBgd(),
@@ -416,7 +416,7 @@ let rec updateLoop = ((player1: Object.t, player2, objs)) => {
         );
       } else {
         let (player1, player2, objs) = Generator.generate();
-        updateLoop((player1, player2, objs));
+        updateLoop(player1, player2, objs);
       };
 
     | Playing
