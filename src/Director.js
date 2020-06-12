@@ -13,7 +13,7 @@ import * as Generator from "./Generator.js";
 import * as Caml_int32 from "bs-platform/lib/es6/caml_int32.js";
 import * as Pervasives from "bs-platform/lib/es6/pervasives.js";
 
-var collid_objs = {
+var collidObjs = {
   contents: /* [] */0
 };
 
@@ -45,7 +45,7 @@ function calcFps(param) {
   }
 }
 
-function update_score(state, i) {
+function updateScore(state, i) {
   state.score = state.score + i | 0;
   
 }
@@ -56,7 +56,7 @@ function playerAttackEnemy(o1, typ, s2, o2, state) {
   o1.grounded = true;
   if (typ >= 3) {
     var r2 = $$Object.evolveEnemy(o1.dir, typ, s2, o2);
-    o1.vel.y = -Config.dampen_jump;
+    o1.vel.y = -Config.dampenJump;
     o1.pos.y = o1.pos.y - 5;
     return [
             undefined,
@@ -64,9 +64,9 @@ function playerAttackEnemy(o1, typ, s2, o2, state) {
           ];
   }
   $$Object.decHealth(o2);
-  o1.vel.y = -Config.dampen_jump;
+  o1.vel.y = -Config.dampenJump;
   if (state.multiplier === 8) {
-    update_score(state, 800);
+    updateScore(state, 800);
     o2.score = 800;
     return [
             undefined,
@@ -74,7 +74,7 @@ function playerAttackEnemy(o1, typ, s2, o2, state) {
           ];
   }
   var score = Math.imul(100, state.multiplier);
-  update_score(state, score);
+  updateScore(state, score);
   o2.score = score;
   state.multiplier = (state.multiplier << 1);
   return [
@@ -99,7 +99,7 @@ function enemyAttackPlayer(o1, t2, s2, o2) {
         ];
 }
 
-function col_enemy_enemy(t1, s1, o1, t2, s2, o2, dir) {
+function collEnemyEnemy(t1, s1, o1, t2, s2, o2, dir) {
   if (t1 !== 3) {
     if (t1 < 4) {
       if (t2 >= 3) {
@@ -162,7 +162,7 @@ function col_enemy_enemy(t1, s1, o1, t2, s2, o2, dir) {
   }
 }
 
-function process_collision(dir, c1, c2, state) {
+function processCollision(dir, c1, c2, state) {
   var t2;
   var t1 = c1.objTyp;
   switch (t1.TAG | 0) {
@@ -245,12 +245,12 @@ function process_collision(dir, c1, c2, state) {
                           ];
                   }
                 }
-                var updated_block = $$Object.evolveBlock(c2);
-                var spawned_item = $$Object.spawnAbove(c1.dir, c2, t$1._0);
+                var updatedBlock = $$Object.evolveBlock(c2);
+                var spawnedItem = $$Object.spawnAbove(c1.dir, c2, t$1._0);
                 $$Object.collideBlock(dir, c1);
                 return [
-                        spawned_item,
-                        updated_block
+                        spawnedItem,
+                        updatedBlock
                       ];
               }
               break;
@@ -269,7 +269,7 @@ function process_collision(dir, c1, c2, state) {
                 return playerAttackEnemy(c1, t1$1, s1, c2, state);
               }
           case /* Enemy */1 :
-              return col_enemy_enemy(t1$1, s1, c1, t2$1._0, c2.sprite, c2, dir);
+              return collEnemyEnemy(t1$1, s1, c1, t2$1._0, c2.sprite, c2, dir);
           case /* Item */2 :
               return [
                       undefined,
@@ -295,12 +295,12 @@ function process_collision(dir, c1, c2, state) {
                             ];
                     }
                   }
-                  var updated_block$1 = $$Object.evolveBlock(c2);
-                  var spawned_item$1 = $$Object.spawnAbove(c1.dir, c2, t2$2._0);
+                  var updatedBlock$1 = $$Object.evolveBlock(c2);
+                  var spawnedItem$1 = $$Object.spawnAbove(c1.dir, c2, t2$2._0);
                   $$Object.revDir(c1, t1$1, s1);
                   return [
-                          updated_block$1,
-                          spawned_item$1
+                          updatedBlock$1,
+                          spawnedItem$1
                         ];
                 }
                 $$Object.revDir(c1, t1$1, s1);
@@ -354,7 +354,7 @@ function process_collision(dir, c1, c2, state) {
   if (t2) {
     state.coins = state.coins + 1 | 0;
     $$Object.decHealth(c2);
-    update_score(state, 100);
+    updateScore(state, 100);
     return [
             undefined,
             undefined
@@ -368,7 +368,7 @@ function process_collision(dir, c1, c2, state) {
     }
     c1.vel.x = 0;
     c1.vel.y = 0;
-    update_score(state, 1000);
+    updateScore(state, 1000);
     c2.score = 1000;
     return [
             undefined,
@@ -401,23 +401,23 @@ function narrowPhase(c, cs, state) {
       return acc;
     }
     var h = cs$1._0;
-    var new_objs;
+    var newObjs;
     if ($$Object.equals(c, h)) {
-      new_objs = [
+      newObjs = [
         undefined,
         undefined
       ];
     } else {
       var dir = $$Object.checkCollision(c, h);
-      new_objs = dir !== undefined && h.id !== c.id ? process_collision(dir, c, h, state) : [
+      newObjs = dir !== undefined && h.id !== c.id ? processCollision(dir, c, h, state) : [
           undefined,
           undefined
         ];
     }
-    var o = new_objs[0];
+    var o = newObjs[0];
     var acc$1;
     if (o !== undefined) {
-      var o2 = new_objs[1];
+      var o2 = newObjs[1];
       acc$1 = o2 !== undefined ? /* :: */({
             _0: o,
             _1: /* :: */{
@@ -429,7 +429,7 @@ function narrowPhase(c, cs, state) {
             _1: acc
           });
     } else {
-      var o$1 = new_objs[1];
+      var o$1 = newObjs[1];
       acc$1 = o$1 !== undefined ? /* :: */({
             _0: o$1,
             _1: acc
@@ -441,16 +441,16 @@ function narrowPhase(c, cs, state) {
   };
 }
 
-function checkCollisions(collid, all_collids, state) {
+function checkCollisions(collid, allCollids, state) {
   var match = collid.objTyp;
   if (match.TAG === /* Block */3) {
     return /* [] */0;
   }
-  var broad = broadPhase(collid, all_collids, state);
+  var broad = broadPhase(collid, allCollids, state);
   return narrowPhase(collid, broad, state);
 }
 
-function updateCollidable(state, obj, all_collids) {
+function updateCollidable(state, obj, allCollids) {
   var spr = obj.sprite;
   obj.invuln = obj.invuln > 0 ? obj.invuln - 1 | 0 : 0;
   if (!(!obj.kill && viewportFilter(state, obj, obj))) {
@@ -458,11 +458,11 @@ function updateCollidable(state, obj, all_collids) {
   }
   obj.grounded = false;
   $$Object.processObj(obj, state.map);
-  var evolved = checkCollisions(obj, all_collids, state);
-  var vpt_adj_xy = Viewport.fromCoord(state.vpt, obj.pos);
-  Draw.render(spr, vpt_adj_xy.x, vpt_adj_xy.y);
-  if (Keys.check_bbox_enabled(undefined)) {
-    Draw.renderBbox(spr, vpt_adj_xy.x, vpt_adj_xy.y);
+  var evolved = checkCollisions(obj, allCollids, state);
+  var vptAdjXy = Viewport.fromCoord(state.vpt, obj.pos);
+  Draw.render(spr, vptAdjXy.x, vptAdjXy.y);
+  if (Keys.checkBboxEnabled(undefined)) {
+    Draw.renderBbox(spr, vptAdjXy.x, vptAdjXy.y);
   }
   if (obj.vel.x !== 0 || !$$Object.isEnemy(obj)) {
     Sprite.updateAnimation(spr);
@@ -470,35 +470,35 @@ function updateCollidable(state, obj, all_collids) {
   return evolved;
 }
 
-function runUpdateCollid(state, obj, all_collids) {
+function runUpdateCollid(state, obj, allCollids) {
   var match = obj.objTyp;
   if (match.TAG) {
-    var evolved = updateCollidable(state, obj, all_collids);
+    var evolved = updateCollidable(state, obj, allCollids);
     if (!obj.kill) {
-      collid_objs.contents = /* :: */{
+      collidObjs.contents = /* :: */{
         _0: obj,
-        _1: Pervasives.$at(evolved, collid_objs.contents)
+        _1: Pervasives.$at(evolved, collidObjs.contents)
       };
     }
-    var new_parts = obj.kill ? $$Object.kill(obj) : /* [] */0;
-    particles.contents = Pervasives.$at(new_parts, particles.contents);
+    var newParts = obj.kill ? $$Object.kill(obj) : /* [] */0;
+    particles.contents = Pervasives.$at(newParts, particles.contents);
     return obj;
   }
   var n = match._1;
-  var keys = Keys.translate_keys(n);
+  var keys = Keys.translateKeys(n);
   obj.crouch = false;
   var match$1 = $$Object.updatePlayer(obj, keys);
   var player;
   if (match$1 !== undefined) {
-    var new_spr = match$1[1];
-    $$Object.normalizePos(obj.pos, obj.sprite.params, new_spr.params);
+    var newSpr = match$1[1];
+    $$Object.normalizePos(obj.pos, obj.sprite.params, newSpr.params);
     player = {
       objTyp: {
         TAG: /* Player */0,
         _0: match$1[0],
         _1: n
       },
-      sprite: new_spr,
+      sprite: newSpr,
       params: obj.params,
       pos: obj.pos,
       vel: obj.vel,
@@ -515,8 +515,8 @@ function runUpdateCollid(state, obj, all_collids) {
   } else {
     player = obj;
   }
-  var evolved$1 = updateCollidable(state, player, all_collids);
-  collid_objs.contents = Pervasives.$at(evolved$1, collid_objs.contents);
+  var evolved$1 = updateCollidable(state, player, allCollids);
+  collidObjs.contents = Pervasives.$at(evolved$1, collidObjs.contents);
   return player;
 }
 
@@ -561,7 +561,7 @@ function updateLoop(param) {
         if (timeToStart > 0) {
           Draw.gameLost(timeToStart);
           requestAnimationFrame(function (t) {
-                return updateHelper(t, state, player1, player2, collid_objs.contents, particles.contents);
+                return updateHelper(t, state, player1, player2, collidObjs.contents, particles.contents);
               });
           return ;
         }
@@ -575,12 +575,12 @@ function updateLoop(param) {
       
     }
     var fps = calcFps(undefined);
-    collid_objs.contents = /* [] */0;
+    collidObjs.contents = /* [] */0;
     particles.contents = /* [] */0;
     Draw.clearCanvas(undefined);
-    var vpos_x_int = Viewport.getPos(state.vpt).x / 5 | 0;
-    var bgd_width = state.bgd.params.frameSize[0] | 0;
-    Draw.drawBgd(state.bgd, Caml_int32.mod_(vpos_x_int, bgd_width));
+    var vposXInt = Viewport.getPos(state.vpt).x / 5 | 0;
+    var bgdWidth = state.bgd.params.frameSize[0] | 0;
+    Draw.drawBgd(state.bgd, Caml_int32.mod_(vposXInt, bgdWidth));
     var player1$1 = runUpdateCollid(state, player1, /* :: */{
           _0: player2,
           _1: objs
@@ -616,7 +616,7 @@ function updateLoop(param) {
     Draw.fps(fps);
     Draw.hud(state$1.score, state$1.coins);
     requestAnimationFrame(function (t) {
-          return updateHelper(t, state$1, player1$1, player2$1, collid_objs.contents, particles.contents);
+          return updateHelper(t, state$1, player1$1, player2$1, collidObjs.contents, particles.contents);
         });
     
   };
@@ -624,16 +624,16 @@ function updateLoop(param) {
 }
 
 export {
-  collid_objs ,
+  collidObjs ,
   particles ,
   lastTime ,
   initialTime ,
   calcFps ,
-  update_score ,
+  updateScore ,
   playerAttackEnemy ,
   enemyAttackPlayer ,
-  col_enemy_enemy ,
-  process_collision ,
+  collEnemyEnemy ,
+  processCollision ,
   viewportFilter ,
   broadPhase ,
   narrowPhase ,

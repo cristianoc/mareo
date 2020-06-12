@@ -32,7 +32,7 @@ function setVelToSpeed(obj) {
 }
 
 function makePlayer(param) {
-  return setup(undefined, Config.player_speed, undefined);
+  return setup(undefined, Config.playerSpeed, undefined);
 }
 
 function makeItem(param) {
@@ -137,7 +137,7 @@ function updatePlayerKeys(player, controls) {
         if (!player.jumping && player.grounded) {
           player.jumping = true;
           player.grounded = false;
-          player.vel.y = Caml_primitive.caml_float_max(player.vel.y - (Config.player_jump + Math.abs(player.vel.x) * 0.25), Config.player_max_jump);
+          player.vel.y = Caml_primitive.caml_float_max(player.vel.y - (Config.playerJump + Math.abs(player.vel.x) * 0.25), Config.playerMaxJump);
           return ;
         } else {
           return ;
@@ -197,7 +197,7 @@ function updateVel(obj) {
     obj.vel.y = 0;
     return ;
   } else if (obj.params.hasGravity) {
-    obj.vel.y = Caml_primitive.caml_float_min(obj.vel.y + Config.gravity + Math.abs(obj.vel.y) * 0.01, Config.max_y_vel);
+    obj.vel.y = Caml_primitive.caml_float_min(obj.vel.y + Config.gravity + Math.abs(obj.vel.y) * 0.01, Config.maxYVel);
     return ;
   } else {
     return ;

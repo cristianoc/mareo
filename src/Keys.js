@@ -2,7 +2,7 @@
 
 import * as Belt_List from "bs-platform/lib/es6/belt_List.js";
 
-var pressed_keys = {
+var pressedKeys = {
   left1: false,
   right1: false,
   up1: false,
@@ -19,16 +19,16 @@ function keydown(evt) {
   if (match >= 41) {
     switch (match) {
       case 65 :
-          pressed_keys.left2 = true;
+          pressedKeys.left2 = true;
           break;
       case 66 :
-          pressed_keys.bbox = (pressed_keys.bbox + 1 | 0) % 2;
+          pressedKeys.bbox = (pressedKeys.bbox + 1 | 0) % 2;
           break;
       case 68 :
-          pressed_keys.right2 = true;
+          pressedKeys.right2 = true;
           break;
       case 83 :
-          pressed_keys.down2 = true;
+          pressedKeys.down2 = true;
           break;
       case 67 :
       case 69 :
@@ -50,7 +50,7 @@ function keydown(evt) {
       case 86 :
           break;
       case 87 :
-          pressed_keys.up2 = true;
+          pressedKeys.up2 = true;
           break;
       default:
         
@@ -63,17 +63,17 @@ function keydown(evt) {
       case 4 :
           break;
       case 5 :
-          pressed_keys.left1 = true;
+          pressedKeys.left1 = true;
           break;
       case 0 :
       case 6 :
-          pressed_keys.up1 = true;
+          pressedKeys.up1 = true;
           break;
       case 7 :
-          pressed_keys.right1 = true;
+          pressedKeys.right1 = true;
           break;
       case 8 :
-          pressed_keys.down1 = true;
+          pressedKeys.down1 = true;
           break;
       
     }
@@ -89,19 +89,19 @@ function keyup(evt) {
         if (match >= 69) {
           
         } else {
-          pressed_keys.right2 = false;
+          pressedKeys.right2 = false;
         }
       } else {
-        pressed_keys.up2 = false;
+        pressedKeys.up2 = false;
       }
     } else {
-      pressed_keys.down2 = false;
+      pressedKeys.down2 = false;
     }
   } else if (match >= 41) {
     if (match !== 65) {
       
     } else {
-      pressed_keys.left2 = false;
+      pressedKeys.left2 = false;
     }
   } else if (match >= 32) {
     switch (match - 32 | 0) {
@@ -111,17 +111,17 @@ function keyup(evt) {
       case 4 :
           break;
       case 5 :
-          pressed_keys.left1 = false;
+          pressedKeys.left1 = false;
           break;
       case 0 :
       case 6 :
-          pressed_keys.up1 = false;
+          pressedKeys.up1 = false;
           break;
       case 7 :
-          pressed_keys.right1 = false;
+          pressedKeys.right1 = false;
           break;
       case 8 :
-          pressed_keys.down1 = false;
+          pressedKeys.down1 = false;
           break;
       
     }
@@ -129,28 +129,28 @@ function keyup(evt) {
   return true;
 }
 
-function check_bbox_enabled(param) {
-  return pressed_keys.bbox === 1;
+function checkBboxEnabled(param) {
+  return pressedKeys.bbox === 1;
 }
 
-function translate_keys(playerNum) {
+function translateKeys(playerNum) {
   var ctrls1_0 = [
-    pressed_keys.left1,
+    pressedKeys.left1,
     /* CLeft */0
   ];
   var ctrls1_1 = /* :: */{
     _0: [
-      pressed_keys.right1,
+      pressedKeys.right1,
       /* CRight */1
     ],
     _1: /* :: */{
       _0: [
-        pressed_keys.up1,
+        pressedKeys.up1,
         /* CUp */2
       ],
       _1: /* :: */{
         _0: [
-          pressed_keys.down1,
+          pressedKeys.down1,
           /* CDown */3
         ],
         _1: /* [] */0
@@ -162,22 +162,22 @@ function translate_keys(playerNum) {
     _1: ctrls1_1
   };
   var ctrls2_0 = [
-    pressed_keys.left2,
+    pressedKeys.left2,
     /* CLeft */0
   ];
   var ctrls2_1 = /* :: */{
     _0: [
-      pressed_keys.right2,
+      pressedKeys.right2,
       /* CRight */1
     ],
     _1: /* :: */{
       _0: [
-        pressed_keys.up2,
+        pressedKeys.up2,
         /* CUp */2
       ],
       _1: /* :: */{
         _0: [
-          pressed_keys.down2,
+          pressedKeys.down2,
           /* CDown */3
         ],
         _1: /* [] */0
@@ -201,11 +201,11 @@ function translate_keys(playerNum) {
 }
 
 export {
-  pressed_keys ,
+  pressedKeys ,
   keydown ,
   keyup ,
-  check_bbox_enabled ,
-  translate_keys ,
+  checkBboxEnabled ,
+  translateKeys ,
   
 }
 /* No side effect */

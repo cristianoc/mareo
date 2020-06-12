@@ -13,8 +13,8 @@ type keys = {
   mutable bbox: int,
 };
 
-// pressed_keys instantiates the keys
-let pressed_keys = {
+// pressedKeys instantiates the keys
+let pressedKeys = {
   left1: false,
   right1: false,
   up1: false,
@@ -32,15 +32,15 @@ let keydown = evt => {
   let () =
     switch (evt##keyCode) {
     | 32
-    | 38 => pressed_keys.up1 = true
-    | 87 => pressed_keys.up2 = true
-    | 39 => pressed_keys.right1 = true
-    | 68 => pressed_keys.right2 = true
-    | 37 => pressed_keys.left1 = true
-    | 65 => pressed_keys.left2 = true
-    | 40 => pressed_keys.down1 = true
-    | 83 => pressed_keys.down2 = true
-    | 66 => pressed_keys.bbox = [@doesNotRaise] ((pressed_keys.bbox + 1) mod 2)
+    | 38 => pressedKeys.up1 = true
+    | 87 => pressedKeys.up2 = true
+    | 39 => pressedKeys.right1 = true
+    | 68 => pressedKeys.right2 = true
+    | 37 => pressedKeys.left1 = true
+    | 65 => pressedKeys.left2 = true
+    | 40 => pressedKeys.down1 = true
+    | 83 => pressedKeys.down2 = true
+    | 66 => pressedKeys.bbox = [@doesNotRaise] ((pressedKeys.bbox + 1) mod 2)
     | _ => ()
     };
   true;
@@ -52,26 +52,26 @@ let keyup = evt => {
   let () =
     switch (evt##keyCode) {
     | 32
-    | 38 => pressed_keys.up1 = false
-    | 87 => pressed_keys.up2 = false
-    | 39 => pressed_keys.right1 = false
-    | 68 => pressed_keys.right2 = false
-    | 37 => pressed_keys.left1 = false
-    | 65 => pressed_keys.left2 = false
-    | 40 => pressed_keys.down1 = false
-    | 83 => pressed_keys.down2 = false
+    | 38 => pressedKeys.up1 = false
+    | 87 => pressedKeys.up2 = false
+    | 39 => pressedKeys.right1 = false
+    | 68 => pressedKeys.right2 = false
+    | 37 => pressedKeys.left1 = false
+    | 65 => pressedKeys.left2 = false
+    | 40 => pressedKeys.down1 = false
+    | 83 => pressedKeys.down2 = false
     | _ => ()
     };
   true;
 };
 
 // Returns whether the bounding box should be drawn
-let check_bbox_enabled = () => pressed_keys.bbox == 1;
+let checkBboxEnabled = () => pressedKeys.bbox == 1;
 
 /* Converts a keypress to a list of control keys, allowing more than one key
  * to be processed each frame. */
-let translate_keys = playerNum => {
-  let k = pressed_keys;
+let translateKeys = playerNum => {
+  let k = pressedKeys;
   let ctrls1 = [
     (k.left1, Actors.CLeft),
     (k.right1, CRight),

@@ -12,7 +12,7 @@ function preload(param) {
   var numImages = Config.images.length;
   return Belt_Array.forEachU(Config.images, (function (img_src) {
                 var img = document.createElement("img");
-                img.src = Config.root_dir + img_src;
+                img.src = Config.spritesDir + img_src;
                 img.addEventListener("load", (function (param) {
                         loadCount.contents = loadCount.contents + 1 | 0;
                         if (loadCount.contents === numImages) {

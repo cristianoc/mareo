@@ -57,7 +57,7 @@ let setVelToSpeed = obj => {
 /* The following make functions all set the objects' has_gravity and speed,
  * returning an [obj_params] that can be directly plugged into the [obj]
  * during creation. */
-let makePlayer = () => setup(~speed=Config.player_speed, ());
+let makePlayer = () => setup(~speed=Config.playerSpeed, ());
 
 let makeItem =
   fun
@@ -154,8 +154,8 @@ let updatePlayerKeys = (player: t, controls: controls): unit => {
       player.vel.y =
         max(
           player.vel.y
-          -. (Config.player_jump +. abs_float(player.vel.x) *. 0.25),
-          Config.player_max_jump,
+          -. (Config.playerJump +. abs_float(player.vel.x) *. 0.25),
+          Config.playerMaxJump,
         );
     }
   | CDown =>
@@ -233,7 +233,7 @@ let updateVel = obj =>
     obj.vel.y =
       min(
         obj.vel.y +. Config.gravity +. abs_float(obj.vel.y) *. 0.01,
-        Config.max_y_vel,
+        Config.maxYVel,
       );
   };
 

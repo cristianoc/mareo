@@ -24,7 +24,7 @@ type st = {
   mutable status,
 };
 
-let collid_objs = ref([]); /* List of next iteration collidable objects */
+let collidObjs = ref([]); /* List of next iteration collidable objects */
 
 let particles = ref([]); /* List of next iteration particles */
 
@@ -46,7 +46,7 @@ let calcFps = () => {
 };
 
 /* Adds [i] to the score in [state] */
-let update_score = (state, i) => state.score = state.score + i;
+let updateScore = (state, i) => state.score = state.score + i;
 
 // playerAttackEnemy is called for a player hitting an enemy from the north.
 // This causes the player to either kill the enemy or move the enemy, in the
@@ -60,19 +60,19 @@ let playerAttackEnemy = (o1, typ, s2, o2, state) => {
   | GKoopaShell
   | RKoopaShell =>
     let r2 = Object.evolveEnemy(o1.dir, typ, s2, o2);
-    o1.vel.y = -. Config.dampen_jump;
+    o1.vel.y = -. Config.dampenJump;
     o1.pos.y = o1.pos.y -. 5.;
     (None, r2);
   | _ =>
     Object.decHealth(o2);
-    o1.vel.y = -. Config.dampen_jump;
+    o1.vel.y = -. Config.dampenJump;
     if (state.multiplier == 8) {
-      update_score(state, 800);
+      updateScore(state, 800);
       o2.score = 800;
       (None, Object.evolveEnemy(o1.dir, typ, s2, o2));
     } else {
       let score = 100 * state.multiplier;
-      update_score(state, score);
+      updateScore(state, score);
       o2.score = score;
       state.multiplier = state.multiplier * 2;
       (None, Object.evolveEnemy(o1.dir, typ, s2, o2));
@@ -104,7 +104,7 @@ let enemyAttackPlayer = (o1: Object.t, t2, s2, o2: Object.t) => {
 /*In the case that two enemies collide, they are to reverse directions. However,
  *in the case that one or more of the two enemies is a koopa shell, then
  *the koopa shell kills the other enemy. */
-let col_enemy_enemy = (t1, s1, o1, t2, s2, o2, dir) =>
+let collEnemyEnemy = (t1, s1, o1, t2, s2, o2, dir) =>
   switch (t1, t2) {
   | (GKoopaShell, GKoopaShell)
   | (GKoopaShell, RKoopaShell)
@@ -143,12 +143,12 @@ let col_enemy_enemy = (t1, s1, o1, t2, s2, o2, dir) =>
   };
 
 /* Process collision is called to match each of the possible collisions that
- * may occur. Returns a pair of collidable options, representing objects that
+ * may occur. Returns a pair of options, representing objects that
  * were created from the existing ones. That is, the first element represents
- * a new item spawned as a result of the first collidable. None indicates that
+ * a new item spawned as a result of the first object. None indicates that
  * no new item should be spawned. Transformations to existing objects occur
  * mutably, as many changes are side-effectual.*/
-let process_collision =
+let processCollision =
     (dir: Actors.dir2d, c1: Object.t, c2: Object.t, state: st) => {
   switch (c1, c2, dir) {
   | ({objTyp: Player(_)}, {objTyp: Enemy(typ), sprite: s2}, South)
@@ -169,17 +169,17 @@ let process_collision =
       };
       c1.vel.x = 0.;
       c1.vel.y = 0.;
-      update_score(state, 1000);
+      updateScore(state, 1000);
       c2.score = 1000;
       (None, None);
     | Coin =>
       state.coins = state.coins + 1;
       Object.decHealth(c2);
-      update_score(state, 100);
+      updateScore(state, 100);
       (None, None);
     }
   | ({objTyp: Enemy(t1), sprite: s1}, {objTyp: Enemy(t2), sprite: s2}, dir) =>
-    col_enemy_enemy(t1, s1, c1, t2, s2, c2, dir)
+    collEnemyEnemy(t1, s1, c1, t2, s2, c2, dir)
   | ({objTyp: Enemy(t1), sprite: s1}, {objTyp: Block(t2)}, East)
   | ({objTyp: Enemy(t1), sprite: s1}, {objTyp: Block(t2)}, West) =>
     switch (t1, t2) {
@@ -190,10 +190,10 @@ let process_collision =
       (None, None);
     | (RKoopaShell, QBlock(typ))
     | (GKoopaShell, QBlock(typ)) =>
-      let updated_block = Object.evolveBlock(c2);
-      let spawned_item = Object.spawnAbove(c1.dir, c2, typ);
+      let updatedBlock = Object.evolveBlock(c2);
+      let spawnedItem = Object.spawnAbove(c1.dir, c2, typ);
       Object.revDir(c1, t1, s1);
-      (Some(updated_block), Some(spawned_item));
+      (Some(updatedBlock), Some(spawnedItem));
     | (_, _) =>
       Object.revDir(c1, t1, s1);
       (None, None);
@@ -209,10 +209,10 @@ let process_collision =
   | ({objTyp: Player(t1, _)}, {objTyp: Block(t)}, North) =>
     switch (t) {
     | QBlock(typ) =>
-      let updated_block = Object.evolveBlock(c2);
-      let spawned_item = Object.spawnAbove(c1.dir, c2, typ);
+      let updatedBlock = Object.evolveBlock(c2);
+      let spawnedItem = Object.spawnAbove(c1.dir, c2, typ);
       Object.collideBlock(dir, c1);
-      (Some(spawned_item), Some(updated_block));
+      (Some(spawnedItem), Some(updatedBlock));
     | Brick =>
       if (t1 == BigM) {
         Object.collideBlock(dir, c1);
@@ -263,17 +263,17 @@ let broadPhase = (collid: Object.t, allCollids, state) => {
 // each of the collidable objects to constantly check if collisions are
 // occurring.
 let narrowPhase = (c, cs, state) => {
-  let rec narrow_helper = (c: Object.t, cs, state, acc) =>
+  let rec narrowHelper = (c: Object.t, cs, state, acc) =>
     switch (cs) {
     | [] => acc
     | [h, ...t] =>
-      let new_objs =
+      let newObjs =
         if (!Object.equals(c, h)) {
           switch (Object.checkCollision(c, h)) {
           | None => (None, None)
           | Some(dir) =>
             if (h.id != c.id) {
-              process_collision(dir, c, h, state);
+              processCollision(dir, c, h, state);
             } else {
               (None, None);
             }
@@ -282,15 +282,15 @@ let narrowPhase = (c, cs, state) => {
           (None, None);
         };
       let acc =
-        switch (new_objs) {
+        switch (newObjs) {
         | (None, Some(o)) => [o, ...acc]
         | (Some(o), None) => [o, ...acc]
         | (Some(o1), Some(o2)) => [o1, o2, ...acc]
         | (None, None) => acc
         };
-      narrow_helper(c, t, state, acc);
+      narrowHelper(c, t, state, acc);
     };
-  narrow_helper(c, cs, state, []);
+  narrowHelper(c, cs, state, []);
 };
 
 // This is an optimization setp to determine which objects require narrow phase
@@ -303,17 +303,17 @@ let narrowPhase = (c, cs, state) => {
 //     is a collision, and process the collision.
 // This method returns a list of objects that are created, which should be
 // added to the list of collidables for the next iteration.
-let checkCollisions = (collid, all_collids, state) =>
+let checkCollisions = (collid, allCollids, state) =>
   switch (collid.Object.objTyp) {
   | Block(_) => []
   | _ =>
-    let broad = broadPhase(collid, all_collids, state);
+    let broad = broadPhase(collid, allCollids, state);
     narrowPhase(collid, broad, state);
   };
 
 // primary update method for collidable objects,
 // checking the collision, updating the object, and drawing to the canvas
-let updateCollidable = (state, obj: Object.t, all_collids) => {
+let updateCollidable = (state, obj: Object.t, allCollids) => {
   /* TODO: optimize. Draw static elements only once */
   let spr = obj.sprite;
   obj.invuln = (
@@ -327,12 +327,12 @@ let updateCollidable = (state, obj: Object.t, all_collids) => {
     obj.grounded = false;
     Object.processObj(obj, state.map);
     /* Run collision detection if moving object*/
-    let evolved = checkCollisions(obj, all_collids, state);
+    let evolved = checkCollisions(obj, allCollids, state);
     /* Render and update animation */
-    let vpt_adj_xy = Viewport.fromCoord(state.vpt, obj.pos);
-    Draw.render(spr, vpt_adj_xy.x, vpt_adj_xy.y);
-    if (Keys.check_bbox_enabled()) {
-      Draw.renderBbox(spr, vpt_adj_xy.x, vpt_adj_xy.y);
+    let vptAdjXy = Viewport.fromCoord(state.vpt, obj.pos);
+    Draw.render(spr, vptAdjXy.x, vptAdjXy.y);
+    if (Keys.checkBboxEnabled()) {
+      Draw.renderBbox(spr, vptAdjXy.x, vptAdjXy.y);
     };
     if (obj.vel.x != 0. || !Object.isEnemy(obj)) {
       Sprite.updateAnimation(spr);
@@ -347,33 +347,33 @@ let updateCollidable = (state, obj: Object.t, all_collids) => {
 // as a wrapper method. This method is necessary to differentiate between
 // the player collidable and the remaining collidables, as special operations
 // such as viewport centering only occur with the player
-let runUpdateCollid = (state, obj: Object.t, all_collids) =>
+let runUpdateCollid = (state, obj: Object.t, allCollids) =>
   switch (obj) {
   | {objTyp: Player(_, n), sprite: s} as p =>
-    let keys = Keys.translate_keys(n);
+    let keys = Keys.translateKeys(n);
     obj.crouch = false;
     let player =
       switch (Object.updatePlayer(obj, keys)) {
       | None => p
-      | Some((new_typ, new_spr)) =>
-        Object.normalizePos(obj.pos, s.params, new_spr.params);
-        {...p, objTyp: Player(new_typ, n), sprite: new_spr};
+      | Some((newTyp, newSpr)) =>
+        Object.normalizePos(obj.pos, s.params, newSpr.params);
+        {...p, objTyp: Player(newTyp, n), sprite: newSpr};
       };
-    let evolved = updateCollidable(state, player, all_collids);
-    collid_objs := evolved @ collid_objs^;
+    let evolved = updateCollidable(state, player, allCollids);
+    collidObjs := evolved @ collidObjs^;
     player;
   | _ =>
-    let evolved = updateCollidable(state, obj, all_collids);
+    let evolved = updateCollidable(state, obj, allCollids);
     if (!obj.kill) {
-      collid_objs := [obj, ...evolved @ collid_objs^];
+      collidObjs := [obj, ...evolved @ collidObjs^];
     };
-    let new_parts =
+    let newParts =
       if (obj.kill) {
         Object.kill(obj);
       } else {
         [];
       };
-    particles := new_parts @ particles^;
+    particles := newParts @ particles^;
     obj;
   };
 
@@ -412,7 +412,7 @@ let rec updateLoop = ((player1: Object.t, player2, objs)) => {
       if (timeToStart > 0) {
         Draw.gameLost(timeToStart);
         Html.requestAnimationFrame((t: float) =>
-          updateHelper(t, state, player1, player2, collid_objs^, particles^)
+          updateHelper(t, state, player1, player2, collidObjs^, particles^)
         );
       } else {
         let (player1, player2, objs) = Generator.generate();
@@ -422,15 +422,15 @@ let rec updateLoop = ((player1: Object.t, player2, objs)) => {
     | Playing
     | Lost(_) =>
       let fps = calcFps();
-      collid_objs := [];
+      collidObjs := [];
       particles := [];
       Draw.clearCanvas();
       /* Parallax background */
-      let vpos_x_int = int_of_float(state.vpt->Viewport.getPos.x /. 5.);
-      let bgd_width = int_of_float(fst(state.bgd.params.frameSize));
+      let vposXInt = int_of_float(state.vpt->Viewport.getPos.x /. 5.);
+      let bgdWidth = int_of_float(fst(state.bgd.params.frameSize));
       Draw.drawBgd(
         state.bgd,
-        [@doesNotRaise] float_of_int(vpos_x_int mod bgd_width),
+        [@doesNotRaise] float_of_int(vposXInt mod bgdWidth),
       );
       let player1 = runUpdateCollid(state, player1, [player2, ...objs]);
       let player2 = runUpdateCollid(state, player2, [player1, ...objs]);
@@ -449,7 +449,7 @@ let rec updateLoop = ((player1: Object.t, player2, objs)) => {
       Draw.fps(fps);
       Draw.hud(state.score, state.coins);
       Html.requestAnimationFrame((t: float) =>
-        updateHelper(t, state, player1, player2, collid_objs^, particles^)
+        updateHelper(t, state, player1, player2, collidObjs^, particles^)
       );
     };
   };
