@@ -352,13 +352,7 @@ let updateOnCollid = (state, obj: Object.t, allCollids) =>
   | Player(_, n) =>
     let keys = Keys.translateKeys(n);
     obj.crouch = false;
-    switch (Object.updatePlayer(obj, keys)) {
-    | None => ()
-    | Some((newTyp, newSpr)) =>
-      Object.normalizePos(obj, obj.sprite.params, newSpr.params);
-      obj.objTyp = Player(newTyp, n);
-      obj.sprite = newSpr;
-    };
+    Object.updatePlayer(obj, n, keys);
     let evolved = updateCollidable(state, obj, allCollids);
     collidObjs := evolved @ collidObjs^;
   | _ =>

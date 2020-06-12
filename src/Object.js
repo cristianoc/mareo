@@ -169,7 +169,7 @@ function normalizePos(o, p1, p2) {
   
 }
 
-function updatePlayer(player, keys) {
+function updatePlayer(player, n, keys) {
   var prev_jumping = player.jumping;
   var prev_dir = player.dir;
   var prev_vx = Math.abs(player.vx);
@@ -189,12 +189,17 @@ function updatePlayer(player, keys) {
             )
         )
     );
-  if (playerTyp !== undefined) {
-    return [
-            plSize,
-            Sprite.makeFromParams(Sprite.makePlayer(plSize, playerTyp, player.dir))
-          ];
+  if (playerTyp === undefined) {
+    return ;
   }
+  var newSprite = Sprite.makeFromParams(Sprite.makePlayer(plSize, playerTyp, player.dir));
+  normalizePos(player, player.sprite.params, newSprite.params);
+  player.objTyp = {
+    TAG: /* Player */0,
+    _0: plSize,
+    _1: n
+  };
+  player.sprite = newSprite;
   
 }
 
