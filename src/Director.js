@@ -377,17 +377,17 @@ function processCollision(dir, c1, c2, state) {
   }
 }
 
-function viewportFilter(state, obj, collid) {
-  if (Viewport.inViewport(state.vpt, obj.pos) || $$Object.isPlayer(collid)) {
+function viewportFilter(obj, state) {
+  if (Viewport.inViewport(state.vpt, obj.pos) || $$Object.isPlayer(obj)) {
     return true;
   } else {
     return Viewport.outOfViewportBelow(state.vpt, obj.pos.y);
   }
 }
 
-function broadPhase(collid, allCollids, state) {
+function broadPhase(obj, allCollids, state) {
   return Belt_List.keep(allCollids, (function (_c) {
-                return viewportFilter(state, collid, collid);
+                return viewportFilter(obj, state);
               }));
 }
 
@@ -441,19 +441,19 @@ function narrowPhase(c, cs, state) {
   };
 }
 
-function checkCollisions(collid, allCollids, state) {
-  var match = collid.objTyp;
+function checkCollisions(obj, allCollids, state) {
+  var match = obj.objTyp;
   if (match.TAG === /* Block */3) {
     return /* [] */0;
   }
-  var broad = broadPhase(collid, allCollids, state);
-  return narrowPhase(collid, broad, state);
+  var broad = broadPhase(obj, allCollids, state);
+  return narrowPhase(obj, broad, state);
 }
 
 function updateCollidable(state, obj, allCollids) {
   var spr = obj.sprite;
   obj.invuln = obj.invuln > 0 ? obj.invuln - 1 | 0 : 0;
-  if (!(!obj.kill && viewportFilter(state, obj, obj))) {
+  if (!(!obj.kill && viewportFilter(obj, state))) {
     return /* [] */0;
   }
   obj.grounded = false;

@@ -7,13 +7,13 @@ type status =
   | Lost(float)
   | Won;
 
-/*st represents the state of the game. It includes a background sprite (e.g.,
- * (e.g., hills), a context (used for rendering onto the page), a viewport
- * (used for moving the player's "camera"), a score (which is kept track
- * throughout the game), coins (also kept track through the game),
- * a multiplier (used for when you kill multiple enemies before ever touching
- * the ground, as in the actual Super Mario), and a game_over bool (which
- * is only true when the game is over). */
+// st represents the state of the game. It includes a background sprite (e.g.,
+// (e.g., hills), a context (used for rendering onto the page), a viewport
+// (used for moving the player's "camera"), a score (which is kept track
+// throughout the game), coins (also kept track through the game),
+// a multiplier (used for when you kill multiple enemies before ever touching
+// the ground, as in the actual Super Mario), and a game_over bool (which
+// is only true when the game is over).
 type st = {
   bgd: Sprite.t,
   vpt: Viewport.viewport,
@@ -24,14 +24,14 @@ type st = {
   mutable status,
 };
 
-let collidObjs = ref([]); /* List of next iteration collidable objects */
+let collidObjs = ref([]); // List of next iteration collidable objects
 
-let particles = ref([]); /* List of next iteration particles */
+let particles = ref([]); // List of next iteration particles
 
-let lastTime = ref(0.); /* Used for calculating fps */
-let initialTime = ref(0.); /* Used for calculating fps */
+let lastTime = ref(0.); // Used for calculating fps
+let initialTime = ref(0.); // Used for calculating fps
 
-/* Calculates fps as the difference between [t0] and [t1] */
+// Calculate fps as the difference between [t0] and [t1]
 let calcFps = () => {
   let t0 = lastTime^;
   let time = Html.performance.now(.);
@@ -45,7 +45,7 @@ let calcFps = () => {
   };
 };
 
-/* Adds [i] to the score in [state] */
+// Add [i] to the score in [state]
 let updateScore = (state, i) => state.score = state.score + i;
 
 // playerAttackEnemy is called for a player hitting an enemy from the north.
@@ -101,9 +101,9 @@ let enemyAttackPlayer = (o1: Object.t, t2, s2, o2: Object.t) => {
   };
 };
 
-/*In the case that two enemies collide, they are to reverse directions. However,
- *in the case that one or more of the two enemies is a koopa shell, then
- *the koopa shell kills the other enemy. */
+// In the case that two enemies collide, they are to reverse directions. However,
+// in the case that one or more of the two enemies is a koopa shell, then
+// the koopa shell kills the other enemy.
 let collEnemyEnemy = (t1, s1, o1, t2, s2, o2, dir) =>
   switch (t1, t2) {
   | (GKoopaShell, GKoopaShell)
@@ -142,12 +142,12 @@ let collEnemyEnemy = (t1, s1, o1, t2, s2, o2, dir) =>
     }
   };
 
-/* Process collision is called to match each of the possible collisions that
- * may occur. Returns a pair of options, representing objects that
- * were created from the existing ones. That is, the first element represents
- * a new item spawned as a result of the first object. None indicates that
- * no new item should be spawned. Transformations to existing objects occur
- * mutably, as many changes are side-effectual.*/
+// Process collision is called to match each of the possible collisions that
+// may occur. Returns a pair of options, representing objects that
+// were created from the existing ones. That is, the first element represents
+// a new item spawned as a result of the first object. None indicates that
+// no new item should be spawned. Transformations to existing objects occur
+// mutably, as many changes are side-effectual.
 let processCollision =
     (dir: Actors.dir2d, c1: Object.t, c2: Object.t, state: st) => {
   switch (c1, c2, dir) {
@@ -249,14 +249,14 @@ let processCollision =
   };
 };
 
-let viewportFilter = (state, obj: Object.t, collid) =>
+let viewportFilter = (obj: Object.t, state) =>
   Viewport.inViewport(state.vpt, obj.pos)
-  || Object.isPlayer(collid)
+  || Object.isPlayer(obj)
   || Viewport.outOfViewportBelow(state.vpt, obj.pos.y);
 
 // Run the broad phase object filtering
-let broadPhase = (collid: Object.t, allCollids, state) => {
-  allCollids->List.keep(_c => viewportFilter(state, collid, collid));
+let broadPhase = (obj: Object.t, allCollids, state) => {
+  allCollids->List.keep(_c => obj->viewportFilter(state));
 };
 
 // narrowPhase of collision is used in order to continuously loop through
@@ -294,24 +294,24 @@ let narrowPhase = (c, cs, state) => {
 };
 
 // This is an optimization setp to determine which objects require narrow phase
-// checking. This excludes static collidables, allowing collision to only be
-// checked with moving objects. This method is called once per collidable.
+// checking. This excludes static objects, allowing collision to only be
+// checked with moving objects. This method is called once per objects.
 // Collision detection proceeds as follows:
-//  1. Broad phase - filter collidables that cannot possibly collide with
+//  1. Broad phase - filter objects that cannot possibly collide with
 //     this object.
 //  2. Narrow phase - compare against all objects to determine whether there
 //     is a collision, and process the collision.
 // This method returns a list of objects that are created, which should be
-// added to the list of collidables for the next iteration.
-let checkCollisions = (collid, allCollids, state) =>
-  switch (collid.Object.objTyp) {
+// added to the list of objects for the next iteration.
+let checkCollisions = (obj, allCollids, state) =>
+  switch (obj.Object.objTyp) {
   | Block(_) => []
   | _ =>
-    let broad = broadPhase(collid, allCollids, state);
-    narrowPhase(collid, broad, state);
+    let broad = broadPhase(obj, allCollids, state);
+    narrowPhase(obj, broad, state);
   };
 
-// primary update method for collidable objects,
+// primary update method for objects,
 // checking the collision, updating the object, and drawing to the canvas
 let updateCollidable = (state, obj: Object.t, allCollids) => {
   /* TODO: optimize. Draw static elements only once */
@@ -323,12 +323,12 @@ let updateCollidable = (state, obj: Object.t, allCollids) => {
       0;
     }
   );
-  if (!obj.kill && viewportFilter(state, obj, obj)) {
+  if (!obj.kill && obj->viewportFilter(state)) {
     obj.grounded = false;
     Object.processObj(obj, state.map);
-    /* Run collision detection if moving object*/
+    // Run collision detection if moving object
     let evolved = checkCollisions(obj, allCollids, state);
-    /* Render and update animation */
+    // Render and update animation
     let vptAdjXy = Viewport.fromCoord(state.vpt, obj.pos);
     Draw.render(spr, vptAdjXy.x, vptAdjXy.y);
     if (Keys.checkBboxEnabled()) {
@@ -440,10 +440,7 @@ let rec updateLoop = ((player1: Object.t, player2, objs)) => {
         | _ => state.status = Lost(time)
         };
       };
-      let state = {
-        ...state,
-        vpt: Viewport.update(state.vpt, player1.pos),
-      };
+      let state = {...state, vpt: Viewport.update(state.vpt, player1.pos)};
       List.forEach(objs, obj => runUpdateCollid(state, obj, objs));
       List.forEach(parts, part => runUpdateParticle(state, part));
       Draw.fps(fps);
