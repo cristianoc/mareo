@@ -56,25 +56,41 @@ function newId(param) {
 function make(hasGravityOpt, speedOpt, dir, objTyp, spriteParams, px, py) {
   var hasGravity = hasGravityOpt !== undefined ? hasGravityOpt : true;
   var speed = speedOpt !== undefined ? speedOpt : 1.0;
-  return {
-          objTyp: objTyp,
-          sprite: Sprite.makeFromParams(spriteParams),
-          hasGravity: hasGravity,
-          speed: speed,
-          id: newId(undefined),
-          px: px,
-          py: py,
-          vx: 0.0,
-          vy: 0.0,
-          jumping: false,
-          grounded: false,
-          dir: dir,
-          invuln: 0,
-          kill: false,
-          health: 1,
-          crouch: false,
-          score: 0
-        };
+  var newObj = {
+    objTyp: objTyp,
+    sprite: Sprite.makeFromParams(spriteParams),
+    hasGravity: hasGravity,
+    speed: speed,
+    id: newId(undefined),
+    px: px,
+    py: py,
+    vx: 0.0,
+    vy: 0.0,
+    jumping: false,
+    grounded: false,
+    dir: dir,
+    invuln: 0,
+    kill: false,
+    health: 1,
+    crouch: false,
+    score: 0
+  };
+  switch (objTyp.TAG | 0) {
+    case /* Player */0 :
+        newObj.speed = Config.playerSpeed;
+        break;
+    case /* Enemy */1 :
+        makeEnemy(newObj, objTyp._0);
+        break;
+    case /* Item */2 :
+        makeItem(newObj, objTyp._0);
+        break;
+    case /* Block */3 :
+        newObj.hasGravity = false;
+        break;
+    
+  }
+  return newObj;
 }
 
 function isPlayer(param) {
@@ -249,16 +265,13 @@ function evolveEnemy(player_dir, typ, spr, obj) {
               TAG: /* Enemy */1,
               _0: /* GKoopaShell */3
             }, Sprite.makeEnemy(/* GKoopaShell */3, obj.dir), obj.px, obj.py);
-        makeEnemy(newObj, /* GKoopaShell */3);
         normalizePos(newObj, spr.params, newObj.sprite.params);
         return newObj;
     case /* RKoopa */2 :
-        var newObj$1 = make(undefined, 3, obj.dir, {
-              TAG: /* Enemy */1,
-              _0: /* RKoopaShell */4
-            }, Sprite.makeEnemy(/* RKoopaShell */4, obj.dir), obj.px, obj.py);
-        makeEnemy(newObj$1, /* RKoopaShell */4);
-        return newObj$1;
+        return make(undefined, 3, obj.dir, {
+                    TAG: /* Enemy */1,
+                    _0: /* RKoopaShell */4
+                  }, Sprite.makeEnemy(/* RKoopaShell */4, obj.dir), obj.px, obj.py);
     case /* GKoopaShell */3 :
     case /* RKoopaShell */4 :
         break;
@@ -295,12 +308,10 @@ function decHealth(obj) {
 
 function evolveBlock(obj) {
   decHealth(obj);
-  var newObj = make(false, undefined, obj.dir, {
-        TAG: /* Block */3,
-        _0: /* QBlockUsed */0
-      }, Sprite.makeParams(/* QBlockUsed */0), obj.px, obj.py);
-  newObj.hasGravity = false;
-  return newObj;
+  return make(false, undefined, obj.dir, {
+              TAG: /* Block */3,
+              _0: /* QBlockUsed */0
+            }, Sprite.makeParams(/* QBlockUsed */0), obj.px, obj.py);
 }
 
 function spawnAbove(player_dir, obj, itemTyp) {
@@ -308,7 +319,6 @@ function spawnAbove(player_dir, obj, itemTyp) {
         TAG: /* Item */2,
         _0: itemTyp
       }, Sprite.makeItem(itemTyp), obj.px, obj.py);
-  makeItem(item, itemTyp);
   item.py = item.py - item.sprite.params.frameSize[1];
   item.dir = player_dir ? /* Left */0 : /* Right */1;
   setVelToSpeed(item);

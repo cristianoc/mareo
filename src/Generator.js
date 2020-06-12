@@ -32,12 +32,10 @@ function trimEdge(x, y) {
 }
 
 function convertCoinToObj(param) {
-  var obj = $$Object.make(false, undefined, /* Left */0, {
-        TAG: /* Item */2,
-        _0: /* Coin */1
-      }, Sprite.makeItem(/* Coin */1), param[1], param[2]);
-  $$Object.makeItem(obj, /* Coin */1);
-  return obj;
+  return $$Object.make(false, undefined, /* Left */0, {
+              TAG: /* Item */2,
+              _0: /* Coin */1
+            }, Sprite.makeItem(/* Coin */1), param[1], param[2]);
 }
 
 function addCoins(objects, x, y0) {
@@ -64,7 +62,6 @@ function convertEnemyToObj(param) {
         TAG: /* Enemy */1,
         _0: enemyTyp
       }, Sprite.makeEnemy(enemyTyp, /* Left */0), param[1], param[2]);
-  $$Object.makeEnemy(obj, enemyTyp);
   $$Object.setVelToSpeed(obj);
   return obj;
 }
@@ -108,7 +105,6 @@ function addBlock(objects, blockTyp, xBlock, yBlock) {
         TAG: /* Block */3,
         _0: blockTyp
       }, Sprite.makeParams(blockTyp), x, y);
-  $$Object.makeBlock(obj, blockTyp);
   objects.contents = /* :: */{
     _0: obj,
     _1: objects.contents
@@ -278,22 +274,18 @@ function generateBlocks(objects, _cbx, _cby) {
 }
 
 function generatePanel(param) {
-  var obj = $$Object.make(undefined, undefined, /* Left */0, {
-        TAG: /* Block */3,
-        _0: /* Panel */4
-      }, Sprite.makeParams(/* Panel */4), Config.blockw * 16 - 256, Config.blockh * 16 * 2 / 3);
-  $$Object.makeBlock(obj, /* Panel */4);
-  return obj;
+  return $$Object.make(undefined, undefined, /* Left */0, {
+              TAG: /* Block */3,
+              _0: /* Panel */4
+            }, Sprite.makeParams(/* Panel */4), Config.blockw * 16 - 256, Config.blockh * 16 * 2 / 3);
 }
 
 function convertBlockToObj(param) {
   var blockTyp = param[0];
-  var obj = $$Object.make(undefined, undefined, /* Left */0, {
-        TAG: /* Block */3,
-        _0: blockTyp
-      }, Sprite.makeParams(blockTyp), param[1], param[2]);
-  $$Object.makeBlock(obj, blockTyp);
-  return obj;
+  return $$Object.make(undefined, undefined, /* Left */0, {
+              TAG: /* Block */3,
+              _0: blockTyp
+            }, Sprite.makeParams(blockTyp), param[1], param[2]);
 }
 
 function generateGround(objects, _inc) {
@@ -354,13 +346,11 @@ function generate(param) {
         _0: /* SmallM */1,
         _1: /* One */0
       }, Sprite.makePlayer(/* SmallM */1, /* Standing */0, /* Left */0), 100, 224);
-  $$Object.makePlayer(player1);
   var player2 = $$Object.make(undefined, undefined, /* Left */0, {
         TAG: /* Player */0,
         _0: /* SmallM */1,
         _1: /* Two */1
       }, Sprite.makePlayer(/* SmallM */1, /* Standing */0, /* Left */0), 120, 224);
-  $$Object.makePlayer(player2);
   var elapsed = performance.now() - initial;
   console.log("generated", Belt_List.length(objects), "objects in " + (elapsed.toString() + " milliseconds"));
   return [

@@ -87,7 +87,7 @@ let newId = () => {
 };
 
 let make = (~hasGravity=true, ~speed=1.0, ~dir, objTyp, spriteParams, px, py) => {
-  {
+  let newObj = {
     objTyp,
     sprite: spriteParams->Sprite.makeFromParams,
     hasGravity,
@@ -106,6 +106,13 @@ let make = (~hasGravity=true, ~speed=1.0, ~dir, objTyp, spriteParams, px, py) =>
     crouch: false,
     score: 0,
   };
+  switch (objTyp) {
+  | Player(_) => newObj->makePlayer
+  | Item(item) => newObj->makeItem(item)
+  | Enemy(t) => newObj->makeEnemy(t)
+  | Block(t) => newObj->makeBlock(t)
+  };
+  newObj;
 };
 
 let isPlayer =
@@ -283,7 +290,6 @@ let evolveEnemy = (player_dir, typ, spr: Sprite.t, obj) =>
         obj.px,
         obj.py,
       );
-    newObj->makeEnemy(GKoopaShell);
     normalizePos(newObj, spr.params, newObj.sprite.params);
     Some(newObj);
   | RKoopa =>
@@ -296,7 +302,6 @@ let evolveEnemy = (player_dir, typ, spr: Sprite.t, obj) =>
         obj.px,
         obj.py,
       );
-    newObj->makeEnemy(RKoopaShell);
     Some(newObj);
   | GKoopaShell
   | RKoopaShell =>
@@ -342,7 +347,6 @@ let evolveBlock = obj => {
       obj.px,
       obj.py,
     );
-  newObj->makeBlock(QBlockUsed);
   newObj;
 };
 
@@ -357,7 +361,6 @@ let spawnAbove = (player_dir, obj, itemTyp) => {
       obj.px,
       obj.py,
     );
-  item->makeItem(itemTyp);
   item.py = item.py -. snd(item.sprite.params.frameSize);
   item.dir = oppositeDir(player_dir);
   setVelToSpeed(item);

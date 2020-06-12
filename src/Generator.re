@@ -37,7 +37,6 @@ let convertCoinToObj = ((_, x, y)) => {
       x,
       y,
     );
-  obj->Object.makeItem(Coin);
   obj;
 };
 
@@ -57,7 +56,6 @@ let convertEnemyToObj = ((enemyTyp, x, y)) => {
       x,
       y,
     );
-  obj->Object.makeEnemy(enemyTyp);
   obj->Object.setVelToSpeed;
   obj;
 };
@@ -89,7 +87,6 @@ let addBlock = (objects, blockTyp, xBlock, yBlock) => {
         x,
         y,
       );
-    obj->Object.makeBlock(blockTyp);
     objects := [obj, ...objects^];
     objects->addCoins(x, y);
     objects->addEnemyOnBlock(x, y);
@@ -248,7 +245,6 @@ let generatePanel = (): Object.t => {
       Config.blockw *. 16. -. 256.,
       Config.blockh *. 16. *. 2. /. 3.,
     );
-  obj->Object.makeBlock(Panel);
   obj;
 };
 
@@ -261,7 +257,6 @@ let convertBlockToObj = ((blockTyp, x, y)) => {
       x,
       y,
     );
-  obj->Object.makeBlock(blockTyp);
   obj;
 };
 
@@ -317,7 +312,6 @@ let generate = (): (Object.t, Object.t, list(Object.t)) => {
       100.,
       224.,
     );
-  player1->Object.makePlayer;
   let player2 =
     Object.make(
       ~dir=Left,
@@ -326,7 +320,6 @@ let generate = (): (Object.t, Object.t, list(Object.t)) => {
       120.,
       224.,
     );
-  player2->Object.makePlayer;
   let elapsed = Html.performance.now(.) -. initial;
   Js.log3(
     "generated",
