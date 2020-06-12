@@ -67,12 +67,12 @@ let playerAttackEnemy = (o1, enemyTyp, s2, o2, state) => {
     Object.decHealth(o2);
     o1.vy = -. Config.dampenJump;
     if (state.multiplier == 8) {
-      updateScore(state, 800);
+      state->updateScore(800);
       o2.score = 800;
       (None, Object.evolveEnemy(o1.dir, enemyTyp, s2, o2));
     } else {
       let score = 100 * state.multiplier;
-      updateScore(state, score);
+      state->updateScore(score);
       o2.score = score;
       state.multiplier = state.multiplier * 2;
       (None, Object.evolveEnemy(o1.dir, enemyTyp, s2, o2));
