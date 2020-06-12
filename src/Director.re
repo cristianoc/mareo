@@ -347,21 +347,20 @@ let updateCollidable = (state, obj: Object.t, allCollids) => {
 // as a wrapper method. This method is necessary to differentiate between
 // the player collidable and the remaining collidables, as special operations
 // such as viewport centering only occur with the player
-let runUpdateCollid = (state, obj: Object.t, allCollids) =>
+let updateOnCollid = (state, obj: Object.t, allCollids) =>
   switch (obj) {
-  | {objTyp: Player(_, n), sprite: s} as p =>
+  | {objTyp: Player(_, n), sprite: s} =>
     let keys = Keys.translateKeys(n);
     obj.crouch = false;
-    let player =
-      switch (Object.updatePlayer(obj, keys)) {
-      | None => p
-      | Some((newTyp, newSpr)) =>
-        Object.normalizePos(obj, s.params, newSpr.params);
-        {...p, objTyp: Player(newTyp, n), sprite: newSpr};
-      };
-    let evolved = updateCollidable(state, player, allCollids);
+    switch (Object.updatePlayer(obj, keys)) {
+    | None => ()
+    | Some((newTyp, newSpr)) =>
+      Object.normalizePos(obj, s.params, newSpr.params);
+      obj.objTyp = Player(newTyp, n);
+      obj.sprite = newSpr;
+    };
+    let evolved = updateCollidable(state, obj, allCollids);
     collidObjs := evolved @ collidObjs^;
-    player;
   | _ =>
     let evolved = updateCollidable(state, obj, allCollids);
     if (!obj.kill) {
@@ -374,11 +373,10 @@ let runUpdateCollid = (state, obj: Object.t, allCollids) =>
         [];
       };
     particles := newParts @ particles^;
-    obj;
   };
 
 // Primary update function to update and persist a particle
-let runUpdateParticle = (state, part) => {
+let updateParticle = (state, part) => {
   Particle.process(part);
   let x = part.px -. state.vpt->Viewport.getPos.x
   and y = part.py -. state.vpt->Viewport.getPos.y;
@@ -432,17 +430,20 @@ let rec updateLoop = (player1: Object.t, player2, objs) => {
         state.bgd,
         [@doesNotRaise] float_of_int(vposXInt mod bgdWidth),
       );
-      let player1 = runUpdateCollid(state, player1, [player2, ...objs]);
-      let player2 = runUpdateCollid(state, player2, [player1, ...objs]);
+      updateOnCollid(state, player1, [player2, ...objs]);
+      updateOnCollid(state, player2, [player1, ...objs]);
       if (player1.kill == true) {
         switch (state.status) {
         | Lost(_) => ()
         | _ => state.status = Lost(time)
         };
       };
-      let state = {...state, vpt: Viewport.update(state.vpt, player1.px, player1.py)};
-      objs->List.forEach(obj => runUpdateCollid(state, obj, objs));
-      parts->List.forEach(part => runUpdateParticle(state, part));
+      let state = {
+        ...state,
+        vpt: Viewport.update(state.vpt, player1.px, player1.py),
+      };
+      objs->List.forEach(obj => updateOnCollid(state, obj, objs));
+      parts->List.forEach(part => updateParticle(state, part));
       Draw.fps(fps);
       Draw.hud(state.score, state.coins);
       Html.requestAnimationFrame((t: float) =>

@@ -175,8 +175,8 @@ function processCollision(dir, c1, c2, state) {
                       undefined
                     ];
           case /* Enemy */1 :
-              var s2 = c2.sprite;
               var typ = t._0;
+              var s2 = c2.sprite;
               if (dir !== 1) {
                 return enemyAttackPlayer(c1, typ, s2, c2);
               } else {
@@ -258,8 +258,8 @@ function processCollision(dir, c1, c2, state) {
         }
         break;
     case /* Enemy */1 :
-        var s1 = c1.sprite;
         var t1$1 = t1._0;
+        var s1 = c1.sprite;
         var t2$1 = c2.objTyp;
         switch (t2$1.TAG | 0) {
           case /* Player */0 :
@@ -269,7 +269,8 @@ function processCollision(dir, c1, c2, state) {
                 return playerAttackEnemy(c1, t1$1, s1, c2, state);
               }
           case /* Enemy */1 :
-              return collEnemyEnemy(t1$1, s1, c1, t2$1._0, c2.sprite, c2, dir);
+              var s2$1 = c2.sprite;
+              return collEnemyEnemy(t1$1, s1, c1, t2$1._0, s2$1, c2, dir);
           case /* Item */2 :
               return [
                       undefined,
@@ -317,7 +318,8 @@ function processCollision(dir, c1, c2, state) {
           
         }
     case /* Item */2 :
-        switch (c2.objTyp.TAG | 0) {
+        var match = c2.objTyp;
+        switch (match.TAG | 0) {
           case /* Player */0 :
               t2 = t1._0;
               break;
@@ -470,7 +472,7 @@ function updateCollidable(state, obj, allCollids) {
   return evolved;
 }
 
-function runUpdateCollid(state, obj, allCollids) {
+function updateOnCollid(state, obj, allCollids) {
   var match = obj.objTyp;
   if (match.TAG) {
     var evolved = updateCollidable(state, obj, allCollids);
@@ -482,48 +484,29 @@ function runUpdateCollid(state, obj, allCollids) {
     }
     var newParts = obj.kill ? $$Object.kill(obj) : /* [] */0;
     particles.contents = Pervasives.$at(newParts, particles.contents);
-    return obj;
+    return ;
   }
   var n = match._1;
+  var s = obj.sprite;
   var keys = Keys.translateKeys(n);
   obj.crouch = false;
   var match$1 = $$Object.updatePlayer(obj, keys);
-  var player;
   if (match$1 !== undefined) {
     var newSpr = match$1[1];
-    $$Object.normalizePos(obj, obj.sprite.params, newSpr.params);
-    player = {
-      objTyp: {
-        TAG: /* Player */0,
-        _0: match$1[0],
-        _1: n
-      },
-      sprite: newSpr,
-      hasGravity: obj.hasGravity,
-      speed: obj.speed,
-      id: obj.id,
-      px: obj.px,
-      py: obj.py,
-      vx: obj.vx,
-      vy: obj.vy,
-      jumping: obj.jumping,
-      grounded: obj.grounded,
-      dir: obj.dir,
-      invuln: obj.invuln,
-      kill: obj.kill,
-      health: obj.health,
-      crouch: obj.crouch,
-      score: obj.score
+    $$Object.normalizePos(obj, s.params, newSpr.params);
+    obj.objTyp = {
+      TAG: /* Player */0,
+      _0: match$1[0],
+      _1: n
     };
-  } else {
-    player = obj;
+    obj.sprite = newSpr;
   }
-  var evolved$1 = updateCollidable(state, player, allCollids);
+  var evolved$1 = updateCollidable(state, obj, allCollids);
   collidObjs.contents = Pervasives.$at(evolved$1, collidObjs.contents);
-  return player;
+  
 }
 
-function runUpdateParticle(state, part) {
+function updateParticle(state, part) {
   Particle.$$process(part);
   var x = part.px - Viewport.getPos(state.vpt).x;
   var y = part.py - Viewport.getPos(state.vpt).y;
@@ -579,15 +562,15 @@ function updateLoop(player1, player2, objs) {
     var vposXInt = Viewport.getPos(state.vpt).x / 5 | 0;
     var bgdWidth = state.bgd.params.frameSize[0] | 0;
     Draw.drawBgd(state.bgd, Caml_int32.mod_(vposXInt, bgdWidth));
-    var player1$1 = runUpdateCollid(state, player1, /* :: */{
+    updateOnCollid(state, player1, /* :: */{
           _0: player2,
           _1: objs
         });
-    var player2$1 = runUpdateCollid(state, player2, /* :: */{
-          _0: player1$1,
+    updateOnCollid(state, player2, /* :: */{
+          _0: player1,
           _1: objs
         });
-    if (player1$1.kill === true) {
+    if (player1.kill === true) {
       var match$1 = state.status;
       if (typeof match$1 === "number") {
         state.status = /* Lost */{
@@ -598,7 +581,7 @@ function updateLoop(player1, player2, objs) {
     }
     var state$1 = {
       bgd: state.bgd,
-      vpt: Viewport.update(state.vpt, player1$1.px, player1$1.py),
+      vpt: Viewport.update(state.vpt, player1.px, player1.py),
       map: state.map,
       score: state.score,
       coins: state.coins,
@@ -606,15 +589,15 @@ function updateLoop(player1, player2, objs) {
       status: state.status
     };
     Belt_List.forEach(objs, (function (obj) {
-            return runUpdateCollid(state$1, obj, objs);
+            return updateOnCollid(state$1, obj, objs);
           }));
     Belt_List.forEach(parts, (function (part) {
-            return runUpdateParticle(state$1, part);
+            return updateParticle(state$1, part);
           }));
     Draw.fps(fps);
     Draw.hud(state$1.score, state$1.coins);
     requestAnimationFrame(function (t) {
-          return updateHelper(t, state$1, player1$1, player2$1, collidObjs.contents, particles.contents);
+          return updateHelper(t, state$1, player1, player2, collidObjs.contents, particles.contents);
         });
     
   };
@@ -637,8 +620,8 @@ export {
   narrowPhase ,
   checkCollisions ,
   updateCollidable ,
-  runUpdateCollid ,
-  runUpdateParticle ,
+  updateOnCollid ,
+  updateParticle ,
   updateLoop ,
   
 }

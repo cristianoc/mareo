@@ -95,7 +95,8 @@ function make(hasGravityOpt, speedOpt, dirOpt, objTyp, spriteParams, px, py) {
 }
 
 function isPlayer(param) {
-  if (param.objTyp.TAG) {
+  var match = param.objTyp;
+  if (match.TAG) {
     return false;
   } else {
     return true;
@@ -103,7 +104,8 @@ function isPlayer(param) {
 }
 
 function isEnemy(param) {
-  if (param.objTyp.TAG === /* Enemy */1) {
+  var match = param.objTyp;
+  if (match.TAG === /* Enemy */1) {
     return true;
   } else {
     return false;

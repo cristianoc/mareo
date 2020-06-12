@@ -20,8 +20,8 @@ type objTyp =
   | Block(blockTyp);
 
 type t = {
-  objTyp,
-  sprite: Sprite.t,
+  mutable objTyp,
+  mutable sprite: Sprite.t,
   mutable hasGravity: bool,
   mutable speed: float,
   id: int,
