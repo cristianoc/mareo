@@ -487,13 +487,12 @@ function updateOnCollid(state, obj, allCollids) {
     return ;
   }
   var n = match._1;
-  var s = obj.sprite;
   var keys = Keys.translateKeys(n);
   obj.crouch = false;
   var match$1 = $$Object.updatePlayer(obj, keys);
   if (match$1 !== undefined) {
     var newSpr = match$1[1];
-    $$Object.normalizePos(obj, s.params, newSpr.params);
+    $$Object.normalizePos(obj, obj.sprite.params, newSpr.params);
     obj.objTyp = {
       TAG: /* Player */0,
       _0: match$1[0],

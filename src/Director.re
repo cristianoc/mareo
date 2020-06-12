@@ -348,14 +348,14 @@ let updateCollidable = (state, obj: Object.t, allCollids) => {
 // the player collidable and the remaining collidables, as special operations
 // such as viewport centering only occur with the player
 let updateOnCollid = (state, obj: Object.t, allCollids) =>
-  switch (obj) {
-  | {objTyp: Player(_, n), sprite: s} =>
+  switch (obj.objTyp) {
+  | Player(_, n) =>
     let keys = Keys.translateKeys(n);
     obj.crouch = false;
     switch (Object.updatePlayer(obj, keys)) {
     | None => ()
     | Some((newTyp, newSpr)) =>
-      Object.normalizePos(obj, s.params, newSpr.params);
+      Object.normalizePos(obj, obj.sprite.params, newSpr.params);
       obj.objTyp = Player(newTyp, n);
       obj.sprite = newSpr;
     };
