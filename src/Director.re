@@ -151,6 +151,9 @@ let collEnemyEnemy = (t1, s1, o1, t2, s2, o2, dir) =>
 let processCollision =
     (dir: Actors.dir2d, obj1: Object.t, obj2: Object.t, state: st) => {
   switch (obj1, obj2, dir) {
+  | ({objTyp: Player(_)}, {objTyp: Player(_)}, East | West) =>
+    obj2.vx = obj2.vx +. obj1.vx;
+    (None, None);
   | ({objTyp: Player(_)}, {objTyp: Enemy(typ), sprite: s2}, South)
   | ({objTyp: Enemy(typ), sprite: s2}, {objTyp: Player(_)}, North) =>
     playerAttackEnemy(obj1, typ, s2, obj2, state)

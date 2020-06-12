@@ -170,10 +170,18 @@ function processCollision(dir, obj1, obj2, state) {
         var t = obj2.objTyp;
         switch (t.TAG | 0) {
           case /* Player */0 :
-              return [
-                      undefined,
-                      undefined
-                    ];
+              if (dir >= 2) {
+                obj2.vx = obj2.vx + obj1.vx;
+                return [
+                        undefined,
+                        undefined
+                      ];
+              } else {
+                return [
+                        undefined,
+                        undefined
+                      ];
+              }
           case /* Enemy */1 :
               var typ = t._0;
               var s2 = obj2.sprite;
