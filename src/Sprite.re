@@ -321,7 +321,7 @@ let groundParams = setupSprite("ground.png", ~srcOffset=(0., 32.));
 
 // Set sprites for blocks: brick, question block, unbreakable block, cloud block
 // panel block, ground block.*/
-let makeParams =
+let makeBlock =
   fun
   /* 16x16 grid with 0x0 offset */
   | Brick => brickParams

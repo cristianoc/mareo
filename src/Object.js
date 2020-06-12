@@ -311,7 +311,7 @@ function evolveBlock(obj) {
   return make(false, undefined, obj.dir, {
               TAG: /* Block */3,
               _0: /* QBlockUsed */0
-            }, Sprite.makeParams(/* QBlockUsed */0), obj.px, obj.py);
+            }, Sprite.makeBlock(/* QBlockUsed */0), obj.px, obj.py);
 }
 
 function spawnAbove(player_dir, obj, itemTyp) {

@@ -422,7 +422,7 @@ var groundParams = setupSprite(undefined, undefined, undefined, undefined, undef
       32
     ], "ground.png");
 
-function makeParams(param) {
+function makeBlock(param) {
   if (typeof param !== "number") {
     return qBlockParams;
   }
@@ -600,7 +600,7 @@ export {
   cloudParams ,
   panelParams ,
   groundParams ,
-  makeParams ,
+  makeBlock ,
   makePlayer ,
   makeFromParams ,
   makeBgd ,

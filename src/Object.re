@@ -343,7 +343,7 @@ let evolveBlock = obj => {
       ~hasGravity=false,
       ~dir=obj.dir,
       Block(QBlockUsed),
-      Sprite.makeParams(QBlockUsed),
+      Sprite.makeBlock(QBlockUsed),
       obj.px,
       obj.py,
     );

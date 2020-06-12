@@ -104,7 +104,7 @@ function addBlock(objects, blockTyp, xBlock, yBlock) {
   var obj = $$Object.make(undefined, undefined, /* Left */0, {
         TAG: /* Block */3,
         _0: blockTyp
-      }, Sprite.makeParams(blockTyp), x, y);
+      }, Sprite.makeBlock(blockTyp), x, y);
   objects.contents = /* :: */{
     _0: obj,
     _1: objects.contents
@@ -277,7 +277,7 @@ function generatePanel(param) {
   return $$Object.make(undefined, undefined, /* Left */0, {
               TAG: /* Block */3,
               _0: /* Panel */4
-            }, Sprite.makeParams(/* Panel */4), Config.blockw * 16 - 256, Config.blockh * 16 * 2 / 3);
+            }, Sprite.makeBlock(/* Panel */4), Config.blockw * 16 - 256, Config.blockh * 16 * 2 / 3);
 }
 
 function convertBlockToObj(param) {
@@ -285,7 +285,7 @@ function convertBlockToObj(param) {
   return $$Object.make(undefined, undefined, /* Left */0, {
               TAG: /* Block */3,
               _0: blockTyp
-            }, Sprite.makeParams(blockTyp), param[1], param[2]);
+            }, Sprite.makeBlock(blockTyp), param[1], param[2]);
 }
 
 function generateGround(objects, _inc) {

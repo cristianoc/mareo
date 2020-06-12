@@ -83,7 +83,7 @@ let addBlock = (objects, blockTyp, xBlock, yBlock) => {
       Object.make(
         ~dir=Left,
         Block(blockTyp),
-        Sprite.makeParams(blockTyp),
+        Sprite.makeBlock(blockTyp),
         x,
         y,
       );
@@ -241,7 +241,7 @@ let generatePanel = (): Object.t => {
     Object.make(
       ~dir=Left,
       Block(Panel),
-      Sprite.makeParams(Panel),
+      Sprite.makeBlock(Panel),
       Config.blockw *. 16. -. 256.,
       Config.blockh *. 16. *. 2. /. 3.,
     );
@@ -253,7 +253,7 @@ let convertBlockToObj = ((blockTyp, x, y)) => {
     Object.make(
       ~dir=Left,
       Block(blockTyp),
-      Sprite.makeParams(blockTyp),
+      Sprite.makeBlock(blockTyp),
       x,
       y,
     );
