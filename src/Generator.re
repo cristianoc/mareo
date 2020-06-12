@@ -300,10 +300,11 @@ let generateHelper = (): list(Object.collidable) => {
 // Main function called to procedurally generate the level map. w and h args
 // are in pixel form. Converts to block form to call generateHelper. Spawns
 // the list of collidables received from generateHelper to display on canvas.
-let generate = (): (Object.collidable, list(Object.collidable)) => {
+let generate =
+    (): (Object.collidable, Object.collidable, list(Object.collidable)) => {
   let initial = Html.performance.now(.);
   let collideList = generateHelper();
-  let (sprite, obj) =
+  let (sprite1, obj1) =
     Object.make(
       ~dir=Left,
       Sprite.makePlayer(SmallM, Standing, Left),
@@ -311,12 +312,21 @@ let generate = (): (Object.collidable, list(Object.collidable)) => {
       100.,
       224.,
     );
-  let player = {Object.objTyp: Player(SmallM), sprite, obj};
+  let (sprite2, obj2) =
+    Object.make(
+      ~dir=Left,
+      Sprite.makePlayer(SmallM, Standing, Left),
+      Object.makePlayer(),
+      120.,
+      224.,
+    );
+  let player1 = {Object.objTyp: Player(SmallM, One), sprite:sprite1, obj:obj1};
+  let player2 = {Object.objTyp: Player(SmallM, Two), sprite:sprite2, obj:obj2};
   let elapsed = Html.performance.now(.) -. initial;
   Js.log3(
     "generated",
     collideList |> List.length,
     "objects in " ++ Js.Float.toString(elapsed) ++ " milliseconds",
   );
-  (player, collideList);
+  (player1, player2, collideList);
 };

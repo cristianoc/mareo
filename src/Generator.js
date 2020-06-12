@@ -366,21 +366,36 @@ function generate(param) {
   var initial = performance.now();
   var collideList = generateHelper(undefined);
   var match = $$Object.make(/* Left */0, Sprite.makePlayer(/* SmallM */1, /* Standing */0, /* Left */0), $$Object.makePlayer(undefined), 100, 224);
-  var player_objTyp = {
+  var match$1 = $$Object.make(/* Left */0, Sprite.makePlayer(/* SmallM */1, /* Standing */0, /* Left */0), $$Object.makePlayer(undefined), 120, 224);
+  var player1_objTyp = {
     TAG: /* Player */0,
-    _0: /* SmallM */1
+    _0: /* SmallM */1,
+    _1: /* One */0
   };
-  var player_sprite = match[0];
-  var player_obj = match[1];
-  var player = {
-    objTyp: player_objTyp,
-    sprite: player_sprite,
-    obj: player_obj
+  var player1_sprite = match[0];
+  var player1_obj = match[1];
+  var player1 = {
+    objTyp: player1_objTyp,
+    sprite: player1_sprite,
+    obj: player1_obj
+  };
+  var player2_objTyp = {
+    TAG: /* Player */0,
+    _0: /* SmallM */1,
+    _1: /* Two */1
+  };
+  var player2_sprite = match$1[0];
+  var player2_obj = match$1[1];
+  var player2 = {
+    objTyp: player2_objTyp,
+    sprite: player2_sprite,
+    obj: player2_obj
   };
   var elapsed = performance.now() - initial;
   console.log("generated", Belt_List.length(collideList), "objects in " + (elapsed.toString() + " milliseconds"));
   return [
-          player,
+          player1,
+          player2,
           collideList
         ];
 }

@@ -239,7 +239,7 @@ let process_collision =
   | ({objTyp: Item(_), obj: o1}, {objTyp: Block(_)}, _) =>
     Object.collideBlock(dir, o1);
     (None, None);
-  | ({objTyp: Player(t1), obj: o1}, {objTyp: Block(t), obj: o2}, North) =>
+  | ({objTyp: Player(t1, _), obj: o1}, {objTyp: Block(t), obj: o2}, North) =>
     switch (t) {
     | QBlock(typ) =>
       let updated_block = Object.evolveBlock(o2);
@@ -288,26 +288,24 @@ let viewportFilter = (state, obj: Object.t, collid) =>
   || Viewport.outOfViewportBelow(state.vpt, obj.pos.y);
 
 // Run the broad phase object filtering
-let broadPhase = (collid, all_collids, state) => {
-  let obj = Object.getObj(collid);
-  List.keep(all_collids, _c => viewportFilter(state, obj, collid));
+let broadPhase = (collid: Object.collidable, allCollids, state) => {
+  allCollids->List.keep(_c => viewportFilter(state, collid.obj, collid));
 };
 
 // narrowPhase of collision is used in order to continuously loop through
 // each of the collidable objects to constantly check if collisions are
 // occurring.
 let narrowPhase = (c, cs, state) => {
-  let rec narrow_helper = (c, cs, state, acc) =>
+  let rec narrow_helper = (c: Object.collidable, cs, state, acc) =>
     switch (cs) {
     | [] => acc
     | [h, ...t] =>
-      let c_obj = Object.getObj(c);
       let new_objs =
         if (!Object.equals(c, h)) {
           switch (Object.checkCollision(c, h)) {
           | None => (None, None)
           | Some(dir) =>
-            if (Object.getObj(h).id != c_obj.id) {
+            if (h.obj.id != c.obj.id) {
               process_collision(dir, c, h, state);
             } else {
               (None, None);
@@ -350,8 +348,8 @@ let checkCollisions = (collid, all_collids, state) =>
 // checking the collision, updating the object, and drawing to the canvas
 let updateCollidable = (state, collid: Object.collidable, all_collids) => {
   /* TODO: optimize. Draw static elements only once */
-  let obj = Object.getObj(collid);
-  let spr = Object.getSprite(collid);
+  let obj = collid.obj;
+  let spr = collid.sprite;
   obj.invuln = (
     if (obj.invuln > 0) {
       obj.invuln - 1;
@@ -385,21 +383,21 @@ let updateCollidable = (state, collid: Object.collidable, all_collids) => {
 // such as viewport centering only occur with the player
 let runUpdateCollid = (state, collid: Object.collidable, all_collids) =>
   switch (collid) {
-  | {objTyp: Player(_), sprite: s, obj: o} as p =>
-    let keys = Keys.translate_keys();
+  | {objTyp: Player(_, n), sprite: s, obj: o} as p =>
+    let keys = Keys.translate_keys(n);
     o.crouch = false;
     let player =
       switch (Object.updatePlayer(o, keys)) {
       | None => p
       | Some((new_typ, new_spr)) =>
         Object.normalizePos(o.pos, s.params, new_spr.params);
-        {...p, objTyp: Player(new_typ), sprite: new_spr};
+        {...p, objTyp: Player(new_typ, n), sprite: new_spr};
       };
     let evolved = updateCollidable(state, player, all_collids);
     collid_objs := evolved @ collid_objs^;
     player;
   | _ =>
-    let obj = Object.getObj(collid);
+    let obj = collid.obj;
     let evolved = updateCollidable(state, collid, all_collids);
     if (!obj.kill) {
       collid_objs := [collid, ...evolved @ collid_objs^];
@@ -427,11 +425,11 @@ let runUpdateParticle = (state, part) => {
 
 // updateLoop is constantly being called to check for collisions and to
 // update each of the objects in the game.
-let rec updateLoop = ((player, objs)) => {
+let rec updateLoop = ((player1: Object.collidable, player2, objs)) => {
   let viewport = Viewport.make(Load.getCanvasSizeScaled(), Config.mapDim);
   let state = {
     bgd: Sprite.makeBgd(),
-    vpt: Viewport.update(viewport, Object.getObj(player).pos),
+    vpt: Viewport.update(viewport, player1.obj.pos),
     score: 0,
     coins: 0,
     multiplier: 1,
@@ -439,7 +437,7 @@ let rec updateLoop = ((player, objs)) => {
     status: Playing,
   };
 
-  let rec updateHelper = (time, state, player, objs, parts) => {
+  let rec updateHelper = (time, state, player1, player2, objs, parts) => {
     switch (state.status) {
     | Won => Draw.gameWon()
     | Lost(t) when time -. t > Config.delayWhenLost =>
@@ -449,11 +447,11 @@ let rec updateLoop = ((player, objs)) => {
       if (timeToStart > 0) {
         Draw.gameLost(timeToStart);
         Html.requestAnimationFrame((t: float) =>
-          updateHelper(t, state, player, collid_objs^, particles^)
+          updateHelper(t, state, player1, player2, collid_objs^, particles^)
         );
       } else {
-        let (player, objs) = Generator.generate();
-        updateLoop((player, objs));
+        let (player1, player2, objs) = Generator.generate();
+        updateLoop((player1, player2, objs));
       };
 
     | Playing
@@ -469,8 +467,9 @@ let rec updateLoop = ((player, objs)) => {
         state.bgd,
         [@doesNotRaise] float_of_int(vpos_x_int mod bgd_width),
       );
-      let player = runUpdateCollid(state, player, objs);
-      if (Object.getObj(player).kill == true) {
+      let player1 = runUpdateCollid(state, player1, [player2, ...objs]);
+      let player2 = runUpdateCollid(state, player2, [player1, ...objs]);
+      if (player1.obj.kill == true) {
         switch (state.status) {
         | Lost(_) => ()
         | _ => state.status = Lost(time)
@@ -478,16 +477,16 @@ let rec updateLoop = ((player, objs)) => {
       };
       let state = {
         ...state,
-        vpt: Viewport.update(state.vpt, Object.getObj(player).pos),
+        vpt: Viewport.update(state.vpt, player1.obj.pos),
       };
       List.forEach(objs, obj => runUpdateCollid(state, obj, objs));
       List.forEach(parts, part => runUpdateParticle(state, part));
       Draw.fps(fps);
       Draw.hud(state.score, state.coins);
       Html.requestAnimationFrame((t: float) =>
-        updateHelper(t, state, player, collid_objs^, particles^)
+        updateHelper(t, state, player1, player2, collid_objs^, particles^)
       );
     };
   };
-  updateHelper(0., state, player, objs, []);
+  updateHelper(0., state, player1, player2, objs, []);
 };

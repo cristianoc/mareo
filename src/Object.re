@@ -29,8 +29,12 @@ type t = {
   mutable score: int,
 };
 
+type playerNum =
+  | One
+  | Two;
+
 type objTyp =
-  | Player(plTyp)
+  | Player(plTyp, playerNum)
   | Enemy(enemyTyp)
   | Item(itemTyp)
   | Block(blockTyp);
@@ -364,17 +368,16 @@ let spawnAbove = (player_dir, obj, itemTyp) => {
       );
     {objTyp: Item(itemTyp), sprite: spr, obj};
   };
-  let item_obj = getObj(item);
-  item_obj.pos.y = item_obj.pos.y -. snd(getSprite(item).params.frameSize);
-  item_obj.dir = oppositeDir(player_dir);
-  setVelToSpeed(item_obj);
+  item.obj.pos.y = item.obj.pos.y -. snd(getSprite(item).params.frameSize);
+  item.obj.dir = oppositeDir(player_dir);
+  setVelToSpeed(item.obj);
   item;
 };
 
 // Used to get the bounding box
 let getAabb = obj => {
   let spr = getSprite(obj).params;
-  let obj = getObj(obj);
+  let obj = obj.obj;
   let (offx, offy) = spr.bboxOffset;
   let (box, boy) = (obj.pos.x +. offx, obj.pos.y +. offy);
   let (sx, sy) = spr.bboxSize;
@@ -415,7 +418,7 @@ let colBypass = (c1, c2) => {
 let checkCollision = (c1, c2) => {
   let b1 = getAabb(c1)
   and b2 = getAabb(c2);
-  let o1 = getObj(c1);
+  let o1 = c1.obj;
   if (colBypass(c1, c2)) {
     None;
   } else {

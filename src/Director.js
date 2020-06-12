@@ -398,10 +398,9 @@ function viewportFilter(state, obj, collid) {
   }
 }
 
-function broadPhase(collid, all_collids, state) {
-  var obj = $$Object.getObj(collid);
-  return Belt_List.keep(all_collids, (function (_c) {
-                return viewportFilter(state, obj, collid);
+function broadPhase(collid, allCollids, state) {
+  return Belt_List.keep(allCollids, (function (_c) {
+                return viewportFilter(state, collid.obj, collid);
               }));
 }
 
@@ -415,7 +414,6 @@ function narrowPhase(c, cs, state) {
       return acc;
     }
     var h = cs$1._0;
-    var c_obj = $$Object.getObj(c);
     var new_objs;
     if ($$Object.equals(c, h)) {
       new_objs = [
@@ -424,7 +422,7 @@ function narrowPhase(c, cs, state) {
       ];
     } else {
       var dir = $$Object.checkCollision(c, h);
-      new_objs = dir !== undefined && $$Object.getObj(h).id !== c_obj.id ? process_collision(dir, c, h, state) : [
+      new_objs = dir !== undefined && h.obj.id !== c.obj.id ? process_collision(dir, c, h, state) : [
           undefined,
           undefined
         ];
@@ -466,8 +464,8 @@ function checkCollisions(collid, all_collids, state) {
 }
 
 function updateCollidable(state, collid, all_collids) {
-  var obj = $$Object.getObj(collid);
-  var spr = $$Object.getSprite(collid);
+  var obj = collid.obj;
+  var spr = collid.sprite;
   obj.invuln = obj.invuln > 0 ? obj.invuln - 1 | 0 : 0;
   if (!(!obj.kill && viewportFilter(state, obj, collid))) {
     return /* [] */0;
@@ -487,8 +485,9 @@ function updateCollidable(state, collid, all_collids) {
 }
 
 function runUpdateCollid(state, collid, all_collids) {
-  if (collid.objTyp.TAG) {
-    var obj = $$Object.getObj(collid);
+  var match = collid.objTyp;
+  if (match.TAG) {
+    var obj = collid.obj;
     var evolved = updateCollidable(state, collid, all_collids);
     if (!obj.kill) {
       collid_objs.contents = /* :: */{
@@ -501,17 +500,19 @@ function runUpdateCollid(state, collid, all_collids) {
     return collid;
   }
   var o = collid.obj;
-  var keys = Keys.translate_keys(undefined);
+  var n = match._1;
+  var keys = Keys.translate_keys(n);
   o.crouch = false;
-  var match = $$Object.updatePlayer(o, keys);
+  var match$1 = $$Object.updatePlayer(o, keys);
   var player;
-  if (match !== undefined) {
-    var new_spr = match[1];
+  if (match$1 !== undefined) {
+    var new_spr = match$1[1];
     $$Object.normalizePos(o.pos, collid.sprite.params, new_spr.params);
     player = {
       objTyp: {
         TAG: /* Player */0,
-        _0: match[0]
+        _0: match$1[0],
+        _1: n
       },
       sprite: new_spr,
       obj: collid.obj
@@ -540,18 +541,18 @@ function runUpdateParticle(state, part) {
 }
 
 function updateLoop(param) {
-  var player = param[0];
+  var player1 = param[0];
   var viewport = Viewport.make(Load.getCanvasSizeScaled(undefined), Config.mapDim);
   var state = {
     bgd: Sprite.makeBgd(undefined),
-    vpt: Viewport.update(viewport, $$Object.getObj(player).pos),
+    vpt: Viewport.update(viewport, player1.obj.pos),
     map: Config.mapDim[1],
     score: 0,
     coins: 0,
     multiplier: 1,
     status: /* Playing */0
   };
-  var updateHelper = function (time, state, player, objs, parts) {
+  var updateHelper = function (time, state, player1, player2, objs, parts) {
     var t = state.status;
     if (typeof t === "number") {
       if (t !== 0) {
@@ -565,14 +566,15 @@ function updateLoop(param) {
         if (timeToStart > 0) {
           Draw.gameLost(timeToStart);
           requestAnimationFrame(function (t) {
-                return updateHelper(t, state, player, collid_objs.contents, particles.contents);
+                return updateHelper(t, state, player1, player2, collid_objs.contents, particles.contents);
               });
           return ;
         }
         var match = Generator.generate(undefined);
         return updateLoop([
                     match[0],
-                    match[1]
+                    match[1],
+                    match[2]
                   ]);
       }
       
@@ -584,8 +586,15 @@ function updateLoop(param) {
     var vpos_x_int = Viewport.getPos(state.vpt).x / 5 | 0;
     var bgd_width = state.bgd.params.frameSize[0] | 0;
     Draw.drawBgd(state.bgd, Caml_int32.mod_(vpos_x_int, bgd_width));
-    var player$1 = runUpdateCollid(state, player, objs);
-    if ($$Object.getObj(player$1).kill === true) {
+    var player1$1 = runUpdateCollid(state, player1, /* :: */{
+          _0: player2,
+          _1: objs
+        });
+    var player2$1 = runUpdateCollid(state, player2, /* :: */{
+          _0: player1$1,
+          _1: objs
+        });
+    if (player1$1.obj.kill === true) {
       var match$1 = state.status;
       if (typeof match$1 === "number") {
         state.status = /* Lost */{
@@ -596,7 +605,7 @@ function updateLoop(param) {
     }
     var state$1 = {
       bgd: state.bgd,
-      vpt: Viewport.update(state.vpt, $$Object.getObj(player$1).pos),
+      vpt: Viewport.update(state.vpt, player1$1.obj.pos),
       map: state.map,
       score: state.score,
       coins: state.coins,
@@ -612,11 +621,11 @@ function updateLoop(param) {
     Draw.fps(fps);
     Draw.hud(state$1.score, state$1.coins);
     requestAnimationFrame(function (t) {
-          return updateHelper(t, state$1, player$1, collid_objs.contents, particles.contents);
+          return updateHelper(t, state$1, player1$1, player2$1, collid_objs.contents, particles.contents);
         });
     
   };
-  return updateHelper(0, state, player, param[1], /* [] */0);
+  return updateHelper(0, state, player1, param[1], param[2], /* [] */0);
 }
 
 export {

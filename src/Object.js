@@ -335,27 +335,26 @@ function evolveBlock(obj) {
 
 function spawnAbove(player_dir, obj, itemTyp) {
   var match = make(/* Left */0, Sprite.makeItem(itemTyp), makeItem(itemTyp), obj.pos.x, obj.pos.y);
+  var obj$1 = match[1];
   var item_objTyp = {
     TAG: /* Item */2,
     _0: itemTyp
   };
   var item_sprite = match[0];
-  var item_obj = match[1];
   var item = {
     objTyp: item_objTyp,
     sprite: item_sprite,
-    obj: item_obj
+    obj: obj$1
   };
-  var item_obj$1 = getObj(item);
-  item_obj$1.pos.y = item_obj$1.pos.y - getSprite(item).params.frameSize[1];
-  item_obj$1.dir = player_dir ? /* Left */0 : /* Right */1;
-  setVelToSpeed(item_obj$1);
+  obj$1.pos.y = obj$1.pos.y - getSprite(item).params.frameSize[1];
+  obj$1.dir = player_dir ? /* Left */0 : /* Right */1;
+  setVelToSpeed(obj$1);
   return item;
 }
 
 function getAabb(obj) {
   var spr = getSprite(obj).params;
-  var obj$1 = getObj(obj);
+  var obj$1 = obj.obj;
   var match = spr.bboxOffset;
   var box = obj$1.pos.x + match[0];
   var boy = obj$1.pos.y + match[1];
@@ -415,7 +414,7 @@ function colBypass(c1, c2) {
 function checkCollision(c1, c2) {
   var b1 = getAabb(c1);
   var b2 = getAabb(c2);
-  var o1 = getObj(c1);
+  var o1 = c1.obj;
   if (colBypass(c1, c2)) {
     return ;
   }
