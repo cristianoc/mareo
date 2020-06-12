@@ -149,84 +149,84 @@ let collEnemyEnemy = (t1, s1, o1, t2, s2, o2, dir) =>
 // no new item should be spawned. Transformations to existing objects occur
 // mutably, as many changes are side-effectual.
 let processCollision =
-    (dir: Actors.dir2d, c1: Object.t, c2: Object.t, state: st) => {
-  switch (c1, c2, dir) {
+    (dir: Actors.dir2d, obj1: Object.t, obj2: Object.t, state: st) => {
+  switch (obj1, obj2, dir) {
   | ({objTyp: Player(_)}, {objTyp: Enemy(typ), sprite: s2}, South)
   | ({objTyp: Enemy(typ), sprite: s2}, {objTyp: Player(_)}, North) =>
-    playerAttackEnemy(c1, typ, s2, c2, state)
+    playerAttackEnemy(obj1, typ, s2, obj2, state)
   | ({objTyp: Player(_)}, {objTyp: Enemy(t2), sprite: s2}, _)
   | ({objTyp: Enemy(t2), sprite: s2}, {objTyp: Player(_)}, _) =>
-    enemyAttackPlayer(c1, t2, s2, c2)
+    enemyAttackPlayer(obj1, t2, s2, obj2)
   | ({objTyp: Player(_)}, {objTyp: Item(t2)}, _)
   | ({objTyp: Item(t2)}, {objTyp: Player(_)}, _) =>
     switch (t2) {
     | Mushroom =>
-      Object.decHealth(c2);
-      if (c1.health == 2) {
+      Object.decHealth(obj2);
+      if (obj1.health == 2) {
         ();
       } else {
-        c1.health = c1.health + 1;
+        obj1.health = obj1.health + 1;
       };
-      c1.vx = 0.;
-      c1.vy = 0.;
+      obj1.vx = 0.;
+      obj1.vy = 0.;
       updateScore(state, 1000);
-      c2.score = 1000;
+      obj2.score = 1000;
       (None, None);
     | Coin =>
       state.coins = state.coins + 1;
-      Object.decHealth(c2);
+      Object.decHealth(obj2);
       updateScore(state, 100);
       (None, None);
     }
   | ({objTyp: Enemy(t1), sprite: s1}, {objTyp: Enemy(t2), sprite: s2}, dir) =>
-    collEnemyEnemy(t1, s1, c1, t2, s2, c2, dir)
+    collEnemyEnemy(t1, s1, obj1, t2, s2, obj2, dir)
   | ({objTyp: Enemy(t1), sprite: s1}, {objTyp: Block(t2)}, East)
   | ({objTyp: Enemy(t1), sprite: s1}, {objTyp: Block(t2)}, West) =>
     switch (t1, t2) {
     | (RKoopaShell, Brick)
     | (GKoopaShell, Brick) =>
-      Object.decHealth(c2);
-      Object.reverseLeftRight(c1);
+      Object.decHealth(obj2);
+      Object.reverseLeftRight(obj1);
       (None, None);
     | (RKoopaShell, QBlock(typ))
     | (GKoopaShell, QBlock(typ)) =>
-      let updatedBlock = Object.evolveBlock(c2);
-      let spawnedItem = Object.spawnAbove(c1.dir, c2, typ);
-      Object.revDir(c1, t1, s1);
+      let updatedBlock = Object.evolveBlock(obj2);
+      let spawnedItem = Object.spawnAbove(obj1.dir, obj2, typ);
+      Object.revDir(obj1, t1, s1);
       (Some(updatedBlock), Some(spawnedItem));
     | (_, _) =>
-      Object.revDir(c1, t1, s1);
+      Object.revDir(obj1, t1, s1);
       (None, None);
     }
   | ({objTyp: Item(_)}, {objTyp: Block(_)}, East)
   | ({objTyp: Item(_)}, {objTyp: Block(_)}, West) =>
-    Object.reverseLeftRight(c1);
+    Object.reverseLeftRight(obj1);
     (None, None);
   | ({objTyp: Enemy(_)}, {objTyp: Block(_)}, _)
   | ({objTyp: Item(_)}, {objTyp: Block(_)}, _) =>
-    Object.collideBlock(dir, c1);
+    Object.collideBlock(dir, obj1);
     (None, None);
   | ({objTyp: Player(t1, _)}, {objTyp: Block(t)}, North) =>
     switch (t) {
     | QBlock(typ) =>
-      let updatedBlock = Object.evolveBlock(c2);
-      let spawnedItem = Object.spawnAbove(c1.dir, c2, typ);
-      Object.collideBlock(dir, c1);
+      let updatedBlock = Object.evolveBlock(obj2);
+      let spawnedItem = Object.spawnAbove(obj1.dir, obj2, typ);
+      Object.collideBlock(dir, obj1);
       (Some(spawnedItem), Some(updatedBlock));
     | Brick =>
       if (t1 == BigM) {
-        Object.collideBlock(dir, c1);
-        Object.decHealth(c2);
+        Object.collideBlock(dir, obj1);
+        Object.decHealth(obj2);
         (None, None);
       } else {
-        Object.collideBlock(dir, c1);
+        Object.collideBlock(dir, obj1);
         (None, None);
       }
     | Panel =>
       state.status = Won;
       (None, None);
     | _ =>
-      Object.collideBlock(dir, c1);
+      Object.collideBlock(dir, obj1);
       (None, None);
     }
   | ({objTyp: Player(_)}, {objTyp: Block(t)}, _) =>
@@ -238,10 +238,10 @@ let processCollision =
       switch (dir) {
       | South =>
         state.multiplier = 1;
-        Object.collideBlock(dir, c1);
+        Object.collideBlock(dir, obj1);
         (None, None);
       | _ =>
-        Object.collideBlock(dir, c1);
+        Object.collideBlock(dir, obj1);
         (None, None);
       }
     }
