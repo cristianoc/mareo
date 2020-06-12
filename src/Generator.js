@@ -32,7 +32,7 @@ function trimEdge(x, y) {
 }
 
 function convertCoinToObj(param) {
-  return $$Object.make(false, undefined, /* Left */0, {
+  return $$Object.make(false, undefined, undefined, {
               TAG: /* Item */2,
               _0: /* Coin */1
             }, Sprite.makeItem(/* Coin */1), param[1], param[2]);
@@ -58,7 +58,7 @@ function addCoins(objects, x, y0) {
 
 function convertEnemyToObj(param) {
   var enemyTyp = param[0];
-  var obj = $$Object.make(undefined, undefined, /* Left */0, {
+  var obj = $$Object.make(undefined, undefined, undefined, {
         TAG: /* Enemy */1,
         _0: enemyTyp
       }, Sprite.makeEnemy(enemyTyp, /* Left */0), param[1], param[2]);
@@ -101,7 +101,7 @@ function addBlock(objects, blockTyp, xBlock, yBlock) {
   if (!(!memPos(objects.contents, x, y) && trimEdge(x, y))) {
     return ;
   }
-  var obj = $$Object.make(undefined, undefined, /* Left */0, {
+  var obj = $$Object.make(undefined, undefined, undefined, {
         TAG: /* Block */3,
         _0: blockTyp
       }, Sprite.makeBlock(blockTyp), x, y);
@@ -274,7 +274,7 @@ function generateBlocks(objects, _cbx, _cby) {
 }
 
 function generatePanel(param) {
-  return $$Object.make(undefined, undefined, /* Left */0, {
+  return $$Object.make(undefined, undefined, undefined, {
               TAG: /* Block */3,
               _0: /* Panel */4
             }, Sprite.makeBlock(/* Panel */4), Config.blockw * 16 - 256, Config.blockh * 16 * 2 / 3);
@@ -282,7 +282,7 @@ function generatePanel(param) {
 
 function convertBlockToObj(param) {
   var blockTyp = param[0];
-  return $$Object.make(undefined, undefined, /* Left */0, {
+  return $$Object.make(undefined, undefined, undefined, {
               TAG: /* Block */3,
               _0: blockTyp
             }, Sprite.makeBlock(blockTyp), param[1], param[2]);
@@ -341,12 +341,12 @@ function generateHelper(param) {
 function generate(param) {
   var initial = performance.now();
   var objects = generateHelper(undefined);
-  var player1 = $$Object.make(undefined, undefined, /* Left */0, {
+  var player1 = $$Object.make(undefined, undefined, undefined, {
         TAG: /* Player */0,
         _0: /* SmallM */1,
         _1: /* One */0
       }, Sprite.makePlayer(/* SmallM */1, /* Standing */0, /* Left */0), 100, 224);
-  var player2 = $$Object.make(undefined, undefined, /* Left */0, {
+  var player2 = $$Object.make(undefined, undefined, undefined, {
         TAG: /* Player */0,
         _0: /* SmallM */1,
         _1: /* Two */1

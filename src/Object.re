@@ -86,7 +86,8 @@ let newId = () => {
   idCounter^;
 };
 
-let make = (~hasGravity=true, ~speed=1.0, ~dir, objTyp, spriteParams, px, py) => {
+let make =
+    (~hasGravity=true, ~speed=1.0, ~dir=Left, objTyp, spriteParams, px, py) => {
   let newObj = {
     objTyp,
     sprite: spriteParams->Sprite.makeFromParams,

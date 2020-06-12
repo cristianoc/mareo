@@ -53,9 +53,10 @@ function newId(param) {
   return idCounter.contents;
 }
 
-function make(hasGravityOpt, speedOpt, dir, objTyp, spriteParams, px, py) {
+function make(hasGravityOpt, speedOpt, dirOpt, objTyp, spriteParams, px, py) {
   var hasGravity = hasGravityOpt !== undefined ? hasGravityOpt : true;
   var speed = speedOpt !== undefined ? speedOpt : 1.0;
+  var dir = dirOpt !== undefined ? dirOpt : /* Left */0;
   var newObj = {
     objTyp: objTyp,
     sprite: Sprite.makeFromParams(spriteParams),

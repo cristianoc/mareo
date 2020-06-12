@@ -31,7 +31,6 @@ let convertCoinToObj = ((_, x, y)) => {
   let obj =
     Object.make(
       ~hasGravity=false,
-      ~dir=Left,
       Item(Coin),
       Sprite.makeItem(Coin),
       x,
@@ -50,7 +49,6 @@ let addCoins = (objects, x, y0) => {
 let convertEnemyToObj = ((enemyTyp, x, y)) => {
   let obj =
     Object.make(
-      ~dir=Left,
       Enemy(enemyTyp),
       Sprite.makeEnemy(enemyTyp, Left),
       x,
@@ -81,7 +79,6 @@ let addBlock = (objects, blockTyp, xBlock, yBlock) => {
   if (!(objects^)->memPos(x, y) && trimEdge(x, y)) {
     let obj =
       Object.make(
-        ~dir=Left,
         Block(blockTyp),
         Sprite.makeBlock(blockTyp),
         x,
@@ -239,7 +236,6 @@ let rec generateBlocks = (objects, cbx: float, cby: float) =>
 let generatePanel = (): Object.t => {
   let obj =
     Object.make(
-      ~dir=Left,
       Block(Panel),
       Sprite.makeBlock(Panel),
       Config.blockw *. 16. -. 256.,
@@ -251,7 +247,6 @@ let generatePanel = (): Object.t => {
 let convertBlockToObj = ((blockTyp, x, y)) => {
   let obj =
     Object.make(
-      ~dir=Left,
       Block(blockTyp),
       Sprite.makeBlock(blockTyp),
       x,
@@ -306,7 +301,6 @@ let generate = (): (Object.t, Object.t, list(Object.t)) => {
   let objects = generateHelper();
   let player1 =
     Object.make(
-      ~dir=Left,
       Player(SmallM, One),
       Sprite.makePlayer(SmallM, Standing, Left),
       100.,
@@ -314,7 +308,6 @@ let generate = (): (Object.t, Object.t, list(Object.t)) => {
     );
   let player2 =
     Object.make(
-      ~dir=Left,
       Player(SmallM, Two),
       Sprite.makePlayer(SmallM, Standing, Left),
       120.,
