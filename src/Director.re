@@ -395,7 +395,7 @@ let rec updateLoop = (player1: Object.t, player2, objs) => {
     status: Playing,
   };
 
-  let rec updateHelper = (time, state, player1, player2, objs, parts) => {
+  let rec updateHelper = (time, player1, player2, objs, parts) => {
     switch (state.status) {
     | Won => Draw.gameWon()
     | Lost(t) when time -. t > Config.delayWhenLost =>
@@ -405,7 +405,7 @@ let rec updateLoop = (player1: Object.t, player2, objs) => {
       if (timeToStart > 0) {
         Draw.gameLost(timeToStart);
         Html.requestAnimationFrame((t: float) =>
-          updateHelper(t, state, player1, player2, collidObjs^, particles^)
+          updateHelper(t, player1, player2, collidObjs^, particles^)
         );
       } else {
         let (player1, player2, objs) = Generator.generate();
@@ -439,9 +439,9 @@ let rec updateLoop = (player1: Object.t, player2, objs) => {
       Draw.fps(fps);
       Draw.hud(state.score, state.coins);
       Html.requestAnimationFrame((t: float) =>
-        updateHelper(t, state, player1, player2, collidObjs^, particles^)
+        updateHelper(t, player1, player2, collidObjs^, particles^)
       );
     };
   };
-  updateHelper(0., state, player1, player2, objs, []);
+  updateHelper(0., player1, player2, objs, []);
 };

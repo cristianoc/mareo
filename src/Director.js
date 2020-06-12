@@ -522,7 +522,7 @@ function updateLoop(player1, player2, objs) {
     multiplier: 1,
     status: /* Playing */0
   };
-  var updateHelper = function (time, state, player1, player2, objs, parts) {
+  var updateHelper = function (time, player1, player2, objs, parts) {
     var t = state.status;
     if (typeof t === "number") {
       if (t !== 0) {
@@ -536,7 +536,7 @@ function updateLoop(player1, player2, objs) {
         if (timeToStart > 0) {
           Draw.gameLost(timeToStart);
           requestAnimationFrame(function (t) {
-                return updateHelper(t, state, player1, player2, collidObjs.contents, particles.contents);
+                return updateHelper(t, player1, player2, collidObjs.contents, particles.contents);
               });
           return ;
         }
@@ -579,11 +579,11 @@ function updateLoop(player1, player2, objs) {
     Draw.fps(fps);
     Draw.hud(state.score, state.coins);
     requestAnimationFrame(function (t) {
-          return updateHelper(t, state, player1, player2, collidObjs.contents, particles.contents);
+          return updateHelper(t, player1, player2, collidObjs.contents, particles.contents);
         });
     
   };
-  return updateHelper(0, state, player1, player2, objs, /* [] */0);
+  return updateHelper(0, player1, player2, objs, /* [] */0);
 }
 
 export {
