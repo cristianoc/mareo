@@ -4,7 +4,7 @@ let delayWhenLost = 300.;
 
 let images = [|"blocks.png", "items.png", "enemies.png", "mario-small.png"|];
 
-let levelWidth = 102400.;
+let levelWidth = 2400.;
 
 let levelHeight = 256.;
 
