@@ -472,7 +472,7 @@ function updateCollidable(state, obj, allCollids) {
   return evolved;
 }
 
-function updateOnCollid(state, obj, allCollids) {
+function updateObject(state, obj, allCollids) {
   var match = obj.objTyp;
   if (match.TAG) {
     var evolved = updateCollidable(state, obj, allCollids);
@@ -551,11 +551,11 @@ function updateLoop(player1, player2, objs) {
     var vposXInt = Viewport.getPos(state.vpt).x / 5 | 0;
     var bgdWidth = state.bgd.params.frameSize[0] | 0;
     Draw.drawBgd(state.bgd, Caml_int32.mod_(vposXInt, bgdWidth));
-    updateOnCollid(state, player1, /* :: */{
+    updateObject(state, player1, /* :: */{
           _0: player2,
           _1: objs
         });
-    updateOnCollid(state, player2, /* :: */{
+    updateObject(state, player2, /* :: */{
           _0: player1,
           _1: objs
         });
@@ -578,7 +578,7 @@ function updateLoop(player1, player2, objs) {
       status: state.status
     };
     Belt_List.forEach(objs, (function (obj) {
-            return updateOnCollid(state$1, obj, objs);
+            return updateObject(state$1, obj, objs);
           }));
     Belt_List.forEach(parts, (function (part) {
             return updateParticle(state$1, part);
@@ -609,7 +609,7 @@ export {
   narrowPhase ,
   checkCollisions ,
   updateCollidable ,
-  updateOnCollid ,
+  updateObject ,
   updateParticle ,
   updateLoop ,
   
