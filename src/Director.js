@@ -393,7 +393,7 @@ function broadPhase(obj, allCollids, state) {
               }));
 }
 
-function narrowPhase(c, cs, state) {
+function narrowPhase(obj, cs, state) {
   var _cs = cs;
   var _acc = /* [] */0;
   while(true) {
@@ -404,14 +404,14 @@ function narrowPhase(c, cs, state) {
     }
     var h = cs$1._0;
     var newObjs;
-    if ($$Object.equals(c, h)) {
+    if ($$Object.equals(obj, h)) {
       newObjs = [
         undefined,
         undefined
       ];
     } else {
-      var dir = $$Object.checkCollision(c, h);
-      newObjs = dir !== undefined && h.id !== c.id ? processCollision(dir, c, h, state) : [
+      var dir = $$Object.checkCollision(obj, h);
+      newObjs = dir !== undefined && h.id !== obj.id ? processCollision(dir, obj, h, state) : [
           undefined,
           undefined
         ];

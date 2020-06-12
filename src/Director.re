@@ -262,18 +262,18 @@ let broadPhase = (obj: Object.t, allCollids, state) => {
 // narrowPhase of collision is used in order to continuously loop through
 // each of the collidable objects to constantly check if collisions are
 // occurring.
-let narrowPhase = (c, cs, state) => {
-  let rec narrowHelper = (c: Object.t, cs, state, acc) =>
+let narrowPhase = (obj, cs, state) => {
+  let rec narrowHelper = (obj: Object.t, cs, state, acc) =>
     switch (cs) {
     | [] => acc
     | [h, ...t] =>
       let newObjs =
-        if (!Object.equals(c, h)) {
-          switch (Object.checkCollision(c, h)) {
+        if (!Object.equals(obj, h)) {
+          switch (Object.checkCollision(obj, h)) {
           | None => (None, None)
           | Some(dir) =>
-            if (h.id != c.id) {
-              processCollision(dir, c, h, state);
+            if (h.id != obj.id) {
+              processCollision(dir, obj, h, state);
             } else {
               (None, None);
             }
@@ -288,9 +288,9 @@ let narrowPhase = (c, cs, state) => {
         | (Some(o1), Some(o2)) => [o1, o2, ...acc]
         | (None, None) => acc
         };
-      narrowHelper(c, t, state, acc);
+      narrowHelper(obj, t, state, acc);
     };
-  narrowHelper(c, cs, state, []);
+  narrowHelper(obj, cs, state, []);
 };
 
 // This is an optimization setp to determine which objects require narrow phase
@@ -327,7 +327,7 @@ let updateCollidable = (state, obj: Object.t, allCollids) => {
     obj.grounded = false;
     Object.processObj(obj, state.map);
     // Run collision detection if moving object
-    let evolved = checkCollisions(obj, allCollids, state);
+    let evolved = obj->checkCollisions(allCollids, state);
     // Render and update animation
     let vptAdjXy = Viewport.fromCoord(state.viewport, obj.px, obj.py);
     Draw.render(spr, vptAdjXy.x, vptAdjXy.y);
