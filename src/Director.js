@@ -380,10 +380,10 @@ function processCollision(dir, c1, c2, state) {
 }
 
 function viewportFilter(obj, state) {
-  if (Viewport.inViewport(state.vpt, obj.px, obj.py) || $$Object.isPlayer(obj)) {
+  if (Viewport.inViewport(state.viewport, obj.px, obj.py) || $$Object.isPlayer(obj)) {
     return true;
   } else {
-    return Viewport.outOfViewportBelow(state.vpt, obj.py);
+    return Viewport.outOfViewportBelow(state.viewport, obj.py);
   }
 }
 
@@ -461,7 +461,7 @@ function updateCollidable(state, obj, allCollids) {
   obj.grounded = false;
   $$Object.processObj(obj, state.map);
   var evolved = checkCollisions(obj, allCollids, state);
-  var vptAdjXy = Viewport.fromCoord(state.vpt, obj.px, obj.py);
+  var vptAdjXy = Viewport.fromCoord(state.viewport, obj.px, obj.py);
   Draw.render(spr, vptAdjXy.x, vptAdjXy.y);
   if (Keys.checkBboxEnabled(undefined)) {
     Draw.renderBbox(spr, vptAdjXy.x, vptAdjXy.y);
@@ -497,8 +497,8 @@ function updateObject(obj, state, allCollids) {
 
 function updateParticle(state, part) {
   Particle.$$process(part);
-  var x = part.px - Viewport.getPos(state.vpt).x;
-  var y = part.py - Viewport.getPos(state.vpt).y;
+  var x = part.px - state.viewport.px;
+  var y = part.py - state.viewport.py;
   Draw.render(part.params.sprite, x, y);
   if (!part.kill) {
     particles.contents = /* :: */{
@@ -512,9 +512,10 @@ function updateParticle(state, part) {
 
 function updateLoop(player1, player2, objs) {
   var viewport = Viewport.make(Load.getCanvasSizeScaled(undefined), Config.mapDim);
+  Viewport.update(viewport, player1.px, player1.py);
   var state = {
     bgd: Sprite.makeBgd(undefined),
-    vpt: Viewport.update(viewport, player1.px, player1.py),
+    viewport: viewport,
     map: Config.mapDim[1],
     score: 0,
     coins: 0,
@@ -548,7 +549,7 @@ function updateLoop(player1, player2, objs) {
     collidObjs.contents = /* [] */0;
     particles.contents = /* [] */0;
     Draw.clearCanvas(undefined);
-    var vposXInt = Viewport.getPos(state.vpt).x / 5 | 0;
+    var vposXInt = state.viewport.px / 5 | 0;
     var bgdWidth = state.bgd.params.frameSize[0] | 0;
     Draw.drawBgd(state.bgd, Caml_int32.mod_(vposXInt, bgdWidth));
     updateObject(player1, state, /* :: */{
@@ -568,25 +569,17 @@ function updateLoop(player1, player2, objs) {
       }
       
     }
-    var state$1 = {
-      bgd: state.bgd,
-      vpt: Viewport.update(state.vpt, player1.px, player1.py),
-      map: state.map,
-      score: state.score,
-      coins: state.coins,
-      multiplier: state.multiplier,
-      status: state.status
-    };
+    Viewport.update(state.viewport, player1.px, player1.py);
     Belt_List.forEach(objs, (function (obj) {
-            return updateObject(obj, state$1, objs);
+            return updateObject(obj, state, objs);
           }));
     Belt_List.forEach(parts, (function (part) {
-            return updateParticle(state$1, part);
+            return updateParticle(state, part);
           }));
     Draw.fps(fps);
-    Draw.hud(state$1.score, state$1.coins);
+    Draw.hud(state.score, state.coins);
     requestAnimationFrame(function (t) {
-          return updateHelper(t, state$1, player1, player2, collidObjs.contents, particles.contents);
+          return updateHelper(t, state, player1, player2, collidObjs.contents, particles.contents);
         });
     
   };

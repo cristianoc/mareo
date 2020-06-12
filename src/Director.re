@@ -16,7 +16,7 @@ type status =
 // is only true when the game is over).
 type st = {
   bgd: Sprite.t,
-  vpt: Viewport.viewport,
+  viewport: Viewport.t,
   map: float,
   mutable score: int,
   mutable coins: int,
@@ -250,9 +250,9 @@ let processCollision =
 };
 
 let viewportFilter = (obj: Object.t, state) =>
-  Viewport.inViewport(state.vpt, obj.px, obj.py)
+  Viewport.inViewport(state.viewport, obj.px, obj.py)
   || Object.isPlayer(obj)
-  || Viewport.outOfViewportBelow(state.vpt, obj.py);
+  || Viewport.outOfViewportBelow(state.viewport, obj.py);
 
 // Run the broad phase object filtering
 let broadPhase = (obj: Object.t, allCollids, state) => {
@@ -329,7 +329,7 @@ let updateCollidable = (state, obj: Object.t, allCollids) => {
     // Run collision detection if moving object
     let evolved = checkCollisions(obj, allCollids, state);
     // Render and update animation
-    let vptAdjXy = Viewport.fromCoord(state.vpt, obj.px, obj.py);
+    let vptAdjXy = Viewport.fromCoord(state.viewport, obj.px, obj.py);
     Draw.render(spr, vptAdjXy.x, vptAdjXy.y);
     if (Keys.checkBboxEnabled()) {
       Draw.renderBbox(spr, vptAdjXy.x, vptAdjXy.y);
@@ -372,8 +372,8 @@ let updateObject = (obj: Object.t, state, allCollids) =>
 // Primary update function to update and persist a particle
 let updateParticle = (state, part) => {
   Particle.process(part);
-  let x = part.px -. state.vpt->Viewport.getPos.x
-  and y = part.py -. state.vpt->Viewport.getPos.y;
+  let x = part.px -. state.viewport.px
+  and y = part.py -. state.viewport.py;
   Draw.render(part.params.sprite, x, y);
   if (!part.kill) {
     particles := [part, ...particles^];
@@ -384,9 +384,10 @@ let updateParticle = (state, part) => {
 // update each of the objects in the game.
 let rec updateLoop = (player1: Object.t, player2, objs) => {
   let viewport = Viewport.make(Load.getCanvasSizeScaled(), Config.mapDim);
+  Viewport.update(viewport, player1.px, player1.py);
   let state = {
     bgd: Sprite.makeBgd(),
-    vpt: Viewport.update(viewport, player1.px, player1.py),
+    viewport,
     score: 0,
     coins: 0,
     multiplier: 1,
@@ -418,7 +419,7 @@ let rec updateLoop = (player1: Object.t, player2, objs) => {
       particles := [];
       Draw.clearCanvas();
       /* Parallax background */
-      let vposXInt = int_of_float(state.vpt->Viewport.getPos.x /. 5.);
+      let vposXInt = int_of_float(state.viewport.px /. 5.);
       let bgdWidth = int_of_float(fst(state.bgd.params.frameSize));
       Draw.drawBgd(
         state.bgd,
@@ -432,10 +433,7 @@ let rec updateLoop = (player1: Object.t, player2, objs) => {
         | _ => state.status = Lost(time)
         };
       };
-      let state = {
-        ...state,
-        vpt: Viewport.update(state.vpt, player1.px, player1.py),
-      };
+      Viewport.update(state.viewport, player1.px, player1.py);
       objs->List.forEach(obj => obj->updateObject(state, objs));
       parts->List.forEach(part => updateParticle(state, part));
       Draw.fps(fps);
