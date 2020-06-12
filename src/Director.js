@@ -50,12 +50,12 @@ function updateScore(state, i) {
   
 }
 
-function playerAttackEnemy(o1, typ, s2, o2, state) {
+function playerAttackEnemy(o1, enemyTyp, s2, o2, state) {
   o1.invuln = 10;
   o1.jumping = false;
   o1.grounded = true;
-  if (typ >= 3) {
-    var r2 = $$Object.evolveEnemy(o1.dir, typ, s2, o2);
+  if (enemyTyp >= 3) {
+    var r2 = $$Object.evolveEnemy(o1.dir, enemyTyp, s2, o2);
     o1.vy = -Config.dampenJump;
     o1.py = o1.py - 5;
     return [
@@ -70,7 +70,7 @@ function playerAttackEnemy(o1, typ, s2, o2, state) {
     o2.score = 800;
     return [
             undefined,
-            $$Object.evolveEnemy(o1.dir, typ, s2, o2)
+            $$Object.evolveEnemy(o1.dir, enemyTyp, s2, o2)
           ];
   }
   var score = Math.imul(100, state.multiplier);
@@ -79,7 +79,7 @@ function playerAttackEnemy(o1, typ, s2, o2, state) {
   state.multiplier = (state.multiplier << 1);
   return [
           undefined,
-          $$Object.evolveEnemy(o1.dir, typ, s2, o2)
+          $$Object.evolveEnemy(o1.dir, enemyTyp, s2, o2)
         ];
 }
 

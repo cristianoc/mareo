@@ -52,14 +52,14 @@ let updateScore = (state, i) => state.score = state.score + i;
 // This causes the player to either kill the enemy or move the enemy, in the
 // case that the enemy is a shell. Invulnerability, jumping, and grounded
 // are used for fine tuning the movements.
-let playerAttackEnemy = (o1, typ, s2, o2, state) => {
+let playerAttackEnemy = (o1, enemyTyp, s2, o2, state) => {
   o1.Object.invuln = 10;
   o1.jumping = false;
   o1.grounded = true;
-  switch (typ) {
+  switch (enemyTyp) {
   | GKoopaShell
   | RKoopaShell =>
-    let r2 = Object.evolveEnemy(o1.dir, typ, s2, o2);
+    let r2 = Object.evolveEnemy(o1.dir, enemyTyp, s2, o2);
     o1.vy = -. Config.dampenJump;
     o1.py = o1.py -. 5.;
     (None, r2);
@@ -69,13 +69,13 @@ let playerAttackEnemy = (o1, typ, s2, o2, state) => {
     if (state.multiplier == 8) {
       updateScore(state, 800);
       o2.score = 800;
-      (None, Object.evolveEnemy(o1.dir, typ, s2, o2));
+      (None, Object.evolveEnemy(o1.dir, enemyTyp, s2, o2));
     } else {
       let score = 100 * state.multiplier;
       updateScore(state, score);
       o2.score = score;
       state.multiplier = state.multiplier * 2;
-      (None, Object.evolveEnemy(o1.dir, typ, s2, o2));
+      (None, Object.evolveEnemy(o1.dir, enemyTyp, s2, o2));
     };
   };
 };

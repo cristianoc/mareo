@@ -8,12 +8,12 @@ var images = [
   "mario-small.png"
 ];
 
-var blockw = 2400 / 16;
+var blockw = 102400 / 16;
 
 var blockh = 256 / 16 - 1;
 
 var mapDim = [
-  2400,
+  102400,
   256
 ];
 
@@ -21,7 +21,7 @@ var canvasId = "canvas";
 
 var delayWhenLost = 300;
 
-var levelWidth = 2400;
+var levelWidth = 102400;
 
 var levelHeight = 256;
 
