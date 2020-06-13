@@ -326,7 +326,7 @@ let updateCollidable = (state, obj: Object.t, allCollids) => {
       0;
     }
   );
-  if (!obj.kill && obj->viewportFilter(state)) {
+  if ((!obj.kill || obj->Object.isPlayer) && obj->viewportFilter(state)) {
     obj.grounded = false;
     Object.processObj(obj, state.map);
     // Run collision detection if moving object

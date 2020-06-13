@@ -128,6 +128,16 @@ let isEnemy =
 
 let equals = (col1, col2) => col1.id == col2.id;
 
+let jump = player => {
+  player.jumping = true;
+  player.grounded = false;
+  player.vy =
+    max(
+      player.vy -. (Config.playerJump +. abs_float(player.vx) *. 0.25),
+      Config.playerMaxJump,
+    );
+};
+
 // Matches the controls being used and updates each of the player's params
 let updatePlayerKeys = (player: t, controls: controls): unit => {
   let lr_acc = player.vx *. 0.2;
@@ -148,13 +158,7 @@ let updatePlayerKeys = (player: t, controls: controls): unit => {
     }
   | CUp =>
     if (!player.jumping && player.grounded) {
-      player.jumping = true;
-      player.grounded = false;
-      player.vy =
-        max(
-          player.vy -. (Config.playerJump +. abs_float(player.vx) *. 0.25),
-          Config.playerMaxJump,
-        );
+      player->jump;
     }
   | CDown =>
     if (!player.jumping && player.grounded) {
@@ -335,6 +339,9 @@ let decHealth = obj => {
     obj.kill = true;
   } else if (obj.invuln == 0) {
     obj.health = health;
+  };
+  if (obj->isPlayer) {
+    obj->jump;
   };
 };
 

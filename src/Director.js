@@ -463,7 +463,7 @@ function checkCollisions(obj, allCollids, state) {
 function updateCollidable(state, obj, allCollids) {
   var spr = obj.sprite;
   obj.invuln = obj.invuln > 0 ? obj.invuln - 1 | 0 : 0;
-  if (!(!obj.kill && viewportFilter(obj, state))) {
+  if (!((!obj.kill || $$Object.isPlayer(obj)) && viewportFilter(obj, state))) {
     return /* [] */0;
   }
   obj.grounded = false;

@@ -116,6 +116,13 @@ function equals(col1, col2) {
   return col1.id === col2.id;
 }
 
+function jump(player) {
+  player.jumping = true;
+  player.grounded = false;
+  player.vy = Caml_primitive.caml_float_max(player.vy - (Config.playerJump + Math.abs(player.vx) * 0.25), Config.playerMaxJump);
+  
+}
+
 function updatePlayerKeys(player, controls) {
   var lr_acc = player.vx * 0.2;
   switch (controls) {
@@ -141,10 +148,7 @@ function updatePlayerKeys(player, controls) {
         }
     case /* CUp */2 :
         if (!player.jumping && player.grounded) {
-          player.jumping = true;
-          player.grounded = false;
-          player.vy = Caml_primitive.caml_float_max(player.vy - (Config.playerJump + Math.abs(player.vx) * 0.25), Config.playerMaxJump);
-          return ;
+          return jump(player);
         } else {
           return ;
         }
@@ -305,13 +309,13 @@ function decHealth(obj) {
   var health = obj.health - 1 | 0;
   if (health === 0) {
     obj.kill = true;
-    return ;
   } else if (obj.invuln === 0) {
     obj.health = health;
-    return ;
-  } else {
-    return ;
   }
+  if (isPlayer(obj)) {
+    return jump(obj);
+  }
+  
 }
 
 function evolveBlock(obj) {
@@ -512,6 +516,7 @@ export {
   isPlayer ,
   isEnemy ,
   equals ,
+  jump ,
   updatePlayerKeys ,
   normalizePos ,
   updatePlayer ,
