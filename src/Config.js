@@ -5,16 +5,54 @@ function randomSeed(param) {
   return 34;
 }
 
-function levelWidth(param) {
-  return 2400;
+function levelWidth(level) {
+  switch (level) {
+    case 1 :
+        return 800;
+    case 2 :
+        return 1200;
+    case 3 :
+        return 2400;
+    case 4 :
+        return 3500;
+    case 5 :
+        return 4500;
+    case 6 :
+        return 6000;
+    case 7 :
+        return 8000;
+    case 8 :
+        return 10000;
+    case 9 :
+        return 12000;
+    default:
+      return 1500 * level;
+  }
 }
 
 function levelHeight(param) {
   return 256;
 }
 
-function enemyDensity(param) {
-  return 20;
+function enemyDensity(level) {
+  switch (level) {
+    case 1 :
+    case 2 :
+    case 3 :
+        return 20;
+    case 4 :
+    case 5 :
+        return 15;
+    case 6 :
+        return 10;
+    case 7 :
+    case 8 :
+        return 5;
+    case 9 :
+        return 4;
+    default:
+      return 3;
+  }
 }
 
 var images = [
@@ -25,7 +63,7 @@ var images = [
 ];
 
 function blockw(level) {
-  return 2400 / 16;
+  return levelWidth(level) / 16;
 }
 
 function blockh(level) {
@@ -34,7 +72,7 @@ function blockh(level) {
 
 function mapDim(level) {
   return [
-          2400,
+          levelWidth(level),
           256
         ];
 }
