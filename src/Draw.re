@@ -39,22 +39,18 @@ let clearCanvas = () => {
 
 // Displays the text for score and coins.
 let hud = (score, coins) => {
-  let score_string = string_of_int(score);
-  let coin_string = string_of_int(coins);
+  let score_string = Printf.sprintf("%07d", score);
+  let coin_string = coins->string_of_int;
   let context = Load.getContext();
   context.font = "10px 'Press Start 2P'";
-  context.fillText(.
-    "Score: " ++ score_string,
-    float_of_int(Load.getCanvas().width) -. 140.,
-    18.,
-  );
-  context.fillText(. "Coins: " ++ coin_string, 120., 18.);
+  context.fillText(. "Cx" ++ coin_string, 10., 18.);
+  context.fillText(. score_string, 260., 18.);
 };
 
 // Displays the fps.
 let fps = fps_val => {
   let fps_str = int_of_float(fps_val) |> string_of_int;
-  Load.getContext().fillText(. fps_str, 10., 18.);
+  Load.getContext().fillText(. fps_str, 80., 18.);
 };
 
 let blackScreen = texts => {
@@ -69,6 +65,7 @@ let blackScreen = texts => {
   texts->List.forEach(((s, x, y)) =>
     ctx.fillText(. s, x /. Config.scale, y /. Config.scale)
   );
+  ctx.fillStyle = "black";
 };
 
 // gameWon displays a black screen when you finish a game.

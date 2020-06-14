@@ -1,7 +1,9 @@
 
 
 import * as Load from "./Load.js";
+import * as Curry from "bs-platform/lib/es6/curry.js";
 import * as Config from "./Config.js";
+import * as Printf from "bs-platform/lib/es6/printf.js";
 import * as Belt_List from "bs-platform/lib/es6/belt_List.js";
 
 function renderBbox(sprite, posx, posy) {
@@ -36,17 +38,30 @@ function clearCanvas(param) {
 }
 
 function hud(score, coins) {
-  var score_string = String(score);
+  var score_string = Curry._1(Printf.sprintf(/* Format */{
+            _0: {
+              TAG: /* Int */4,
+              _0: /* Int_d */0,
+              _1: {
+                TAG: /* Lit_padding */0,
+                _0: /* Zeros */2,
+                _1: 7
+              },
+              _2: /* No_precision */0,
+              _3: /* End_of_format */0
+            },
+            _1: "%07d"
+          }), score);
   var coin_string = String(coins);
   var context = Load.getContext(undefined);
   context.font = "10px 'Press Start 2P'";
-  context.fillText("Score: " + score_string, Load.getCanvas(undefined).width - 140, 18);
-  return context.fillText("Coins: " + coin_string, 120, 18);
+  context.fillText("Cx" + coin_string, 10, 18);
+  return context.fillText(score_string, 260, 18);
 }
 
 function fps(fps_val) {
   var fps_str = String(fps_val | 0);
-  return Load.getContext(undefined).fillText(fps_str, 10, 18);
+  return Load.getContext(undefined).fillText(fps_str, 80, 18);
 }
 
 function blackScreen(texts) {
@@ -58,9 +73,11 @@ function blackScreen(texts) {
   ctx.fill();
   ctx.fillStyle = "white";
   ctx.font = fontTxt + "'Press Start 2P'";
-  return Belt_List.forEach(texts, (function (param) {
-                return ctx.fillText(param[0], param[1] / Config.scale, param[2] / Config.scale);
-              }));
+  Belt_List.forEach(texts, (function (param) {
+          return ctx.fillText(param[0], param[1] / Config.scale, param[2] / Config.scale);
+        }));
+  ctx.fillStyle = "black";
+  
 }
 
 function gameWon(elapsed) {
