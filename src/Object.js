@@ -228,10 +228,10 @@ function updatePos(obj) {
   
 }
 
-function processObj(obj, mapy) {
+function processObj(obj) {
   updateVel(obj);
   updatePos(obj);
-  if (obj.py > mapy) {
+  if (obj.py > Config.levelHeight) {
     obj.kill = true;
     return ;
   }

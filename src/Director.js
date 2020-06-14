@@ -473,7 +473,7 @@ function updateObject(obj, state, objects) {
     return /* [] */0;
   }
   obj.grounded = false;
-  $$Object.processObj(obj, state.map);
+  $$Object.processObj(obj);
   var evolved = checkCollisions(obj, state, objects);
   var vptAdjXy = Viewport.fromCoord(state.viewport, obj.px, obj.py);
   Draw.render(spr, vptAdjXy.x, vptAdjXy.y);
@@ -530,7 +530,6 @@ function updateLoop(player1, player2, objects) {
   var state = {
     bgd: Sprite.makeBgd(undefined),
     viewport: viewport,
-    map: Config.mapDim[1],
     score: 0,
     coins: 0,
     multiplier: 1,

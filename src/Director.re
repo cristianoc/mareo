@@ -20,10 +20,9 @@ type status =
 // a multiplier (used for when you kill multiple enemies before ever touching
 // the ground, as in the actual Super Mario), and a game_over bool (which
 // is only true when the game is over).
-type st = {
+type state = {
   bgd: Sprite.t,
   viewport: Viewport.t,
-  map: float,
   mutable score: int,
   mutable coins: int,
   mutable multiplier: int,
@@ -155,7 +154,7 @@ let collEnemyEnemy = (t1, s1, o1, t2, s2, o2, dir) =>
 // no new item should be spawned. Transformations to existing objects occur
 // mutably, as many changes are side-effectual.
 let processCollision =
-    (dir: Actors.dir2d, obj1: Object.t, obj2: Object.t, state: st) => {
+    (dir: Actors.dir2d, obj1: Object.t, obj2: Object.t, state: state) => {
   switch (obj1, obj2, dir) {
   | ({objTyp: Player(_)}, {objTyp: Player(_)}, East | West) =>
     obj2.vx = obj2.vx +. obj1.vx;
@@ -336,7 +335,7 @@ let updateObject = (obj: Object.t, state, objects) => {
   );
   if ((!obj.kill || obj->Object.isPlayer) && obj->viewportFilter(state)) {
     obj.grounded = false;
-    Object.processObj(obj, state.map);
+    obj->Object.processObj;
     // Run collision detection if moving object
     let evolved = obj->checkCollisions(state, objects);
     // Render and update animation
@@ -402,7 +401,6 @@ let rec updateLoop = (player1: Object.t, player2, objects) => {
     score: 0,
     coins: 0,
     multiplier: 1,
-    map: snd(Config.mapDim),
     status: Playing,
   };
 
