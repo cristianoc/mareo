@@ -72,8 +72,11 @@ let blackScreen = texts => {
 };
 
 // gameWon displays a black screen when you finish a game.
-let gameWon = () => {
-  blackScreen([("You win!", 180., 128.)]);
+let gameWon = elapsed => {
+  blackScreen([
+    ("You win!", 60., 100.),
+    (string_of_int(elapsed), 230., 150.),
+  ]);
 };
 
 // gameLost displays a black screen stating a loss to finish that level play.

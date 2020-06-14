@@ -1,6 +1,6 @@
 let canvasId = "canvas";
 
-let delayWhenLost = 300.;
+let delayWhenFinished = 300.;
 
 let images = [|"blocks.png", "items.png", "enemies.png", "mario-small.png"|];
 

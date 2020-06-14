@@ -19,7 +19,7 @@ var mapDim = [
 
 var canvasId = "canvas";
 
-var delayWhenLost = 300;
+var delayWhenFinished = 300;
 
 var levelWidth = 2400;
 
@@ -51,7 +51,7 @@ var invuln = 60;
 
 export {
   canvasId ,
-  delayWhenLost ,
+  delayWhenFinished ,
   images ,
   levelWidth ,
   levelHeight ,

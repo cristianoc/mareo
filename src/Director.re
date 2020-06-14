@@ -2,10 +2,16 @@ open Belt;
 
 open Actors;
 
+type result =
+  | Won
+  | Lost;
+
 type status =
   | Playing
-  | Lost(float)
-  | Won;
+  | Finished({
+      result,
+      finishTime: float,
+    });
 
 // st represents the state of the game. It includes a background sprite (e.g.,
 // (e.g., hills), a context (used for rendering onto the page), a viewport
@@ -226,7 +232,8 @@ let processCollision =
         (None, None);
       }
     | Panel =>
-      state.status = Won;
+      state.status =
+        Finished({result: Won, finishTime: Html.performance.now(.)});
       (None, None);
     | _ =>
       Object.collideBlock(dir, obj1);
@@ -235,7 +242,8 @@ let processCollision =
   | ({objTyp: Player(_)}, {objTyp: Block(t)}, _) =>
     switch (t) {
     | Panel =>
-      state.status = Won;
+      state.status =
+        Finished({result: Won, finishTime: Html.performance.now(.)});
       (None, None);
     | _ =>
       switch (dir) {
@@ -398,17 +406,21 @@ let rec updateLoop = (player1: Object.t, player2, objects) => {
     status: Playing,
   };
 
-  let rec updateHelper = (time, player1, player2, objects, parts) => {
+  let rec updateHelper = (player1, player2, objects, parts) => {
     switch (state.status) {
-    | Won => Draw.gameWon()
-    | Lost(t) when time -. t > Config.delayWhenLost =>
+    | Finished({result, finishTime})
+        when Html.performance.now(.) -. finishTime > Config.delayWhenFinished =>
       let timeToStart =
         [@doesNotRaise]
-        (Config.restartAfter - int_of_float(time -. t) / 1000);
+        (
+          Config.restartAfter
+          - int_of_float(Html.performance.now(.) -. finishTime)
+          / 1000
+        );
       if (timeToStart > 0) {
-        Draw.gameLost(timeToStart);
-        Html.requestAnimationFrame((t: float) =>
-          updateHelper(t, player1, player2, collidObjs^, particles^)
+        (result == Won ? Draw.gameWon : Draw.gameLost)(timeToStart);
+        Html.requestAnimationFrame(_ =>
+          updateHelper(player1, player2, collidObjs^, particles^)
         );
       } else {
         let (player1, player2, objs) = Generator.generate();
@@ -416,7 +428,7 @@ let rec updateLoop = (player1: Object.t, player2, objects) => {
       };
 
     | Playing
-    | Lost(_) =>
+    | Finished(_) =>
       let fps = calcFps();
       collidObjs := [];
       particles := [];
@@ -432,8 +444,10 @@ let rec updateLoop = (player1: Object.t, player2, objects) => {
       player2->updateObject(state, ~objects=[player1, ...objects]);
       if (player1.kill == true) {
         switch (state.status) {
-        | Lost(_) => ()
-        | _ => state.status = Lost(time)
+        | Finished({result: Won}) => ()
+        | _ =>
+          state.status =
+            Finished({result: Lost, finishTime: Html.performance.now(.)})
         };
       };
       Viewport.update(state.viewport, player1.px, player1.py);
@@ -441,10 +455,10 @@ let rec updateLoop = (player1: Object.t, player2, objects) => {
       parts->List.forEach(part => updateParticle(state, part));
       Draw.fps(fps);
       Draw.hud(state.score, state.coins);
-      Html.requestAnimationFrame((t: float) =>
-        updateHelper(t, player1, player2, collidObjs^, particles^)
+      Html.requestAnimationFrame(_ =>
+        updateHelper(player1, player2, collidObjs^, particles^)
       );
     };
   };
-  updateHelper(0., player1, player2, objects, []);
+  updateHelper(player1, player2, objects, []);
 };

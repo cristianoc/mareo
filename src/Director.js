@@ -198,7 +198,10 @@ function processCollision(dir, obj1, obj2, state) {
               if (dir !== 0) {
                 var exit = 0;
                 if (typeof t$1 === "number" && t$1 === 4) {
-                  state.status = /* Won */1;
+                  state.status = /* Finished */{
+                    result: /* Won */0,
+                    finishTime: performance.now()
+                  };
                   return [
                           undefined,
                           undefined
@@ -232,7 +235,10 @@ function processCollision(dir, obj1, obj2, state) {
                               undefined
                             ];
                     } else {
-                      state.status = /* Won */1;
+                      state.status = /* Finished */{
+                        result: /* Won */0,
+                        finishTime: performance.now()
+                      };
                       return [
                               undefined,
                               undefined
@@ -530,68 +536,76 @@ function updateLoop(player1, player2, objects) {
     multiplier: 1,
     status: /* Playing */0
   };
-  var updateHelper = function (time, player1, player2, objects, parts) {
-    var t = state.status;
-    if (typeof t === "number") {
-      if (t !== 0) {
-        return Draw.gameWon(undefined);
-      }
-      
-    } else {
-      var t$1 = t._0;
-      if (time - t$1 > Config.delayWhenLost) {
-        var timeToStart = Config.restartAfter - ((time - t$1 | 0) / 1000 | 0) | 0;
+  var updateHelper = function (player1, player2, objects, parts) {
+    var match = state.status;
+    var exit = 0;
+    if (match) {
+      var finishTime = match.finishTime;
+      if (performance.now() - finishTime > Config.delayWhenFinished) {
+        var timeToStart = Config.restartAfter - ((performance.now() - finishTime | 0) / 1000 | 0) | 0;
         if (timeToStart > 0) {
-          Draw.gameLost(timeToStart);
-          requestAnimationFrame(function (t) {
-                return updateHelper(t, player1, player2, collidObjs.contents, particles.contents);
+          (
+              match.result === /* Won */0 ? Draw.gameWon : Draw.gameLost
+            )(timeToStart);
+          requestAnimationFrame(function (param) {
+                return updateHelper(player1, player2, collidObjs.contents, particles.contents);
               });
           return ;
         }
-        var match = Generator.generate(undefined);
-        return updateLoop(match[0], match[1], match[2]);
+        var match$1 = Generator.generate(undefined);
+        return updateLoop(match$1[0], match$1[1], match$1[2]);
       }
-      
+      exit = 1;
+    } else {
+      exit = 1;
     }
-    var fps = calcFps(undefined);
-    collidObjs.contents = /* [] */0;
-    particles.contents = /* [] */0;
-    Draw.clearCanvas(undefined);
-    var vposXInt = state.viewport.px / 5 | 0;
-    var bgdWidth = state.bgd.params.frameSize[0] | 0;
-    Draw.drawBgd(state.bgd, Caml_int32.mod_(vposXInt, bgdWidth));
-    updateObject$1(player1, state, /* :: */{
-          _0: player2,
-          _1: objects
-        });
-    updateObject$1(player2, state, /* :: */{
-          _0: player1,
-          _1: objects
-        });
-    if (player1.kill === true) {
-      var match$1 = state.status;
-      if (typeof match$1 === "number") {
-        state.status = /* Lost */{
-          _0: time
-        };
+    if (exit === 1) {
+      var fps = calcFps(undefined);
+      collidObjs.contents = /* [] */0;
+      particles.contents = /* [] */0;
+      Draw.clearCanvas(undefined);
+      var vposXInt = state.viewport.px / 5 | 0;
+      var bgdWidth = state.bgd.params.frameSize[0] | 0;
+      Draw.drawBgd(state.bgd, Caml_int32.mod_(vposXInt, bgdWidth));
+      updateObject$1(player1, state, /* :: */{
+            _0: player2,
+            _1: objects
+          });
+      updateObject$1(player2, state, /* :: */{
+            _0: player1,
+            _1: objects
+          });
+      if (player1.kill === true) {
+        var match$2 = state.status;
+        var exit$1 = 0;
+        if (!(match$2 && !match$2.result)) {
+          exit$1 = 2;
+        }
+        if (exit$1 === 2) {
+          state.status = /* Finished */{
+            result: /* Lost */1,
+            finishTime: performance.now()
+          };
+        }
+        
       }
-      
+      Viewport.update(state.viewport, player1.px, player1.py);
+      Belt_List.forEach(objects, (function (obj) {
+              return updateObject$1(obj, state, objects);
+            }));
+      Belt_List.forEach(parts, (function (part) {
+              return updateParticle(state, part);
+            }));
+      Draw.fps(fps);
+      Draw.hud(state.score, state.coins);
+      requestAnimationFrame(function (param) {
+            return updateHelper(player1, player2, collidObjs.contents, particles.contents);
+          });
+      return ;
     }
-    Viewport.update(state.viewport, player1.px, player1.py);
-    Belt_List.forEach(objects, (function (obj) {
-            return updateObject$1(obj, state, objects);
-          }));
-    Belt_List.forEach(parts, (function (part) {
-            return updateParticle(state, part);
-          }));
-    Draw.fps(fps);
-    Draw.hud(state.score, state.coins);
-    requestAnimationFrame(function (t) {
-          return updateHelper(t, player1, player2, collidObjs.contents, particles.contents);
-        });
     
   };
-  return updateHelper(0, player1, player2, objects, /* [] */0);
+  return updateHelper(player1, player2, objects, /* [] */0);
 }
 
 export {

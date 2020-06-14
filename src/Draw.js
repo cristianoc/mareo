@@ -63,14 +63,21 @@ function blackScreen(texts) {
               }));
 }
 
-function gameWon(param) {
+function gameWon(elapsed) {
   return blackScreen(/* :: */{
               _0: [
                 "You win!",
-                180,
-                128
+                60,
+                100
               ],
-              _1: /* [] */0
+              _1: /* :: */{
+                _0: [
+                  String(elapsed),
+                  230,
+                  150
+                ],
+                _1: /* [] */0
+              }
             });
 }
 
