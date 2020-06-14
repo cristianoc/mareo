@@ -249,10 +249,10 @@ let updatePos = obj => {
 };
 
 // Calls two above helper functions to update velocity and position of player
-let processObj = obj => {
+let processObj = (obj, ~level) => {
   updateVel(obj);
   updatePos(obj);
-  if (obj.py > Config.levelHeight) {
+  if (obj.py > Config.levelHeight(~level)) {
     obj.kill = true;
   };
 };

@@ -14,9 +14,9 @@ let preload = () => {
       _ => {
         loadCount := loadCount^ + 1;
         if (loadCount^ == numImages) {
-          let (player1, player2, objs) =
-            Generator.generate(Config.initialRandomSeed);
-          Director.updateLoop(player1, player2, objs);
+          let level = 1;
+          let (player1, player2, objects) = Generator.generate(~level);
+          Director.updateLoop(~level, ~objects, ~player1, ~player2);
         };
         true;
       },

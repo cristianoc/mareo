@@ -228,10 +228,10 @@ function updatePos(obj) {
   
 }
 
-function processObj(obj) {
+function processObj(obj, level) {
   updateVel(obj);
   updatePos(obj);
-  if (obj.py > Config.levelHeight) {
+  if (obj.py > Config.levelHeight(level)) {
     obj.kill = true;
     return ;
   }

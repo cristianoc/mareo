@@ -21,7 +21,6 @@ type state = {
   mutable coins: int,
   mutable level: int,
   mutable multiplier: int,
-  mutable randomSeed: int,
   mutable score: int,
   mutable status,
   viewport: Viewport.t,
@@ -321,7 +320,7 @@ let checkCollisions = (obj, state, objects) =>
 
 // primary update method for objects,
 // checking the collision, updating the object, and drawing to the canvas
-let updateObject = (obj: Object.t, state, objects) => {
+let updateObject0 = (obj: Object.t, ~state, ~objects, ~level) => {
   /* TODO: optimize. Draw static elements only once */
   let spr = obj.sprite;
   obj.invuln = (
@@ -333,7 +332,7 @@ let updateObject = (obj: Object.t, state, objects) => {
   );
   if ((!obj.kill || obj->Object.isPlayer) && obj->viewportFilter(state)) {
     obj.grounded = false;
-    obj->Object.processObj;
+    obj->Object.processObj(~level);
     // Run collision detection if moving object
     let evolved = obj->checkCollisions(state, objects);
     // Render and update animation
@@ -355,16 +354,16 @@ let updateObject = (obj: Object.t, state, objects) => {
 // as a wrapper method. This method is necessary to differentiate between
 // the player collidable and the remaining collidables, as special operations
 // such as viewport centering only occur with the player
-let updateObject = (obj: Object.t, state, ~objects) =>
+let updateObject = (obj: Object.t, ~state, ~objects, ~level) =>
   switch (obj.objTyp) {
   | Player(_, n) =>
     let keys = Keys.translateKeys(n);
     obj.crouch = false;
     Object.updatePlayer(obj, n, keys);
-    let evolved = obj->updateObject(state, objects);
+    let evolved = obj->updateObject0(~state, ~objects, ~level);
     collidObjs := evolved @ collidObjs^;
   | _ =>
-    let evolved = obj->updateObject(state, objects);
+    let evolved = obj->updateObject0(~state, ~objects, ~level);
     if (!obj.kill) {
       collidObjs := [obj, ...evolved @ collidObjs^];
     };
@@ -390,31 +389,26 @@ let updateParticle = (state, part) => {
 
 // updateLoop is constantly being called to check for collisions and to
 // update each of the objects in the game.
-let rec updateLoop = (player1: Object.t, player2, objects) => {
-  let viewport = Viewport.make(Load.getCanvasSizeScaled(), Config.mapDim);
+let rec updateLoop = (~player1: Object.t, ~player2, ~level, ~objects) => {
+  let viewport =
+    Viewport.make(Load.getCanvasSizeScaled(), Config.mapDim(~level));
   Viewport.update(viewport, player1.px, player1.py);
   let state = {
     bgd: Sprite.makeBgd(),
     coins: 0,
-    level: 1,
+    level,
     multiplier: 1,
-    randomSeed: Config.initialRandomSeed,
     score: 0,
     status: Playing,
     viewport,
   };
 
-  let rec updateHelper = (player1, player2, objects, parts) => {
+  let rec updateHelper = (~objects, ~parts) => {
     switch (state.status) {
     | Finished({levelResult, finishTime})
         when Html.performance.now(.) -. finishTime > Config.delayWhenFinished =>
       let timeToStart =
-        [@doesNotRaise]
-        (
-          Config.restartAfter
-          -. (Html.performance.now(.) -. finishTime)
-          /. 1000.
-        );
+        Config.restartAfter -. (Html.performance.now(.) -. finishTime) /. 1000.;
       if (timeToStart > 0.) {
         Draw.levelFinished(
           levelResult,
@@ -422,11 +416,12 @@ let rec updateLoop = (player1: Object.t, player2, objects) => {
           timeToStart->int_of_float->string_of_int,
         );
         Html.requestAnimationFrame(_ =>
-          updateHelper(player1, player2, collidObjs^, particles^)
+          updateHelper(~objects=collidObjs^, ~parts=particles^)
         );
       } else {
-        let (player1, player2, objs) = Generator.generate(state.randomSeed);
-        updateLoop(player1, player2, objs);
+        let level = levelResult == Won ? level + 1 : level;
+        let (player1, player2, objects) = Generator.generate(~level);
+        updateLoop(~level, ~objects, ~player1, ~player2);
       };
 
     | Playing
@@ -442,8 +437,8 @@ let rec updateLoop = (player1: Object.t, player2, objects) => {
         state.bgd,
         [@doesNotRaise] float_of_int(vposXInt mod bgdWidth),
       );
-      player1->updateObject(state, ~objects=[player2, ...objects]);
-      player2->updateObject(state, ~objects=[player1, ...objects]);
+      player1->updateObject(~state, ~objects=[player2, ...objects], ~level);
+      player2->updateObject(~state, ~objects=[player1, ...objects], ~level);
       if (player1.kill == true) {
         switch (state.status) {
         | Finished({levelResult: Lost}) => ()
@@ -453,14 +448,16 @@ let rec updateLoop = (player1: Object.t, player2, objects) => {
         };
       };
       Viewport.update(state.viewport, player1.px, player1.py);
-      objects->List.forEach(obj => obj->updateObject(state, ~objects));
+      objects->List.forEach(obj =>
+        obj->updateObject(~state, ~objects, ~level)
+      );
       parts->List.forEach(part => updateParticle(state, part));
       Draw.fps(fps);
       Draw.hud(state.score, state.coins);
       Html.requestAnimationFrame(_ =>
-        updateHelper(player1, player2, collidObjs^, particles^)
+        updateHelper(~objects=collidObjs^, ~parts=particles^)
       );
     };
   };
-  updateHelper(player1, player2, objects, []);
+  updateHelper(~objects, ~parts=[]);
 };

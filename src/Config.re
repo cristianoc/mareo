@@ -1,4 +1,10 @@
-let initialRandomSeed = 34;
+let randomSeed = (~level as _) => 34;
+
+let levelWidth = (~level as _) => 2400.;
+
+let levelHeight = (~level as _) => 256.;
+
+let enemyDensity = (~level as _) => 20; // One out of 20 blocks has an enemy on it
 
 let canvasId = "canvas";
 
@@ -6,15 +12,10 @@ let delayWhenFinished = 300.;
 
 let images = [|"blocks.png", "items.png", "enemies.png", "mario-small.png"|];
 
-let levelWidth = 2400.;
+let blockw = (~level) => levelWidth(~level) /. 16.;
+let blockh = (~level) => levelHeight(~level) /. 16. -. 1.;
 
-let levelHeight = 256.;
-
-let enemyDensity = 20; // One out of 20 blocks has an enemy on it
-let blockw = levelWidth /. 16.;
-let blockh = levelHeight /. 16. -. 1.;
-
-let mapDim = (levelWidth, levelHeight);
+let mapDim = (~level) => (levelWidth(~level), levelHeight(~level));
 
 let restartAfter = 5.;
 

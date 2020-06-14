@@ -466,14 +466,14 @@ function checkCollisions(obj, state, objects) {
   return narrowPhase(obj, broad, state);
 }
 
-function updateObject(obj, state, objects) {
+function updateObject0(obj, state, objects, level) {
   var spr = obj.sprite;
   obj.invuln = obj.invuln > 0 ? obj.invuln - 1 | 0 : 0;
   if (!((!obj.kill || $$Object.isPlayer(obj)) && viewportFilter(obj, state))) {
     return /* [] */0;
   }
   obj.grounded = false;
-  $$Object.processObj(obj);
+  $$Object.processObj(obj, level);
   var evolved = checkCollisions(obj, state, objects);
   var vptAdjXy = Viewport.fromCoord(state.viewport, obj.px, obj.py);
   Draw.render(spr, vptAdjXy.x, vptAdjXy.y);
@@ -486,10 +486,10 @@ function updateObject(obj, state, objects) {
   return evolved;
 }
 
-function updateObject$1(obj, state, objects) {
+function updateObject(obj, state, objects, level) {
   var match = obj.objTyp;
   if (match.TAG) {
-    var evolved = updateObject(obj, state, objects);
+    var evolved = updateObject0(obj, state, objects, level);
     if (!obj.kill) {
       collidObjs.contents = /* :: */{
         _0: obj,
@@ -504,7 +504,7 @@ function updateObject$1(obj, state, objects) {
   var keys = Keys.translateKeys(n);
   obj.crouch = false;
   $$Object.updatePlayer(obj, n, keys);
-  var evolved$1 = updateObject(obj, state, objects);
+  var evolved$1 = updateObject0(obj, state, objects, level);
   collidObjs.contents = Pervasives.$at(evolved$1, collidObjs.contents);
   
 }
@@ -524,35 +524,36 @@ function updateParticle(state, part) {
   
 }
 
-function updateLoop(player1, player2, objects) {
-  var viewport = Viewport.make(Load.getCanvasSizeScaled(undefined), Config.mapDim);
+function updateLoop(player1, player2, level, objects) {
+  var viewport = Viewport.make(Load.getCanvasSizeScaled(undefined), Config.mapDim(level));
   Viewport.update(viewport, player1.px, player1.py);
   var state = {
     bgd: Sprite.makeBgd(undefined),
     coins: 0,
-    level: 1,
+    level: level,
     multiplier: 1,
-    randomSeed: Config.initialRandomSeed,
     score: 0,
     status: /* Playing */0,
     viewport: viewport
   };
-  var updateHelper = function (player1, player2, objects, parts) {
+  var updateHelper = function (objects, parts) {
     var match = state.status;
     var exit = 0;
     if (match) {
       var finishTime = match.finishTime;
       if (performance.now() - finishTime > Config.delayWhenFinished) {
+        var levelResult = match.levelResult;
         var timeToStart = Config.restartAfter - (performance.now() - finishTime) / 1000;
         if (timeToStart > 0) {
-          Draw.levelFinished(match.levelResult, String(state.level), String(timeToStart | 0));
+          Draw.levelFinished(levelResult, String(state.level), String(timeToStart | 0));
           requestAnimationFrame(function (param) {
-                return updateHelper(player1, player2, collidObjs.contents, particles.contents);
+                return updateHelper(collidObjs.contents, particles.contents);
               });
           return ;
         }
-        var match$1 = Generator.generate(state.randomSeed);
-        return updateLoop(match$1[0], match$1[1], match$1[2]);
+        var level$1 = levelResult === /* Won */0 ? level + 1 | 0 : level;
+        var match$1 = Generator.generate(level$1);
+        return updateLoop(match$1[0], match$1[1], level$1, match$1[2]);
       }
       exit = 1;
     } else {
@@ -566,14 +567,14 @@ function updateLoop(player1, player2, objects) {
       var vposXInt = state.viewport.px / 5 | 0;
       var bgdWidth = state.bgd.params.frameSize[0] | 0;
       Draw.drawBgd(state.bgd, Caml_int32.mod_(vposXInt, bgdWidth));
-      updateObject$1(player1, state, /* :: */{
+      updateObject(player1, state, /* :: */{
             _0: player2,
             _1: objects
-          });
-      updateObject$1(player2, state, /* :: */{
+          }, level);
+      updateObject(player2, state, /* :: */{
             _0: player1,
             _1: objects
-          });
+          }, level);
       if (player1.kill === true) {
         var match$2 = state.status;
         var exit$1 = 0;
@@ -590,7 +591,7 @@ function updateLoop(player1, player2, objects) {
       }
       Viewport.update(state.viewport, player1.px, player1.py);
       Belt_List.forEach(objects, (function (obj) {
-              return updateObject$1(obj, state, objects);
+              return updateObject(obj, state, objects, level);
             }));
       Belt_List.forEach(parts, (function (part) {
               return updateParticle(state, part);
@@ -598,13 +599,13 @@ function updateLoop(player1, player2, objects) {
       Draw.fps(fps);
       Draw.hud(state.score, state.coins);
       requestAnimationFrame(function (param) {
-            return updateHelper(player1, player2, collidObjs.contents, particles.contents);
+            return updateHelper(collidObjs.contents, particles.contents);
           });
       return ;
     }
     
   };
-  return updateHelper(player1, player2, objects, /* [] */0);
+  return updateHelper(objects, /* [] */0);
 }
 
 export {
@@ -622,7 +623,8 @@ export {
   broadPhase ,
   narrowPhase ,
   checkCollisions ,
-  updateObject$1 as updateObject,
+  updateObject0 ,
+  updateObject ,
   updateParticle ,
   updateLoop ,
   

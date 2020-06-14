@@ -1,6 +1,22 @@
 
 
 
+function randomSeed(param) {
+  return 34;
+}
+
+function levelWidth(param) {
+  return 2400;
+}
+
+function levelHeight(param) {
+  return 256;
+}
+
+function enemyDensity(param) {
+  return 20;
+}
+
 var images = [
   "blocks.png",
   "items.png",
@@ -8,26 +24,24 @@ var images = [
   "mario-small.png"
 ];
 
-var blockw = 2400 / 16;
+function blockw(level) {
+  return 2400 / 16;
+}
 
-var blockh = 256 / 16 - 1;
+function blockh(level) {
+  return 256 / 16 - 1;
+}
 
-var mapDim = [
-  2400,
-  256
-];
-
-var initialRandomSeed = 34;
+function mapDim(level) {
+  return [
+          2400,
+          256
+        ];
+}
 
 var canvasId = "canvas";
 
 var delayWhenFinished = 300;
-
-var levelWidth = 2400;
-
-var levelHeight = 256;
-
-var enemyDensity = 20;
 
 var restartAfter = 5;
 
@@ -52,13 +66,13 @@ var dampenJump = 4;
 var invuln = 60;
 
 export {
-  initialRandomSeed ,
-  canvasId ,
-  delayWhenFinished ,
-  images ,
+  randomSeed ,
   levelWidth ,
   levelHeight ,
   enemyDensity ,
+  canvasId ,
+  delayWhenFinished ,
+  images ,
   blockw ,
   blockh ,
   mapDim ,
