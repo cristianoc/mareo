@@ -14,7 +14,7 @@ let blockh = levelHeight /. 16. -. 1.;
 
 let mapDim = (levelWidth, levelHeight);
 
-let restartAfter = 5;
+let restartAfter = 5.;
 
 let spritesDir = "sprites/";
 

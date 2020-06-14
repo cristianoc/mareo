@@ -414,11 +414,13 @@ let rec updateLoop = (player1: Object.t, player2, objects) => {
         [@doesNotRaise]
         (
           Config.restartAfter
-          - int_of_float(Html.performance.now(.) -. finishTime)
-          / 1000
+          -. (Html.performance.now(.) -. finishTime)
+          /. 1000.
         );
-      if (timeToStart > 0) {
-        (result == Won ? Draw.gameWon : Draw.gameLost)(timeToStart);
+      if (timeToStart > 0.) {
+        (result == Won ? Draw.gameWon : Draw.gameLost)(
+          timeToStart->int_of_float->string_of_int,
+        );
         Html.requestAnimationFrame(_ =>
           updateHelper(player1, player2, collidObjs^, particles^)
         );
@@ -444,7 +446,7 @@ let rec updateLoop = (player1: Object.t, player2, objects) => {
       player2->updateObject(state, ~objects=[player1, ...objects]);
       if (player1.kill == true) {
         switch (state.status) {
-        | Finished({result: Won}) => ()
+        | Finished({result: Lost}) => ()
         | _ =>
           state.status =
             Finished({result: Lost, finishTime: Html.performance.now(.)})

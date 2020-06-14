@@ -542,11 +542,11 @@ function updateLoop(player1, player2, objects) {
     if (match) {
       var finishTime = match.finishTime;
       if (performance.now() - finishTime > Config.delayWhenFinished) {
-        var timeToStart = Config.restartAfter - ((performance.now() - finishTime | 0) / 1000 | 0) | 0;
+        var timeToStart = Config.restartAfter - (performance.now() - finishTime) / 1000;
         if (timeToStart > 0) {
           (
               match.result === /* Won */0 ? Draw.gameWon : Draw.gameLost
-            )(timeToStart);
+            )(String(timeToStart | 0));
           requestAnimationFrame(function (param) {
                 return updateHelper(player1, player2, collidObjs.contents, particles.contents);
               });
@@ -578,7 +578,7 @@ function updateLoop(player1, player2, objects) {
       if (player1.kill === true) {
         var match$2 = state.status;
         var exit$1 = 0;
-        if (!(match$2 && !match$2.result)) {
+        if (!(match$2 && match$2.result)) {
           exit$1 = 2;
         }
         if (exit$1 === 2) {

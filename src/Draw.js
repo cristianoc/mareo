@@ -72,7 +72,7 @@ function gameWon(elapsed) {
               ],
               _1: /* :: */{
                 _0: [
-                  String(elapsed),
+                  elapsed,
                   230,
                   150
                 ],
@@ -90,7 +90,7 @@ function gameLost(elapsed) {
               ],
               _1: /* :: */{
                 _0: [
-                  String(elapsed),
+                  elapsed,
                   230,
                   150
                 ],
