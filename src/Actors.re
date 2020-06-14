@@ -1,3 +1,7 @@
+type levelResult =
+  | Won
+  | Lost;
+
 type dir1d =
   | Left
   | Right;

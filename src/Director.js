@@ -199,7 +199,7 @@ function processCollision(dir, obj1, obj2, state) {
                 var exit = 0;
                 if (typeof t$1 === "number" && t$1 === 4) {
                   state.status = /* Finished */{
-                    result: /* Won */0,
+                    levelResult: /* Won */0,
                     finishTime: performance.now()
                   };
                   return [
@@ -236,7 +236,7 @@ function processCollision(dir, obj1, obj2, state) {
                             ];
                     } else {
                       state.status = /* Finished */{
-                        result: /* Won */0,
+                        levelResult: /* Won */0,
                         finishTime: performance.now()
                       };
                       return [
@@ -529,11 +529,13 @@ function updateLoop(player1, player2, objects) {
   Viewport.update(viewport, player1.px, player1.py);
   var state = {
     bgd: Sprite.makeBgd(undefined),
-    viewport: viewport,
-    score: 0,
     coins: 0,
+    level: 1,
     multiplier: 1,
-    status: /* Playing */0
+    randomSeed: Config.initialRandomSeed,
+    score: 0,
+    status: /* Playing */0,
+    viewport: viewport
   };
   var updateHelper = function (player1, player2, objects, parts) {
     var match = state.status;
@@ -543,15 +545,13 @@ function updateLoop(player1, player2, objects) {
       if (performance.now() - finishTime > Config.delayWhenFinished) {
         var timeToStart = Config.restartAfter - (performance.now() - finishTime) / 1000;
         if (timeToStart > 0) {
-          (
-              match.result === /* Won */0 ? Draw.gameWon : Draw.gameLost
-            )(String(timeToStart | 0));
+          Draw.levelFinished(match.levelResult, String(state.level), String(timeToStart | 0));
           requestAnimationFrame(function (param) {
                 return updateHelper(player1, player2, collidObjs.contents, particles.contents);
               });
           return ;
         }
-        var match$1 = Generator.generate(undefined);
+        var match$1 = Generator.generate(state.randomSeed);
         return updateLoop(match$1[0], match$1[1], match$1[2]);
       }
       exit = 1;
@@ -577,12 +577,12 @@ function updateLoop(player1, player2, objects) {
       if (player1.kill === true) {
         var match$2 = state.status;
         var exit$1 = 0;
-        if (!(match$2 && match$2.result)) {
+        if (!(match$2 && match$2.levelResult)) {
           exit$1 = 2;
         }
         if (exit$1 === 2) {
           state.status = /* Finished */{
-            result: /* Lost */1,
+            levelResult: /* Lost */1,
             finishTime: performance.now()
           };
         }

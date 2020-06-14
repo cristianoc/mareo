@@ -1,3 +1,5 @@
+let initialRandomSeed = 34;
+
 let canvasId = "canvas";
 
 let delayWhenFinished = 300.;

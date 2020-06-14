@@ -7,8 +7,6 @@ type canvasData = {
 let canvasAndContext =
   lazy(
     {
-      Random.init(34);
-      //Random.self_init();
       switch (Html.getElementById(Html.document, Config.canvasId)) {
       | None =>
         print_endline("cant find canvas " ++ Config.canvasId ++ " \n");

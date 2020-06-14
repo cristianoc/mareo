@@ -68,12 +68,17 @@ let blackScreen = texts => {
   ctx.fillStyle = "black";
 };
 
-// gameWon displays a black screen when you finish a game.
-let gameWon = elapsed => {
-  blackScreen([("You win!", 60., 100.), (elapsed, 230., 150.)]);
-};
-
-// gameLost displays a black screen stating a loss to finish that level play.
-let gameLost = elapsed => {
-  blackScreen([("GAME OVER. You lose!", 60., 100.), (elapsed, 230., 150.)]);
+let levelFinished = (result: Actors.levelResult, level, elapsed) => {
+  switch (result) {
+  | Won =>
+    blackScreen([
+      ("You win level" ++ level ++ "!", 80., 100.),
+      (elapsed, 230., 160.),
+    ])
+  | Lost =>
+    blackScreen([
+      ("You lose level " ++ level ++ "!", 80., 100.),
+      (elapsed, 230., 160.),
+    ])
+  };
 };

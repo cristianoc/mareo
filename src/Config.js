@@ -17,6 +17,8 @@ var mapDim = [
   256
 ];
 
+var initialRandomSeed = 34;
+
 var canvasId = "canvas";
 
 var delayWhenFinished = 300;
@@ -50,6 +52,7 @@ var dampenJump = 4;
 var invuln = 60;
 
 export {
+  initialRandomSeed ,
   canvasId ,
   delayWhenFinished ,
   images ,

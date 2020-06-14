@@ -338,7 +338,8 @@ function generateHelper(param) {
         };
 }
 
-function generate(param) {
+function generate(randomSeed) {
+  Random.init(randomSeed);
   var initial = performance.now();
   var objects = generateHelper(undefined);
   var player1 = $$Object.make(undefined, undefined, undefined, {

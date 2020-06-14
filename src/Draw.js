@@ -80,40 +80,40 @@ function blackScreen(texts) {
   
 }
 
-function gameWon(elapsed) {
-  return blackScreen(/* :: */{
-              _0: [
-                "You win!",
-                60,
-                100
-              ],
-              _1: /* :: */{
+function levelFinished(result, level, elapsed) {
+  if (result) {
+    return blackScreen(/* :: */{
                 _0: [
-                  elapsed,
-                  230,
-                  150
+                  "You lose level " + (level + "!"),
+                  80,
+                  100
                 ],
-                _1: /* [] */0
-              }
-            });
-}
-
-function gameLost(elapsed) {
-  return blackScreen(/* :: */{
-              _0: [
-                "GAME OVER. You lose!",
-                60,
-                100
-              ],
-              _1: /* :: */{
+                _1: /* :: */{
+                  _0: [
+                    elapsed,
+                    230,
+                    160
+                  ],
+                  _1: /* [] */0
+                }
+              });
+  } else {
+    return blackScreen(/* :: */{
                 _0: [
-                  elapsed,
-                  230,
-                  150
+                  "You win level" + (level + "!"),
+                  80,
+                  100
                 ],
-                _1: /* [] */0
-              }
-            });
+                _1: /* :: */{
+                  _0: [
+                    elapsed,
+                    230,
+                    160
+                  ],
+                  _1: /* [] */0
+                }
+              });
+  }
 }
 
 export {
@@ -124,8 +124,7 @@ export {
   hud ,
   fps ,
   blackScreen ,
-  gameWon ,
-  gameLost ,
+  levelFinished ,
   
 }
 /* No side effect */

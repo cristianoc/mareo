@@ -296,7 +296,8 @@ let generateHelper = (): list(Object.t) => {
 // Main function called to procedurally generate the level map. w and h args
 // are in pixel form. Converts to block form to call generateHelper. Spawns
 // the list of objects received from generateHelper to display on canvas.
-let generate = (): (Object.t, Object.t, list(Object.t)) => {
+let generate = (randomSeed): (Object.t, Object.t, list(Object.t)) => {
+  Random.init(randomSeed);
   let initial = Html.performance.now(.);
   let objects = generateHelper();
   let player1 =

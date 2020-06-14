@@ -2,14 +2,10 @@ open Belt;
 
 open Actors;
 
-type result =
-  | Won
-  | Lost;
-
 type status =
   | Playing
   | Finished({
-      result,
+      levelResult,
       finishTime: float,
     });
 
@@ -22,11 +18,13 @@ type status =
 // is only true when the game is over).
 type state = {
   bgd: Sprite.t,
-  viewport: Viewport.t,
-  mutable score: int,
   mutable coins: int,
+  mutable level: int,
   mutable multiplier: int,
+  mutable randomSeed: int,
+  mutable score: int,
   mutable status,
+  viewport: Viewport.t,
 };
 
 let collidObjs = ref([]); // List of next iteration collidable objects
@@ -232,7 +230,7 @@ let processCollision =
       }
     | Panel =>
       state.status =
-        Finished({result: Won, finishTime: Html.performance.now(.)});
+        Finished({levelResult: Won, finishTime: Html.performance.now(.)});
       (None, None);
     | _ =>
       Object.collideBlock(dir, obj1);
@@ -242,7 +240,7 @@ let processCollision =
     switch (t) {
     | Panel =>
       state.status =
-        Finished({result: Won, finishTime: Html.performance.now(.)});
+        Finished({levelResult: Won, finishTime: Html.performance.now(.)});
       (None, None);
     | _ =>
       switch (dir) {
@@ -397,16 +395,18 @@ let rec updateLoop = (player1: Object.t, player2, objects) => {
   Viewport.update(viewport, player1.px, player1.py);
   let state = {
     bgd: Sprite.makeBgd(),
-    viewport,
-    score: 0,
     coins: 0,
+    level: 1,
     multiplier: 1,
+    randomSeed: Config.initialRandomSeed,
+    score: 0,
     status: Playing,
+    viewport,
   };
 
   let rec updateHelper = (player1, player2, objects, parts) => {
     switch (state.status) {
-    | Finished({result, finishTime})
+    | Finished({levelResult, finishTime})
         when Html.performance.now(.) -. finishTime > Config.delayWhenFinished =>
       let timeToStart =
         [@doesNotRaise]
@@ -416,14 +416,16 @@ let rec updateLoop = (player1: Object.t, player2, objects) => {
           /. 1000.
         );
       if (timeToStart > 0.) {
-        (result == Won ? Draw.gameWon : Draw.gameLost)(
+        Draw.levelFinished(
+          levelResult,
+          state.level->string_of_int,
           timeToStart->int_of_float->string_of_int,
         );
         Html.requestAnimationFrame(_ =>
           updateHelper(player1, player2, collidObjs^, particles^)
         );
       } else {
-        let (player1, player2, objs) = Generator.generate();
+        let (player1, player2, objs) = Generator.generate(state.randomSeed);
         updateLoop(player1, player2, objs);
       };
 
@@ -444,10 +446,10 @@ let rec updateLoop = (player1: Object.t, player2, objects) => {
       player2->updateObject(state, ~objects=[player1, ...objects]);
       if (player1.kill == true) {
         switch (state.status) {
-        | Finished({result: Lost}) => ()
+        | Finished({levelResult: Lost}) => ()
         | _ =>
           state.status =
-            Finished({result: Lost, finishTime: Html.performance.now(.)})
+            Finished({levelResult: Lost, finishTime: Html.performance.now(.)})
         };
       };
       Viewport.update(state.viewport, player1.px, player1.py);

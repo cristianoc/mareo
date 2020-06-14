@@ -2,13 +2,11 @@
 
 import * as Keys from "./Keys.js";
 import * as Config from "./Config.js";
-import * as Random from "bs-platform/lib/es6/random.js";
 import * as CamlinternalLazy from "bs-platform/lib/es6/camlinternalLazy.js";
 
 var canvasAndContext = {
   RE_LAZY_DONE: false,
   value: (function () {
-      Random.init(34);
       var el = document.getElementById(Config.canvasId);
       if (el !== null) {
         var width = el.width;
@@ -31,7 +29,7 @@ var canvasAndContext = {
             RE_EXN_ID: "Assert_failure",
             _1: [
               "Load.re",
-              15,
+              13,
               8
             ],
             Error: new Error()
