@@ -41,8 +41,8 @@ let inViewport = (v, px, py) => {
 // Return whether an object is outside of the viewport and below it. This is
 // useful for determining whether to process falling out of screen normally.
 let outOfViewportBelow = (v, y) => {
-  let vMaxY = v.py +. v.v_dim.y;
-  y >= vMaxY;
+  let vMaxY = v.v_dim.y *. 1.5;
+  y +. 20.0 >= vMaxY;
 };
 
 // Convert a x,y [coord] pair in absolute coordinates to coordinates relative

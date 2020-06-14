@@ -35,8 +35,8 @@ function inViewport(v, px, py) {
 }
 
 function outOfViewportBelow(v, y) {
-  var vMaxY = v.py + v.v_dim.y;
-  return y >= vMaxY;
+  var vMaxY = v.v_dim.y * 1.5;
+  return y + 20.0 >= vMaxY;
 }
 
 function fromCoord(viewport, px, py) {

@@ -395,9 +395,9 @@ function viewportFilter(obj, state) {
   }
 }
 
-function broadPhase(obj, allCollids, state) {
-  return Belt_List.keep(allCollids, (function (_c) {
-                return viewportFilter(obj, state);
+function broadPhase(allCollids, state) {
+  return Belt_List.keep(allCollids, (function (o) {
+                return viewportFilter(o, state);
               }));
 }
 
@@ -451,16 +451,16 @@ function narrowPhase(obj, cs, state) {
   };
 }
 
-function checkCollisions(obj, allCollids, state) {
+function checkCollisions(obj, state, objects) {
   var match = obj.objTyp;
   if (match.TAG === /* Block */3) {
     return /* [] */0;
   }
-  var broad = broadPhase(obj, allCollids, state);
+  var broad = broadPhase(objects, state);
   return narrowPhase(obj, broad, state);
 }
 
-function updateCollidable(state, obj, allCollids) {
+function updateObject(obj, state, objects) {
   var spr = obj.sprite;
   obj.invuln = obj.invuln > 0 ? obj.invuln - 1 | 0 : 0;
   if (!((!obj.kill || $$Object.isPlayer(obj)) && viewportFilter(obj, state))) {
@@ -468,7 +468,7 @@ function updateCollidable(state, obj, allCollids) {
   }
   obj.grounded = false;
   $$Object.processObj(obj, state.map);
-  var evolved = checkCollisions(obj, allCollids, state);
+  var evolved = checkCollisions(obj, state, objects);
   var vptAdjXy = Viewport.fromCoord(state.viewport, obj.px, obj.py);
   Draw.render(spr, vptAdjXy.x, vptAdjXy.y);
   if (Keys.checkBboxEnabled(undefined)) {
@@ -480,10 +480,10 @@ function updateCollidable(state, obj, allCollids) {
   return evolved;
 }
 
-function updateObject(obj, state, allCollids) {
+function updateObject$1(obj, state, objects) {
   var match = obj.objTyp;
   if (match.TAG) {
-    var evolved = updateCollidable(state, obj, allCollids);
+    var evolved = updateObject(obj, state, objects);
     if (!obj.kill) {
       collidObjs.contents = /* :: */{
         _0: obj,
@@ -498,7 +498,7 @@ function updateObject(obj, state, allCollids) {
   var keys = Keys.translateKeys(n);
   obj.crouch = false;
   $$Object.updatePlayer(obj, n, keys);
-  var evolved$1 = updateCollidable(state, obj, allCollids);
+  var evolved$1 = updateObject(obj, state, objects);
   collidObjs.contents = Pervasives.$at(evolved$1, collidObjs.contents);
   
 }
@@ -518,7 +518,7 @@ function updateParticle(state, part) {
   
 }
 
-function updateLoop(player1, player2, objs) {
+function updateLoop(player1, player2, objects) {
   var viewport = Viewport.make(Load.getCanvasSizeScaled(undefined), Config.mapDim);
   Viewport.update(viewport, player1.px, player1.py);
   var state = {
@@ -530,7 +530,7 @@ function updateLoop(player1, player2, objs) {
     multiplier: 1,
     status: /* Playing */0
   };
-  var updateHelper = function (time, player1, player2, objs, parts) {
+  var updateHelper = function (time, player1, player2, objects, parts) {
     var t = state.status;
     if (typeof t === "number") {
       if (t !== 0) {
@@ -560,13 +560,13 @@ function updateLoop(player1, player2, objs) {
     var vposXInt = state.viewport.px / 5 | 0;
     var bgdWidth = state.bgd.params.frameSize[0] | 0;
     Draw.drawBgd(state.bgd, Caml_int32.mod_(vposXInt, bgdWidth));
-    updateObject(player1, state, /* :: */{
+    updateObject$1(player1, state, /* :: */{
           _0: player2,
-          _1: objs
+          _1: objects
         });
-    updateObject(player2, state, /* :: */{
+    updateObject$1(player2, state, /* :: */{
           _0: player1,
-          _1: objs
+          _1: objects
         });
     if (player1.kill === true) {
       var match$1 = state.status;
@@ -578,8 +578,8 @@ function updateLoop(player1, player2, objs) {
       
     }
     Viewport.update(state.viewport, player1.px, player1.py);
-    Belt_List.forEach(objs, (function (obj) {
-            return updateObject(obj, state, objs);
+    Belt_List.forEach(objects, (function (obj) {
+            return updateObject$1(obj, state, objects);
           }));
     Belt_List.forEach(parts, (function (part) {
             return updateParticle(state, part);
@@ -591,7 +591,7 @@ function updateLoop(player1, player2, objs) {
         });
     
   };
-  return updateHelper(0, player1, player2, objs, /* [] */0);
+  return updateHelper(0, player1, player2, objects, /* [] */0);
 }
 
 export {
@@ -609,8 +609,7 @@ export {
   broadPhase ,
   narrowPhase ,
   checkCollisions ,
-  updateCollidable ,
-  updateObject ,
+  updateObject$1 as updateObject,
   updateParticle ,
   updateLoop ,
   

@@ -258,8 +258,8 @@ let viewportFilter = (obj: Object.t, state) =>
   || Viewport.outOfViewportBelow(state.viewport, obj.py);
 
 // Run the broad phase object filtering
-let broadPhase = (obj: Object.t, allCollids, state) => {
-  allCollids->List.keep(_c => obj->viewportFilter(state));
+let broadPhase = (allCollids, state) => {
+  allCollids->List.keep(o => o->viewportFilter(state));
 };
 
 // narrowPhase of collision is used in order to continuously loop through
@@ -306,17 +306,17 @@ let narrowPhase = (obj, cs, state) => {
 //     is a collision, and process the collision.
 // This method returns a list of objects that are created, which should be
 // added to the list of objects for the next iteration.
-let checkCollisions = (obj, allCollids, state) =>
+let checkCollisions = (obj, state, objects) =>
   switch (obj.Object.objTyp) {
   | Block(_) => []
   | _ =>
-    let broad = broadPhase(obj, allCollids, state);
+    let broad = objects->broadPhase(state);
     narrowPhase(obj, broad, state);
   };
 
 // primary update method for objects,
 // checking the collision, updating the object, and drawing to the canvas
-let updateCollidable = (state, obj: Object.t, allCollids) => {
+let updateObject = (obj: Object.t, state, objects) => {
   /* TODO: optimize. Draw static elements only once */
   let spr = obj.sprite;
   obj.invuln = (
@@ -330,7 +330,7 @@ let updateCollidable = (state, obj: Object.t, allCollids) => {
     obj.grounded = false;
     Object.processObj(obj, state.map);
     // Run collision detection if moving object
-    let evolved = obj->checkCollisions(allCollids, state);
+    let evolved = obj->checkCollisions(state, objects);
     // Render and update animation
     let vptAdjXy = Viewport.fromCoord(state.viewport, obj.px, obj.py);
     Draw.render(spr, vptAdjXy.x, vptAdjXy.y);
@@ -350,16 +350,16 @@ let updateCollidable = (state, obj: Object.t, allCollids) => {
 // as a wrapper method. This method is necessary to differentiate between
 // the player collidable and the remaining collidables, as special operations
 // such as viewport centering only occur with the player
-let updateObject = (obj: Object.t, state, allCollids) =>
+let updateObject = (obj: Object.t, state, ~objects) =>
   switch (obj.objTyp) {
   | Player(_, n) =>
     let keys = Keys.translateKeys(n);
     obj.crouch = false;
     Object.updatePlayer(obj, n, keys);
-    let evolved = updateCollidable(state, obj, allCollids);
+    let evolved = obj->updateObject(state, objects);
     collidObjs := evolved @ collidObjs^;
   | _ =>
-    let evolved = updateCollidable(state, obj, allCollids);
+    let evolved = obj->updateObject(state, objects);
     if (!obj.kill) {
       collidObjs := [obj, ...evolved @ collidObjs^];
     };
@@ -385,7 +385,7 @@ let updateParticle = (state, part) => {
 
 // updateLoop is constantly being called to check for collisions and to
 // update each of the objects in the game.
-let rec updateLoop = (player1: Object.t, player2, objs) => {
+let rec updateLoop = (player1: Object.t, player2, objects) => {
   let viewport = Viewport.make(Load.getCanvasSizeScaled(), Config.mapDim);
   Viewport.update(viewport, player1.px, player1.py);
   let state = {
@@ -398,7 +398,7 @@ let rec updateLoop = (player1: Object.t, player2, objs) => {
     status: Playing,
   };
 
-  let rec updateHelper = (time, player1, player2, objs, parts) => {
+  let rec updateHelper = (time, player1, player2, objects, parts) => {
     switch (state.status) {
     | Won => Draw.gameWon()
     | Lost(t) when time -. t > Config.delayWhenLost =>
@@ -428,8 +428,8 @@ let rec updateLoop = (player1: Object.t, player2, objs) => {
         state.bgd,
         [@doesNotRaise] float_of_int(vposXInt mod bgdWidth),
       );
-      player1->updateObject(state, [player2, ...objs]);
-      player2->updateObject(state, [player1, ...objs]);
+      player1->updateObject(state, ~objects=[player2, ...objects]);
+      player2->updateObject(state, ~objects=[player1, ...objects]);
       if (player1.kill == true) {
         switch (state.status) {
         | Lost(_) => ()
@@ -437,7 +437,7 @@ let rec updateLoop = (player1: Object.t, player2, objs) => {
         };
       };
       Viewport.update(state.viewport, player1.px, player1.py);
-      objs->List.forEach(obj => obj->updateObject(state, objs));
+      objects->List.forEach(obj => obj->updateObject(state, ~objects));
       parts->List.forEach(part => updateParticle(state, part));
       Draw.fps(fps);
       Draw.hud(state.score, state.coins);
@@ -446,5 +446,5 @@ let rec updateLoop = (player1: Object.t, player2, objs) => {
       );
     };
   };
-  updateHelper(0., player1, player2, objs, []);
+  updateHelper(0., player1, player2, objects, []);
 };
