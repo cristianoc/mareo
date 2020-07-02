@@ -28,9 +28,9 @@ var canvasAndContext = {
       throw {
             RE_EXN_ID: "Assert_failure",
             _1: [
-              "Load.re",
-              13,
-              8
+              "Load.res",
+              11,
+              4
             ],
             Error: new Error()
           };

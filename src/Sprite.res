@@ -1,6 +1,6 @@
-open Actors;
+open Actors
 
-type xy = (float, float);
+type xy = (float, float)
 
 type params = {
   maxFrames: int,
@@ -10,52 +10,53 @@ type params = {
   srcOffset: xy,
   bboxOffset: xy,
   bboxSize: xy,
-};
+}
 
 type t = {
-  mutable params,
+  mutable params: params,
   mutable frame: int,
   mutable ticks: int,
   mutable img: Html.imageElement,
-};
+}
 
 // setupSprite is used to initialize a sprite.
-let setupSprite =
-    (
-      ~bbOff as bboxOffset=(0., 0.),
-      ~bbSz as bboxSize=(0., 0.),
-      ~frameSize=(16., 16.),
-      ~maxTicks=0,
-      ~maxFrames=1,
-      ~srcOffset,
-      imgSrc,
-    ) => {
-  let bboxSize =
-    if (bboxSize == (0., 0.)) {
-      frameSize;
-    } else {
-      bboxSize;
-    };
-  let maxFrames = maxFrames < 1 ? 1 : maxFrames;
-  let imgSrc = "./sprites/" ++ imgSrc;
-  {imgSrc, maxFrames, maxTicks, frameSize, srcOffset, bboxOffset, bboxSize};
-};
+let setupSprite = (
+  ~bbOff as bboxOffset=(0., 0.),
+  ~bbSz as bboxSize=(0., 0.),
+  ~frameSize=(16., 16.),
+  ~maxTicks=0,
+  ~maxFrames=1,
+  ~srcOffset,
+  imgSrc,
+) => {
+  let bboxSize = if bboxSize == (0., 0.) {
+    frameSize
+  } else {
+    bboxSize
+  }
+  let maxFrames = maxFrames < 1 ? 1 : maxFrames
+  let imgSrc = "./sprites/" ++ imgSrc
+  {
+    imgSrc: imgSrc,
+    maxFrames: maxFrames,
+    maxTicks: maxTicks,
+    frameSize: frameSize,
+    srcOffset: srcOffset,
+    bboxOffset: bboxOffset,
+    bboxSize: bboxSize,
+  }
+}
 
 // The following functions are used in order to define sprite animations
 // from their sprite sheets. Also creates bounding boxes if necessary.
 // Sets sprite for small mario.
 let makeSmallPlayer = (typ, dir) =>
-  switch (dir) {
-  /* 16x16 grid with 0x0 offset*/
+  switch dir {
+  /* 16x16 grid with 0x0 offset */
   | Left =>
-    switch (typ) {
+    switch typ {
     | Standing =>
-      setupSprite(
-        "mario-small.png",
-        ~bbOff=(3., 1.),
-        ~bbSz=(11., 15.),
-        ~srcOffset=(0., 0.),
-      )
+      setupSprite("mario-small.png", ~bbOff=(3., 1.), ~bbSz=(11., 15.), ~srcOffset=(0., 0.))
     | Jumping =>
       setupSprite(
         "mario-small.png",
@@ -75,22 +76,12 @@ let makeSmallPlayer = (typ, dir) =>
         ~srcOffset=(16., 0.),
       )
     | Crouching =>
-      setupSprite(
-        "mario-small.png",
-        ~bbOff=(1., 5.),
-        ~bbSz=(14., 10.),
-        ~srcOffset=(0., 64.),
-      )
+      setupSprite("mario-small.png", ~bbOff=(1., 5.), ~bbSz=(14., 10.), ~srcOffset=(0., 64.))
     }
   | Right =>
-    switch (typ) {
+    switch typ {
     | Standing =>
-      setupSprite(
-        "mario-small.png",
-        ~bbOff=(1., 1.),
-        ~bbSz=(11., 15.),
-        ~srcOffset=(0., 32.),
-      )
+      setupSprite("mario-small.png", ~bbOff=(1., 1.), ~bbSz=(11., 15.), ~srcOffset=(0., 32.))
     | Jumping =>
       setupSprite(
         "mario-small.png",
@@ -110,20 +101,15 @@ let makeSmallPlayer = (typ, dir) =>
         ~srcOffset=(16., 32.),
       )
     | Crouching =>
-      setupSprite(
-        "mario-small.png",
-        ~bbOff=(1., 5.),
-        ~bbSz=(14., 10.),
-        ~srcOffset=(0., 64.),
-      )
+      setupSprite("mario-small.png", ~bbOff=(1., 5.), ~bbSz=(14., 10.), ~srcOffset=(0., 64.))
     }
-  };
+  }
 
 // Sets sprite for big mario
 let makeBigPlayer = (typ, dir) =>
-  switch (dir) {
+  switch dir {
   | Left =>
-    switch (typ) {
+    switch typ {
     | Standing =>
       setupSprite(
         "mario-big.png",
@@ -160,7 +146,7 @@ let makeBigPlayer = (typ, dir) =>
       )
     }
   | Right =>
-    switch (typ) {
+    switch typ {
     | Standing =>
       setupSprite(
         "mario-big.png",
@@ -196,7 +182,7 @@ let makeBigPlayer = (typ, dir) =>
         ~srcOffset=(32., 69.),
       )
     }
-  };
+  }
 
 // Set sprites for enemies: Goomba, Red Koopa, Green Koopa.
 let makeEnemy = (typ, dir) =>
@@ -268,12 +254,12 @@ let makeEnemy = (typ, dir) =>
       ~maxTicks=10,
       ~srcOffset=(0., 32.),
     )
-  };
+  }
 
 // Set sprites for items: coin, fireflower, mushroom, star
-let makeItem =
-  fun
+let makeItem = x =>
   /* 16x16 grid with 0x0 offset */
+  switch x {
   | Coin =>
     setupSprite(
       "items.png",
@@ -283,125 +269,103 @@ let makeItem =
       ~maxTicks=15,
       ~srcOffset=(0., 80.),
     )
-  | Mushroom =>
-    setupSprite(
-      "items.png",
-      ~bbOff=(2., 0.),
-      ~bbSz=(12., 16.),
-      ~srcOffset=(0., 0.),
-    );
+  | Mushroom => setupSprite("items.png", ~bbOff=(2., 0.), ~bbSz=(12., 16.), ~srcOffset=(0., 0.))
+  }
 
-let brickParams =
-  setupSprite("blocks.png", ~maxFrames=5, ~maxTicks=10, ~srcOffset=(0., 0.));
+let brickParams = setupSprite("blocks.png", ~maxFrames=5, ~maxTicks=10, ~srcOffset=(0., 0.))
 
-let qBlockParams =
-  setupSprite(
-    "blocks.png",
-    ~maxFrames=4,
-    ~maxTicks=15,
-    ~srcOffset=(0., 16.),
-  );
+let qBlockParams = setupSprite("blocks.png", ~maxFrames=4, ~maxTicks=15, ~srcOffset=(0., 16.))
 
-let qBlockUsedParams = setupSprite("blocks.png", ~srcOffset=(0., 32.));
+let qBlockUsedParams = setupSprite("blocks.png", ~srcOffset=(0., 32.))
 
-let unBBlockParams = setupSprite("blocks.png", ~srcOffset=(0., 48.));
+let unBBlockParams = setupSprite("blocks.png", ~srcOffset=(0., 48.))
 
-let cloudParams = setupSprite("blocks.png", ~srcOffset=(0., 64.));
+let cloudParams = setupSprite("blocks.png", ~srcOffset=(0., 64.))
 
-let panelParams =
-  setupSprite(
-    "panel.png",
-    ~maxFrames=3,
-    ~maxTicks=15,
-    ~frameSize=(26., 26.),
-    ~srcOffset=(0., 0.),
-  );
+let panelParams = setupSprite(
+  "panel.png",
+  ~maxFrames=3,
+  ~maxTicks=15,
+  ~frameSize=(26., 26.),
+  ~srcOffset=(0., 0.),
+)
 
-let groundParams = setupSprite("ground.png", ~srcOffset=(0., 32.));
+let groundParams = setupSprite("ground.png", ~srcOffset=(0., 32.))
 
 // Set sprites for blocks: brick, question block, unbreakable block, cloud block
 // panel block, ground block.*/
-let makeBlock =
-  fun
+let makeBlock = x =>
   /* 16x16 grid with 0x0 offset */
+  switch x {
   | Brick => brickParams
   | QBlock(_) => qBlockParams
   | QBlockUsed => qBlockUsedParams
   | UnBBlock => unBBlockParams
   | Cloud => cloudParams
   | Panel => panelParams
-  | Ground => groundParams;
+  | Ground => groundParams
+  }
 
 // Set sprites for particles, squished goomba, brick chunks (upon destruction
 // of brick), score text.
-let makeParticle =
-  fun
+let makeParticle = x =>
+  switch x {
   | GoombaSquish => setupSprite("enemies.png", ~srcOffset=(0., 144.))
-  | BrickChunkL =>
-    setupSprite("chunks.png", ~frameSize=(8., 8.), ~srcOffset=(0., 0.))
-  | BrickChunkR =>
-    setupSprite("chunks.png", ~frameSize=(8., 8.), ~srcOffset=(8., 0.))
-  | Score100 =>
-    setupSprite("score.png", ~frameSize=(12., 8.), ~srcOffset=(0., 0.))
-  | Score200 =>
-    setupSprite("score.png", ~frameSize=(12., 9.), ~srcOffset=(0., 9.))
-  | Score400 =>
-    setupSprite("score.png", ~frameSize=(12., 9.), ~srcOffset=(0., 18.))
-  | Score800 =>
-    setupSprite("score.png", ~frameSize=(12., 9.), ~srcOffset=(0., 27.))
-  | Score1000 =>
-    setupSprite("score.png", ~frameSize=(14., 9.), ~srcOffset=(13., 0.))
-  | Score2000 =>
-    setupSprite("score.png", ~frameSize=(14., 9.), ~srcOffset=(13., 9.))
-  | Score4000 =>
-    setupSprite("score.png", ~frameSize=(14., 9.), ~srcOffset=(13., 18.))
-  | Score8000 =>
-    setupSprite("score.png", ~frameSize=(14., 9.), ~srcOffset=(13., 27.));
+  | BrickChunkL => setupSprite("chunks.png", ~frameSize=(8., 8.), ~srcOffset=(0., 0.))
+  | BrickChunkR => setupSprite("chunks.png", ~frameSize=(8., 8.), ~srcOffset=(8., 0.))
+  | Score100 => setupSprite("score.png", ~frameSize=(12., 8.), ~srcOffset=(0., 0.))
+  | Score200 => setupSprite("score.png", ~frameSize=(12., 9.), ~srcOffset=(0., 9.))
+  | Score400 => setupSprite("score.png", ~frameSize=(12., 9.), ~srcOffset=(0., 18.))
+  | Score800 => setupSprite("score.png", ~frameSize=(12., 9.), ~srcOffset=(0., 27.))
+  | Score1000 => setupSprite("score.png", ~frameSize=(14., 9.), ~srcOffset=(13., 0.))
+  | Score2000 => setupSprite("score.png", ~frameSize=(14., 9.), ~srcOffset=(13., 9.))
+  | Score4000 => setupSprite("score.png", ~frameSize=(14., 9.), ~srcOffset=(13., 18.))
+  | Score8000 => setupSprite("score.png", ~frameSize=(14., 9.), ~srcOffset=(13., 27.))
+  }
 
 // Call to set sprite for either big or small mario.
 let makePlayer = (plSize, typ, dir) =>
-  switch (plSize) {
+  switch plSize {
   | BigM => makeBigPlayer(typ, dir)
   | SmallM => makeSmallPlayer(typ, dir)
-  };
+  }
 
 // Make a sprite from provided [params]
 let makeFromParams = params => {
-  let img = Html.createImg(Html.document);
-  img.src = params.imgSrc;
-  {params, img, frame: 0, ticks: 0};
-};
+  let img = Html.createImg(Html.document)
+  img.src = params.imgSrc
+  {params: params, img: img, frame: 0, ticks: 0}
+}
 
 // Make a background
 let makeBgd = () => {
-  let params =
-    setupSprite("bgd-1.png", ~frameSize=(512., 256.), ~srcOffset=(0., 0.));
-  makeFromParams(params);
-};
+  let params = setupSprite("bgd-1.png", ~frameSize=(512., 256.), ~srcOffset=(0., 0.))
+  makeFromParams(params)
+}
 
 // Make a particle from the given particle type
 let makeParticle = ptyp => {
-  let params = makeParticle(ptyp);
-  makeFromParams(params);
-};
+  let params = makeParticle(ptyp)
+  makeFromParams(params)
+}
 
 // used in order to switch the direction an enemy faces
 let transformEnemy = (enemy_typ, spr, dir) => {
-  let params = makeEnemy(enemy_typ, dir);
-  let img = Html.createImg(Html.document);
-  img.src = params.imgSrc;
-  spr.params = params;
-  spr.img = img;
-};
+  let params = makeEnemy(enemy_typ, dir)
+  let img = Html.createImg(Html.document)
+  img.src = params.imgSrc
+  spr.params = params
+  spr.img = img
+}
 
 // main method to cycle through sprite animations
 let updateAnimation = (spr: t) => {
   /* Only advance frame when ticked */
-  let curr_ticks = spr.ticks;
-  if (curr_ticks >= spr.params.maxTicks) {
-    spr.ticks = 0;
-    spr.frame = [@doesNotRaise] ((spr.frame + 1) mod spr.params.maxFrames);
+  let curr_ticks = spr.ticks
+  if curr_ticks >= spr.params.maxTicks {
+    spr.ticks = 0
+    spr.frame = @doesNotRaise mod(spr.frame + 1, spr.params.maxFrames)
   } else {
-    spr.ticks = curr_ticks + 1;
-  };
-};
+    spr.ticks = curr_ticks + 1
+  }
+}

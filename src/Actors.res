@@ -1,42 +1,42 @@
 type levelResult =
   | Won
-  | Lost;
+  | Lost
 
 type dir1d =
   | Left
-  | Right;
+  | Right
 
 type dir2d =
   | North
   | South
   | East
-  | West;
+  | West
 
 type xy = {
   mutable x: float,
   mutable y: float,
-};
+}
 
 type controls =
   | CLeft
   | CRight
   | CUp
-  | CDown;
+  | CDown
 
 type plTyp =
   | BigM
-  | SmallM;
+  | SmallM
 
 type itemTyp =
   | Mushroom
-  | Coin;
+  | Coin
 
 type enemyTyp =
   | Goomba
   | GKoopa
   | RKoopa
   | GKoopaShell
-  | RKoopaShell;
+  | RKoopaShell
 
 type blockTyp =
   | QBlock(itemTyp)
@@ -45,13 +45,13 @@ type blockTyp =
   | UnBBlock
   | Cloud
   | Panel
-  | Ground;
+  | Ground
 
 type player_typ =
   | Standing
   | Jumping
   | Running
-  | Crouching;
+  | Crouching
 
 type part_typ =
   | GoombaSquish
@@ -64,4 +64,4 @@ type part_typ =
   | Score1000
   | Score2000
   | Score4000
-  | Score8000;
+  | Score8000

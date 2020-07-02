@@ -358,8 +358,8 @@ function makeEnemy(typ, dir) {
   }
 }
 
-function makeItem(param) {
-  if (param) {
+function makeItem(x) {
+  if (x) {
     return setupSprite([
                 3,
                 0
@@ -422,11 +422,11 @@ var groundParams = setupSprite(undefined, undefined, undefined, undefined, undef
       32
     ], "ground.png");
 
-function makeBlock(param) {
-  if (typeof param !== "number") {
+function makeBlock(x) {
+  if (typeof x !== "number") {
     return qBlockParams;
   }
-  switch (param) {
+  switch (x) {
     case /* QBlockUsed */0 :
         return qBlockUsedParams;
     case /* Brick */1 :
@@ -443,8 +443,8 @@ function makeBlock(param) {
   }
 }
 
-function makeParticle(param) {
-  switch (param) {
+function makeParticle(x) {
+  switch (x) {
     case /* GoombaSquish */0 :
         return setupSprite(undefined, undefined, undefined, undefined, undefined, [
                     0,
