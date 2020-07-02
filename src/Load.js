@@ -5,8 +5,8 @@ import * as Config from "./Config.js";
 import * as CamlinternalLazy from "bs-platform/lib/es6/camlinternalLazy.js";
 
 var canvasAndContext = {
-  RE_LAZY_DONE: false,
-  value: (function () {
+  LAZY_DONE: false,
+  VAL: (function () {
       var el = document.getElementById(Config.canvasId);
       if (el !== null) {
         var width = el.width;

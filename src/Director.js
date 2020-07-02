@@ -416,7 +416,7 @@ function narrowPhase(obj, cs, state) {
     if (!cs$1) {
       return acc;
     }
-    var h = cs$1._0;
+    var h = cs$1.hd;
     var newObjs;
     if ($$Object.equals(obj, h)) {
       newObjs = [
@@ -434,25 +434,25 @@ function narrowPhase(obj, cs, state) {
     var acc$1;
     if (o !== undefined) {
       var o2 = newObjs[1];
-      acc$1 = o2 !== undefined ? /* :: */({
-            _0: o,
-            _1: /* :: */{
-              _0: o2,
-              _1: acc
+      acc$1 = o2 !== undefined ? ({
+            hd: o,
+            tl: {
+              hd: o2,
+              tl: acc
             }
-          }) : /* :: */({
-            _0: o,
-            _1: acc
+          }) : ({
+            hd: o,
+            tl: acc
           });
     } else {
       var o$1 = newObjs[1];
-      acc$1 = o$1 !== undefined ? /* :: */({
-            _0: o$1,
-            _1: acc
+      acc$1 = o$1 !== undefined ? ({
+            hd: o$1,
+            tl: acc
           }) : acc;
     }
     _acc = acc$1;
-    _cs = cs$1._1;
+    _cs = cs$1.tl;
     continue ;
   };
 }
@@ -491,9 +491,9 @@ function updateObject(obj, state, objects, level) {
   if (match.TAG) {
     var evolved = updateObject0(obj, state, objects, level);
     if (!obj.kill) {
-      collidObjs.contents = /* :: */{
-        _0: obj,
-        _1: Pervasives.$at(evolved, collidObjs.contents)
+      collidObjs.contents = {
+        hd: obj,
+        tl: Pervasives.$at(evolved, collidObjs.contents)
       };
     }
     var newParts = obj.kill ? $$Object.kill(obj) : /* [] */0;
@@ -515,9 +515,9 @@ function updateParticle(state, part) {
   var y = part.py - state.viewport.py;
   Draw.render(part.params.sprite, x, y);
   if (!part.kill) {
-    particles.contents = /* :: */{
-      _0: part,
-      _1: particles.contents
+    particles.contents = {
+      hd: part,
+      tl: particles.contents
     };
     return ;
   }
@@ -567,13 +567,13 @@ function updateLoop(player1, player2, level, objects) {
       var vposXInt = state.viewport.px / 5 | 0;
       var bgdWidth = state.bgd.params.frameSize[0] | 0;
       Draw.drawBgd(state.bgd, Caml_int32.mod_(vposXInt, bgdWidth));
-      updateObject(player1, state, /* :: */{
-            _0: player2,
-            _1: objects
+      updateObject(player1, state, {
+            hd: player2,
+            tl: objects
           }, level);
-      updateObject(player2, state, /* :: */{
-            _0: player1,
-            _1: objects
+      updateObject(player2, state, {
+            hd: player1,
+            tl: objects
           }, level);
       if (player1.kill === true) {
         var match$2 = state.status;

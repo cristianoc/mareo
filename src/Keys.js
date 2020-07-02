@@ -138,61 +138,61 @@ function translateKeys(playerNum) {
     pressedKeys.left1,
     /* CLeft */0
   ];
-  var ctrls1_1 = /* :: */{
-    _0: [
+  var ctrls1_1 = {
+    hd: [
       pressedKeys.right1,
       /* CRight */1
     ],
-    _1: /* :: */{
-      _0: [
+    tl: {
+      hd: [
         pressedKeys.up1,
         /* CUp */2
       ],
-      _1: /* :: */{
-        _0: [
+      tl: {
+        hd: [
           pressedKeys.down1,
           /* CDown */3
         ],
-        _1: /* [] */0
+        tl: /* [] */0
       }
     }
   };
-  var ctrls1 = /* :: */{
-    _0: ctrls1_0,
-    _1: ctrls1_1
+  var ctrls1 = {
+    hd: ctrls1_0,
+    tl: ctrls1_1
   };
   var ctrls2_0 = [
     pressedKeys.left2,
     /* CLeft */0
   ];
-  var ctrls2_1 = /* :: */{
-    _0: [
+  var ctrls2_1 = {
+    hd: [
       pressedKeys.right2,
       /* CRight */1
     ],
-    _1: /* :: */{
-      _0: [
+    tl: {
+      hd: [
         pressedKeys.up2,
         /* CUp */2
       ],
-      _1: /* :: */{
-        _0: [
+      tl: {
+        hd: [
           pressedKeys.down2,
           /* CDown */3
         ],
-        _1: /* [] */0
+        tl: /* [] */0
       }
     }
   };
-  var ctrls2 = /* :: */{
-    _0: ctrls2_0,
-    _1: ctrls2_1
+  var ctrls2 = {
+    hd: ctrls2_0,
+    tl: ctrls2_1
   };
   return Belt_List.reduce(playerNum === /* One */0 ? ctrls1 : ctrls2, /* [] */0, (function (a, x) {
                 if (x[0]) {
-                  return /* :: */{
-                          _0: x[1],
-                          _1: a
+                  return {
+                          hd: x[1],
+                          tl: a
                         };
                 } else {
                   return a;

@@ -12,13 +12,13 @@ function memPos(_objs, x, y) {
     if (!objs) {
       return false;
     }
-    var match = objs._0;
+    var match = objs.hd;
     var px = match.px;
     var py = match.py;
     if (x === px && y === py) {
       return true;
     }
-    _objs = objs._1;
+    _objs = objs.tl;
     continue ;
   };
 }
@@ -39,15 +39,15 @@ function convertCoinToObj(param) {
 function addCoins(objects, x, y0, level) {
   var y = y0 - 16;
   if (Random.bool(undefined) && trimEdge(x, y, level) && !memPos(objects.contents, x, y)) {
-    objects.contents = /* :: */{
-      _0: convertCoinToObj([
+    objects.contents = {
+      hd: convertCoinToObj([
             /* QBlock */{
               _0: /* Coin */1
             },
             x,
             y
           ]),
-      _1: objects.contents
+      tl: objects.contents
     };
     return ;
   }
@@ -80,13 +80,13 @@ function randomEnemyTyp(param) {
 function addEnemyOnBlock(objects, x, y, level) {
   var placeEnemy = Random.$$int(Config.enemyDensity(level));
   if (placeEnemy === 0 && !memPos(objects.contents, x, y - 16)) {
-    objects.contents = /* :: */{
-      _0: convertEnemyToObj([
+    objects.contents = {
+      hd: convertEnemyToObj([
             randomEnemyTyp(undefined),
             x,
             y - 16
           ]),
-      _1: objects.contents
+      tl: objects.contents
     };
     return ;
   }
@@ -103,9 +103,9 @@ function addBlock(objects, blockTyp, xBlock, yBlock, level) {
         TAG: /* Block */3,
         _0: blockTyp
       }, Sprite.makeBlock(blockTyp), x, y);
-  objects.contents = /* :: */{
-    _0: obj,
-    _1: objects.contents
+  objects.contents = {
+    hd: obj,
+    tl: objects.contents
   };
   addCoins(objects, x, y, level);
   return addEnemyOnBlock(objects, x, y, level);
@@ -232,13 +232,13 @@ function generateEnemiesOnGround(objects, _cbx, _cby, level) {
       _cby = cby + 1;
       continue ;
     }
-    objects.contents = /* :: */{
-      _0: convertEnemyToObj([
+    objects.contents = {
+      hd: convertEnemyToObj([
             randomEnemyTyp(undefined),
             cbx * 16,
             cby * 16
           ]),
-      _1: objects.contents
+      tl: objects.contents
     };
     _cby = cby + 1;
     continue ;
@@ -298,24 +298,24 @@ function generateGround(objects, _inc, level) {
         _inc = inc + 1;
         continue ;
       }
-      objects.contents = /* :: */{
-        _0: convertBlockToObj([
+      objects.contents = {
+        hd: convertBlockToObj([
               /* Ground */5,
               inc * 16,
               Config.blockh(level) * 16
             ]),
-        _1: objects.contents
+        tl: objects.contents
       };
       _inc = inc + 1;
       continue ;
     }
-    objects.contents = /* :: */{
-      _0: convertBlockToObj([
+    objects.contents = {
+      hd: convertBlockToObj([
             /* Ground */5,
             inc * 16,
             Config.blockh(level) * 16
           ]),
-      _1: objects.contents
+      tl: objects.contents
     };
     _inc = inc + 1;
     continue ;
@@ -330,9 +330,9 @@ function generateHelper(level) {
   generateGround(objects, 0, level);
   generateEnemiesOnGround(objects, 0, 0, level);
   var panel = generatePanel(level);
-  return /* :: */{
-          _0: panel,
-          _1: objects.contents
+  return {
+          hd: panel,
+          tl: objects.contents
         };
 }
 

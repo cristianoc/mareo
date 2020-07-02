@@ -82,35 +82,35 @@ function blackScreen(texts) {
 
 function levelFinished(result, level, elapsed) {
   if (result) {
-    return blackScreen(/* :: */{
-                _0: [
+    return blackScreen({
+                hd: [
                   "You lose level " + (level + "!"),
                   80,
                   100
                 ],
-                _1: /* :: */{
-                  _0: [
+                tl: {
+                  hd: [
                     elapsed,
                     230,
                     160
                   ],
-                  _1: /* [] */0
+                  tl: /* [] */0
                 }
               });
   } else {
-    return blackScreen(/* :: */{
-                _0: [
+    return blackScreen({
+                hd: [
                   "You win level" + (level + "!"),
                   80,
                   100
                 ],
-                _1: /* :: */{
-                  _0: [
+                tl: {
+                  hd: [
                     elapsed,
                     230,
                     160
                   ],
-                  _1: /* [] */0
+                  tl: /* [] */0
                 }
               });
   }
