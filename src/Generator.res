@@ -9,8 +9,8 @@ type enemyCoord = (Actors.enemyTyp, float, float)
 
 let rec memPos = (objs: list<_>, x, y): bool =>
   switch objs {
-  | list[] => false
-  | list[{Object.px: px, py}, ...t] =>
+  | list{} => false
+  | list{{Object.px: px, py}, ...t} =>
     if x == px && y == py {
       true
     } else {
@@ -34,7 +34,7 @@ let convertCoinToObj = ((_, x, y)) => {
 let addCoins = (objects, x, y0, ~level) => {
   let y = y0 -. 16.
   if Random.bool() && (trimEdge(x, y, ~level) && !(objects.contents->memPos(x, y))) {
-    objects := list[(QBlock(Coin), x, y)->convertCoinToObj, ...objects.contents]
+    objects := list{(QBlock(Coin), x, y)->convertCoinToObj, ...objects.contents}
   }
 }
 
@@ -54,7 +54,7 @@ let randomEnemyTyp = () =>
 let addEnemyOnBlock = (objects, x, y, ~level) => {
   let placeEnemy = Random.int(Config.enemyDensity(~level))
   if placeEnemy == 0 && !(objects.contents->memPos(x, y -. 16.)) {
-    objects := list[(randomEnemyTyp(), x, y -. 16.)->convertEnemyToObj, ...objects.contents]
+    objects := list{(randomEnemyTyp(), x, y -. 16.)->convertEnemyToObj, ...objects.contents}
   }
 }
 
@@ -63,7 +63,7 @@ let addBlock = (objects, blockTyp, xBlock, yBlock, ~level) => {
   let y = yBlock *. 16.
   if !(objects.contents->memPos(x, y)) && trimEdge(x, y, ~level) {
     let obj = Object.make(Block(blockTyp), Sprite.makeBlock(blockTyp), x, y)
-    objects := list[obj, ...objects.contents]
+    objects := list{obj, ...objects.contents}
     objects->addCoins(x, y, ~level)
     objects->addEnemyOnBlock(x, y, ~level)
   }
@@ -186,7 +186,7 @@ let rec generateEnemiesOnGround = (objects, cbx: float, cby: float, ~level) =>
     generateEnemiesOnGround(objects, cbx, cby +. 1., ~level)
   } else {
     objects :=
-      list[(randomEnemyTyp(), cbx *. 16., cby *. 16.)->convertEnemyToObj, ...objects.contents]
+      list{(randomEnemyTyp(), cbx *. 16., cby *. 16.)->convertEnemyToObj, ...objects.contents}
     generateEnemiesOnGround(objects, cbx, cby +. 1., ~level)
   }
 
@@ -233,18 +233,18 @@ let rec generateGround = (objects, inc: float, ~level) =>
       generateGround(objects, inc +. 1., ~level)
     } else {
       objects :=
-        list[
+        list{
           (Ground, inc *. 16., Config.blockh(~level) *. 16.)->convertBlockToObj,
           ...objects.contents,
-        ]
+        }
       generateGround(objects, inc +. 1., ~level)
     }
   } else {
     objects :=
-      list[
+      list{
         (Ground, inc *. 16., Config.blockh(~level) *. 16.)->convertBlockToObj,
         ...objects.contents,
-      ]
+      }
     generateGround(objects, inc +. 1., ~level)
   }
 
@@ -252,12 +252,12 @@ let rec generateGround = (objects, inc: float, ~level) =>
 // context. Arguments block width (blockw) and block height (blockh) are in
 // block form, not pixels.
 let generateHelper = (~level): list<Object.t> => {
-  let objects = ref(list[])
+  let objects = ref(list{})
   objects->generateBlocks(0., 0., ~level)
   objects->generateGround(0., ~level)
   objects->generateEnemiesOnGround(0., 0., ~level)
   let panel = generatePanel(~level)
-  list[panel, ...objects.contents]
+  list{panel, ...objects.contents}
 }
 
 // Main function called to procedurally generate the level map. w and h args

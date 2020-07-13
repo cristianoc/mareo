@@ -434,13 +434,13 @@ let kill = obj =>
   switch obj.objTyp {
   | Enemy(t) =>
     let score = if obj.score > 0 {
-      list[Particle.makeScore(obj.score, obj.px, obj.py)]
+      list{Particle.makeScore(obj.score, obj.px, obj.py)}
     } else {
-      list[]
+      list{}
     }
     let remains = switch t {
-    | Goomba => list[Particle.make(GoombaSquish, obj.px, obj.py)]
-    | _ => list[]
+    | Goomba => list{Particle.make(GoombaSquish, obj.px, obj.py)}
+    | _ => list{}
     }
     \"@"(score, remains)
   | Block(t) =>
@@ -450,13 +450,13 @@ let kill = obj =>
       let p2 = Particle.make(~vel=(-3., -4.), ~acc=(0., 0.2), BrickChunkL, obj.px, obj.py)
       let p3 = Particle.make(~vel=(3., -4.), ~acc=(0., 0.2), BrickChunkR, obj.px, obj.py)
       let p4 = Particle.make(~vel=(5., -5.), ~acc=(0., 0.2), BrickChunkR, obj.px, obj.py)
-      list[p1, p2, p3, p4]
-    | _ => list[]
+      list{p1, p2, p3, p4}
+    | _ => list{}
     }
   | Item(t) =>
     switch t {
-    | Mushroom => list[Particle.makeScore(obj.score, obj.px, obj.py)]
-    | _ => list[]
+    | Mushroom => list{Particle.makeScore(obj.score, obj.px, obj.py)}
+    | _ => list{}
     }
-  | _ => list[]
+  | _ => list{}
   }

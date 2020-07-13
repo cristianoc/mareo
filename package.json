@@ -23,9 +23,12 @@
   },
   "homepage": "https://github.com/reasonml-community/Mareo#readme",
   "devDependencies": {
-    "bs-platform": "8.1.0",
+    "bs-platform": "8.1.1",
     "reanalyze": "^2.6.0",
     "rollup": "^2.13.1",
     "rollup-plugin-node-resolve": "^5.2.0"
+  },
+  "dependencies": {
+    "reason-react": "^0.9.1"
   }
 }

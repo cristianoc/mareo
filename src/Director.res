@@ -23,9 +23,9 @@ type state = {
   viewport: Viewport.t,
 }
 
-let collidObjs = ref(list[]) // List of next iteration collidable objects
+let collidObjs = ref(list{}) // List of next iteration collidable objects
 
-let particles = ref(list[]) // List of next iteration particles
+let particles = ref(list{}) // List of next iteration particles
 
 let lastTime = ref(0.) // Used for calculating fps
 let initialTime = ref(0.) // Used for calculating fps
@@ -251,8 +251,8 @@ let broadPhase = (allCollids, state) => allCollids->List.keep(o => o->viewportFi
 let narrowPhase = (obj, cs, state) => {
   let rec narrowHelper = (obj: Object.t, cs, state, acc) =>
     switch cs {
-    | list[] => acc
-    | list[h, ...t] =>
+    | list{} => acc
+    | list{h, ...t} =>
       let newObjs = if !Object.equals(obj, h) {
         switch Object.checkCollision(obj, h) {
         | None => (None, None)
@@ -267,14 +267,14 @@ let narrowPhase = (obj, cs, state) => {
         (None, None)
       }
       let acc = switch newObjs {
-      | (None, Some(o)) => list[o, ...acc]
-      | (Some(o), None) => list[o, ...acc]
-      | (Some(o1), Some(o2)) => list[o1, o2, ...acc]
+      | (None, Some(o)) => list{o, ...acc}
+      | (Some(o), None) => list{o, ...acc}
+      | (Some(o1), Some(o2)) => list{o1, o2, ...acc}
       | (None, None) => acc
       }
       narrowHelper(obj, t, state, acc)
     }
-  narrowHelper(obj, cs, state, list[])
+  narrowHelper(obj, cs, state, list{})
 }
 
 // This is an optimization setp to determine which objects require narrow phase
@@ -289,7 +289,7 @@ let narrowPhase = (obj, cs, state) => {
 // added to the list of objects for the next iteration.
 let checkCollisions = (obj, state, objects) =>
   switch obj.Object.objTyp {
-  | Block(_) => list[]
+  | Block(_) => list{}
   | _ =>
     let broad = objects->broadPhase(state)
     narrowPhase(obj, broad, state)
@@ -321,7 +321,7 @@ let updateObject0 = (obj: Object.t, ~state, ~objects, ~level) => {
     }
     evolved
   } else {
-    list[]
+    list{}
   }
 }
 
@@ -340,12 +340,12 @@ let updateObject = (obj: Object.t, ~state, ~objects, ~level) =>
   | _ =>
     let evolved = obj->updateObject0(~state, ~objects, ~level)
     if !obj.kill {
-      collidObjs := list[obj, ...\"@"(evolved, collidObjs.contents)]
+      collidObjs := list{obj, ...\"@"(evolved, collidObjs.contents)}
     }
     let newParts = if obj.kill {
       Object.kill(obj)
     } else {
-      list[]
+      list{}
     }
     particles := \"@"(newParts, particles.contents)
   }
@@ -357,7 +357,7 @@ let updateParticle = (state, part) => {
   and y = part.py -. state.viewport.py
   Draw.render(part.params.sprite, x, y)
   if !part.kill {
-    particles := list[part, ...particles.contents]
+    particles := list{part, ...particles.contents}
   }
 }
 
@@ -398,15 +398,15 @@ let rec updateLoop = (~player1: Object.t, ~player2, ~level, ~objects) => {
 
     | Playing | Finished(_) =>
       let fps = calcFps()
-      collidObjs := list[]
-      particles := list[]
+      collidObjs := list{}
+      particles := list{}
       Draw.clearCanvas()
       /* Parallax background */
       let vposXInt = int_of_float(state.viewport.px /. 5.)
       let bgdWidth = int_of_float(fst(state.bgd.params.frameSize))
       Draw.drawBgd(state.bgd, @doesNotRaise float_of_int(mod(vposXInt, bgdWidth)))
-      player1->updateObject(~state, ~objects=list[player2, ...objects], ~level)
-      player2->updateObject(~state, ~objects=list[player1, ...objects], ~level)
+      player1->updateObject(~state, ~objects=list{player2, ...objects}, ~level)
+      player2->updateObject(~state, ~objects=list{player1, ...objects}, ~level)
       if player1.kill == true {
         switch state.status {
         | Finished({levelResult: Lost}) => ()
@@ -422,5 +422,5 @@ let rec updateLoop = (~player1: Object.t, ~player2, ~level, ~objects) => {
         updateHelper(~objects=collidObjs.contents, ~parts=particles.contents)
       )
     }
-  updateHelper(~objects, ~parts=list[])
+  updateHelper(~objects, ~parts=list{})
 }
