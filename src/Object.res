@@ -9,10 +9,6 @@ type aabb = {
 
 let idCounter = ref(min_int)
 
-type playerNum =
-  | One
-  | Two
-
 type objTyp =
   | Player(plTyp, playerNum)
   | Enemy(enemyTyp)
@@ -175,7 +171,7 @@ let normalizePos = (o, p1: Sprite.params, p2: Sprite.params) => {
 
 // Update player is constantly being called to check for if big or small
 // Mario sprites should be used
-let updatePlayer = (player, n, keys) => {
+let updatePlayer = (player, playerNum, keys) => {
   let prev_jumping = player.jumping
   let prev_dir = player.dir
   and prev_vx = abs_float(player.vx)
@@ -210,10 +206,10 @@ let updatePlayer = (player, n, keys) => {
   }
   switch playerTyp {
   | Some(playerTyp) =>
-    let newSprite = Sprite.makePlayer(plSize, playerTyp, player.dir)->Sprite.makeFromParams
+    let newSprite = Sprite.makePlayer(plSize, playerTyp, player.dir, ~playerNum)->Sprite.makeFromParams
     let newTyp = plSize
     normalizePos(player, player.sprite.params, newSprite.params)
-    player.objTyp = Player(newTyp, n)
+    player.objTyp = Player(newTyp, playerNum)
     player.sprite = newSprite
   | None => ()
   }

@@ -50,16 +50,19 @@ let setupSprite = (
 // The following functions are used in order to define sprite animations
 // from their sprite sheets. Also creates bounding boxes if necessary.
 // Sets sprite for small mario.
-let makeSmallPlayer = (typ, dir) =>
+let makeSmallPlayer = (typ, dir, ~playerNum) => {
+  let png = switch playerNum {
+  | One => "mario-small.png"
+  | Two => "mario2-small.png"
+  }
   switch dir {
   /* 16x16 grid with 0x0 offset */
   | Left =>
     switch typ {
-    | Standing =>
-      setupSprite("mario-small.png", ~bbOff=(3., 1.), ~bbSz=(11., 15.), ~srcOffset=(0., 0.))
+    | Standing => setupSprite(png, ~bbOff=(3., 1.), ~bbSz=(11., 15.), ~srcOffset=(0., 0.))
     | Jumping =>
       setupSprite(
-        "mario-small.png",
+        png,
         ~bbOff=(2., 1.),
         ~bbSz=(13., 15.),
         ~maxFrames=2,
@@ -68,23 +71,21 @@ let makeSmallPlayer = (typ, dir) =>
       )
     | Running =>
       setupSprite(
-        "mario-small.png",
+        png,
         ~bbOff=(2., 1.),
         ~bbSz=(12., 15.),
         ~maxFrames=3,
         ~maxTicks=5,
         ~srcOffset=(16., 0.),
       )
-    | Crouching =>
-      setupSprite("mario-small.png", ~bbOff=(1., 5.), ~bbSz=(14., 10.), ~srcOffset=(0., 64.))
+    | Crouching => setupSprite(png, ~bbOff=(1., 5.), ~bbSz=(14., 10.), ~srcOffset=(0., 64.))
     }
   | Right =>
     switch typ {
-    | Standing =>
-      setupSprite("mario-small.png", ~bbOff=(1., 1.), ~bbSz=(11., 15.), ~srcOffset=(0., 32.))
+    | Standing => setupSprite(png, ~bbOff=(1., 1.), ~bbSz=(11., 15.), ~srcOffset=(0., 32.))
     | Jumping =>
       setupSprite(
-        "mario-small.png",
+        png,
         ~bbOff=(2., 1.),
         ~bbSz=(13., 15.),
         ~maxFrames=2,
@@ -93,26 +94,30 @@ let makeSmallPlayer = (typ, dir) =>
       )
     | Running =>
       setupSprite(
-        "mario-small.png",
+        png,
         ~bbOff=(2., 1.),
         ~bbSz=(12., 15.),
         ~maxFrames=3,
         ~maxTicks=5,
         ~srcOffset=(16., 32.),
       )
-    | Crouching =>
-      setupSprite("mario-small.png", ~bbOff=(1., 5.), ~bbSz=(14., 10.), ~srcOffset=(0., 64.))
+    | Crouching => setupSprite(png, ~bbOff=(1., 5.), ~bbSz=(14., 10.), ~srcOffset=(0., 64.))
     }
   }
+}
 
 // Sets sprite for big mario
-let makeBigPlayer = (typ, dir) =>
+let makeBigPlayer = (typ, dir, ~playerNum) => {
+  let png = switch playerNum {
+  | One => "mario-big.png"
+  | Two => "mario2-big.png"
+  }
   switch dir {
   | Left =>
     switch typ {
     | Standing =>
       setupSprite(
-        "mario-big.png",
+        png,
         ~bbOff=(2., 1.),
         ~bbSz=(13., 25.),
         ~frameSize=(16., 27.),
@@ -120,7 +125,7 @@ let makeBigPlayer = (typ, dir) =>
       )
     | Jumping =>
       setupSprite(
-        "mario-big.png",
+        png,
         ~bbOff=(2., 1.),
         ~bbSz=(12., 25.),
         ~frameSize=(16., 26.),
@@ -128,7 +133,7 @@ let makeBigPlayer = (typ, dir) =>
       )
     | Running =>
       setupSprite(
-        "mario-big.png",
+        png,
         ~maxFrames=4,
         ~maxTicks=10,
         ~bbOff=(2., 1.),
@@ -138,7 +143,7 @@ let makeBigPlayer = (typ, dir) =>
       )
     | Crouching =>
       setupSprite(
-        "mario-big.png",
+        png,
         ~bbOff=(2., 10.),
         ~bbSz=(13., 17.),
         ~frameSize=(16., 27.),
@@ -149,7 +154,7 @@ let makeBigPlayer = (typ, dir) =>
     switch typ {
     | Standing =>
       setupSprite(
-        "mario-big.png",
+        png,
         ~bbOff=(1., 1.),
         ~bbSz=(13., 25.),
         ~frameSize=(16., 26.),
@@ -157,7 +162,7 @@ let makeBigPlayer = (typ, dir) =>
       )
     | Jumping =>
       setupSprite(
-        "mario-big.png",
+        png,
         ~bbOff=(2., 1.),
         ~bbSz=(12., 25.),
         ~frameSize=(16., 26.),
@@ -165,7 +170,7 @@ let makeBigPlayer = (typ, dir) =>
       )
     | Running =>
       setupSprite(
-        "mario-big.png",
+        png,
         ~maxFrames=4,
         ~maxTicks=10,
         ~bbOff=(2., 1.),
@@ -175,7 +180,7 @@ let makeBigPlayer = (typ, dir) =>
       )
     | Crouching =>
       setupSprite(
-        "mario-big.png",
+        png,
         ~bbOff=(2., 10.),
         ~bbSz=(13., 17.),
         ~frameSize=(16., 27.),
@@ -183,6 +188,7 @@ let makeBigPlayer = (typ, dir) =>
       )
     }
   }
+}
 
 // Set sprites for enemies: Goomba, Red Koopa, Green Koopa.
 let makeEnemy = (typ, dir) =>
@@ -324,10 +330,10 @@ let makeParticle = x =>
   }
 
 // Call to set sprite for either big or small mario.
-let makePlayer = (plSize, typ, dir) =>
+let makePlayer = (plSize, typ, dir, ~playerNum) =>
   switch plSize {
-  | BigM => makeBigPlayer(typ, dir)
-  | SmallM => makeSmallPlayer(typ, dir)
+  | BigM => makeBigPlayer(typ, dir, ~playerNum)
+  | SmallM => makeSmallPlayer(typ, dir, ~playerNum)
   }
 
 // Make a sprite from provided [params]

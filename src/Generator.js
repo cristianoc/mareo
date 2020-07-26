@@ -344,12 +344,12 @@ function generate(level) {
         TAG: /* Player */0,
         _0: /* SmallM */1,
         _1: /* One */0
-      }, Sprite.makePlayer(/* SmallM */1, /* Standing */0, /* Left */0), 100, 224);
+      }, Sprite.makePlayer(/* SmallM */1, /* Standing */0, /* Left */0, /* One */0), 100, 224);
   var player2 = $$Object.make(undefined, undefined, undefined, {
         TAG: /* Player */0,
         _0: /* SmallM */1,
         _1: /* Two */1
-      }, Sprite.makePlayer(/* SmallM */1, /* Standing */0, /* Left */0), 120, 224);
+      }, Sprite.makePlayer(/* SmallM */1, /* Standing */0, /* Left */0, /* Two */1), 120, 224);
   var elapsed = performance.now() - initial;
   console.log("generated", Belt_List.length(objects), "objects in " + (elapsed.toString() + " milliseconds"));
   return [

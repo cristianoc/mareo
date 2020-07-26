@@ -173,7 +173,7 @@ function normalizePos(o, p1, p2) {
   
 }
 
-function updatePlayer(player, n, keys) {
+function updatePlayer(player, playerNum, keys) {
   var prev_jumping = player.jumping;
   var prev_dir = player.dir;
   var prev_vx = Math.abs(player.vx);
@@ -196,12 +196,12 @@ function updatePlayer(player, n, keys) {
   if (playerTyp === undefined) {
     return ;
   }
-  var newSprite = Sprite.makeFromParams(Sprite.makePlayer(plSize, playerTyp, player.dir));
+  var newSprite = Sprite.makeFromParams(Sprite.makePlayer(plSize, playerTyp, player.dir, playerNum));
   normalizePos(player, player.sprite.params, newSprite.params);
   player.objTyp = {
     TAG: /* Player */0,
     _0: plSize,
-    _1: n
+    _1: playerNum
   };
   player.sprite = newSprite;
   

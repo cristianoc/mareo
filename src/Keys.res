@@ -70,7 +70,7 @@ let translateKeys = playerNum => {
   let k = pressedKeys
   let ctrls1 = list{(k.left1, Actors.CLeft), (k.right1, CRight), (k.up1, CUp), (k.down1, CDown)}
   let ctrls2 = list{(k.left2, Actors.CLeft), (k.right2, CRight), (k.up2, CUp), (k.down2, CDown)}
-  List.reduce(playerNum == Object.One ? ctrls1 : ctrls2, list{}, (a, x) =>
+  List.reduce(playerNum == Actors.One ? ctrls1 : ctrls2, list{}, (a, x) =>
     if fst(x) {
       list{snd(x), ...a}
     } else {

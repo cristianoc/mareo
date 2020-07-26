@@ -53,6 +53,10 @@ type player_typ =
   | Running
   | Crouching
 
+type playerNum =
+  | One
+  | Two
+
 type part_typ =
   | GoombaSquish
   | BrickChunkL

@@ -269,13 +269,13 @@ let generate = (~level): (Object.t, Object.t, list<Object.t>) => {
   let objects = generateHelper(~level)
   let player1 = Object.make(
     Player(SmallM, One),
-    Sprite.makePlayer(SmallM, Standing, Left),
+    Sprite.makePlayer(SmallM, Standing, Left, ~playerNum=One),
     100.,
     224.,
   )
   let player2 = Object.make(
     Player(SmallM, Two),
-    Sprite.makePlayer(SmallM, Standing, Left),
+    Sprite.makePlayer(SmallM, Standing, Left, ~playerNum=Two),
     120.,
     224.,
   )

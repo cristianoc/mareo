@@ -35,7 +35,8 @@ function setupSprite(bboxOffsetOpt, bboxSizeOpt, frameSizeOpt, maxTicksOpt, maxF
         };
 }
 
-function makeSmallPlayer(typ, dir) {
+function makeSmallPlayer(typ, dir, playerNum) {
+  var png = playerNum ? "mario2-small.png" : "mario-small.png";
   if (dir) {
     switch (typ) {
       case /* Standing */0 :
@@ -48,7 +49,7 @@ function makeSmallPlayer(typ, dir) {
                     ], undefined, undefined, undefined, [
                       0,
                       32
-                    ], "mario-small.png");
+                    ], png);
       case /* Jumping */1 :
           return setupSprite([
                       2,
@@ -59,7 +60,7 @@ function makeSmallPlayer(typ, dir) {
                     ], undefined, 10, 2, [
                       16,
                       48
-                    ], "mario-small.png");
+                    ], png);
       case /* Running */2 :
           return setupSprite([
                       2,
@@ -70,7 +71,7 @@ function makeSmallPlayer(typ, dir) {
                     ], undefined, 5, 3, [
                       16,
                       32
-                    ], "mario-small.png");
+                    ], png);
       case /* Crouching */3 :
           return setupSprite([
                       1,
@@ -81,7 +82,7 @@ function makeSmallPlayer(typ, dir) {
                     ], undefined, undefined, undefined, [
                       0,
                       64
-                    ], "mario-small.png");
+                    ], png);
       
     }
   } else {
@@ -96,7 +97,7 @@ function makeSmallPlayer(typ, dir) {
                     ], undefined, undefined, undefined, [
                       0,
                       0
-                    ], "mario-small.png");
+                    ], png);
       case /* Jumping */1 :
           return setupSprite([
                       2,
@@ -107,7 +108,7 @@ function makeSmallPlayer(typ, dir) {
                     ], undefined, 10, 2, [
                       16,
                       16
-                    ], "mario-small.png");
+                    ], png);
       case /* Running */2 :
           return setupSprite([
                       2,
@@ -118,7 +119,7 @@ function makeSmallPlayer(typ, dir) {
                     ], undefined, 5, 3, [
                       16,
                       0
-                    ], "mario-small.png");
+                    ], png);
       case /* Crouching */3 :
           return setupSprite([
                       1,
@@ -129,13 +130,14 @@ function makeSmallPlayer(typ, dir) {
                     ], undefined, undefined, undefined, [
                       0,
                       64
-                    ], "mario-small.png");
+                    ], png);
       
     }
   }
 }
 
-function makeBigPlayer(typ, dir) {
+function makeBigPlayer(typ, dir, playerNum) {
+  var png = playerNum ? "mario2-big.png" : "mario-big.png";
   if (dir) {
     switch (typ) {
       case /* Standing */0 :
@@ -151,7 +153,7 @@ function makeBigPlayer(typ, dir) {
                     ], undefined, undefined, [
                       16,
                       69
-                    ], "mario-big.png");
+                    ], png);
       case /* Jumping */1 :
           return setupSprite([
                       2,
@@ -165,7 +167,7 @@ function makeBigPlayer(typ, dir) {
                     ], undefined, undefined, [
                       48,
                       70
-                    ], "mario-big.png");
+                    ], png);
       case /* Running */2 :
           return setupSprite([
                       2,
@@ -179,7 +181,7 @@ function makeBigPlayer(typ, dir) {
                     ], 10, 4, [
                       0,
                       101
-                    ], "mario-big.png");
+                    ], png);
       case /* Crouching */3 :
           return setupSprite([
                       2,
@@ -193,7 +195,7 @@ function makeBigPlayer(typ, dir) {
                     ], undefined, undefined, [
                       32,
                       69
-                    ], "mario-big.png");
+                    ], png);
       
     }
   } else {
@@ -211,7 +213,7 @@ function makeBigPlayer(typ, dir) {
                     ], undefined, undefined, [
                       16,
                       5
-                    ], "mario-big.png");
+                    ], png);
       case /* Jumping */1 :
           return setupSprite([
                       2,
@@ -225,7 +227,7 @@ function makeBigPlayer(typ, dir) {
                     ], undefined, undefined, [
                       48,
                       6
-                    ], "mario-big.png");
+                    ], png);
       case /* Running */2 :
           return setupSprite([
                       2,
@@ -239,7 +241,7 @@ function makeBigPlayer(typ, dir) {
                     ], 10, 4, [
                       0,
                       37
-                    ], "mario-big.png");
+                    ], png);
       case /* Crouching */3 :
           return setupSprite([
                       2,
@@ -253,7 +255,7 @@ function makeBigPlayer(typ, dir) {
                     ], undefined, undefined, [
                       32,
                       5
-                    ], "mario-big.png");
+                    ], png);
       
     }
   }
@@ -534,11 +536,11 @@ function makeParticle(x) {
   }
 }
 
-function makePlayer(plSize, typ, dir) {
+function makePlayer(plSize, typ, dir, playerNum) {
   if (plSize) {
-    return makeSmallPlayer(typ, dir);
+    return makeSmallPlayer(typ, dir, playerNum);
   } else {
-    return makeBigPlayer(typ, dir);
+    return makeBigPlayer(typ, dir, playerNum);
   }
 }
 
