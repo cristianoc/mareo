@@ -295,10 +295,6 @@
   }
   /* No side effect */
 
-  var m = (function(xs,ys){
-        xs._1 = ys; 
-  });
-
   function copyAuxWitFilter(f, _cellX, _prec) {
     while(true) {
       var prec = _prec;
@@ -306,14 +302,14 @@
       if (!cellX) {
         return ;
       }
-      var t = cellX._1;
-      var h = cellX._0;
+      var t = cellX.tl;
+      var h = cellX.hd;
       if (f(h)) {
-        var next = /* :: */{
-          _0: h,
-          _1: /* [] */0
+        var next = {
+          hd: h,
+          tl: /* [] */0
         };
-        m(prec, next);
+        prec.tl = next;
         _prec = next;
         _cellX = t;
         continue ;
@@ -332,7 +328,7 @@
         return acc;
       }
       _acc = acc + 1 | 0;
-      _x = x._1;
+      _x = x.tl;
       continue ;
     }}
 
@@ -342,8 +338,8 @@
       if (!xs) {
         return ;
       }
-      f(xs._0);
-      _xs = xs._1;
+      f(xs.hd);
+      _xs = xs.tl;
       continue ;
     }}
 
@@ -358,8 +354,8 @@
       if (!l) {
         return accu;
       }
-      _accu = f(accu, l._0);
-      _l = l._1;
+      _accu = f(accu, l.hd);
+      _l = l.tl;
       continue ;
     }}
 
@@ -373,12 +369,12 @@
       if (!xs) {
         return /* [] */0;
       }
-      var t = xs._1;
-      var h = xs._0;
+      var t = xs.tl;
+      var h = xs.hd;
       if (p(h)) {
-        var cell = /* :: */{
-          _0: h,
-          _1: /* [] */0
+        var cell = {
+          hd: h,
+          tl: /* [] */0
         };
         copyAuxWitFilter(p, t, cell);
         return cell;
@@ -523,61 +519,61 @@
       pressedKeys.left1,
       /* CLeft */0
     ];
-    var ctrls1_1 = /* :: */{
-      _0: [
+    var ctrls1_1 = {
+      hd: [
         pressedKeys.right1,
         /* CRight */1
       ],
-      _1: /* :: */{
-        _0: [
+      tl: {
+        hd: [
           pressedKeys.up1,
           /* CUp */2
         ],
-        _1: /* :: */{
-          _0: [
+        tl: {
+          hd: [
             pressedKeys.down1,
             /* CDown */3
           ],
-          _1: /* [] */0
+          tl: /* [] */0
         }
       }
     };
-    var ctrls1 = /* :: */{
-      _0: ctrls1_0,
-      _1: ctrls1_1
+    var ctrls1 = {
+      hd: ctrls1_0,
+      tl: ctrls1_1
     };
     var ctrls2_0 = [
       pressedKeys.left2,
       /* CLeft */0
     ];
-    var ctrls2_1 = /* :: */{
-      _0: [
+    var ctrls2_1 = {
+      hd: [
         pressedKeys.right2,
         /* CRight */1
       ],
-      _1: /* :: */{
-        _0: [
+      tl: {
+        hd: [
           pressedKeys.up2,
           /* CUp */2
         ],
-        _1: /* :: */{
-          _0: [
+        tl: {
+          hd: [
             pressedKeys.down2,
             /* CDown */3
           ],
-          _1: /* [] */0
+          tl: /* [] */0
         }
       }
     };
-    var ctrls2 = /* :: */{
-      _0: ctrls2_0,
-      _1: ctrls2_1
+    var ctrls2 = {
+      hd: ctrls2_0,
+      tl: ctrls2_1
     };
     return reduce(playerNum === /* One */0 ? ctrls1 : ctrls2, /* [] */0, (function (a, x) {
                   if (x[0]) {
-                    return /* :: */{
-                            _0: x[1],
-                            _1: a
+                    return {
+                            hd: x[1],
+                            tl: a
                           };
                   } else {
                     return a;
@@ -600,8 +596,8 @@
 
   function forward_with_closure(blk, closure) {
     var result = closure();
-    blk.value = result;
-    blk.RE_LAZY_DONE = true;
+    blk.VAL = result;
+    blk.LAZY_DONE = true;
     return result;
   }
 
@@ -613,16 +609,16 @@
   }
 
   function force(lzv) {
-    if (lzv.RE_LAZY_DONE) {
-      return lzv.value;
+    if (lzv.LAZY_DONE) {
+      return lzv.VAL;
     } else {
-      var closure = lzv.value;
-      lzv.value = raise_undefined;
+      var closure = lzv.VAL;
+      lzv.VAL = raise_undefined;
       try {
         return forward_with_closure(lzv, closure);
       }
       catch (e){
-        lzv.value = (function () {
+        lzv.VAL = (function () {
             throw e;
           });
         throw e;
@@ -632,8 +628,8 @@
   /* No side effect */
 
   var canvasAndContext = {
-    RE_LAZY_DONE: false,
-    value: (function () {
+    LAZY_DONE: false,
+    VAL: (function () {
         var el = document.getElementById(canvasId);
         if (el !== null) {
           var width = el.width;
@@ -655,9 +651,9 @@
         throw {
               RE_EXN_ID: "Assert_failure",
               _1: [
-                "Load.re",
-                13,
-                8
+                "Load.res",
+                11,
+                4
               ],
               Error: new Error()
             };
@@ -1038,6 +1034,22 @@
   }
   /* No side effect */
 
+  function get(s, i) {
+    if (i >= s.length || i < 0) {
+      throw {
+            RE_EXN_ID: "Invalid_argument",
+            _1: "index out of bounds",
+            Error: new Error()
+          };
+    }
+    return s.charCodeAt(i);
+  }
+
+  function make$1(n, ch) {
+    return String.fromCharCode(ch).repeat(n);
+  }
+  /* No side effect */
+
   function escaped$2(s) {
     var needs_escape = function (_i) {
       while(true) {
@@ -1074,36 +1086,36 @@
   /* No side effect */
 
   function mk(lo, hi) {
-    return /* Int64 */{
-            hi: hi,
-            lo: (lo >>> 0)
-          };
+    return [
+            hi,
+            (lo >>> 0)
+          ];
   }
 
-  var min_int = /* Int64 */{
-    hi: -2147483648,
-    lo: 0
-  };
+  var min_int = [
+    -2147483648,
+    0
+  ];
 
-  var max_int = /* Int64 */{
-    hi: 2147483647,
-    lo: 4294967295
-  };
+  var max_int = [
+    2147483647,
+    4294967295
+  ];
 
-  var one = /* Int64 */{
-    hi: 0,
-    lo: 1
-  };
+  var one = [
+    0,
+    1
+  ];
 
-  var zero = /* Int64 */{
-    hi: 0,
-    lo: 0
-  };
+  var zero = [
+    0,
+    0
+  ];
 
-  var neg_one = /* Int64 */{
-    hi: -1,
-    lo: 4294967295
-  };
+  var neg_one = [
+    -1,
+    4294967295
+  ];
 
   function neg_signed(x) {
     return (x & 2147483648) !== 0;
@@ -1114,26 +1126,26 @@
   }
 
   function neg(param) {
-    var other_lo = (param.lo ^ -1) + 1 | 0;
-    return mk(other_lo, (param.hi ^ -1) + (
+    var other_lo = (param[1] ^ -1) + 1 | 0;
+    return mk(other_lo, (param[0] ^ -1) + (
                 other_lo === 0 ? 1 : 0
               ) | 0);
   }
 
   function add_aux(param, y_lo, y_hi) {
-    var x_lo = param.lo;
+    var x_lo = param[1];
     var lo = x_lo + y_lo | 0;
     var overflow = neg_signed(x_lo) && (neg_signed(y_lo) || non_neg_signed(lo)) || neg_signed(y_lo) && non_neg_signed(lo) ? 1 : 0;
-    return mk(lo, param.hi + y_hi + overflow | 0);
+    return mk(lo, param[0] + y_hi + overflow | 0);
   }
 
   function add(self, param) {
-    return add_aux(self, param.lo, param.hi);
+    return add_aux(self, param[1], param[0]);
   }
 
   function eq(x, y) {
-    if (x.hi === y.hi) {
-      return x.lo === y.lo;
+    if (x[0] === y[0]) {
+      return x[1] === y[1];
     } else {
       return false;
     }
@@ -1148,18 +1160,18 @@
   }
 
   function sub$1(self, param) {
-    return sub_aux(self, param.lo, param.hi);
+    return sub_aux(self, param[1], param[0]);
   }
 
   function lsl_(x, numBits) {
     if (numBits === 0) {
       return x;
     }
-    var lo = x.lo;
+    var lo = x[1];
     if (numBits >= 32) {
       return mk(0, (lo << (numBits - 32 | 0)));
     } else {
-      return mk((lo << numBits), (lo >>> (32 - numBits | 0)) | (x.hi << numBits));
+      return mk((lo << numBits), (lo >>> (32 - numBits | 0)) | (x[0] << numBits));
     }
   }
 
@@ -1167,16 +1179,16 @@
     if (numBits === 0) {
       return x;
     }
-    var hi = x.hi;
+    var hi = x[0];
     if (numBits < 32) {
-      return mk((hi << (32 - numBits | 0)) | (x.lo >>> numBits), (hi >> numBits));
+      return mk((hi << (32 - numBits | 0)) | (x[1] >>> numBits), (hi >> numBits));
     } else {
       return mk((hi >> (numBits - 32 | 0)), hi >= 0 ? 0 : -1);
     }
   }
 
   function is_zero(param) {
-    if (param.hi !== 0 || param.lo !== 0) {
+    if (param[0] !== 0 || param[1] !== 0) {
       return false;
     } else {
       return true;
@@ -1188,82 +1200,81 @@
       var other = _other;
       var $$this = _this;
       var lo;
+      var this_hi = $$this[0];
       var exit = 0;
       var exit$1 = 0;
-      if ($$this.hi !== 0) {
-        exit$1 = 3;
+      var exit$2 = 0;
+      if (this_hi !== 0) {
+        exit$2 = 4;
       } else {
-        if ($$this.lo === 0) {
+        if ($$this[1] === 0) {
           return zero;
         }
-        exit$1 = 3;
+        exit$2 = 4;
       }
-      if (exit$1 === 3) {
-        if (other.hi !== 0) {
-          exit = 2;
+      if (exit$2 === 4) {
+        if (other[0] !== 0) {
+          exit$1 = 3;
         } else {
-          if (other.lo === 0) {
+          if (other[1] === 0) {
             return zero;
           }
+          exit$1 = 3;
+        }
+      }
+      if (exit$1 === 3) {
+        if (this_hi !== -2147483648 || $$this[1] !== 0) {
           exit = 2;
+        } else {
+          lo = other[1];
         }
       }
       if (exit === 2) {
-        var this_hi = $$this.hi;
-        var exit$2 = 0;
-        if (this_hi !== -2147483648 || $$this.lo !== 0) {
-          exit$2 = 3;
+        var other_hi = other[0];
+        var lo$1 = $$this[1];
+        var exit$3 = 0;
+        if (other_hi !== -2147483648 || other[1] !== 0) {
+          exit$3 = 3;
         } else {
-          lo = other.lo;
+          lo = lo$1;
         }
-        if (exit$2 === 3) {
-          var other_hi = other.hi;
-          var lo$1 = $$this.lo;
-          var exit$3 = 0;
-          if (other_hi !== -2147483648 || other.lo !== 0) {
-            exit$3 = 4;
-          } else {
-            lo = lo$1;
-          }
-          if (exit$3 === 4) {
-            var other_lo = other.lo;
-            if (this_hi < 0) {
-              if (other_hi >= 0) {
-                return neg(mul(neg($$this), other));
-              }
-              _other = neg(other);
-              _this = neg($$this);
-              continue ;
+        if (exit$3 === 3) {
+          var other_lo = other[1];
+          if (this_hi < 0) {
+            if (other_hi >= 0) {
+              return neg(mul(neg($$this), other));
             }
-            if (other_hi < 0) {
-              return neg(mul($$this, neg(other)));
-            }
-            var a48 = (this_hi >>> 16);
-            var a32 = this_hi & 65535;
-            var a16 = (lo$1 >>> 16);
-            var a00 = lo$1 & 65535;
-            var b48 = (other_hi >>> 16);
-            var b32 = other_hi & 65535;
-            var b16 = (other_lo >>> 16);
-            var b00 = other_lo & 65535;
-            var c48 = 0;
-            var c32 = 0;
-            var c16 = 0;
-            var c00 = a00 * b00;
-            c16 = (c00 >>> 16) + a16 * b00;
-            c32 = (c16 >>> 16);
-            c16 = (c16 & 65535) + a00 * b16;
-            c32 = c32 + (c16 >>> 16) + a32 * b00;
-            c48 = (c32 >>> 16);
-            c32 = (c32 & 65535) + a16 * b16;
-            c48 = c48 + (c32 >>> 16);
-            c32 = (c32 & 65535) + a00 * b32;
-            c48 = c48 + (c32 >>> 16);
-            c32 = c32 & 65535;
-            c48 = c48 + (a48 * b00 + a32 * b16 + a16 * b32 + a00 * b48) & 65535;
-            return mk(c00 & 65535 | ((c16 & 65535) << 16), c32 | (c48 << 16));
+            _other = neg(other);
+            _this = neg($$this);
+            continue ;
           }
-          
+          if (other_hi < 0) {
+            return neg(mul($$this, neg(other)));
+          }
+          var a48 = (this_hi >>> 16);
+          var a32 = this_hi & 65535;
+          var a16 = (lo$1 >>> 16);
+          var a00 = lo$1 & 65535;
+          var b48 = (other_hi >>> 16);
+          var b32 = other_hi & 65535;
+          var b16 = (other_lo >>> 16);
+          var b00 = other_lo & 65535;
+          var c48 = 0;
+          var c32 = 0;
+          var c16 = 0;
+          var c00 = a00 * b00;
+          c16 = (c00 >>> 16) + a16 * b00;
+          c32 = (c16 >>> 16);
+          c16 = (c16 & 65535) + a00 * b16;
+          c32 = c32 + (c16 >>> 16) + a32 * b00;
+          c48 = (c32 >>> 16);
+          c32 = (c32 & 65535) + a16 * b16;
+          c48 = c48 + (c32 >>> 16);
+          c32 = (c32 & 65535) + a00 * b32;
+          c48 = c48 + (c32 >>> 16);
+          c32 = c32 & 65535;
+          c48 = c48 + (a48 * b00 + a32 * b16 + a16 * b32 + a00 * b48) & 65535;
+          return mk(c00 & 65535 | ((c16 & 65535) << 16), c32 | (c48 << 16));
         }
         
       }
@@ -1275,14 +1286,14 @@
     }}
 
   function ge(param, param$1) {
-    var other_hi = param$1.hi;
-    var hi = param.hi;
+    var other_hi = param$1[0];
+    var hi = param[0];
     if (hi > other_hi) {
       return true;
     } else if (hi < other_hi) {
       return false;
     } else {
-      return param.lo >= param$1.lo;
+      return param[1] >= param$1[1];
     }
   }
 
@@ -1295,17 +1306,17 @@
   }
 
   function gt(x, y) {
-    if (x.hi > y.hi) {
+    if (x[0] > y[0]) {
       return true;
-    } else if (x.hi < y.hi) {
+    } else if (x[0] < y[0]) {
       return false;
     } else {
-      return x.lo > y.lo;
+      return x[1] > y[1];
     }
   }
 
   function to_float(param) {
-    return param.hi * 0x100000000 + param.lo;
+    return param[0] * 0x100000000 + param[1];
   }
 
   function of_float(x) {
@@ -1323,12 +1334,12 @@
   }
 
   function isSafeInteger(param) {
-    var hi = param.hi;
+    var hi = param[0];
     var top11Bits = (hi >> 21);
     if (top11Bits === 0) {
       return true;
     } else if (top11Bits === -1) {
-      return !(param.lo === 0 && hi === (4292870144 | 0));
+      return !(param[1] === 0 && hi === (4292870144 | 0));
     } else {
       return false;
     }
@@ -1338,7 +1349,7 @@
     if (isSafeInteger(self)) {
       return String(to_float(self));
     }
-    if (self.hi < 0) {
+    if (self[0] < 0) {
       if (eq(self, min_int)) {
         return "-9223372036854775808";
       } else {
@@ -1346,11 +1357,11 @@
       }
     }
     var approx_div1 = of_float(Math.floor(to_float(self) / 10));
-    var lo = approx_div1.lo;
-    var hi = approx_div1.hi;
+    var lo = approx_div1[1];
+    var hi = approx_div1[0];
     var match = sub_aux(sub_aux(self, (lo << 3), (lo >>> 29) | (hi << 3)), (lo << 1), (lo >>> 31) | (hi << 1));
-    var rem_lo = match.lo;
-    var rem_hi = match.hi;
+    var rem_lo = match[1];
+    var rem_hi = match[0];
     if (rem_lo === 0 && rem_hi === 0) {
       return to_string(approx_div1) + "0";
     }
@@ -1370,29 +1381,29 @@
     while(true) {
       var other = _other;
       var self = _self;
+      var self_hi = self[0];
       var exit = 0;
       var exit$1 = 0;
-      if (other.hi !== 0 || other.lo !== 0) {
-        exit$1 = 3;
+      if (other[0] !== 0 || other[1] !== 0) {
+        exit$1 = 2;
       } else {
         throw {
               RE_EXN_ID: "Division_by_zero",
               Error: new Error()
             };
       }
-      if (exit$1 === 3) {
-        var match = self.hi;
-        if (match !== -2147483648) {
-          if (match !== 0) {
-            exit = 2;
+      if (exit$1 === 2) {
+        if (self_hi !== -2147483648) {
+          if (self_hi !== 0) {
+            exit = 1;
           } else {
-            if (self.lo === 0) {
+            if (self[1] === 0) {
               return zero;
             }
-            exit = 2;
+            exit = 1;
           }
-        } else if (self.lo !== 0) {
-          exit = 2;
+        } else if (self[1] !== 0) {
+          exit = 1;
         } else {
           if (eq(other, one) || eq(other, neg_one)) {
             return self;
@@ -1403,58 +1414,70 @@
           var half_this = asr_(self, 1);
           var approx = lsl_(div(half_this, other), 1);
           var exit$2 = 0;
-          if (approx.hi !== 0) {
-            exit$2 = 4;
+          if (approx[0] !== 0) {
+            exit$2 = 3;
           } else {
-            if (approx.lo === 0) {
-              if (other.hi < 0) {
+            if (approx[1] === 0) {
+              if (other[0] < 0) {
                 return one;
               } else {
                 return neg(one);
               }
             }
-            exit$2 = 4;
+            exit$2 = 3;
           }
-          if (exit$2 === 4) {
+          if (exit$2 === 3) {
             var rem = sub$1(self, mul(other, approx));
             return add(approx, div(rem, other));
           }
           
         }
       }
-      if (exit === 2 && other.hi === -2147483648 && other.lo === 0) {
-        return zero;
-      }
-      var other_hi = other.hi;
-      if (self.hi < 0) {
-        if (other_hi >= 0) {
-          return neg(div(neg(self), other));
+      if (exit === 1) {
+        var other_hi = other[0];
+        var exit$3 = 0;
+        if (other_hi !== -2147483648) {
+          exit$3 = 2;
+        } else {
+          if (other[1] === 0) {
+            return zero;
+          }
+          exit$3 = 2;
         }
-        _other = neg(other);
-        _self = neg(self);
-        continue ;
-      }
-      if (other_hi < 0) {
-        return neg(div(self, neg(other)));
-      }
-      var res = zero;
-      var rem$1 = self;
-      while(ge(rem$1, other)) {
-        var approx$1 = caml_float_max(1, Math.floor(to_float(rem$1) / to_float(other)));
-        var log2 = Math.ceil(Math.log(approx$1) / Math.LN2);
-        var delta = log2 <= 48 ? 1 : Math.pow(2, log2 - 48);
-        var approxRes = of_float(approx$1);
-        var approxRem = mul(approxRes, other);
-        while(approxRem.hi < 0 || gt(approxRem, rem$1)) {
-          approx$1 = approx$1 - delta;
-          approxRes = of_float(approx$1);
-          approxRem = mul(approxRes, other);
-        }      if (is_zero(approxRes)) {
-          approxRes = one;
+        if (exit$3 === 2) {
+          if (self_hi < 0) {
+            if (other_hi >= 0) {
+              return neg(div(neg(self), other));
+            }
+            _other = neg(other);
+            _self = neg(self);
+            continue ;
+          }
+          if (other_hi < 0) {
+            return neg(div(self, neg(other)));
+          }
+          var res = zero;
+          var rem$1 = self;
+          while(ge(rem$1, other)) {
+            var approx$1 = caml_float_max(1, Math.floor(to_float(rem$1) / to_float(other)));
+            var log2 = Math.ceil(Math.log(approx$1) / Math.LN2);
+            var delta = log2 <= 48 ? 1 : Math.pow(2, log2 - 48);
+            var approxRes = of_float(approx$1);
+            var approxRem = mul(approxRes, other);
+            while(approxRem[0] < 0 || gt(approxRem, rem$1)) {
+              approx$1 = approx$1 - delta;
+              approxRes = of_float(approx$1);
+              approxRem = mul(approxRes, other);
+            }          if (is_zero(approxRes)) {
+              approxRes = one;
+            }
+            res = add(res, approxRes);
+            rem$1 = sub$1(rem$1, approxRem);
+          }        return res;
         }
-        res = add(res, approxRes);
-        rem$1 = sub$1(rem$1, approxRem);
-      }    return res;
+        
+      }
+      
     }}
 
   function div_mod(self, other) {
@@ -1466,12 +1489,12 @@
   }
 
   function to_int32(x) {
-    return x.lo | 0;
+    return x[1] | 0;
   }
 
   function to_hex(x) {
-    var x_lo = x.lo;
-    var x_hi = x.hi;
+    var x_lo = x[1];
+    var x_hi = x[0];
     var aux = function (v) {
       return (v >>> 0).toString(16);
     };
@@ -1494,10 +1517,10 @@
   }
 
   function discard_sign(x) {
-    return /* Int64 */{
-            hi: 2147483647 & x.hi,
-            lo: x.lo
-          };
+    return [
+            2147483647 & x[0],
+            x[1]
+          ];
   }
   /* No side effect */
 
@@ -1985,18 +2008,6 @@
   var caml_int32_format = caml_format_int;
   /* No side effect */
 
-  function get(s, i) {
-    if (i >= s.length || i < 0) {
-      throw {
-            RE_EXN_ID: "Invalid_argument",
-            _1: "index out of bounds",
-            Error: new Error()
-          };
-    }
-    return s.charCodeAt(i);
-  }
-  /* No side effect */
-
   function erase_rel(rest) {
     if (typeof rest === "number") {
       return /* End_of_fmtty */0;
@@ -2377,9 +2388,9 @@
 
   function $at(l1, l2) {
     if (l1) {
-      return /* :: */{
-              _0: l1._0,
-              _1: $at(l1._1, l2)
+      return {
+              hd: l1.hd,
+              tl: $at(l1.tl, l2)
             };
     } else {
       return l2;
@@ -2472,9 +2483,6 @@
     }
     if (tag_a !== tag_b) {
       return false;
-    }
-    if (tag_a === 256) {
-      return a[1] === b[1];
     }
     var len_a = a.length | 0;
     var len_b = b.length | 0;
@@ -2651,7 +2659,7 @@
         case /* Magic_size */1 :
             return formatting_lit._0;
         case /* Scan_indic */2 :
-            return "@" + bytes_to_string(make(1, formatting_lit._0));
+            return "@" + make$1(1, formatting_lit._0);
         
       }
     }
@@ -5959,35 +5967,35 @@
 
   function levelFinished(result, level, elapsed) {
     if (result) {
-      return blackScreen(/* :: */{
-                  _0: [
+      return blackScreen({
+                  hd: [
                     "You lose level " + (level + "!"),
                     80,
                     100
                   ],
-                  _1: /* :: */{
-                    _0: [
+                  tl: {
+                    hd: [
                       elapsed,
                       230,
                       160
                     ],
-                    _1: /* [] */0
+                    tl: /* [] */0
                   }
                 });
     } else {
-      return blackScreen(/* :: */{
-                  _0: [
+      return blackScreen({
+                  hd: [
                     "You win level" + (level + "!"),
                     80,
                     100
                   ],
-                  _1: /* :: */{
-                    _0: [
+                  tl: {
+                    hd: [
                       elapsed,
                       230,
                       160
                     ],
-                    _1: /* [] */0
+                    tl: /* [] */0
                   }
                 });
     }
@@ -6037,7 +6045,8 @@
           };
   }
 
-  function makeSmallPlayer(typ, dir) {
+  function makeSmallPlayer(typ, dir, playerNum) {
+    var png = playerNum ? "mario2-small.png" : "mario-small.png";
     if (dir) {
       switch (typ) {
         case /* Standing */0 :
@@ -6050,7 +6059,7 @@
                       ], undefined, undefined, undefined, [
                         0,
                         32
-                      ], "mario-small.png");
+                      ], png);
         case /* Jumping */1 :
             return setupSprite([
                         2,
@@ -6061,7 +6070,7 @@
                       ], undefined, 10, 2, [
                         16,
                         48
-                      ], "mario-small.png");
+                      ], png);
         case /* Running */2 :
             return setupSprite([
                         2,
@@ -6072,7 +6081,7 @@
                       ], undefined, 5, 3, [
                         16,
                         32
-                      ], "mario-small.png");
+                      ], png);
         case /* Crouching */3 :
             return setupSprite([
                         1,
@@ -6083,7 +6092,7 @@
                       ], undefined, undefined, undefined, [
                         0,
                         64
-                      ], "mario-small.png");
+                      ], png);
         
       }
     } else {
@@ -6098,7 +6107,7 @@
                       ], undefined, undefined, undefined, [
                         0,
                         0
-                      ], "mario-small.png");
+                      ], png);
         case /* Jumping */1 :
             return setupSprite([
                         2,
@@ -6109,7 +6118,7 @@
                       ], undefined, 10, 2, [
                         16,
                         16
-                      ], "mario-small.png");
+                      ], png);
         case /* Running */2 :
             return setupSprite([
                         2,
@@ -6120,7 +6129,7 @@
                       ], undefined, 5, 3, [
                         16,
                         0
-                      ], "mario-small.png");
+                      ], png);
         case /* Crouching */3 :
             return setupSprite([
                         1,
@@ -6131,13 +6140,14 @@
                       ], undefined, undefined, undefined, [
                         0,
                         64
-                      ], "mario-small.png");
+                      ], png);
         
       }
     }
   }
 
-  function makeBigPlayer(typ, dir) {
+  function makeBigPlayer(typ, dir, playerNum) {
+    var png = playerNum ? "mario2-big.png" : "mario-big.png";
     if (dir) {
       switch (typ) {
         case /* Standing */0 :
@@ -6153,7 +6163,7 @@
                       ], undefined, undefined, [
                         16,
                         69
-                      ], "mario-big.png");
+                      ], png);
         case /* Jumping */1 :
             return setupSprite([
                         2,
@@ -6167,7 +6177,7 @@
                       ], undefined, undefined, [
                         48,
                         70
-                      ], "mario-big.png");
+                      ], png);
         case /* Running */2 :
             return setupSprite([
                         2,
@@ -6181,7 +6191,7 @@
                       ], 10, 4, [
                         0,
                         101
-                      ], "mario-big.png");
+                      ], png);
         case /* Crouching */3 :
             return setupSprite([
                         2,
@@ -6195,7 +6205,7 @@
                       ], undefined, undefined, [
                         32,
                         69
-                      ], "mario-big.png");
+                      ], png);
         
       }
     } else {
@@ -6213,7 +6223,7 @@
                       ], undefined, undefined, [
                         16,
                         5
-                      ], "mario-big.png");
+                      ], png);
         case /* Jumping */1 :
             return setupSprite([
                         2,
@@ -6227,7 +6237,7 @@
                       ], undefined, undefined, [
                         48,
                         6
-                      ], "mario-big.png");
+                      ], png);
         case /* Running */2 :
             return setupSprite([
                         2,
@@ -6241,7 +6251,7 @@
                       ], 10, 4, [
                         0,
                         37
-                      ], "mario-big.png");
+                      ], png);
         case /* Crouching */3 :
             return setupSprite([
                         2,
@@ -6255,7 +6265,7 @@
                       ], undefined, undefined, [
                         32,
                         5
-                      ], "mario-big.png");
+                      ], png);
         
       }
     }
@@ -6360,8 +6370,8 @@
     }
   }
 
-  function makeItem(param) {
-    if (param) {
+  function makeItem(x) {
+    if (x) {
       return setupSprite([
                   3,
                   0
@@ -6424,11 +6434,11 @@
         32
       ], "ground.png");
 
-  function makeBlock(param) {
-    if (typeof param !== "number") {
+  function makeBlock(x) {
+    if (typeof x !== "number") {
       return qBlockParams;
     }
-    switch (param) {
+    switch (x) {
       case /* QBlockUsed */0 :
           return qBlockUsedParams;
       case /* Brick */1 :
@@ -6445,8 +6455,8 @@
     }
   }
 
-  function makeParticle(param) {
-    switch (param) {
+  function makeParticle(x) {
+    switch (x) {
       case /* GoombaSquish */0 :
           return setupSprite(undefined, undefined, undefined, undefined, undefined, [
                       0,
@@ -6536,11 +6546,11 @@
     }
   }
 
-  function makePlayer(plSize, typ, dir) {
+  function makePlayer(plSize, typ, dir, playerNum) {
     if (plSize) {
-      return makeSmallPlayer(typ, dir);
+      return makeSmallPlayer(typ, dir, playerNum);
     } else {
-      return makeBigPlayer(typ, dir);
+      return makeBigPlayer(typ, dir, playerNum);
     }
   }
 
@@ -6604,7 +6614,7 @@
           };
   }
 
-  function make$1(velOpt, accOpt, partType, px, py) {
+  function make$2(velOpt, accOpt, partType, px, py) {
     var vel = velOpt !== undefined ? velOpt : [
         0,
         0
@@ -6652,7 +6662,7 @@
       -0.7
     ];
     return function (param) {
-      return make$1(partial_arg, undefined, t, pos, param);
+      return make$2(partial_arg, undefined, t, pos, param);
     };
   }
 
@@ -6714,7 +6724,7 @@
     return idCounter.contents;
   }
 
-  function make$2(hasGravityOpt, speedOpt, dirOpt, objTyp, spriteParams, px, py) {
+  function make$3(hasGravityOpt, speedOpt, dirOpt, objTyp, spriteParams, px, py) {
     var hasGravity = hasGravityOpt !== undefined ? hasGravityOpt : true;
     var speed = speedOpt !== undefined ? speedOpt : 1.0;
     var dir = dirOpt !== undefined ? dirOpt : /* Left */0;
@@ -6755,8 +6765,8 @@
     return newObj;
   }
 
-  function isPlayer(param) {
-    var match = param.objTyp;
+  function isPlayer(x) {
+    var match = x.objTyp;
     if (match.TAG) {
       return false;
     } else {
@@ -6764,8 +6774,8 @@
     }
   }
 
-  function isEnemy(param) {
-    var match = param.objTyp;
+  function isEnemy(x) {
+    var match = x.objTyp;
     if (match.TAG === /* Enemy */1) {
       return true;
     } else {
@@ -6834,7 +6844,7 @@
     
   }
 
-  function updatePlayer(player, n, keys) {
+  function updatePlayer(player, playerNum, keys) {
     var prev_jumping = player.jumping;
     var prev_dir = player.dir;
     var prev_vx = Math.abs(player.vx);
@@ -6857,12 +6867,12 @@
     if (playerTyp === undefined) {
       return ;
     }
-    var newSprite = makeFromParams(makePlayer(plSize, playerTyp, player.dir));
+    var newSprite = makeFromParams(makePlayer(plSize, playerTyp, player.dir, playerNum));
     normalizePos(player, player.sprite.params, newSprite.params);
     player.objTyp = {
       TAG: /* Player */0,
       _0: plSize,
-      _1: n
+      _1: playerNum
     };
     player.sprite = newSprite;
     
@@ -6926,14 +6936,14 @@
           obj.kill = true;
           return ;
       case /* GKoopa */1 :
-          var newObj = make$2(undefined, 3, obj.dir, {
+          var newObj = make$3(undefined, 3, obj.dir, {
                 TAG: /* Enemy */1,
                 _0: /* GKoopaShell */3
               }, makeEnemy(/* GKoopaShell */3, obj.dir), obj.px, obj.py);
           normalizePos(newObj, spr.params, newObj.sprite.params);
           return newObj;
       case /* RKoopa */2 :
-          return make$2(undefined, 3, obj.dir, {
+          return make$3(undefined, 3, obj.dir, {
                       TAG: /* Enemy */1,
                       _0: /* RKoopaShell */4
                     }, makeEnemy(/* RKoopaShell */4, obj.dir), obj.px, obj.py);
@@ -6970,14 +6980,14 @@
 
   function evolveBlock(obj) {
     decHealth(obj);
-    return make$2(false, undefined, obj.dir, {
+    return make$3(false, undefined, obj.dir, {
                 TAG: /* Block */3,
                 _0: /* QBlockUsed */0
               }, makeBlock(/* QBlockUsed */0), obj.px, obj.py);
   }
 
   function spawnAbove(player_dir, obj, itemTyp) {
-    var item = make$2(itemTyp !== /* Coin */1, undefined, /* Left */0, {
+    var item = make$3(itemTyp !== /* Coin */1, undefined, /* Left */0, {
           TAG: /* Item */2,
           _0: itemTyp
         }, makeItem(itemTyp), obj.px, obj.py);
@@ -7083,22 +7093,22 @@
       case /* Player */0 :
           return /* [] */0;
       case /* Enemy */1 :
-          var score = obj.score > 0 ? /* :: */({
-                _0: makeScore(obj.score, obj.px)(obj.py),
-                _1: /* [] */0
+          var score = obj.score > 0 ? ({
+                hd: makeScore(obj.score, obj.px)(obj.py),
+                tl: /* [] */0
               }) : /* [] */0;
-          var remains = t._0 !== 0 ? /* [] */0 : /* :: */({
-                _0: make$1(undefined, undefined, /* GoombaSquish */0, obj.px, obj.py),
-                _1: /* [] */0
+          var remains = t._0 !== 0 ? /* [] */0 : ({
+                hd: make$2(undefined, undefined, /* GoombaSquish */0, obj.px, obj.py),
+                tl: /* [] */0
               });
           return $at(score, remains);
       case /* Item */2 :
           if (t._0) {
             return /* [] */0;
           } else {
-            return /* :: */{
-                    _0: makeScore(obj.score, obj.px)(obj.py),
-                    _1: /* [] */0
+            return {
+                    hd: makeScore(obj.score, obj.px)(obj.py),
+                    tl: /* [] */0
                   };
           }
       case /* Block */3 :
@@ -7109,43 +7119,43 @@
           if (t$1 !== 1) {
             return /* [] */0;
           }
-          var p1 = make$1([
+          var p1 = make$2([
                 -5,
                 -5
               ], [
                 0,
                 0.2
               ], /* BrickChunkL */1, obj.px, obj.py);
-          var p2 = make$1([
+          var p2 = make$2([
                 -3,
                 -4
               ], [
                 0,
                 0.2
               ], /* BrickChunkL */1, obj.px, obj.py);
-          var p3 = make$1([
+          var p3 = make$2([
                 3,
                 -4
               ], [
                 0,
                 0.2
               ], /* BrickChunkR */2, obj.px, obj.py);
-          var p4 = make$1([
+          var p4 = make$2([
                 5,
                 -5
               ], [
                 0,
                 0.2
               ], /* BrickChunkR */2, obj.px, obj.py);
-          return /* :: */{
-                  _0: p1,
-                  _1: /* :: */{
-                    _0: p2,
-                    _1: /* :: */{
-                      _0: p3,
-                      _1: /* :: */{
-                        _0: p4,
-                        _1: /* [] */0
+          return {
+                  hd: p1,
+                  tl: {
+                    hd: p2,
+                    tl: {
+                      hd: p3,
+                      tl: {
+                        hd: p4,
+                        tl: /* [] */0
                       }
                     }
                   }
@@ -7155,7 +7165,7 @@
   }
   /* Sprite Not a pure module */
 
-  function make$3(param, param$1) {
+  function make$4(param, param$1) {
     return {
             px: 0,
             py: 0,
@@ -7514,13 +7524,13 @@
       if (!objs) {
         return false;
       }
-      var match = objs._0;
+      var match = objs.hd;
       var px = match.px;
       var py = match.py;
       if (x === px && y === py) {
         return true;
       }
-      _objs = objs._1;
+      _objs = objs.tl;
       continue ;
     }}
 
@@ -7531,7 +7541,7 @@
   }
 
   function convertCoinToObj(param) {
-    return make$2(false, undefined, undefined, {
+    return make$3(false, undefined, undefined, {
                 TAG: /* Item */2,
                 _0: /* Coin */1
               }, makeItem(/* Coin */1), param[1], param[2]);
@@ -7540,15 +7550,15 @@
   function addCoins(objects, x, y0, level) {
     var y = y0 - 16;
     if (bool$1() && trimEdge(x, y, level) && !memPos(objects.contents, x, y)) {
-      objects.contents = /* :: */{
-        _0: convertCoinToObj([
+      objects.contents = {
+        hd: convertCoinToObj([
               /* QBlock */{
                 _0: /* Coin */1
               },
               x,
               y
             ]),
-        _1: objects.contents
+        tl: objects.contents
       };
       return ;
     }
@@ -7557,7 +7567,7 @@
 
   function convertEnemyToObj(param) {
     var enemyTyp = param[0];
-    var obj = make$2(undefined, undefined, undefined, {
+    var obj = make$3(undefined, undefined, undefined, {
           TAG: /* Enemy */1,
           _0: enemyTyp
         }, makeEnemy(enemyTyp, /* Left */0), param[1], param[2]);
@@ -7581,13 +7591,13 @@
   function addEnemyOnBlock(objects, x, y, level) {
     var placeEnemy = $$int$1(enemyDensity(level));
     if (placeEnemy === 0 && !memPos(objects.contents, x, y - 16)) {
-      objects.contents = /* :: */{
-        _0: convertEnemyToObj([
+      objects.contents = {
+        hd: convertEnemyToObj([
               randomEnemyTyp(),
               x,
               y - 16
             ]),
-        _1: objects.contents
+        tl: objects.contents
       };
       return ;
     }
@@ -7600,13 +7610,13 @@
     if (!(!memPos(objects.contents, x, y) && trimEdge(x, y, level))) {
       return ;
     }
-    var obj = make$2(undefined, undefined, undefined, {
+    var obj = make$3(undefined, undefined, undefined, {
           TAG: /* Block */3,
           _0: blockTyp
         }, makeBlock(blockTyp), x, y);
-    objects.contents = /* :: */{
-      _0: obj,
-      _1: objects.contents
+    objects.contents = {
+      hd: obj,
+      tl: objects.contents
     };
     addCoins(objects, x, y, level);
     return addEnemyOnBlock(objects, x, y, level);
@@ -7732,13 +7742,13 @@
         _cby = cby + 1;
         continue ;
       }
-      objects.contents = /* :: */{
-        _0: convertEnemyToObj([
+      objects.contents = {
+        hd: convertEnemyToObj([
               randomEnemyTyp(),
               cbx * 16,
               cby * 16
             ]),
-        _1: objects.contents
+        tl: objects.contents
       };
       _cby = cby + 1;
       continue ;
@@ -7770,7 +7780,7 @@
     }}
 
   function generatePanel(level) {
-    return make$2(undefined, undefined, undefined, {
+    return make$3(undefined, undefined, undefined, {
                 TAG: /* Block */3,
                 _0: /* Panel */4
               }, makeBlock(/* Panel */4), blockw(level) * 16 - 256, blockh() * 16 * 2 / 3);
@@ -7778,7 +7788,7 @@
 
   function convertBlockToObj(param) {
     var blockTyp = param[0];
-    return make$2(undefined, undefined, undefined, {
+    return make$3(undefined, undefined, undefined, {
                 TAG: /* Block */3,
                 _0: blockTyp
               }, makeBlock(blockTyp), param[1], param[2]);
@@ -7796,24 +7806,24 @@
           _inc = inc + 1;
           continue ;
         }
-        objects.contents = /* :: */{
-          _0: convertBlockToObj([
+        objects.contents = {
+          hd: convertBlockToObj([
                 /* Ground */5,
                 inc * 16,
                 blockh() * 16
               ]),
-          _1: objects.contents
+          tl: objects.contents
         };
         _inc = inc + 1;
         continue ;
       }
-      objects.contents = /* :: */{
-        _0: convertBlockToObj([
+      objects.contents = {
+        hd: convertBlockToObj([
               /* Ground */5,
               inc * 16,
               blockh() * 16
             ]),
-        _1: objects.contents
+        tl: objects.contents
       };
       _inc = inc + 1;
       continue ;
@@ -7827,9 +7837,9 @@
     generateGround(objects, 0, level);
     generateEnemiesOnGround(objects, 0, 0, level);
     var panel = generatePanel(level);
-    return /* :: */{
-            _0: panel,
-            _1: objects.contents
+    return {
+            hd: panel,
+            tl: objects.contents
           };
   }
 
@@ -7837,16 +7847,16 @@
     init(randomSeed());
     var initial = performance.now();
     var objects = generateHelper(level);
-    var player1 = make$2(undefined, undefined, undefined, {
+    var player1 = make$3(undefined, undefined, undefined, {
           TAG: /* Player */0,
           _0: /* SmallM */1,
           _1: /* One */0
-        }, makePlayer(/* SmallM */1, /* Standing */0, /* Left */0), 100, 224);
-    var player2 = make$2(undefined, undefined, undefined, {
+        }, makePlayer(/* SmallM */1, /* Standing */0, /* Left */0, /* One */0), 100, 224);
+    var player2 = make$3(undefined, undefined, undefined, {
           TAG: /* Player */0,
           _0: /* SmallM */1,
           _1: /* Two */1
-        }, makePlayer(/* SmallM */1, /* Standing */0, /* Left */0), 120, 224);
+        }, makePlayer(/* SmallM */1, /* Standing */0, /* Left */0, /* Two */1), 120, 224);
     var elapsed = performance.now() - initial;
     console.log("generated", length(objects), "objects in " + (elapsed.toString() + " milliseconds"));
     return [
@@ -8258,7 +8268,7 @@
       if (!cs$1) {
         return acc;
       }
-      var h = cs$1._0;
+      var h = cs$1.hd;
       var newObjs;
       if (equals(obj, h)) {
         newObjs = [
@@ -8276,25 +8286,25 @@
       var acc$1;
       if (o !== undefined) {
         var o2 = newObjs[1];
-        acc$1 = o2 !== undefined ? /* :: */({
-              _0: o,
-              _1: /* :: */{
-                _0: o2,
-                _1: acc
+        acc$1 = o2 !== undefined ? ({
+              hd: o,
+              tl: {
+                hd: o2,
+                tl: acc
               }
-            }) : /* :: */({
-              _0: o,
-              _1: acc
+            }) : ({
+              hd: o,
+              tl: acc
             });
       } else {
         var o$1 = newObjs[1];
-        acc$1 = o$1 !== undefined ? /* :: */({
-              _0: o$1,
-              _1: acc
+        acc$1 = o$1 !== undefined ? ({
+              hd: o$1,
+              tl: acc
             }) : acc;
       }
       _acc = acc$1;
-      _cs = cs$1._1;
+      _cs = cs$1.tl;
       continue ;
     }}
 
@@ -8332,9 +8342,9 @@
     if (match.TAG) {
       var evolved = updateObject0(obj, state, objects);
       if (!obj.kill) {
-        collidObjs.contents = /* :: */{
-          _0: obj,
-          _1: $at(evolved, collidObjs.contents)
+        collidObjs.contents = {
+          hd: obj,
+          tl: $at(evolved, collidObjs.contents)
         };
       }
       var newParts = obj.kill ? kill(obj) : /* [] */0;
@@ -8356,9 +8366,9 @@
     var y = part.py - state.viewport.py;
     render(part.params.sprite, x, y);
     if (!part.kill) {
-      particles.contents = /* :: */{
-        _0: part,
-        _1: particles.contents
+      particles.contents = {
+        hd: part,
+        tl: particles.contents
       };
       return ;
     }
@@ -8366,7 +8376,7 @@
   }
 
   function updateLoop(player1, player2, level, objects) {
-    var viewport = make$3(getCanvasSizeScaled(), mapDim(level));
+    var viewport = make$4(getCanvasSizeScaled(), mapDim(level));
     update(viewport, player1.px, player1.py);
     var state = {
       bgd: makeBgd(),
@@ -8408,13 +8418,13 @@
         var vposXInt = state.viewport.px / 5 | 0;
         var bgdWidth = state.bgd.params.frameSize[0] | 0;
         drawBgd(state.bgd, mod_(vposXInt, bgdWidth));
-        updateObject(player1, state, /* :: */{
-              _0: player2,
-              _1: objects
+        updateObject(player1, state, {
+              hd: player2,
+              tl: objects
             });
-        updateObject(player2, state, /* :: */{
-              _0: player1,
-              _1: objects
+        updateObject(player2, state, {
+              hd: player1,
+              tl: objects
             });
         if (player1.kill === true) {
           var match$2 = state.status;
