@@ -104,7 +104,7 @@
   var invuln = 60;
   /* No side effect */
 
-  function caml_array_sub(x, offset, len) {
+  function sub(x, offset, len) {
     var result = new Array(len);
     var j = 0;
     var i = offset;
@@ -115,7 +115,7 @@
     }  return result;
   }
 
-  function caml_array_set(xs, index, newval) {
+  function set(xs, index, newval) {
     if (index < 0 || index >= xs.length) {
       throw {
             RE_EXN_ID: "Invalid_argument",
@@ -127,7 +127,7 @@
     
   }
 
-  function caml_array_get(xs, index) {
+  function get(xs, index) {
     if (index < 0 || index >= xs.length) {
       throw {
             RE_EXN_ID: "Invalid_argument",
@@ -157,8 +157,8 @@
         }
         }(f,args));
       }
-      _args = caml_array_sub(args, arity, -d | 0);
-      _f = f.apply(null, caml_array_sub(args, 0, arity));
+      _args = sub(args, arity, -d | 0);
+      _f = f.apply(null, sub(args, 0, arity));
       continue ;
     }}
 
@@ -283,6 +283,44 @@
       return x;
     } else {
       return y;
+    }
+  }
+
+  function i64_eq(x, y) {
+    if (x[1] === y[1]) {
+      return x[0] === y[0];
+    } else {
+      return false;
+    }
+  }
+
+  function i64_ge(param, param$1) {
+    var other_hi = param$1[0];
+    var hi = param[0];
+    if (hi > other_hi) {
+      return true;
+    } else if (hi < other_hi) {
+      return false;
+    } else {
+      return param[1] >= param$1[1];
+    }
+  }
+
+  function i64_neq(x, y) {
+    return !i64_eq(x, y);
+  }
+
+  function i64_lt(x, y) {
+    return !i64_ge(x, y);
+  }
+
+  function i64_gt(x, y) {
+    if (x[0] > y[0]) {
+      return true;
+    } else if (x[0] < y[0]) {
+      return false;
+    } else {
+      return x[1] > y[1];
     }
   }
   /* No side effect */
@@ -441,23 +479,23 @@
           
       }
     } else if (match >= 32) {
-      switch (match - 32 | 0) {
-        case 1 :
-        case 2 :
-        case 3 :
-        case 4 :
+      switch (match) {
+        case 33 :
+        case 34 :
+        case 35 :
+        case 36 :
             break;
-        case 5 :
+        case 37 :
             pressedKeys.left1 = true;
             break;
-        case 0 :
-        case 6 :
+        case 32 :
+        case 38 :
             pressedKeys.up1 = true;
             break;
-        case 7 :
+        case 39 :
             pressedKeys.right1 = true;
             break;
-        case 8 :
+        case 40 :
             pressedKeys.down1 = true;
             break;
         
@@ -485,23 +523,23 @@
         pressedKeys.left2 = false;
       }
     } else if (match >= 32) {
-      switch (match - 32 | 0) {
-        case 1 :
-        case 2 :
-        case 3 :
-        case 4 :
+      switch (match) {
+        case 33 :
+        case 34 :
+        case 35 :
+        case 36 :
             break;
-        case 5 :
+        case 37 :
             pressedKeys.left1 = false;
             break;
-        case 0 :
-        case 6 :
+        case 32 :
+        case 38 :
             pressedKeys.up1 = false;
             break;
-        case 7 :
+        case 39 :
             pressedKeys.right1 = false;
             break;
-        case 8 :
+        case 40 :
             pressedKeys.down1 = false;
             break;
         
@@ -592,7 +630,7 @@
   }
   /* No side effect */
 
-  var Undefined = create("CamlinternalLazy.Undefined");
+  var Undefined = /* @__PURE__ */create("CamlinternalLazy.Undefined");
 
   function forward_with_closure(blk, closure) {
     var result = closure();
@@ -673,6 +711,18 @@
   }
   /* No side effect */
 
+  function set$1(s, i, ch) {
+    if (i < 0 || i >= s.length) {
+      throw {
+            RE_EXN_ID: "Invalid_argument",
+            _1: "index out of bounds",
+            Error: new Error()
+          };
+    }
+    s[i] = ch;
+    
+  }
+
   function caml_fill_bytes(s, i, l, c) {
     if (l <= 0) {
       return ;
@@ -693,7 +743,7 @@
     }
     var result = new Array(len);
     for(var i = 0; i < len; ++i){
-      result[i] = /* "\000" */0;
+      result[i] = /* '\000' */0;
     }
     return result;
   }
@@ -734,7 +784,7 @@
       s2[i2 + i$1 | 0] = s1[i1 + i$1 | 0];
     }
     for(var i$2 = off1; i$2 < len; ++i$2){
-      s2[i2 + i$2 | 0] = /* "\000" */0;
+      s2[i2 + i$2 | 0] = /* '\000' */0;
     }
     
   }
@@ -750,7 +800,9 @@
     while(s_len > 0) {
       var next = s_len < 1024 ? s_len : 1024;
       var tmp_bytes = new Array(next);
-      caml_blit_bytes(a, offset, tmp_bytes, 0, next);
+      for(var k = 0; k < next; ++k){
+        tmp_bytes[k] = a[k + offset | 0];
+      }
       s = s + String.fromCharCode.apply(null, tmp_bytes);
       s_len = s_len - next | 0;
       offset = offset + next | 0;
@@ -772,7 +824,7 @@
       s2[i2 + i$1 | 0] = s1.charCodeAt(i1 + i$1 | 0);
     }
     for(var i$2 = off1; i$2 < len; ++i$2){
-      s2[i2 + i$2 | 0] = /* "\000" */0;
+      s2[i2 + i$2 | 0] = /* '\000' */0;
     }
     
   }
@@ -834,7 +886,7 @@
             0,
             0
           ];
-          s[0] = /* "\\" */92;
+          s[0] = /* '\\' */92;
           s[1] = 48 + (c / 100 | 0) | 0;
           s[2] = 48 + (c / 10 | 0) % 10 | 0;
           s[3] = 48 + c % 10 | 0;
@@ -848,15 +900,12 @@
   }
 
   function uppercase_ascii(c) {
-    if (c >= /* "a" */97 && c <= /* "z" */122) {
+    if (c >= /* 'a' */97 && c <= /* 'z' */122) {
       return c - 32 | 0;
     } else {
       return c;
     }
   }
-  /* No side effect */
-
-  var $$Error = create("Caml_js_exceptions.Error");
   /* No side effect */
 
   function make(n, c) {
@@ -872,7 +921,7 @@
     return r;
   }
 
-  function sub(s, ofs, len) {
+  function sub$1(s, ofs, len) {
     if (ofs < 0 || len < 0 || ofs > (s.length - len | 0)) {
       throw {
             RE_EXN_ID: "Invalid_argument",
@@ -886,7 +935,7 @@
   }
 
   function sub_string(b, ofs, len) {
-    return bytes_to_string(sub(b, ofs, len));
+    return bytes_to_string(sub$1(b, ofs, len));
   }
 
   function blit(s1, ofs1, s2, ofs2, len) {
@@ -915,27 +964,26 @@
     var n = 0;
     for(var i = 0 ,i_finish = s.length; i < i_finish; ++i){
       var match = s[i];
-      var tmp;
-      if (match >= 32) {
-        var switcher = match - 34 | 0;
-        tmp = switcher > 58 || switcher < 0 ? (
-            switcher >= 93 ? 4 : 1
+      n = n + (
+        match >= 32 ? (
+            match > 92 || match < 34 ? (
+                match >= 127 ? 4 : 1
+              ) : (
+                match > 91 || match < 35 ? 2 : 1
+              )
           ) : (
-            switcher > 57 || switcher < 1 ? 2 : 1
-          );
-      } else {
-        tmp = match >= 11 ? (
-            match !== 13 ? 4 : 2
-          ) : (
-            match >= 8 ? 2 : 4
-          );
-      }
-      n = n + tmp | 0;
+            match >= 11 ? (
+                match !== 13 ? 4 : 2
+              ) : (
+                match >= 8 ? 2 : 4
+              )
+          )
+      ) | 0;
     }
     if (n === s.length) {
       return copy(s);
     }
-    var s$prime = caml_create_bytes(n);
+    var s$p = caml_create_bytes(n);
     n = 0;
     for(var i$1 = 0 ,i_finish$1 = s.length; i$1 < i_finish$1; ++i$1){
       var c = s[i$1];
@@ -945,7 +993,7 @@
           if (c >= 127) {
             exit = 1;
           } else {
-            s$prime[n] = c;
+            s$p[n] = c;
           }
         } else {
           exit = 2;
@@ -954,26 +1002,26 @@
         if (c >= 34) {
           exit = 2;
         } else {
-          s$prime[n] = c;
+          s$p[n] = c;
         }
       } else if (c >= 14) {
         exit = 1;
       } else {
         switch (c) {
           case 8 :
-              s$prime[n] = /* "\\" */92;
+              s$p[n] = /* '\\' */92;
               n = n + 1 | 0;
-              s$prime[n] = /* "b" */98;
+              s$p[n] = /* 'b' */98;
               break;
           case 9 :
-              s$prime[n] = /* "\\" */92;
+              s$p[n] = /* '\\' */92;
               n = n + 1 | 0;
-              s$prime[n] = /* "t" */116;
+              s$p[n] = /* 't' */116;
               break;
           case 10 :
-              s$prime[n] = /* "\\" */92;
+              s$p[n] = /* '\\' */92;
               n = n + 1 | 0;
-              s$prime[n] = /* "n" */110;
+              s$p[n] = /* 'n' */110;
               break;
           case 0 :
           case 1 :
@@ -988,33 +1036,33 @@
               exit = 1;
               break;
           case 13 :
-              s$prime[n] = /* "\\" */92;
+              s$p[n] = /* '\\' */92;
               n = n + 1 | 0;
-              s$prime[n] = /* "r" */114;
+              s$p[n] = /* 'r' */114;
               break;
           
         }
       }
       switch (exit) {
         case 1 :
-            s$prime[n] = /* "\\" */92;
+            s$p[n] = /* '\\' */92;
             n = n + 1 | 0;
-            s$prime[n] = 48 + (c / 100 | 0) | 0;
+            s$p[n] = 48 + (c / 100 | 0) | 0;
             n = n + 1 | 0;
-            s$prime[n] = 48 + (c / 10 | 0) % 10 | 0;
+            s$p[n] = 48 + (c / 10 | 0) % 10 | 0;
             n = n + 1 | 0;
-            s$prime[n] = 48 + c % 10 | 0;
+            s$p[n] = 48 + c % 10 | 0;
             break;
         case 2 :
-            s$prime[n] = /* "\\" */92;
+            s$p[n] = /* '\\' */92;
             n = n + 1 | 0;
-            s$prime[n] = c;
+            s$p[n] = c;
             break;
         
       }
       n = n + 1 | 0;
     }
-    return s$prime;
+    return s$p;
   }
 
   function map(f, s) {
@@ -1034,7 +1082,7 @@
   }
   /* No side effect */
 
-  function get(s, i) {
+  function get$1(s, i) {
     if (i >= s.length || i < 0) {
       throw {
             RE_EXN_ID: "Invalid_argument",
@@ -1061,15 +1109,14 @@
         if (match < 32) {
           return true;
         }
-        var switcher = match - 34 | 0;
-        if (switcher > 58 || switcher < 0) {
-          if (switcher >= 93) {
+        if (match > 92 || match < 34) {
+          if (match >= 127) {
             return true;
           }
           _i = i + 1 | 0;
           continue ;
         }
-        if (switcher > 57 || switcher < 1) {
+        if (match > 91 || match < 35) {
           return true;
         }
         _i = i + 1 | 0;
@@ -1084,13 +1131,6 @@
 
   var blit$1 = blit_string;
   /* No side effect */
-
-  function mk(lo, hi) {
-    return [
-            hi,
-            (lo >>> 0)
-          ];
-  }
 
   var min_int = [
     -2147483648,
@@ -1118,37 +1158,35 @@
   ];
 
   function neg_signed(x) {
-    return (x & 2147483648) !== 0;
+    return (x & -2147483648) !== 0;
   }
 
   function non_neg_signed(x) {
-    return (x & 2147483648) === 0;
+    return (x & -2147483648) === 0;
   }
 
   function neg(param) {
     var other_lo = (param[1] ^ -1) + 1 | 0;
-    return mk(other_lo, (param[0] ^ -1) + (
-                other_lo === 0 ? 1 : 0
-              ) | 0);
+    return [
+            (param[0] ^ -1) + (
+              other_lo === 0 ? 1 : 0
+            ) | 0,
+            (other_lo >>> 0)
+          ];
   }
 
   function add_aux(param, y_lo, y_hi) {
     var x_lo = param[1];
     var lo = x_lo + y_lo | 0;
     var overflow = neg_signed(x_lo) && (neg_signed(y_lo) || non_neg_signed(lo)) || neg_signed(y_lo) && non_neg_signed(lo) ? 1 : 0;
-    return mk(lo, param[0] + y_hi + overflow | 0);
+    return [
+            param[0] + y_hi + overflow | 0,
+            (lo >>> 0)
+          ];
   }
 
   function add(self, param) {
     return add_aux(self, param[1], param[0]);
-  }
-
-  function eq(x, y) {
-    if (x[0] === y[0]) {
-      return x[1] === y[1];
-    } else {
-      return false;
-    }
   }
 
   function sub_aux(x, lo, hi) {
@@ -1159,7 +1197,7 @@
     return add_aux(x, y_lo, y_hi);
   }
 
-  function sub$1(self, param) {
+  function sub$2(self, param) {
     return sub_aux(self, param[1], param[0]);
   }
 
@@ -1169,9 +1207,15 @@
     }
     var lo = x[1];
     if (numBits >= 32) {
-      return mk(0, (lo << (numBits - 32 | 0)));
+      return [
+              (lo << (numBits - 32 | 0)),
+              0
+            ];
     } else {
-      return mk((lo << numBits), (lo >>> (32 - numBits | 0)) | (x[0] << numBits));
+      return [
+              (lo >>> (32 - numBits | 0)) | (x[0] << numBits),
+              ((lo << numBits) >>> 0)
+            ];
     }
   }
 
@@ -1181,17 +1225,23 @@
     }
     var hi = x[0];
     if (numBits < 32) {
-      return mk((hi << (32 - numBits | 0)) | (x[1] >>> numBits), (hi >> numBits));
+      return [
+              (hi >> numBits),
+              (((hi << (32 - numBits | 0)) | (x[1] >>> numBits)) >>> 0)
+            ];
     } else {
-      return mk((hi >> (numBits - 32 | 0)), hi >= 0 ? 0 : -1);
+      return [
+              hi >= 0 ? 0 : -1,
+              ((hi >> (numBits - 32 | 0)) >>> 0)
+            ];
     }
   }
 
   function is_zero(param) {
-    if (param[0] !== 0 || param[1] !== 0) {
+    if (param[0] !== 0) {
       return false;
     } else {
-      return true;
+      return param[1] === 0;
     }
   }
 
@@ -1274,7 +1324,10 @@
           c48 = c48 + (c32 >>> 16);
           c32 = c32 & 65535;
           c48 = c48 + (a48 * b00 + a32 * b16 + a16 * b32 + a00 * b48) & 65535;
-          return mk(c00 & 65535 | ((c16 & 65535) << 16), c32 | (c48 << 16));
+          return [
+                  c32 | (c48 << 16),
+                  ((c00 & 65535 | ((c16 & 65535) << 16)) >>> 0)
+                ];
         }
         
       }
@@ -1285,36 +1338,6 @@
       }
     }}
 
-  function ge(param, param$1) {
-    var other_hi = param$1[0];
-    var hi = param[0];
-    if (hi > other_hi) {
-      return true;
-    } else if (hi < other_hi) {
-      return false;
-    } else {
-      return param[1] >= param$1[1];
-    }
-  }
-
-  function neq(x, y) {
-    return !eq(x, y);
-  }
-
-  function lt(x, y) {
-    return !ge(x, y);
-  }
-
-  function gt(x, y) {
-    if (x[0] > y[0]) {
-      return true;
-    } else if (x[0] < y[0]) {
-      return false;
-    } else {
-      return x[1] > y[1];
-    }
-  }
-
   function to_float(param) {
     return param[0] * 0x100000000 + param[1];
   }
@@ -1322,15 +1345,22 @@
   function of_float(x) {
     if (isNaN(x) || !isFinite(x)) {
       return zero;
-    } else if (x <= -9.22337203685477581e+18) {
-      return min_int;
-    } else if (x + 1 >= 9.22337203685477581e+18) {
-      return max_int;
-    } else if (x < 0) {
-      return neg(of_float(-x));
-    } else {
-      return mk(x % 4294967296 | 0, x / 4294967296 | 0);
     }
+    if (x <= -9.22337203685477581e+18) {
+      return min_int;
+    }
+    if (x + 1 >= 9.22337203685477581e+18) {
+      return max_int;
+    }
+    if (x < 0) {
+      return neg(of_float(-x));
+    }
+    var hi = x / 4294967296 | 0;
+    var lo = x % 4294967296 | 0;
+    return [
+            hi,
+            (lo >>> 0)
+          ];
   }
 
   function isSafeInteger(param) {
@@ -1339,7 +1369,7 @@
     if (top11Bits === 0) {
       return true;
     } else if (top11Bits === -1) {
-      return !(param[1] === 0 && hi === (4292870144 | 0));
+      return !(param[1] === 0 && hi === -2097152);
     } else {
       return false;
     }
@@ -1350,7 +1380,7 @@
       return String(to_float(self));
     }
     if (self[0] < 0) {
-      if (eq(self, min_int)) {
+      if (i64_eq(self, min_int)) {
         return "-9223372036854775808";
       } else {
         return "-" + to_string(neg(self));
@@ -1371,9 +1401,8 @@
       var remainder = 10 * delta - rem_lo$1;
       return to_string(sub_aux(approx_div1, delta | 0, 0)) + String(remainder | 0);
     }
-    var rem_lo$2 = rem_lo;
-    var delta$1 = Math.floor(rem_lo$2 / 10);
-    var remainder$1 = rem_lo$2 - 10 * delta$1;
+    var delta$1 = Math.floor(rem_lo / 10);
+    var remainder$1 = rem_lo - 10 * delta$1;
     return to_string(add_aux(approx_div1, delta$1 | 0, 0)) + String(remainder$1 | 0);
   }
 
@@ -1405,10 +1434,10 @@
         } else if (self[1] !== 0) {
           exit = 1;
         } else {
-          if (eq(other, one) || eq(other, neg_one)) {
+          if (i64_eq(other, one) || i64_eq(other, neg_one)) {
             return self;
           }
-          if (eq(other, min_int)) {
+          if (i64_eq(other, min_int)) {
             return one;
           }
           var half_this = asr_(self, 1);
@@ -1427,7 +1456,7 @@
             exit$2 = 3;
           }
           if (exit$2 === 3) {
-            var rem = sub$1(self, mul(other, approx));
+            var rem = sub$2(self, mul(other, approx));
             return add(approx, div(rem, other));
           }
           
@@ -1458,13 +1487,14 @@
           }
           var res = zero;
           var rem$1 = self;
-          while(ge(rem$1, other)) {
-            var approx$1 = caml_float_max(1, Math.floor(to_float(rem$1) / to_float(other)));
+          while(i64_ge(rem$1, other)) {
+            var b = Math.floor(to_float(rem$1) / to_float(other));
+            var approx$1 = 1 > b ? 1 : b;
             var log2 = Math.ceil(Math.log(approx$1) / Math.LN2);
             var delta = log2 <= 48 ? 1 : Math.pow(2, log2 - 48);
             var approxRes = of_float(approx$1);
             var approxRem = mul(approxRes, other);
-            while(approxRem[0] < 0 || gt(approxRem, rem$1)) {
+            while(approxRem[0] < 0 || i64_gt(approxRem, rem$1)) {
               approx$1 = approx$1 - delta;
               approxRes = of_float(approx$1);
               approxRem = mul(approxRes, other);
@@ -1472,7 +1502,7 @@
               approxRes = one;
             }
             res = add(res, approxRes);
-            rem$1 = sub$1(rem$1, approxRem);
+            rem$1 = sub$2(rem$1, approxRem);
           }        return res;
         }
         
@@ -1484,7 +1514,7 @@
     var quotient = div(self, other);
     return [
             quotient,
-            sub$1(self, mul(quotient, other))
+            sub$2(self, mul(quotient, other))
           ];
   }
 
@@ -1537,7 +1567,7 @@
   }
 
   function lowercase(c) {
-    if (c >= /* "A" */65 && c <= /* "Z" */90 || c >= /* "\192" */192 && c <= /* "\214" */214 || c >= /* "\216" */216 && c <= /* "\222" */222) {
+    if (c >= /* 'A' */65 && c <= /* 'Z' */90 || c >= /* '\192' */192 && c <= /* '\214' */214 || c >= /* '\216' */216 && c <= /* '\222' */222) {
       return c + 32 | 0;
     } else {
       return c;
@@ -1579,56 +1609,56 @@
           if (c >= 121) {
             exit = 1;
           } else {
-            switch (c - 88 | 0) {
-              case 0 :
+            switch (c) {
+              case 88 :
                   f.base = /* Hex */1;
                   f.uppercase = true;
                   _i = i + 1 | 0;
                   continue ;
-              case 13 :
-              case 14 :
-              case 15 :
+              case 101 :
+              case 102 :
+              case 103 :
                   exit = 5;
                   break;
-              case 12 :
-              case 17 :
+              case 100 :
+              case 105 :
                   exit = 4;
                   break;
-              case 23 :
+              case 111 :
                   f.base = /* Oct */0;
                   _i = i + 1 | 0;
                   continue ;
-              case 29 :
+              case 117 :
                   f.base = /* Dec */2;
                   _i = i + 1 | 0;
                   continue ;
-              case 1 :
-              case 2 :
-              case 3 :
-              case 4 :
-              case 5 :
-              case 6 :
-              case 7 :
-              case 8 :
-              case 9 :
-              case 10 :
-              case 11 :
-              case 16 :
-              case 18 :
-              case 19 :
-              case 20 :
-              case 21 :
-              case 22 :
-              case 24 :
-              case 25 :
-              case 26 :
-              case 27 :
-              case 28 :
-              case 30 :
-              case 31 :
+              case 89 :
+              case 90 :
+              case 91 :
+              case 92 :
+              case 93 :
+              case 94 :
+              case 95 :
+              case 96 :
+              case 97 :
+              case 98 :
+              case 99 :
+              case 104 :
+              case 106 :
+              case 107 :
+              case 108 :
+              case 109 :
+              case 110 :
+              case 112 :
+              case 113 :
+              case 114 :
+              case 115 :
+              case 116 :
+              case 118 :
+              case 119 :
                   exit = 1;
                   break;
-              case 32 :
+              case 120 :
                   f.base = /* Hex */1;
                   _i = i + 1 | 0;
                   continue ;
@@ -1663,11 +1693,11 @@
               var j = i + 1 | 0;
               while((function(j){
                   return function () {
-                    var w = fmt.charCodeAt(j) - /* "0" */48 | 0;
+                    var w = fmt.charCodeAt(j) - /* '0' */48 | 0;
                     return w >= 0 && w <= 9;
                   }
                   }(j))()) {
-                f.prec = (Math.imul(f.prec, 10) + fmt.charCodeAt(j) | 0) - /* "0" */48 | 0;
+                f.prec = (Math.imul(f.prec, 10) + fmt.charCodeAt(j) | 0) - /* '0' */48 | 0;
                 j = j + 1 | 0;
               }            _i = j;
               continue ;
@@ -1716,11 +1746,11 @@
             var j$1 = i;
             while((function(j$1){
                 return function () {
-                  var w = fmt.charCodeAt(j$1) - /* "0" */48 | 0;
+                  var w = fmt.charCodeAt(j$1) - /* '0' */48 | 0;
                   return w >= 0 && w <= 9;
                 }
                 }(j$1))()) {
-              f.width = (Math.imul(f.width, 10) + fmt.charCodeAt(j$1) | 0) - /* "0" */48 | 0;
+              f.width = (Math.imul(f.width, 10) + fmt.charCodeAt(j$1) | 0) - /* '0' */48 | 0;
               j$1 = j$1 + 1 | 0;
             }          _i = j$1;
             continue ;
@@ -1800,7 +1830,7 @@
     }
     var f = parse_format(fmt);
     var i$1 = i < 0 ? (
-        f.signedconv ? (f.sign = -1, -i) : (i >>> 0)
+        f.signedconv ? (f.sign = -1, (-i >>> 0)) : (i >>> 0)
       ) : i;
     var s = i$1.toString(int_of_base(f.base));
     if (f.prec >= 0) {
@@ -1815,28 +1845,43 @@
   }
 
   function dec_of_pos_int64(x) {
-    if (!lt(x, zero)) {
+    if (!i64_lt(x, zero)) {
       return to_string(x);
     }
-    var wbase = mk(10, 0);
+    var wbase = [
+      0,
+      10
+    ];
     var y = discard_sign(x);
     var match = div_mod(y, wbase);
-    var match$1 = div_mod(add(mk(8, 0), match[1]), wbase);
-    var quotient = add(add(mk(-858993460, 214748364), match[0]), match$1[0]);
+    var match$1 = div_mod(add([
+              0,
+              8
+            ], match[1]), wbase);
+    var quotient = add(add([
+              214748364,
+              3435973836
+            ], match[0]), match$1[0]);
     return to_string(quotient) + "0123456789"[to_int32(match$1[1])];
   }
 
   function oct_of_int64(x) {
     var s = "";
-    var wbase = mk(8, 0);
+    var wbase = [
+      0,
+      8
+    ];
     var cvtbl = "01234567";
-    if (lt(x, zero)) {
+    if (i64_lt(x, zero)) {
       var y = discard_sign(x);
       var match = div_mod(y, wbase);
-      var quotient = add(mk(0, 268435456), match[0]);
+      var quotient = add([
+            268435456,
+            0
+          ], match[0]);
       var modulus = match[1];
       s = cvtbl[to_int32(modulus)] + s;
-      while(neq(quotient, zero)) {
+      while(i64_neq(quotient, zero)) {
         var match$1 = div_mod(quotient, wbase);
         quotient = match$1[0];
         modulus = match$1[1];
@@ -1846,7 +1891,7 @@
       var quotient$1 = match$2[0];
       var modulus$1 = match$2[1];
       s = cvtbl[to_int32(modulus$1)] + s;
-      while(neq(quotient$1, zero)) {
+      while(i64_neq(quotient$1, zero)) {
         var match$3 = div_mod(quotient$1, wbase);
         quotient$1 = match$3[0];
         modulus$1 = match$3[1];
@@ -1860,7 +1905,7 @@
       return to_string(x);
     }
     var f = parse_format(fmt);
-    var x$1 = f.signedconv && lt(x, zero) ? (f.sign = -1, neg(x)) : x;
+    var x$1 = f.signedconv && i64_lt(x, zero) ? (f.sign = -1, neg(x)) : x;
     var match = f.base;
     var s;
     switch (match) {
@@ -2006,6 +2051,189 @@
   var caml_nativeint_format = caml_format_int;
 
   var caml_int32_format = caml_format_int;
+  /* No side effect */
+
+  function abs(x) {
+    if (x >= 0) {
+      return x;
+    } else {
+      return -x | 0;
+    }
+  }
+
+  var min_int$1 = -2147483648;
+
+  function classify_float(x) {
+    if (isFinite(x)) {
+      if (Math.abs(x) >= 2.22507385850720138e-308) {
+        return /* FP_normal */0;
+      } else if (x !== 0) {
+        return /* FP_subnormal */1;
+      } else {
+        return /* FP_zero */2;
+      }
+    } else if (isNaN(x)) {
+      return /* FP_nan */4;
+    } else {
+      return /* FP_infinite */3;
+    }
+  }
+
+  function string_of_bool(b) {
+    if (b) {
+      return "true";
+    } else {
+      return "false";
+    }
+  }
+
+  function $at(l1, l2) {
+    if (l1) {
+      return {
+              hd: l1.hd,
+              tl: $at(l1.tl, l2)
+            };
+    } else {
+      return l2;
+    }
+  }
+  /* No side effect */
+
+  function create$1(n) {
+    var n$1 = n < 1 ? 1 : n;
+    var s = caml_create_bytes(n$1);
+    return {
+            buffer: s,
+            position: 0,
+            length: n$1,
+            initial_buffer: s
+          };
+  }
+
+  function contents(b) {
+    return sub_string(b.buffer, 0, b.position);
+  }
+
+  function resize(b, more) {
+    var len = b.length;
+    var new_len = len;
+    while((b.position + more | 0) > new_len) {
+      new_len = (new_len << 1);
+    }  var new_buffer = caml_create_bytes(new_len);
+    blit(b.buffer, 0, new_buffer, 0, b.position);
+    b.buffer = new_buffer;
+    b.length = new_len;
+    
+  }
+
+  function add_char(b, c) {
+    var pos = b.position;
+    if (pos >= b.length) {
+      resize(b, 1);
+    }
+    b.buffer[pos] = c;
+    b.position = pos + 1 | 0;
+    
+  }
+
+  function add_string(b, s) {
+    var len = s.length;
+    var new_position = b.position + len | 0;
+    if (new_position > b.length) {
+      resize(b, len);
+    }
+    blit_string(s, 0, b.buffer, b.position, len);
+    b.position = new_position;
+    
+  }
+  /* No side effect */
+
+  var for_in = (function(o,foo){
+          for (var x in o) { foo(x); }});
+
+  function caml_equal(a, b) {
+    if (a === b) {
+      return true;
+    }
+    var a_type = typeof a;
+    if (a_type === "string" || a_type === "number" || a_type === "boolean" || a_type === "undefined" || a === null) {
+      return false;
+    }
+    var b_type = typeof b;
+    if (a_type === "function" || b_type === "function") {
+      throw {
+            RE_EXN_ID: "Invalid_argument",
+            _1: "equal: functional value",
+            Error: new Error()
+          };
+    }
+    if (b_type === "number" || b_type === "undefined" || b === null) {
+      return false;
+    }
+    var tag_a = a.TAG | 0;
+    var tag_b = b.TAG | 0;
+    if (tag_a === 248) {
+      return a[1] === b[1];
+    }
+    if (tag_a === 251) {
+      throw {
+            RE_EXN_ID: "Invalid_argument",
+            _1: "equal: abstract value",
+            Error: new Error()
+          };
+    }
+    if (tag_a !== tag_b) {
+      return false;
+    }
+    var len_a = a.length | 0;
+    var len_b = b.length | 0;
+    if (len_a === len_b) {
+      if (Array.isArray(a)) {
+        var _i = 0;
+        while(true) {
+          var i = _i;
+          if (i === len_a) {
+            return true;
+          }
+          if (!caml_equal(a[i], b[i])) {
+            return false;
+          }
+          _i = i + 1 | 0;
+          continue ;
+        }    } else if ((a instanceof Date && b instanceof Date)) {
+        return !(a > b || a < b);
+      } else {
+        var result = {
+          contents: true
+        };
+        var do_key_a = function (key) {
+          if (!b.hasOwnProperty(key)) {
+            result.contents = false;
+            return ;
+          }
+          
+        };
+        var do_key_b = function (key) {
+          if (!a.hasOwnProperty(key) || !caml_equal(b[key], a[key])) {
+            result.contents = false;
+            return ;
+          }
+          
+        };
+        for_in(a, do_key_a);
+        if (result.contents) {
+          for_in(b, do_key_b);
+        }
+        return result.contents;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  function caml_notequal(a, b) {
+    return !caml_equal(a, b);
+  }
   /* No side effect */
 
   function erase_rel(rest) {
@@ -2350,191 +2578,6 @@
   }
   /* No side effect */
 
-  var Exit = create("Pervasives.Exit");
-
-  function abs(x) {
-    if (x >= 0) {
-      return x;
-    } else {
-      return -x | 0;
-    }
-  }
-
-  var min_int$1 = -2147483648;
-
-  function classify_float(x) {
-    if (isFinite(x)) {
-      if (Math.abs(x) >= 2.22507385850720138e-308) {
-        return /* FP_normal */0;
-      } else if (x !== 0) {
-        return /* FP_subnormal */1;
-      } else {
-        return /* FP_zero */2;
-      }
-    } else if (isNaN(x)) {
-      return /* FP_nan */4;
-    } else {
-      return /* FP_infinite */3;
-    }
-  }
-
-  function string_of_bool(b) {
-    if (b) {
-      return "true";
-    } else {
-      return "false";
-    }
-  }
-
-  function $at(l1, l2) {
-    if (l1) {
-      return {
-              hd: l1.hd,
-              tl: $at(l1.tl, l2)
-            };
-    } else {
-      return l2;
-    }
-  }
-  /* No side effect */
-
-  function create$1(n) {
-    var n$1 = n < 1 ? 1 : n;
-    var s = caml_create_bytes(n$1);
-    return {
-            buffer: s,
-            position: 0,
-            length: n$1,
-            initial_buffer: s
-          };
-  }
-
-  function contents(b) {
-    return sub_string(b.buffer, 0, b.position);
-  }
-
-  function resize(b, more) {
-    var len = b.length;
-    var new_len = len;
-    while((b.position + more | 0) > new_len) {
-      new_len = (new_len << 1);
-    }  var new_buffer = caml_create_bytes(new_len);
-    blit(b.buffer, 0, new_buffer, 0, b.position);
-    b.buffer = new_buffer;
-    b.length = new_len;
-    
-  }
-
-  function add_char(b, c) {
-    var pos = b.position;
-    if (pos >= b.length) {
-      resize(b, 1);
-    }
-    b.buffer[pos] = c;
-    b.position = pos + 1 | 0;
-    
-  }
-
-  function add_string(b, s) {
-    var len = s.length;
-    var new_position = b.position + len | 0;
-    if (new_position > b.length) {
-      resize(b, len);
-    }
-    blit_string(s, 0, b.buffer, b.position, len);
-    b.position = new_position;
-    
-  }
-  /* No side effect */
-
-  var for_in = (function(o,foo){
-          for (var x in o) { foo(x); }});
-
-  function caml_equal(a, b) {
-    if (a === b) {
-      return true;
-    }
-    var a_type = typeof a;
-    if (a_type === "string" || a_type === "number" || a_type === "boolean" || a_type === "undefined" || a === null) {
-      return false;
-    }
-    var b_type = typeof b;
-    if (a_type === "function" || b_type === "function") {
-      throw {
-            RE_EXN_ID: "Invalid_argument",
-            _1: "equal: functional value",
-            Error: new Error()
-          };
-    }
-    if (b_type === "number" || b_type === "undefined" || b === null) {
-      return false;
-    }
-    var tag_a = a.TAG | 0;
-    var tag_b = b.TAG | 0;
-    if (tag_a === 248) {
-      return a[1] === b[1];
-    }
-    if (tag_a === 251) {
-      throw {
-            RE_EXN_ID: "Invalid_argument",
-            _1: "equal: abstract value",
-            Error: new Error()
-          };
-    }
-    if (tag_a !== tag_b) {
-      return false;
-    }
-    var len_a = a.length | 0;
-    var len_b = b.length | 0;
-    if (len_a === len_b) {
-      if (Array.isArray(a)) {
-        var _i = 0;
-        while(true) {
-          var i = _i;
-          if (i === len_a) {
-            return true;
-          }
-          if (!caml_equal(a[i], b[i])) {
-            return false;
-          }
-          _i = i + 1 | 0;
-          continue ;
-        }    } else if ((a instanceof Date && b instanceof Date)) {
-        return !(a > b || a < b);
-      } else {
-        var result = {
-          contents: true
-        };
-        var do_key_a = function (key) {
-          if (!b.hasOwnProperty(key)) {
-            result.contents = false;
-            return ;
-          }
-          
-        };
-        var do_key_b = function (key) {
-          if (!a.hasOwnProperty(key) || !caml_equal(b[key], a[key])) {
-            result.contents = false;
-            return ;
-          }
-          
-        };
-        for_in(a, do_key_a);
-        if (result.contents) {
-          for_in(b, do_key_b);
-        }
-        return result.contents;
-      }
-    } else {
-      return false;
-    }
-  }
-
-  function caml_notequal(a, b) {
-    return !caml_equal(a, b);
-  }
-  /* No side effect */
-
   function buffer_check_size(buf, overhead) {
     var len = buf.bytes.length;
     var min_len = buf.ind + overhead | 0;
@@ -2550,7 +2593,7 @@
 
   function buffer_add_char(buf, c) {
     buffer_check_size(buf, 1);
-    buf.bytes[buf.ind] = c;
+    set$1(buf.bytes, buf.ind, c);
     buf.ind = buf.ind + 1 | 0;
     
   }
@@ -2572,33 +2615,33 @@
       case /* Float_f */0 :
       case /* Float_pf */1 :
       case /* Float_sf */2 :
-          return /* "f" */102;
+          return /* 'f' */102;
       case /* Float_e */3 :
       case /* Float_pe */4 :
       case /* Float_se */5 :
-          return /* "e" */101;
+          return /* 'e' */101;
       case /* Float_E */6 :
       case /* Float_pE */7 :
       case /* Float_sE */8 :
-          return /* "E" */69;
+          return /* 'E' */69;
       case /* Float_g */9 :
       case /* Float_pg */10 :
       case /* Float_sg */11 :
-          return /* "g" */103;
+          return /* 'g' */103;
       case /* Float_G */12 :
       case /* Float_pG */13 :
       case /* Float_sG */14 :
-          return /* "G" */71;
+          return /* 'G' */71;
       case /* Float_F */15 :
-          return /* "F" */70;
+          return /* 'F' */70;
       case /* Float_h */16 :
       case /* Float_ph */17 :
       case /* Float_sh */18 :
-          return /* "h" */104;
+          return /* 'h' */104;
       case /* Float_H */19 :
       case /* Float_pH */20 :
       case /* Float_sH */21 :
-          return /* "H" */72;
+          return /* 'H' */72;
       
     }
   }
@@ -2621,7 +2664,7 @@
       case /* Float_pG */13 :
       case /* Float_ph */17 :
       case /* Float_pH */20 :
-          return buffer_add_char(buf, /* "+" */43);
+          return buffer_add_char(buf, /* '+' */43);
       case /* Float_sf */2 :
       case /* Float_se */5 :
       case /* Float_sE */8 :
@@ -2629,7 +2672,7 @@
       case /* Float_sG */14 :
       case /* Float_sh */18 :
       case /* Float_sH */21 :
-          return buffer_add_char(buf, /* " " */32);
+          return buffer_add_char(buf, /* ' ' */32);
       
     }
   }
@@ -3809,7 +3852,7 @@
     }
   }
 
-  var Type_mismatch = create("CamlinternalFormat.Type_mismatch");
+  var Type_mismatch = /* @__PURE__ */create("CamlinternalFormat.Type_mismatch");
 
   function type_padding(pad, fmtty) {
     if (typeof pad === "number") {
@@ -3818,7 +3861,7 @@
               _1: fmtty
             };
     }
-    if (!pad.TAG) {
+    if (pad.TAG === /* Lit_padding */0) {
       return /* Padding_fmtty_EBB */{
               _0: {
                 TAG: /* Lit_padding */0,
@@ -3902,20 +3945,20 @@
                   Error: new Error()
                 };
           }
-          if (fmtty.TAG) {
-            throw {
-                  RE_EXN_ID: Type_mismatch,
-                  Error: new Error()
-                };
+          if (fmtty.TAG === /* Char_ty */0) {
+            var match = type_ignored_format_substitution(sub_fmtty._0, fmt, fmtty._0);
+            return /* Fmtty_fmt_EBB */{
+                    _0: {
+                      TAG: /* Char_ty */0,
+                      _0: match._0
+                    },
+                    _1: match._1
+                  };
           }
-          var match = type_ignored_format_substitution(sub_fmtty._0, fmt, fmtty._0);
-          return /* Fmtty_fmt_EBB */{
-                  _0: {
-                    TAG: /* Char_ty */0,
-                    _0: match._0
-                  },
-                  _1: match._1
-                };
+          throw {
+                RE_EXN_ID: Type_mismatch,
+                Error: new Error()
+              };
       case /* String_ty */1 :
           if (typeof fmtty === "number") {
             throw {
@@ -4071,11 +4114,11 @@
                 };
           }
           if (fmtty.TAG === /* Format_arg_ty */8) {
-            var sub2_fmtty$prime = fmtty._0;
+            var sub2_fmtty$p = fmtty._0;
             if (caml_notequal(/* Fmtty_EBB */{
                     _0: sub_fmtty._0
                   }, /* Fmtty_EBB */{
-                    _0: sub2_fmtty$prime
+                    _0: sub2_fmtty$p
                   })) {
               throw {
                     RE_EXN_ID: Type_mismatch,
@@ -4086,7 +4129,7 @@
             return /* Fmtty_fmt_EBB */{
                     _0: {
                       TAG: /* Format_arg_ty */8,
-                      _0: sub2_fmtty$prime,
+                      _0: sub2_fmtty$p,
                       _1: match$8._0
                     },
                     _1: match$8._1
@@ -4104,12 +4147,12 @@
                 };
           }
           if (fmtty.TAG === /* Format_subst_ty */9) {
-            var sub2_fmtty$prime$1 = fmtty._1;
-            var sub1_fmtty$prime = fmtty._0;
+            var sub2_fmtty$p$1 = fmtty._1;
+            var sub1_fmtty$p = fmtty._0;
             if (caml_notequal(/* Fmtty_EBB */{
                     _0: erase_rel(sub_fmtty._0)
                   }, /* Fmtty_EBB */{
-                    _0: erase_rel(sub1_fmtty$prime)
+                    _0: erase_rel(sub1_fmtty$p)
                   })) {
               throw {
                     RE_EXN_ID: Type_mismatch,
@@ -4119,23 +4162,23 @@
             if (caml_notequal(/* Fmtty_EBB */{
                     _0: erase_rel(sub_fmtty._1)
                   }, /* Fmtty_EBB */{
-                    _0: erase_rel(sub2_fmtty$prime$1)
+                    _0: erase_rel(sub2_fmtty$p$1)
                   })) {
               throw {
                     RE_EXN_ID: Type_mismatch,
                     Error: new Error()
                   };
             }
-            var sub_fmtty$prime = trans(symm(sub1_fmtty$prime), sub2_fmtty$prime$1);
-            var match$9 = fmtty_rel_det(sub_fmtty$prime);
+            var sub_fmtty$p = trans(symm(sub1_fmtty$p), sub2_fmtty$p$1);
+            var match$9 = fmtty_rel_det(sub_fmtty$p);
             _1(match$9[1], /* Refl */0);
             _1(match$9[3], /* Refl */0);
             var match$10 = type_ignored_format_substitution(erase_rel(sub_fmtty._2), fmt, fmtty._2);
             return /* Fmtty_fmt_EBB */{
                     _0: {
                       TAG: /* Format_subst_ty */9,
-                      _0: sub1_fmtty$prime,
-                      _1: sub2_fmtty$prime$1,
+                      _0: sub1_fmtty$p,
+                      _1: sub2_fmtty$p$1,
                       _2: symm(match$10._0)
                     },
                     _1: match$10._1
@@ -4253,20 +4296,20 @@
                   Error: new Error()
                 };
           }
-          if (fmtty.TAG) {
-            throw {
-                  RE_EXN_ID: Type_mismatch,
-                  Error: new Error()
-                };
+          if (fmtty.TAG === /* Char_ty */0) {
+            var match = type_format_gen(fmt._0, fmtty._0);
+            return /* Fmt_fmtty_EBB */{
+                    _0: {
+                      TAG: /* Char */0,
+                      _0: match._0
+                    },
+                    _1: match._1
+                  };
           }
-          var match = type_format_gen(fmt._0, fmtty._0);
-          return /* Fmt_fmtty_EBB */{
-                  _0: {
-                    TAG: /* Char */0,
-                    _0: match._0
-                  },
-                  _1: match._1
-                };
+          throw {
+                RE_EXN_ID: Type_mismatch,
+                Error: new Error()
+              };
       case /* Caml_char */1 :
           if (typeof fmtty === "number") {
             throw {
@@ -4274,20 +4317,20 @@
                   Error: new Error()
                 };
           }
-          if (fmtty.TAG) {
-            throw {
-                  RE_EXN_ID: Type_mismatch,
-                  Error: new Error()
-                };
+          if (fmtty.TAG === /* Char_ty */0) {
+            var match$1 = type_format_gen(fmt._0, fmtty._0);
+            return /* Fmt_fmtty_EBB */{
+                    _0: {
+                      TAG: /* Caml_char */1,
+                      _0: match$1._0
+                    },
+                    _1: match$1._1
+                  };
           }
-          var match$1 = type_format_gen(fmt._0, fmtty._0);
-          return /* Fmt_fmtty_EBB */{
-                  _0: {
-                    TAG: /* Caml_char */1,
-                    _0: match$1._0
-                  },
-                  _1: match$1._1
-                };
+          throw {
+                RE_EXN_ID: Type_mismatch,
+                Error: new Error()
+              };
       case /* String */2 :
           var match$2 = type_padding(fmt._0, fmtty);
           var fmtty_rest = match$2._1;
@@ -4527,11 +4570,11 @@
                 };
           }
           if (fmtty.TAG === /* Format_arg_ty */8) {
-            var sub_fmtty$prime = fmtty._0;
+            var sub_fmtty$p = fmtty._0;
             if (caml_notequal(/* Fmtty_EBB */{
                     _0: fmt._1
                   }, /* Fmtty_EBB */{
-                    _0: sub_fmtty$prime
+                    _0: sub_fmtty$p
                   })) {
               throw {
                     RE_EXN_ID: Type_mismatch,
@@ -4543,7 +4586,7 @@
                     _0: {
                       TAG: /* Format_arg */13,
                       _0: fmt._0,
-                      _1: sub_fmtty$prime,
+                      _1: sub_fmtty$p,
                       _2: match$21._0
                     },
                     _1: match$21._1
@@ -4642,7 +4685,7 @@
       case /* Formatting_gen */18 :
           var formatting_gen = fmt._0;
           var fmt0 = fmt._1;
-          if (formatting_gen.TAG) {
+          if (formatting_gen.TAG === /* Open_tag */0) {
             var match$26 = formatting_gen._0;
             var match$27 = type_format_gen(match$26._0, fmtty);
             var match$28 = type_format_gen(fmt0, match$27._1);
@@ -4650,7 +4693,7 @@
                     _0: {
                       TAG: /* Formatting_gen */18,
                       _0: {
-                        TAG: /* Open_box */1,
+                        TAG: /* Open_tag */0,
                         _0: /* Format */{
                           _0: match$27._0,
                           _1: match$26._1
@@ -4668,7 +4711,7 @@
                   _0: {
                     TAG: /* Formatting_gen */18,
                     _0: {
-                      TAG: /* Open_tag */0,
+                      TAG: /* Open_box */1,
                       _0: /* Format */{
                         _0: match$30._0,
                         _1: match$29._1
@@ -4843,7 +4886,7 @@
     if (width$1 <= len) {
       return str;
     }
-    var res = make(width$1, padty$1 === /* Zeros */2 ? /* "0" */48 : /* " " */32);
+    var res = make(width$1, padty$1 === /* Zeros */2 ? /* '0' */48 : /* ' ' */32);
     switch (padty$1) {
       case /* Left */0 :
           blit$1(str, 0, res, 0, len);
@@ -4852,11 +4895,11 @@
           blit$1(str, 0, res, width$1 - len | 0, len);
           break;
       case /* Zeros */2 :
-          if (len > 0 && (get(str, 0) === /* "+" */43 || get(str, 0) === /* "-" */45 || get(str, 0) === /* " " */32)) {
-            res[0] = get(str, 0);
+          if (len > 0 && (get$1(str, 0) === /* '+' */43 || get$1(str, 0) === /* '-' */45 || get$1(str, 0) === /* ' ' */32)) {
+            set$1(res, 0, get$1(str, 0));
             blit$1(str, 1, res, (width$1 - len | 0) + 1 | 0, len - 1 | 0);
-          } else if (len > 1 && get(str, 0) === /* "0" */48 && (get(str, 1) === /* "x" */120 || get(str, 1) === /* "X" */88)) {
-            res[1] = get(str, 1);
+          } else if (len > 1 && get$1(str, 0) === /* '0' */48 && (get$1(str, 1) === /* 'x' */120 || get$1(str, 1) === /* 'X' */88)) {
+            set$1(res, 1, get$1(str, 1));
             blit$1(str, 2, res, (width$1 - len | 0) + 2 | 0, len - 2 | 0);
           } else {
             blit$1(str, 0, res, width$1 - len | 0, len);
@@ -4870,7 +4913,7 @@
   function fix_int_precision(prec, str) {
     var prec$1 = abs(prec);
     var len = str.length;
-    var c = get(str, 0);
+    var c = get$1(str, 0);
     var exit = 0;
     if (c >= 58) {
       if (c >= 71) {
@@ -4888,33 +4931,33 @@
       if (c < 43) {
         return str;
       }
-      switch (c - 43 | 0) {
-        case 0 :
-        case 2 :
+      switch (c) {
+        case 43 :
+        case 45 :
             exit = 1;
             break;
-        case 1 :
-        case 3 :
-        case 4 :
+        case 44 :
+        case 46 :
+        case 47 :
             return str;
-        case 5 :
-            if ((prec$1 + 2 | 0) > len && len > 1 && (get(str, 1) === /* "x" */120 || get(str, 1) === /* "X" */88)) {
-              var res = make(prec$1 + 2 | 0, /* "0" */48);
-              res[1] = get(str, 1);
+        case 48 :
+            if ((prec$1 + 2 | 0) > len && len > 1 && (get$1(str, 1) === /* 'x' */120 || get$1(str, 1) === /* 'X' */88)) {
+              var res = make(prec$1 + 2 | 0, /* '0' */48);
+              set$1(res, 1, get$1(str, 1));
               blit$1(str, 2, res, (prec$1 - len | 0) + 4 | 0, len - 2 | 0);
               return bytes_to_string(res);
             }
             exit = 2;
             break;
-        case 6 :
-        case 7 :
-        case 8 :
-        case 9 :
-        case 10 :
-        case 11 :
-        case 12 :
-        case 13 :
-        case 14 :
+        case 49 :
+        case 50 :
+        case 51 :
+        case 52 :
+        case 53 :
+        case 54 :
+        case 55 :
+        case 56 :
+        case 57 :
             exit = 2;
             break;
         
@@ -4927,15 +4970,15 @@
           if ((prec$1 + 1 | 0) <= len) {
             return str;
           }
-          var res$1 = make(prec$1 + 1 | 0, /* "0" */48);
-          res$1[0] = c;
+          var res$1 = make(prec$1 + 1 | 0, /* '0' */48);
+          set$1(res$1, 0, c);
           blit$1(str, 1, res$1, (prec$1 - len | 0) + 2 | 0, len - 1 | 0);
           return bytes_to_string(res$1);
       case 2 :
           if (prec$1 <= len) {
             return str;
           }
-          var res$2 = make(prec$1, /* "0" */48);
+          var res$2 = make(prec$1, /* '0' */48);
           blit$1(str, 0, res$2, prec$1 - len | 0, len);
           return bytes_to_string(res$2);
       
@@ -4945,7 +4988,7 @@
   function string_to_caml_string(str) {
     var str$1 = escaped$2(str);
     var l = str$1.length;
-    var res = make(l + 2 | 0, /* "\"" */34);
+    var res = make(l + 2 | 0, /* '"' */34);
     caml_blit_string(str$1, 0, res, 1, l);
     return bytes_to_string(res);
   }
@@ -5088,9 +5131,9 @@
       ind: 0,
       bytes: caml_create_bytes(16)
     };
-    buffer_add_char(buf, /* "%" */37);
+    buffer_add_char(buf, /* '%' */37);
     bprint_fconv_flag(buf, fconv);
-    buffer_add_char(buf, /* "." */46);
+    buffer_add_char(buf, /* '.' */46);
     buffer_add_string(buf, String(prec$1));
     buffer_add_char(buf, symb);
     return buffer_contents(buf);
@@ -5116,22 +5159,22 @@
     if (fconv >= 16) {
       var sign;
       if (fconv >= 17) {
-        switch (fconv - 17 | 0) {
-          case /* Float_sf */2 :
-              sign = /* "-" */45;
+        switch (fconv) {
+          case /* Float_H */19 :
+              sign = /* '-' */45;
               break;
-          case /* Float_f */0 :
-          case /* Float_e */3 :
-              sign = /* "+" */43;
+          case /* Float_ph */17 :
+          case /* Float_pH */20 :
+              sign = /* '+' */43;
               break;
-          case /* Float_pf */1 :
-          case /* Float_pe */4 :
-              sign = /* " " */32;
+          case /* Float_sh */18 :
+          case /* Float_sH */21 :
+              sign = /* ' ' */32;
               break;
           
         }
       } else {
-        sign = /* "-" */45;
+        sign = /* '-' */45;
       }
       var str = caml_hexstring_of_float(x, prec, sign);
       if (fconv >= 19) {
@@ -5151,16 +5194,15 @@
         if (i === len) {
           return false;
         }
-        var match = get(str$1, i);
-        var switcher = match - 46 | 0;
-        if (switcher > 23 || switcher < 0) {
-          if (switcher === 55) {
+        var match = get$1(str$1, i);
+        if (match > 69 || match < 46) {
+          if (match === 101) {
             return true;
           }
           _i = i + 1 | 0;
           continue ;
         }
-        if (switcher > 22 || switcher < 1) {
+        if (match > 68 || match < 47) {
           return true;
         }
         _i = i + 1 | 0;
@@ -5185,7 +5227,7 @@
   function format_caml_char(c) {
     var str = escaped(c);
     var l = str.length;
-    var res = make(l + 2 | 0, /* "'" */39);
+    var res = make(l + 2 | 0, /* '\'' */39);
     caml_blit_string(str, 0, res, 1, l);
     return bytes_to_string(res);
   }
@@ -5290,12 +5332,13 @@
               }
               }(k,acc,fmt$1,fconv,p));
             }
-            if (pad.TAG) {
+            if (pad.TAG === /* Lit_padding */0) {
+              var w = pad._1;
               var padty = pad._0;
               if (typeof prec === "number") {
                 if (prec !== 0) {
-                  return (function(k,acc,fmt$1,fconv,padty){
-                  return function (w, p, x) {
+                  return (function(k,acc,fmt$1,fconv,padty,w){
+                  return function (p, x) {
                     var str = fix_padding(padty, w, convert_float(fconv, p, x));
                     return make_printf(k, o, {
                                 TAG: /* Acc_data_string */4,
@@ -5303,24 +5346,24 @@
                                 _1: str
                               }, fmt$1);
                   }
-                  }(k,acc,fmt$1,fconv,padty));
+                  }(k,acc,fmt$1,fconv,padty,w));
                 } else {
-                  return (function(k,acc,fmt$1,fconv,padty){
-                  return function (w, x) {
+                  return (function(k,acc,fmt$1,fconv,padty,w){
+                  return function (x) {
                     var str = convert_float(fconv, -6, x);
-                    var str$prime = fix_padding(padty, w, str);
+                    var str$p = fix_padding(padty, w, str);
                     return make_printf(k, o, {
                                 TAG: /* Acc_data_string */4,
                                 _0: acc,
-                                _1: str$prime
+                                _1: str$p
                               }, fmt$1);
                   }
-                  }(k,acc,fmt$1,fconv,padty));
+                  }(k,acc,fmt$1,fconv,padty,w));
                 }
               }
               var p$1 = prec._0;
-              return (function(k,acc,fmt$1,fconv,padty,p$1){
-              return function (w, x) {
+              return (function(k,acc,fmt$1,fconv,padty,w,p$1){
+              return function (x) {
                 var str = fix_padding(padty, w, convert_float(fconv, p$1, x));
                 return make_printf(k, o, {
                             TAG: /* Acc_data_string */4,
@@ -5328,14 +5371,13 @@
                             _1: str
                           }, fmt$1);
               }
-              }(k,acc,fmt$1,fconv,padty,p$1));
+              }(k,acc,fmt$1,fconv,padty,w,p$1));
             }
-            var w = pad._1;
             var padty$1 = pad._0;
             if (typeof prec === "number") {
               if (prec !== 0) {
-                return (function(k,acc,fmt$1,fconv,padty$1,w){
-                return function (p, x) {
+                return (function(k,acc,fmt$1,fconv,padty$1){
+                return function (w, p, x) {
                   var str = fix_padding(padty$1, w, convert_float(fconv, p, x));
                   return make_printf(k, o, {
                               TAG: /* Acc_data_string */4,
@@ -5343,24 +5385,24 @@
                               _1: str
                             }, fmt$1);
                 }
-                }(k,acc,fmt$1,fconv,padty$1,w));
+                }(k,acc,fmt$1,fconv,padty$1));
               } else {
-                return (function(k,acc,fmt$1,fconv,padty$1,w){
-                return function (x) {
+                return (function(k,acc,fmt$1,fconv,padty$1){
+                return function (w, x) {
                   var str = convert_float(fconv, -6, x);
-                  var str$prime = fix_padding(padty$1, w, str);
+                  var str$p = fix_padding(padty$1, w, str);
                   return make_printf(k, o, {
                               TAG: /* Acc_data_string */4,
                               _0: acc,
-                              _1: str$prime
+                              _1: str$p
                             }, fmt$1);
                 }
-                }(k,acc,fmt$1,fconv,padty$1,w));
+                }(k,acc,fmt$1,fconv,padty$1));
               }
             }
             var p$2 = prec._0;
-            return (function(k,acc,fmt$1,fconv,padty$1,w,p$2){
-            return function (x) {
+            return (function(k,acc,fmt$1,fconv,padty$1,p$2){
+            return function (w, x) {
               var str = fix_padding(padty$1, w, convert_float(fconv, p$2, x));
               return make_printf(k, o, {
                           TAG: /* Acc_data_string */4,
@@ -5368,7 +5410,7 @@
                           _1: str
                         }, fmt$1);
             }
-            }(k,acc,fmt$1,fconv,padty$1,w,p$2));
+            }(k,acc,fmt$1,fconv,padty$1,p$2));
         case /* Bool */9 :
             return make_padding(k, o, acc, fmt._1, fmt._0, string_of_bool);
         case /* Flush */10 :
@@ -5448,15 +5490,15 @@
             continue ;
         case /* Formatting_gen */18 :
             var match = fmt._0;
-            if (match.TAG) {
+            if (match.TAG === /* Open_tag */0) {
               var rest$6 = fmt._1;
-              var k$prime = (function(k,acc,rest$6){
-              return function k$prime(koc, kacc) {
+              var k$p = (function(k,acc,rest$6){
+              return function k$p(koc, kacc) {
                 return make_printf(k, koc, {
                             TAG: /* Acc_formatting_gen */1,
                             _0: acc,
                             _1: {
-                              TAG: /* Acc_open_box */1,
+                              TAG: /* Acc_open_tag */0,
                               _0: kacc
                             }
                           }, rest$6);
@@ -5464,17 +5506,17 @@
               }(k,acc,rest$6));
               _fmt = match._0._0;
               _acc = /* End_of_acc */0;
-              _k = k$prime;
+              _k = k$p;
               continue ;
             }
             var rest$7 = fmt._1;
-            var k$prime$1 = (function(k,acc,rest$7){
-            return function k$prime$1(koc, kacc) {
+            var k$p$1 = (function(k,acc,rest$7){
+            return function k$p$1(koc, kacc) {
               return make_printf(k, koc, {
                           TAG: /* Acc_formatting_gen */1,
                           _0: acc,
                           _1: {
-                            TAG: /* Acc_open_tag */0,
+                            TAG: /* Acc_open_box */1,
                             _0: kacc
                           }
                         }, rest$7);
@@ -5482,7 +5524,7 @@
             }(k,acc,rest$7));
             _fmt = match._0._0;
             _acc = /* End_of_acc */0;
-            _k = k$prime$1;
+            _k = k$p$1;
             continue ;
         case /* Reader */19 :
             throw {
@@ -5676,10 +5718,11 @@
         return make_printf(k, o, new_acc, fmt);
       };
     }
-    if (pad.TAG) {
+    if (pad.TAG === /* Lit_padding */0) {
+      var width = pad._1;
       var padty = pad._0;
-      return function (w, x) {
-        var new_acc_1 = fix_padding(padty, w, _1(trans, x));
+      return function (x) {
+        var new_acc_1 = fix_padding(padty, width, _1(trans, x));
         var new_acc = {
           TAG: /* Acc_data_string */4,
           _0: acc,
@@ -5688,10 +5731,9 @@
         return make_printf(k, o, new_acc, fmt);
       };
     }
-    var width = pad._1;
     var padty$1 = pad._0;
-    return function (x) {
-      var new_acc_1 = fix_padding(padty$1, width, _1(trans, x));
+    return function (w, x) {
+      var new_acc_1 = fix_padding(padty$1, w, _1(trans, x));
       var new_acc = {
         TAG: /* Acc_data_string */4,
         _0: acc,
@@ -5734,11 +5776,12 @@
                   }, fmt);
       };
     }
-    if (pad.TAG) {
+    if (pad.TAG === /* Lit_padding */0) {
+      var w = pad._1;
       var padty = pad._0;
       if (typeof prec === "number") {
         if (prec !== 0) {
-          return function (w, p, x) {
+          return function (p, x) {
             var str = fix_padding(padty, w, fix_int_precision(p, _2(trans, iconv, x)));
             return make_printf(k, o, {
                         TAG: /* Acc_data_string */4,
@@ -5747,7 +5790,7 @@
                       }, fmt);
           };
         } else {
-          return function (w, x) {
+          return function (x) {
             var str = fix_padding(padty, w, _2(trans, iconv, x));
             return make_printf(k, o, {
                         TAG: /* Acc_data_string */4,
@@ -5758,7 +5801,7 @@
         }
       }
       var p$1 = prec._0;
-      return function (w, x) {
+      return function (x) {
         var str = fix_padding(padty, w, fix_int_precision(p$1, _2(trans, iconv, x)));
         return make_printf(k, o, {
                     TAG: /* Acc_data_string */4,
@@ -5767,11 +5810,10 @@
                   }, fmt);
       };
     }
-    var w = pad._1;
     var padty$1 = pad._0;
     if (typeof prec === "number") {
       if (prec !== 0) {
-        return function (p, x) {
+        return function (w, p, x) {
           var str = fix_padding(padty$1, w, fix_int_precision(p, _2(trans, iconv, x)));
           return make_printf(k, o, {
                       TAG: /* Acc_data_string */4,
@@ -5780,7 +5822,7 @@
                     }, fmt);
         };
       } else {
-        return function (x) {
+        return function (w, x) {
           var str = fix_padding(padty$1, w, _2(trans, iconv, x));
           return make_printf(k, o, {
                       TAG: /* Acc_data_string */4,
@@ -5791,7 +5833,7 @@
       }
     }
     var p$2 = prec._0;
-    return function (x) {
+    return function (w, x) {
       var str = fix_padding(padty$1, w, fix_int_precision(p$2, _2(trans, iconv, x)));
       return make_printf(k, o, {
                   TAG: /* Acc_data_string */4,
@@ -5828,17 +5870,17 @@
             strput_acc(b, acc._0);
             return add_string(b, s);
         case /* Acc_formatting_gen */1 :
-            var acc$prime = acc._1;
+            var acc$p = acc._1;
             var p = acc._0;
-            if (acc$prime.TAG) {
+            if (acc$p.TAG === /* Acc_open_tag */0) {
               strput_acc(b, p);
-              add_string(b, "@[");
-              _acc = acc$prime._0;
+              add_string(b, "@{");
+              _acc = acc$p._0;
               continue ;
             }
             strput_acc(b, p);
-            add_string(b, "@{");
-            _acc = acc$prime._0;
+            add_string(b, "@[");
+            _acc = acc$p._0;
             continue ;
         case /* Acc_string_literal */2 :
         case /* Acc_data_string */4 :
@@ -5876,12 +5918,12 @@
   /* No side effect */
 
   function ksprintf(k, param) {
-    var k$prime = function (param, acc) {
+    var k$p = function (param, acc) {
       var buf = create$1(64);
       strput_acc(buf, acc);
       return _1(k, contents(buf));
     };
-    return make_printf(k$prime, undefined, /* End_of_acc */0, param._0);
+    return make_printf(k$p, undefined, /* End_of_acc */0, param._0);
   }
 
   function sprintf(fmt) {
@@ -6767,10 +6809,10 @@
 
   function isPlayer(x) {
     var match = x.objTyp;
-    if (match.TAG) {
-      return false;
-    } else {
+    if (match.TAG === /* Player */0) {
       return true;
+    } else {
+      return false;
     }
   }
 
@@ -7112,11 +7154,7 @@
                   };
           }
       case /* Block */3 :
-          var t$1 = t._0;
-          if (typeof t$1 !== "number") {
-            return /* [] */0;
-          }
-          if (t$1 !== 1) {
+          if (t._0 !== 1) {
             return /* [] */0;
           }
           var p1 = make$2([
@@ -7216,9 +7254,6 @@
     vpt.py = newY;
     
   }
-  /* No side effect */
-
-  var Bottom = create("Array.Bottom");
   /* No side effect */
 
   function cmn(q, a, b, x, s, t) {
@@ -7394,12 +7429,12 @@
       return string(accu + String(x));
     };
     var extract = function (d) {
-      return ((get(d, 0) + (get(d, 1) << 8) | 0) + (get(d, 2) << 16) | 0) + (get(d, 3) << 24) | 0;
+      return ((get$1(d, 0) + (get$1(d, 1) << 8) | 0) + (get$1(d, 2) << 16) | 0) + (get$1(d, 3) << 24) | 0;
     };
     var seed$1 = seed.length === 0 ? [0] : seed;
     var l = seed$1.length;
     for(var i = 0; i <= 54; ++i){
-      caml_array_set(s.st, i, i);
+      set(s.st, i, i);
     }
     var accu = "x";
     for(var i$1 = 0 ,i_finish = 54 + (
@@ -7407,8 +7442,8 @@
       ) | 0; i$1 <= i_finish; ++i$1){
       var j = i$1 % 55;
       var k = i$1 % l;
-      accu = combine(accu, caml_array_get(seed$1, k));
-      caml_array_set(s.st, j, (caml_array_get(s.st, j) ^ extract(accu)) & 1073741823);
+      accu = combine(accu, get(seed$1, k));
+      set(s.st, j, (get(s.st, j) ^ extract(accu)) & 1073741823);
     }
     s.idx = 0;
     
@@ -7416,10 +7451,10 @@
 
   function bits(s) {
     s.idx = (s.idx + 1 | 0) % 55;
-    var curval = caml_array_get(s.st, s.idx);
-    var newval = caml_array_get(s.st, (s.idx + 24 | 0) % 55) + (curval ^ (curval >>> 25) & 31) | 0;
+    var curval = get(s.st, s.idx);
+    var newval = get(s.st, (s.idx + 24 | 0) % 55) + (curval ^ (curval >>> 25) & 31) | 0;
     var newval30 = newval & 1073741823;
-    caml_array_set(s.st, s.idx, newval30);
+    set(s.st, s.idx, newval30);
     return newval30;
   }
 
@@ -8050,8 +8085,7 @@
             case /* Block */3 :
                 var t$1 = t._0;
                 if (dir !== 0) {
-                  var exit = 0;
-                  if (typeof t$1 === "number" && t$1 === 4) {
+                  if (t$1 === 4) {
                     state.status = /* Finished */{
                       levelResult: /* Won */0,
                       finishTime: performance.now()
@@ -8060,68 +8094,61 @@
                             undefined,
                             undefined
                           ];
+                  } else if (dir !== 1) {
+                    collideBlock(dir, obj1);
+                    return [
+                            undefined,
+                            undefined
+                          ];
+                  } else {
+                    state.multiplier = 1;
+                    collideBlock(dir, obj1);
+                    return [
+                            undefined,
+                            undefined
+                          ];
                   }
-                  exit = 2;
-                  if (exit === 2) {
-                    if (dir !== 1) {
-                      collideBlock(dir, obj1);
-                      return [
-                              undefined,
-                              undefined
-                            ];
-                    } else {
-                      state.multiplier = 1;
-                      collideBlock(dir, obj1);
-                      return [
-                              undefined,
-                              undefined
-                            ];
-                    }
-                  }
-                  
-                } else {
-                  if (typeof t$1 === "number") {
-                    if (t$1 !== 1) {
-                      if (t$1 !== 4) {
-                        collideBlock(dir, obj1);
-                        return [
-                                undefined,
-                                undefined
-                              ];
-                      } else {
-                        state.status = /* Finished */{
-                          levelResult: /* Won */0,
-                          finishTime: performance.now()
-                        };
-                        return [
-                                undefined,
-                                undefined
-                              ];
-                      }
-                    } else if (t1._0 === /* BigM */0) {
-                      collideBlock(dir, obj1);
-                      decHealth(obj2);
-                      return [
-                              undefined,
-                              undefined
-                            ];
-                    } else {
-                      collideBlock(dir, obj1);
-                      return [
-                              undefined,
-                              undefined
-                            ];
-                    }
-                  }
-                  var updatedBlock = evolveBlock(obj2);
-                  var spawnedItem = spawnAbove(obj1.dir, obj2, t$1._0);
-                  collideBlock(dir, obj1);
-                  return [
-                          spawnedItem,
-                          updatedBlock
-                        ];
                 }
-                break;
+                if (typeof t$1 === "number") {
+                  if (t$1 !== 1) {
+                    if (t$1 !== 4) {
+                      collideBlock(dir, obj1);
+                      return [
+                              undefined,
+                              undefined
+                            ];
+                    } else {
+                      state.status = /* Finished */{
+                        levelResult: /* Won */0,
+                        finishTime: performance.now()
+                      };
+                      return [
+                              undefined,
+                              undefined
+                            ];
+                    }
+                  } else if (t1._0 === /* BigM */0) {
+                    collideBlock(dir, obj1);
+                    decHealth(obj2);
+                    return [
+                            undefined,
+                            undefined
+                          ];
+                  } else {
+                    collideBlock(dir, obj1);
+                    return [
+                            undefined,
+                            undefined
+                          ];
+                  }
+                }
+                var updatedBlock = evolveBlock(obj2);
+                var spawnedItem = spawnAbove(obj1.dir, obj2, t$1._0);
+                collideBlock(dir, obj1);
+                return [
+                        spawnedItem,
+                        updatedBlock
+                      ];
             
           }
           break;
@@ -8339,24 +8366,24 @@
 
   function updateObject(obj, state, objects, level) {
     var match = obj.objTyp;
-    if (match.TAG) {
+    if (match.TAG === /* Player */0) {
+      var n = match._1;
+      var keys = translateKeys(n);
+      obj.crouch = false;
+      updatePlayer(obj, n, keys);
       var evolved = updateObject0(obj, state, objects);
-      if (!obj.kill) {
-        collidObjs.contents = {
-          hd: obj,
-          tl: $at(evolved, collidObjs.contents)
-        };
-      }
-      var newParts = obj.kill ? kill(obj) : /* [] */0;
-      particles.contents = $at(newParts, particles.contents);
+      collidObjs.contents = $at(evolved, collidObjs.contents);
       return ;
     }
-    var n = match._1;
-    var keys = translateKeys(n);
-    obj.crouch = false;
-    updatePlayer(obj, n, keys);
     var evolved$1 = updateObject0(obj, state, objects);
-    collidObjs.contents = $at(evolved$1, collidObjs.contents);
+    if (!obj.kill) {
+      collidObjs.contents = {
+        hd: obj,
+        tl: $at(evolved$1, collidObjs.contents)
+      };
+    }
+    var newParts = obj.kill ? kill(obj) : /* [] */0;
+    particles.contents = $at(newParts, particles.contents);
     
   }
 

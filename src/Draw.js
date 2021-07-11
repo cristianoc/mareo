@@ -1,10 +1,10 @@
 
 
 import * as Load from "./Load.js";
-import * as Curry from "bs-platform/lib/es6/curry.js";
+import * as Curry from "rescript/lib/es6/curry.js";
 import * as Config from "./Config.js";
-import * as Printf from "bs-platform/lib/es6/printf.js";
-import * as Belt_List from "bs-platform/lib/es6/belt_List.js";
+import * as Printf from "rescript/lib/es6/printf.js";
+import * as Belt_List from "rescript/lib/es6/belt_List.js";
 
 function renderBbox(sprite, posx, posy) {
   var match = sprite.params.bboxOffset;

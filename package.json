@@ -5,9 +5,9 @@
   "description": "Fork of https://github.com/mahsu/MariOCaml, compiled using BuckleScript instead of js_of_ocaml",
   "main": "index.js",
   "scripts": {
-    "start": "bsb -w",
-    "build": "bsb",
-    "clean": "bsb -clean-world",
+    "start": "rescript build -w",
+    "build": "rescript",
+    "clean": "rescript clean",
     "test": "echo \"Error: no test specified\" && exit 1",
     "rollup": "rollup -c rollupconfig.js -w"
   },
@@ -23,9 +23,9 @@
   },
   "homepage": "https://github.com/reasonml-community/Mareo#readme",
   "devDependencies": {
-    "bs-platform": "8.1.1",
     "reanalyze": "^2.6.0",
-    "reason-react": "^0.9.1",
+    "@rescript/react": "^0.10.3",
+    "rescript": "^9.1.4",
     "rollup": "^2.13.1",
     "rollup-plugin-node-resolve": "^5.2.0"
   }

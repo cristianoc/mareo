@@ -1,6 +1,6 @@
 
 
-import * as Caml_primitive from "bs-platform/lib/es6/caml_primitive.js";
+import * as Caml from "rescript/lib/es6/caml.js";
 
 function make(param, param$1) {
   return {
@@ -19,7 +19,7 @@ function make(param, param$1) {
 
 function calcViewportPoint(cc, vc, mc) {
   var vc_half = vc / 2;
-  return Caml_primitive.caml_float_min(Caml_primitive.caml_float_max(cc - vc_half, 0), Caml_primitive.caml_float_min(mc - vc, Math.abs(cc - vc_half)));
+  return Caml.caml_float_min(Caml.caml_float_max(cc - vc_half, 0), Caml.caml_float_min(mc - vc, Math.abs(cc - vc_half)));
 }
 
 function inViewport(v, px, py) {

@@ -2,7 +2,7 @@
 
 import * as Keys from "./Keys.js";
 import * as Config from "./Config.js";
-import * as CamlinternalLazy from "bs-platform/lib/es6/camlinternalLazy.js";
+import * as CamlinternalLazy from "rescript/lib/es6/camlinternalLazy.js";
 
 var canvasAndContext = {
   LAZY_DONE: false,

@@ -2,9 +2,9 @@
 
 import * as Config from "./Config.js";
 import * as $$Object from "./Object.js";
-import * as Random from "bs-platform/lib/es6/random.js";
+import * as Random from "rescript/lib/es6/random.js";
 import * as Sprite from "./Sprite.js";
-import * as Belt_List from "bs-platform/lib/es6/belt_List.js";
+import * as Belt_List from "rescript/lib/es6/belt_List.js";
 
 function memPos(_objs, x, y) {
   while(true) {

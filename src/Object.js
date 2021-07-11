@@ -1,11 +1,11 @@
 
 
+import * as Caml from "rescript/lib/es6/caml.js";
 import * as Config from "./Config.js";
 import * as Sprite from "./Sprite.js";
 import * as Particle from "./Particle.js";
-import * as Belt_List from "bs-platform/lib/es6/belt_List.js";
-import * as Pervasives from "bs-platform/lib/es6/pervasives.js";
-import * as Caml_primitive from "bs-platform/lib/es6/caml_primitive.js";
+import * as Belt_List from "rescript/lib/es6/belt_List.js";
+import * as Pervasives from "rescript/lib/es6/pervasives.js";
 
 var idCounter = {
   contents: Pervasives.min_int
@@ -96,10 +96,10 @@ function make(hasGravityOpt, speedOpt, dirOpt, objTyp, spriteParams, px, py) {
 
 function isPlayer(x) {
   var match = x.objTyp;
-  if (match.TAG) {
-    return false;
-  } else {
+  if (match.TAG === /* Player */0) {
     return true;
+  } else {
+    return false;
   }
 }
 
@@ -119,7 +119,7 @@ function equals(col1, col2) {
 function jump(player) {
   player.jumping = true;
   player.grounded = false;
-  player.vy = Caml_primitive.caml_float_max(player.vy - (Config.playerJump + Math.abs(player.vx) * 0.25), Config.playerMaxJump);
+  player.vy = Caml.caml_float_max(player.vy - (Config.playerJump + Math.abs(player.vx) * 0.25), Config.playerMaxJump);
   
 }
 
@@ -212,7 +212,7 @@ function updateVel(obj) {
     obj.vy = 0;
     return ;
   } else if (obj.hasGravity) {
-    obj.vy = Caml_primitive.caml_float_min(obj.vy + Config.gravity + Math.abs(obj.vy) * 0.01, Config.maxYVel);
+    obj.vy = Caml.caml_float_min(obj.vy + Config.gravity + Math.abs(obj.vy) * 0.01, Config.maxYVel);
     return ;
   } else {
     return ;
@@ -452,11 +452,7 @@ function kill(obj) {
                 };
         }
     case /* Block */3 :
-        var t$1 = t._0;
-        if (typeof t$1 !== "number") {
-          return /* [] */0;
-        }
-        if (t$1 !== 1) {
+        if (t._0 !== 1) {
           return /* [] */0;
         }
         var p1 = Particle.make([

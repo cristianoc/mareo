@@ -1,7 +1,7 @@
 
 
-import * as Caml_obj from "bs-platform/lib/es6/caml_obj.js";
-import * as Caml_int32 from "bs-platform/lib/es6/caml_int32.js";
+import * as Caml_obj from "rescript/lib/es6/caml_obj.js";
+import * as Caml_int32 from "rescript/lib/es6/caml_int32.js";
 
 function setupSprite(bboxOffsetOpt, bboxSizeOpt, frameSizeOpt, maxTicksOpt, maxFramesOpt, srcOffset, imgSrc) {
   var bboxOffset = bboxOffsetOpt !== undefined ? bboxOffsetOpt : [

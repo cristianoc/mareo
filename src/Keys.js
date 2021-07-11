@@ -1,6 +1,6 @@
 
 
-import * as Belt_List from "bs-platform/lib/es6/belt_List.js";
+import * as Belt_List from "rescript/lib/es6/belt_List.js";
 
 var pressedKeys = {
   left1: false,
@@ -56,23 +56,23 @@ function keydown(evt) {
         
     }
   } else if (match >= 32) {
-    switch (match - 32 | 0) {
-      case 1 :
-      case 2 :
-      case 3 :
-      case 4 :
+    switch (match) {
+      case 33 :
+      case 34 :
+      case 35 :
+      case 36 :
           break;
-      case 5 :
+      case 37 :
           pressedKeys.left1 = true;
           break;
-      case 0 :
-      case 6 :
+      case 32 :
+      case 38 :
           pressedKeys.up1 = true;
           break;
-      case 7 :
+      case 39 :
           pressedKeys.right1 = true;
           break;
-      case 8 :
+      case 40 :
           pressedKeys.down1 = true;
           break;
       
@@ -104,23 +104,23 @@ function keyup(evt) {
       pressedKeys.left2 = false;
     }
   } else if (match >= 32) {
-    switch (match - 32 | 0) {
-      case 1 :
-      case 2 :
-      case 3 :
-      case 4 :
+    switch (match) {
+      case 33 :
+      case 34 :
+      case 35 :
+      case 36 :
           break;
-      case 5 :
+      case 37 :
           pressedKeys.left1 = false;
           break;
-      case 0 :
-      case 6 :
+      case 32 :
+      case 38 :
           pressedKeys.up1 = false;
           break;
-      case 7 :
+      case 39 :
           pressedKeys.right1 = false;
           break;
-      case 8 :
+      case 40 :
           pressedKeys.down1 = false;
           break;
       

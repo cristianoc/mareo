@@ -3,7 +3,7 @@
 import * as Config from "./Config.js";
 import * as Director from "./Director.js";
 import * as Generator from "./Generator.js";
-import * as Belt_Array from "bs-platform/lib/es6/belt_Array.js";
+import * as Belt_Array from "rescript/lib/es6/belt_Array.js";
 
 function preload(param) {
   var loadCount = {
