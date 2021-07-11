@@ -43,7 +43,7 @@ let scoreString = score => {
   let s = string_of_int(score)
   let slen = s->String.length
   if slen <= blen {
-    String.sub(b, blen - slen, slen)
+    String.sub(b, 0, blen - slen) ++ s
   } else {
     s
   }

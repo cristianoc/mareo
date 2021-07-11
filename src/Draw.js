@@ -42,7 +42,7 @@ function scoreString(score) {
   var s = String(score);
   var slen = s.length;
   if (slen <= blen) {
-    return $$String.sub(b, blen - slen | 0, slen);
+    return $$String.sub(b, 0, blen - slen | 0) + s;
   } else {
     return s;
   }
