@@ -37,14 +37,25 @@ let clearCanvas = () => {
   context.clearRect(. 0., 0., cwidth, cheight)
 }
 
+let scoreString = score => {
+  let b = "0000000"
+  let blen = String.length(b)
+  let s = string_of_int(score)
+  let slen = s->String.length
+  if slen <= blen {
+    String.sub(b, blen - slen, slen)
+  } else {
+    s
+  }
+}
+
 // Displays the text for score and coins.
 let hud = (score, coins) => {
-  let score_string = Printf.sprintf("%07d", score)
   let coin_string = coins->string_of_int
   let context = Load.getContext()
   context.font = "10px 'Press Start 2P'"
   context.fillText(. "Cx" ++ coin_string, 10., 18.)
-  context.fillText(. score_string, 260., 18.)
+  context.fillText(. scoreString(score), 260., 18.)
 }
 
 // Displays the fps.

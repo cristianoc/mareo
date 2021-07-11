@@ -1,9 +1,8 @@
 
 
 import * as Load from "./Load.js";
-import * as Curry from "rescript/lib/es6/curry.js";
 import * as Config from "./Config.js";
-import * as Printf from "rescript/lib/es6/printf.js";
+import * as $$String from "rescript/lib/es6/string.js";
 import * as Belt_List from "rescript/lib/es6/belt_List.js";
 
 function renderBbox(sprite, posx, posy) {
@@ -37,26 +36,24 @@ function clearCanvas(param) {
   return context.clearRect(0, 0, cwidth, cheight);
 }
 
+function scoreString(score) {
+  var b = "0000000";
+  var blen = b.length;
+  var s = String(score);
+  var slen = s.length;
+  if (slen <= blen) {
+    return $$String.sub(b, blen - slen | 0, slen);
+  } else {
+    return s;
+  }
+}
+
 function hud(score, coins) {
-  var score_string = Curry._1(Printf.sprintf(/* Format */{
-            _0: {
-              TAG: /* Int */4,
-              _0: /* Int_d */0,
-              _1: {
-                TAG: /* Lit_padding */0,
-                _0: /* Zeros */2,
-                _1: 7
-              },
-              _2: /* No_precision */0,
-              _3: /* End_of_format */0
-            },
-            _1: "%07d"
-          }), score);
   var coin_string = String(coins);
   var context = Load.getContext(undefined);
   context.font = "10px 'Press Start 2P'";
   context.fillText("Cx" + coin_string, 10, 18);
-  return context.fillText(score_string, 260, 18);
+  return context.fillText(scoreString(score), 260, 18);
 }
 
 function fps(fps_val) {
@@ -121,6 +118,7 @@ export {
   render ,
   drawBgd ,
   clearCanvas ,
+  scoreString ,
   hud ,
   fps ,
   blackScreen ,
