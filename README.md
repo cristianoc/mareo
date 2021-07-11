@@ -3,8 +3,6 @@ Fork of [https://github.com/reasonml-community/Mareo](https://github.com/reasonm
 ## Run It Yourself
 
 ```
-npm install
-npm start # or build
-npm run esbuild
-npx http-server # navigate to ./play
+npm start # build rirectly or with a rescript editor extension
+npx live-server ./play
 ```

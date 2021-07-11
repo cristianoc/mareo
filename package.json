@@ -5,11 +5,10 @@
   "description": "Fork of https://github.com/mahsu/MariOCaml, compiled using BuckleScript instead of js_of_ocaml",
   "main": "index.js",
   "scripts": {
-    "start": "rescript build -w",
+    "start": "esbuild src/Mareo.js --bundle --outfile=play/all.js --watch & live-server ./play",
     "build": "rescript",
     "clean": "rescript clean",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "esbuild": "esbuild src/Mareo.js --bundle --outfile=play/all.js --watch"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -23,10 +22,10 @@
   },
   "homepage": "https://github.com/reasonml-community/Mareo#readme",
   "devDependencies": {
-    "esbuild": "^0.12.15",
-    "reanalyze": "^2.6.0",
     "@rescript/react": "^0.10.3",
-    "rescript": "^9.1.4",
-    "rollup-plugin-node-resolve": "^5.2.0"
+    "esbuild": "^0.12.15",
+    "live-server": "^1.2.1",
+    "reanalyze": "^2.6.0",
+    "rescript": "^9.1.4"
   }
 }
