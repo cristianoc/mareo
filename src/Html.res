@@ -25,26 +25,26 @@ type canvasElement = {
   width: int,
 }
 
-@bs.val external document: Dom.document = "document"
+@val external document: Dom.document = "document"
 
-@bs.val external window: Dom.window = "window"
+@val external window: Dom.window = "window"
 
 type performance = {now: (. unit) => float}
-@bs.val external performance: performance = "performance"
+@val external performance: performance = "performance"
 
 /* external createImg: (_ [@bs.as "img"]) -> document -> imageElement = "createElement" [@@bs.send] */
-@bs.send external createImg: (Dom.document, @bs.as("img") _) => imageElement = "createElement"
+@send external createImg: (Dom.document, @as("img") _) => imageElement = "createElement"
 
-@bs.val external requestAnimationFrame: (float => unit) => unit = "requestAnimationFrame"
+@val external requestAnimationFrame: (float => unit) => unit = "requestAnimationFrame"
 
-@bs.return(null_to_opt) @bs.send
+@return(null_to_opt) @send
 external getElementById: (Dom.document, string) => option<Dom.element> = "getElementById"
 
-@bs.send
+@send
 external addEventListener: (Dom.document, string, Dom.event_like<'a> => bool, bool) => unit =
   "addEventListener"
 
-@bs.send
+@send
 external addEventListenerImg: (imageElement, string, Dom.event_like<'a> => bool, bool) => unit =
   "addEventListener"
 

@@ -379,7 +379,7 @@ let rec updateLoop = (~player1: Object.t, ~player2, ~level, ~objects) => {
   let rec updateHelper = (~objects, ~parts) =>
     switch state.status {
     | Finished({levelResult, finishTime})
-      when Html.performance.now(.) -. finishTime > Config.delayWhenFinished =>
+      if Html.performance.now(.) -. finishTime > Config.delayWhenFinished =>
       let timeToStart = Config.restartAfter -. (Html.performance.now(.) -. finishTime) /. 1000.
       if timeToStart > 0. {
         Draw.levelFinished(

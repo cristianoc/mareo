@@ -206,7 +206,8 @@ let updatePlayer = (player, playerNum, keys) => {
   }
   switch playerTyp {
   | Some(playerTyp) =>
-    let newSprite = Sprite.makePlayer(plSize, playerTyp, player.dir, ~playerNum)->Sprite.makeFromParams
+    let newSprite =
+      Sprite.makePlayer(plSize, playerTyp, player.dir, ~playerNum)->Sprite.makeFromParams
     let newTyp = plSize
     normalizePos(player, player.sprite.params, newSprite.params)
     player.objTyp = Player(newTyp, playerNum)
