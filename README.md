@@ -6,5 +6,5 @@ Fork of [https://github.com/reasonml-community/Mareo](https://github.com/reasonm
 npm install
 npm start # or build
 npm run rollup
-npx http-server # navigate to docs
+npx http-server # navigate to ./play
 ```
