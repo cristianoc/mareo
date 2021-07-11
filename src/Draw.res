@@ -38,7 +38,7 @@ let clearCanvas = () => {
 }
 
 let scoreString = score => {
-  let b = "0000000"
+  let b = "       "
   let blen = String.length(b)
   let s = string_of_int(score)
   let slen = s->String.length
@@ -50,18 +50,18 @@ let scoreString = score => {
 }
 
 // Displays the text for score and coins.
-let hud = (score, coins) => {
+let scoreAndCoins = (score, coins) => {
   let coin_string = coins->string_of_int
   let context = Load.getContext()
   context.font = "10px 'Press Start 2P'"
-  context.fillText(. "Cx" ++ coin_string, 10., 18.)
-  context.fillText(. scoreString(score), 260., 18.)
+  context.fillText(. "Cx" ++ coin_string, 8., 18.)
+  context.fillText(. scoreString(score), 264., 18.)
 }
 
 // Displays the fps.
 let fps = fps_val => {
   let fps_str = int_of_float(fps_val) |> string_of_int
-  Load.getContext().fillText(. fps_str, 80., 18.)
+  Load.getContext().fillText(. fps_str, 169., 18.)
 }
 
 let blackScreen = texts => {

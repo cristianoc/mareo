@@ -417,7 +417,7 @@ let rec updateLoop = (~player1: Object.t, ~player2, ~level, ~objects) => {
       objects->List.forEach(obj => obj->updateObject(~state, ~objects, ~level))
       parts->List.forEach(part => updateParticle(state, part))
       Draw.fps(fps)
-      Draw.hud(state.score, state.coins)
+      Draw.scoreAndCoins(state.score, state.coins)
       Html.requestAnimationFrame(_ =>
         updateHelper(~objects=collidObjs.contents, ~parts=particles.contents)
       )

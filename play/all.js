@@ -774,7 +774,7 @@
     return context.clearRect(0, 0, cwidth, cheight);
   }
   function scoreString(score) {
-    var b = "0000000";
+    var b = "       ";
     var blen = b.length;
     var s = String(score);
     var slen = s.length;
@@ -784,16 +784,16 @@
       return s;
     }
   }
-  function hud(score, coins) {
+  function scoreAndCoins(score, coins) {
     var coin_string = String(coins);
     var context = getContext(void 0);
     context.font = "10px 'Press Start 2P'";
-    context.fillText("Cx" + coin_string, 10, 18);
-    return context.fillText(scoreString(score), 260, 18);
+    context.fillText("Cx" + coin_string, 8, 18);
+    return context.fillText(scoreString(score), 264, 18);
   }
   function fps(fps_val) {
     var fps_str = String(fps_val | 0);
-    return getContext(void 0).fillText(fps_str, 80, 18);
+    return getContext(void 0).fillText(fps_str, 169, 18);
   }
   function blackScreen(texts) {
     var ctx = getContext(void 0);
@@ -3215,7 +3215,7 @@
           return updateParticle(state2, part);
         });
         fps(fps2);
-        hud(state2.score, state2.coins);
+        scoreAndCoins(state2.score, state2.coins);
         requestAnimationFrame(function(param) {
           return updateHelper(collidObjs.contents, particles.contents);
         });

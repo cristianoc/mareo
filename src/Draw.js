@@ -37,7 +37,7 @@ function clearCanvas(param) {
 }
 
 function scoreString(score) {
-  var b = "0000000";
+  var b = "       ";
   var blen = b.length;
   var s = String(score);
   var slen = s.length;
@@ -48,17 +48,17 @@ function scoreString(score) {
   }
 }
 
-function hud(score, coins) {
+function scoreAndCoins(score, coins) {
   var coin_string = String(coins);
   var context = Load.getContext(undefined);
   context.font = "10px 'Press Start 2P'";
-  context.fillText("Cx" + coin_string, 10, 18);
-  return context.fillText(scoreString(score), 260, 18);
+  context.fillText("Cx" + coin_string, 8, 18);
+  return context.fillText(scoreString(score), 264, 18);
 }
 
 function fps(fps_val) {
   var fps_str = String(fps_val | 0);
-  return Load.getContext(undefined).fillText(fps_str, 80, 18);
+  return Load.getContext(undefined).fillText(fps_str, 169, 18);
 }
 
 function blackScreen(texts) {
@@ -119,7 +119,7 @@ export {
   drawBgd ,
   clearCanvas ,
   scoreString ,
-  hud ,
+  scoreAndCoins ,
   fps ,
   blackScreen ,
   levelFinished ,

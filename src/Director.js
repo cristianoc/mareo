@@ -589,7 +589,7 @@ function updateLoop(player1, player2, level, objects) {
               return updateParticle(state, part);
             }));
       Draw.fps(fps);
-      Draw.hud(state.score, state.coins);
+      Draw.scoreAndCoins(state.score, state.coins);
       requestAnimationFrame(function (param) {
             return updateHelper(collidObjs.contents, particles.contents);
           });
